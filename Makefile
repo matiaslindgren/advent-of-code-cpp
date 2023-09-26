@@ -30,7 +30,7 @@ RUN_TARGETS := $(addprefix run,$(OUT_FILES))
 
 .PHONY: $(RUN_TARGETS)
 $(RUN_TARGETS): run% : txt/input/% $(OUT)/%
-	@cat $< | $(OUT)/$*
+	@$(OUT)/$* < $<
 
 TEST_TARGETS := $(addprefix test,$(OUT_FILES))
 
