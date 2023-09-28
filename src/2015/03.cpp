@@ -16,7 +16,7 @@ constexpr auto stride(std::size_t n) {
     return c;
   });
 }
-} // namespace my_ranges
+}  // namespace my_ranges
 
 enum struct Direction : char {
   north = '^',
@@ -29,12 +29,12 @@ std::istream &operator>>(std::istream &is, Direction &d) {
   std::underlying_type_t<Direction> ch;
   if (is >> ch) {
     switch (ch) {
-    case std::to_underlying(Direction::north):
-    case std::to_underlying(Direction::east):
-    case std::to_underlying(Direction::south):
-    case std::to_underlying(Direction::west):
-      d = {ch};
-      return is;
+      case std::to_underlying(Direction::north):
+      case std::to_underlying(Direction::east):
+      case std::to_underlying(Direction::south):
+      case std::to_underlying(Direction::west):
+        d = {ch};
+        return is;
     }
   }
   is.setstate(std::ios_base::failbit);
@@ -50,18 +50,18 @@ auto count_visited_houses(const auto &...instructions_list) {
     int y{0};
     for (const auto direction : instructions) {
       switch (direction) {
-      case Direction::north: {
-        --y;
-      } break;
-      case Direction::east: {
-        ++x;
-      } break;
-      case Direction::south: {
-        ++y;
-      } break;
-      case Direction::west: {
-        --x;
-      } break;
+        case Direction::north: {
+          --y;
+        } break;
+        case Direction::east: {
+          ++x;
+        } break;
+        case Direction::south: {
+          ++y;
+        } break;
+        case Direction::west: {
+          --x;
+        } break;
       }
       ++visit_counts[y + grid_size * x];
     }

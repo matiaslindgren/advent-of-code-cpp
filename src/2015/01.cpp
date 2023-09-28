@@ -11,7 +11,7 @@ constexpr auto to() {
     return c;
   });
 }
-} // namespace my_ranges
+}  // namespace my_ranges
 
 int main() {
   const auto parse_current_floor = [floor = 0](auto ch) mutable {

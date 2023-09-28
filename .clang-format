@@ -1,0 +1,8 @@
+BasedOnStyle: Google
+ColumnLimit: 80
+InsertTrailingCommas: Wrapped
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AlignArrayOfStructures: Right

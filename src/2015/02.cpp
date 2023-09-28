@@ -11,7 +11,8 @@ constexpr auto to() {
     return c;
   });
 }
-template <class T, class F> constexpr auto fold(T init, F f) {
+template <class T, class F>
+constexpr auto fold(T init, F f) {
   return std::__range_adaptor_closure_t([=]<std::ranges::input_range R>(R &&r) {
     auto result = init;
     for (const auto &value : r) {
@@ -20,7 +21,7 @@ template <class T, class F> constexpr auto fold(T init, F f) {
     return result;
   });
 }
-} // namespace my_ranges
+}  // namespace my_ranges
 
 struct Present {
   int l;
