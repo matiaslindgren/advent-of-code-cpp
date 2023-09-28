@@ -4,6 +4,7 @@ CXXFLAGS := \
 	-std=c++2b \
 	-stdlib=libc++ \
 	-O2 \
+	-g \
 	-Wall \
 	-Wpedantic \
 	-Werror \
