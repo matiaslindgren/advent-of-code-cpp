@@ -41,7 +41,6 @@ test: $(TEST_TARGETS)
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test% : $(OUT)/%
 	@printf '$*'; \
-	make --silent $<; \
 	result=$$(time make --silent run$*); \
 	expect=$$(cat txt/correct/$*); \
 	printf 'result: %s\n' "$$result"; \
