@@ -11,10 +11,13 @@ CXXFLAGS := \
 	-fmodules \
 	-fsanitize=address,undefined
 
+SRC       := src
 OUT       := out
-SRC_PATHS := $(wildcard src/*/*.cpp)
-OUT_FILES := $(basename $(SRC_PATHS:src/%=%))
+SRC_DIRS  := $(wildcard $(SRC)/*)
+SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
+OUT_FILES := $(basename $(SRC_PATHS:$(SRC)/%=%))
 OUT_PATHS := $(addprefix $(OUT)/,$(OUT_FILES))
+OUT_DIRS  := $(subst $(SRC)/,$(OUT)/,$(SRC_DIRS))
 
 .PHONY: all
 all: $(OUT_PATHS)
@@ -23,9 +26,14 @@ all: $(OUT_PATHS)
 clean:
 	rm -rv $(OUT)
 
-$(OUT_PATHS): $(OUT)/%: src/%.cpp
-	@mkdir -pv $(dir $@)
-	@$(CLANG) $(CXXFLAGS) -o $@ $^
+$(OUT):
+	mkdir $@
+
+$(OUT_DIRS): $(OUT)
+	mkdir $@
+
+$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $(OUT_DIRS)
+	$(CLANG) $(CXXFLAGS) -o $@ $^
 
 RUN_TARGETS := $(addprefix run,$(OUT_FILES))
 
