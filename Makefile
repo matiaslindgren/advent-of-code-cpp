@@ -35,21 +35,22 @@ $(OUT_DIRS): $(OUT)
 $(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $(OUT_DIRS)
 	$(CLANG) $(CXXFLAGS) -o $@ $^
 
-RUN_TARGETS := $(addprefix run,$(OUT_FILES))
+RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
 
 .PHONY: $(RUN_TARGETS)
-$(RUN_TARGETS): run% : txt/input/% $(OUT)/%
+$(RUN_TARGETS): run_% : txt/input/% $(OUT)/%
 	@$(OUT)/$* < $<
 
-TEST_TARGETS := $(addprefix test,$(OUT_FILES))
+SOLUTIONS    := $(wildcard txt/correct/*/*)
+TEST_TARGETS := $(subst txt/correct/,test_,$(SOLUTIONS))
 
 .PHONY: test
 test: $(TEST_TARGETS)
 
 .PHONY: $(TEST_TARGETS)
-$(TEST_TARGETS): test% : $(OUT)/%
+$(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
 	@printf '$*'; \
-	result=$$(time make --silent run$*); \
+	result=$$(time make --silent run_$*); \
 	expect=$$(cat txt/correct/$*); \
 	printf 'result: %s\n' "$$result"; \
 	printf 'expect: %s\n' "$$expect"; \
