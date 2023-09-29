@@ -86,20 +86,19 @@ int main() {
   std::string input;
   std::cin >> input;
 
-  std::size_t part1{0};
-  std::size_t part2{0};
-  for (std::size_t i{1}; !(part1 && part2); ++i) {
-    std::ostringstream buf(input, std::ios_base::ate);
-    buf << i;
-    const uint32_t res = partial_md5(buf.str());
-    if (!part1 && (res >> (32 - 20)) == 0) {
-      part1 = i;
+  auto find_next = [i = 0, &input](const auto num_zeros) mutable {
+    for (;; ++i) {
+      std::ostringstream buf(input, std::ios_base::ate);
+      buf << i;
+      const auto res = partial_md5(buf.str());
+      if ((res >> (32 - 4 * num_zeros)) == 0) {
+        return i;
+      }
     }
-    if (!part2 && (res >> (32 - 24)) == 0) {
-      part2 = i;
-    }
-  }
+  };
 
+  const auto part1{find_next(5)};
+  const auto part2{find_next(6)};
   std::cout << part1 << ' ' << part2 << '\n';
 
   return 0;
