@@ -40,11 +40,13 @@ test: $(TEST_TARGETS)
 
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test% : $(OUT)/%
-	@echo $*; \
-	result=$$(make --silent run$*); \
+	@printf '$*'; \
+	make --silent $<; \
+	result=$$(time make --silent run$*); \
 	expect=$$(cat txt/correct/$*); \
+	printf 'result: %s\n' "$$result"; \
+	printf 'expect: %s\n' "$$expect"; \
+	printf '\n'; \
 	if [[ "$$result" != "$$expect" ]]; then \
-		echo result: $$result; \
-		echo expect: $$expect; \
 		exit 1; \
-	fi
+	fi \
