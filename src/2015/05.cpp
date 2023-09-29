@@ -70,31 +70,31 @@ auto contains_sandwich_letter(const std::string& s) {
 }
 
 auto contains_letter_pair_twice(const std::string& s) {
-  const auto alphabet_size = ('z' - 'a') + 1;
-  std::vector<int> pair_counts(alphabet_size * alphabet_size);
-  {
-    const auto pair2index = [&alphabet_size](auto a, auto b) {
-      return (a - 'a') * alphabet_size + (b - 'a');
-    };
-    char ch0{0};
-    // TODO(llvm17)
-    // for (const auto [ch1, ch2] : std::views::pairwise(s)) {
-    auto it1 = s.begin();
-    auto it2 = std::next(it1, it1 != s.end());
-    for (; it2 != s.end(); ++it1, ++it2) {
-      const auto ch1 = *it1;
-      const auto ch2 = *it2;
-      if (ch0 == ch1 && ch1 == ch2) {
-        ch0 = 0;
-        continue;
-      }
-      if (++pair_counts[pair2index(ch1, ch2)] == 2) {
-        break;
-      }
+  constexpr auto alphabet_size = ('z' - 'a') + 1;
+  constexpr auto n{alphabet_size * alphabet_size};
+  std::array<int, n> pair_counts = {0};
+  const auto pair2index = [&alphabet_size](auto a, auto b) {
+    return (a - 'a') * alphabet_size + (b - 'a');
+  };
+  char ch0{0};
+  // TODO(llvm17)
+  // for (const auto [ch1, ch2] : std::views::pairwise(s)) {
+  auto it1 = s.begin();
+  auto it2 = std::next(it1, it1 != s.end());
+  for (; it2 != s.end(); ++it1, ++it2) {
+    const auto ch1 = *it1;
+    const auto ch2 = *it2;
+    if (ch0 == ch1 && ch1 == ch2) {
+      ch0 = 0;
+      continue;
+    } else {
       ch0 = ch1;
     }
+    if (++pair_counts[pair2index(ch1, ch2)] == 2) {
+      return true;
+    }
   }
-  return std::ranges::any_of(pair_counts, [](auto n) { return n >= 2; });
+  return false;
 }
 
 bool is_nice_part2(const std::string& s) {
