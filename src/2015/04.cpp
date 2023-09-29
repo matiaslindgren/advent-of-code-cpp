@@ -4,33 +4,28 @@ import std;
 // 1. https://datatracker.ietf.org/doc/html/rfc1321
 // 2. https://en.wikipedia.org/wiki/MD5
 
-auto pack_md5_input(const std::string& msg) {
-  std::array<uint8_t, 64> bytes = {0};
+auto pack_md5_input(std::array<uint8_t, 64>& msg, const auto msg_len) {
   std::array<uint32_t, 16> input = {0};
   {
-    std::size_t i{0};
-    for (; i < msg.length(); ++i) {
-      bytes[i] = msg[i];
+    std::size_t i{msg_len};
+    msg[i] = 0x80;
+    for (++i; i < 56; ++i) {
+      msg[i] = 0;
     }
-    bytes[i] = 0x80;
-    const auto bit_count = 8 * msg.length();
-    for (i = 56; i < bytes.size(); ++i) {
-      bytes[i] = (bit_count >> (8 * (i - 56))) & 0xff;
+    const auto bit_count = 8 * msg_len;
+    for (; i < msg.size(); ++i) {
+      msg[i] = (bit_count >> (8 * (i - 56))) & 0xff;
     }
   }
   for (std::size_t i{0}; i < input.size(); ++i) {
     for (std::size_t j{0}; j < 4; ++j) {
-      input[i] |= bytes[4 * i + j] << (8 * j);
+      input[i] |= msg[4 * i + j] << (8 * j);
     }
   }
   return input;
 }
 
-uint32_t partial_md5(const std::string& msg) {
-  if (msg.length() > 64 - 8 - 1) {
-    throw std::runtime_error("too long message");
-  }
-
+uint32_t partial_md5(std::array<uint8_t, 64>& msg, const auto msg_len) {
   static constexpr std::array<uint32_t, 16> md5_rotations =
       {7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
 
@@ -42,16 +37,16 @@ uint32_t partial_md5(const std::string& msg) {
     }
   }
 
-  uint32_t a0 = std::byteswap(0x01234567);
-  uint32_t b0 = std::byteswap(0x89abcdef);
-  uint32_t c0 = std::byteswap(0xfedcba98);
-  uint32_t d0 = std::byteswap(0x76543210);
+  uint32_t a0{std::byteswap(0x01234567)};
+  uint32_t b0{std::byteswap(0x89abcdef)};
+  uint32_t c0{std::byteswap(0xfedcba98)};
+  uint32_t d0{std::byteswap(0x76543210)};
 
-  const std::array<uint32_t, 16> input = pack_md5_input(msg);
-  auto a = a0;
-  auto b = b0;
-  auto c = c0;
-  auto d = d0;
+  const std::array<uint32_t, 16> input = pack_md5_input(msg, msg_len);
+  auto a{a0};
+  auto b{b0};
+  auto c{c0};
+  auto d{d0};
 
   for (uint32_t i{0}; i < 64; ++i) {
     uint32_t f{0};
@@ -80,21 +75,42 @@ uint32_t partial_md5(const std::string& msg) {
   return std::byteswap(a + a0);
 }
 
+std::size_t append_digits(std::array<uint8_t, 64>& msg,
+                          const auto msg_size,
+                          const auto number) {
+  std::array<uint8_t, 16> digits = {0};
+  std::size_t digit_count{0};
+  for (auto x{number}; x; x /= 10) {
+    digits[digit_count++] = '0' + (x % 10);
+  }
+  for (std::size_t d{0}; d < digit_count; ++d) {
+    msg[msg_size + d] = digits[digit_count - d - 1];
+  }
+  return msg_size + digit_count;
+}
+
 int main() {
   std::ios_base::sync_with_stdio(false);
 
   std::string input;
   std::cin >> input;
 
-  auto find_next = [i = 0, &input](const auto num_zeros) mutable {
-    for (;; ++i) {
-      std::ostringstream buf(input, std::ios_base::ate);
-      buf << i;
-      const auto res = partial_md5(buf.str());
+  const auto input_size{input.size()};
+
+  std::array<uint8_t, 64> msg = {0};
+  for (std::size_t i{0}; i < input_size; ++i) {
+    msg[i] = input[i];
+  }
+
+  auto find_next = [i = 1, &input_size, &msg](const auto num_zeros) mutable {
+    for (; i < 10'000'000; ++i) {
+      const auto msg_len = append_digits(msg, input_size, i);
+      const auto res = partial_md5(msg, msg_len);
       if ((res >> (32 - 4 * num_zeros)) == 0) {
-        return i;
+        break;
       }
     }
+    return i;
   };
 
   const auto part1{find_next(5)};
