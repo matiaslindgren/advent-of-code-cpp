@@ -1,0 +1,23 @@
+name: build and test
+
+on:
+  push:
+    branches: main
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: trust LLVM apt repositories
+      run: wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+    - name: add LLVM apt repositories
+      run: |
+        sudo add-apt-repository --yes 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main'
+        sudo add-apt-repository --yes 'deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main'
+    - name: install clang
+      run: sudo apt update --yes && sudo apt install --yes clang-17 libc++1-17 llvm-17
+    - uses: actions/checkout@v2
+    - run: make -j
+    - run: make test
