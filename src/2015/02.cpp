@@ -3,16 +3,31 @@ import std;
 // TODO(llvm18)
 namespace my_std {
 namespace ranges {
-template <class T, class F>
-constexpr auto fold(T init, F f) {
-  return std::__range_adaptor_closure_t([=]<std::ranges::input_range R>(R &&r) {
-    auto result = init;
-    for (const auto &value : r) {
-      result = f(result, value);
-    }
-    return result;
-  });
-}
+// Taken from "Possible implementations" at
+// https://en.cppreference.com/w/cpp/algorithm/ranges/fold_left
+// (accessed 2023-09-30)
+struct fold_left_fn {
+  template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
+  constexpr auto operator()(I first, S last, T init, F f) const {
+    using U =
+        std::decay_t<std::invoke_result_t<F &, T, std::iter_reference_t<I>>>;
+    if (first == last) return U(std::move(init));
+    U accum = std::invoke(f, std::move(init), *first);
+    for (++first; first != last; ++first)
+      accum = std::invoke(f, std::move(accum), *first);
+    return std::move(accum);
+  }
+
+  template <std::ranges::input_range R, class T, class F>
+  constexpr auto operator()(R &&r, T init, F f) const {
+    return (*this)(std::ranges::begin(r),
+                   std::ranges::end(r),
+                   std::move(init),
+                   std::ref(f));
+  }
+};
+
+inline constexpr fold_left_fn fold_left;
 }  // namespace ranges
 }  // namespace my_std
 
@@ -43,14 +58,18 @@ int main() {
   std::ios_base::sync_with_stdio(false);
   const auto presents = std::views::istream<Present>(std::cin) |
                         std::ranges::to<std::vector<Present>>();
-  const auto part1 = presents | std::views::transform([](const auto &p) {
-                       return p.surface_area() + p.slack_size();
-                     }) |
-                     my_std::ranges::fold(0L, std::plus<long>());
-  const auto part2 = presents | std::views::transform([](const auto &p) {
-                       return p.ribbon_size() + p.bow_size();
-                     }) |
-                     my_std::ranges::fold(0L, std::plus<long>());
+  const auto part1 = my_std::ranges::fold_left(
+      std::views::transform(
+          presents,
+          [](const auto &p) { return p.surface_area() + p.slack_size(); }),
+      0L,
+      std::plus<long>());
+  const auto part2 = my_std::ranges::fold_left(
+      std::views::transform(
+          presents,
+          [](const auto &p) { return p.ribbon_size() + p.bow_size(); }),
+      0L,
+      std::plus<long>());
   std::cout << part1 << ' ' << part2 << '\n';
   return 0;
 }
