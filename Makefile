@@ -24,7 +24,7 @@ all: $(OUT_PATHS)
 
 .PHONY: clean
 clean:
-	rm -rv $(OUT)
+	$(RM) -rv $(OUT)
 
 $(OUT):
 	mkdir $@
