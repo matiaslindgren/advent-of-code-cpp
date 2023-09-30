@@ -28,8 +28,6 @@ struct fold_left_fn {
 };
 
 inline constexpr fold_left_fn fold_left;
-constexpr auto accumulate =
-    std::bind(fold_left, std::placeholders::_1, 0, std::plus<int>());
 }  // namespace ranges
 }  // namespace my_std
 
@@ -153,11 +151,14 @@ int main() {
   const auto lines = std::views::istream<std::string>(std::cin) |
                      std::ranges::to<std::vector<std::string>>();
 
-  const auto part1 =
-      my_std::ranges::accumulate(lines | std::views::transform(count_bytes));
-  const auto part2 =
-      my_std::ranges::accumulate(lines | std::views::transform(escape) |
-                                 std::views::transform(count_bytes));
+  constexpr auto accumulate = std::bind(my_std::ranges::fold_left,
+                                        std::placeholders::_1,
+                                        0,
+                                        std::plus<int>());
+
+  const auto part1 = accumulate(lines | std::views::transform(count_bytes));
+  const auto part2 = accumulate(lines | std::views::transform(escape) |
+                                std::views::transform(count_bytes));
   std::print("{} {}\n", part1, part2);
 
   return 0;

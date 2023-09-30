@@ -60,18 +60,19 @@ int main() {
   const auto presents = std::views::istream<Present>(std::cin) |
                         std::ranges::to<std::vector<Present>>();
 
-  const auto part1 = my_std::ranges::fold_left(
-      std::views::transform(
-          presents,
-          [](const auto &p) { return p.surface_area() + p.slack_size(); }),
-      0L,
-      std::plus<long>());
-  const auto part2 = my_std::ranges::fold_left(
-      std::views::transform(
-          presents,
-          [](const auto &p) { return p.ribbon_size() + p.bow_size(); }),
-      0L,
-      std::plus<long>());
+  constexpr auto accumulate = std::bind(my_std::ranges::fold_left,
+                                        std::placeholders::_1,
+                                        0L,
+                                        std::plus<long>());
+
+  const auto part1 =
+      accumulate(std::views::transform(presents, [](const auto &p) {
+        return p.surface_area() + p.slack_size();
+      }));
+  const auto part2 =
+      accumulate(std::views::transform(presents, [](const auto &p) {
+        return p.ribbon_size() + p.bow_size();
+      }));
   std::print("{} {}\n", part1, part2);
 
   return 0;
