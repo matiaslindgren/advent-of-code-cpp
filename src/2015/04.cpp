@@ -1,6 +1,6 @@
 import std;
 
-// References (accessed 2023-09-28)
+// MD5 algorithm references (accessed 2023-09-28)
 // 1. https://datatracker.ietf.org/doc/html/rfc1321
 // 2. https://en.wikipedia.org/wiki/MD5
 

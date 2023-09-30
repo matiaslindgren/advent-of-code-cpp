@@ -1,6 +1,6 @@
 import std;
 
-// TODO(llvm17)
+// TODO(llvm18)
 namespace my_ranges {
 template <class Container>
   requires(!std::ranges::view<Container>)
@@ -79,7 +79,7 @@ int main() {
 
   const auto part1 = count_visited_houses(instructions);
 
-  // TODO(llvm17)
+  // TODO(llvm18)
 #if 0
   const auto santa_instructions = instructions | std::views::stride(2) |
                                 std::ranges::to<std::vector<Direction>>();

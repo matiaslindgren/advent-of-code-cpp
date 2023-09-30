@@ -1,7 +1,7 @@
 SHELL    := /bin/sh
-CLANG    := clang++-16
+CLANG    := clang++-17
 CXXFLAGS := \
-	-std=c++2b \
+	-std=c++23 \
 	-stdlib=libc++ \
 	-O2 \
 	-g \

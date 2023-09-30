@@ -1,18 +1,5 @@
 import std;
 
-// TODO(llvm17)
-namespace my_ranges {
-template <class Container>
-  requires(!std::ranges::view<Container>)
-constexpr auto to() {
-  return std::__range_adaptor_closure_t([]<std::ranges::input_range R>(R&& r) {
-    Container c;
-    std::ranges::copy(r, std::back_inserter(c));
-    return c;
-  });
-}
-}  // namespace my_ranges
-
 auto is_vowel(char ch) {
   switch (ch) {
     case 'a':
@@ -37,7 +24,7 @@ auto is_forbidden(char ch1, char ch2) {
 }
 
 auto contains_forbidden_pair(const std::string& s) {
-  // TODO(llvm17)
+  // TODO(llvm18)
   // return std::any_of(std::views::pairwise(s), is_forbidden); // unpack?
   auto it1 = s.begin();
   auto it2 = std::next(it1, it1 != s.end());
@@ -56,7 +43,7 @@ bool is_nice_part1(const std::string& s) {
 }
 
 auto contains_sandwich_letter(const std::string& s) {
-  // TODO(llvm17)
+  // TODO(llvm18)
   // for (const auto [ch0, ch1, ch2] : std::views::adjacent<3>(s)) {
   auto it1 = s.begin();
   auto it2 = std::next(it1, it1 != s.end());
@@ -77,7 +64,7 @@ auto contains_letter_pair_twice(const std::string& s) {
     return (a - 'a') * alphabet_size + (b - 'a');
   };
   char ch0{0};
-  // TODO(llvm17)
+  // TODO(llvm18)
   // for (const auto [ch1, ch2] : std::views::pairwise(s)) {
   auto it1 = s.begin();
   auto it2 = std::next(it1, it1 != s.end());
@@ -103,9 +90,7 @@ bool is_nice_part2(const std::string& s) {
 
 int main() {
   const auto lines = std::views::istream<std::string>(std::cin) |
-                     // TODO(llvm17)
-                     // std::ranges::to<std::vector<int>>();
-                     my_ranges::to<std::vector<std::string>>();
+                     std::ranges::to<std::vector<std::string>>();
   const auto part1{std::ranges::count_if(lines, is_nice_part1)};
   const auto part2{std::ranges::count_if(lines, is_nice_part2)};
   std::cout << part1 << ' ' << part2 << '\n';
