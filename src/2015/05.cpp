@@ -27,7 +27,7 @@ auto contains_forbidden_pair(const std::string& s) {
   // TODO(llvm18)
   // return std::any_of(std::views::pairwise(s), is_forbidden); // unpack?
   auto it1 = s.begin();
-  auto it2 = std::next(it1, it1 != s.end());
+  auto it2 = std::ranges::next(s.begin(), 1, s.end());
   for (; it2 != s.end(); ++it1, ++it2) {
     if (is_forbidden(*it1, *it2)) {
       return true;
@@ -46,8 +46,8 @@ auto contains_sandwich_letter(const std::string& s) {
   // TODO(llvm18)
   // for (const auto [ch0, ch1, ch2] : std::views::adjacent<3>(s)) {
   auto it1 = s.begin();
-  auto it2 = std::next(it1, it1 != s.end());
-  auto it3 = std::next(it2, it2 != s.end());
+  auto it2 = std::ranges::next(s.begin(), 1, s.end());
+  auto it3 = std::ranges::next(s.begin(), 2, s.end());
   for (; it3 != s.end(); ++it1, ++it2, ++it3) {
     if (*it1 == *it3) {
       return true;
@@ -67,7 +67,7 @@ auto contains_letter_pair_twice(const std::string& s) {
   // TODO(llvm18)
   // for (const auto [ch1, ch2] : std::views::pairwise(s)) {
   auto it1 = s.begin();
-  auto it2 = std::next(it1, it1 != s.end());
+  auto it2 = std::ranges::next(it1, 1, s.end());
   for (; it2 != s.end(); ++it1, ++it2) {
     const auto ch1 = *it1;
     const auto ch2 = *it2;
