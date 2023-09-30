@@ -7,13 +7,12 @@ import std;
 auto pack_md5_input(std::array<uint8_t, 64>& msg, const auto msg_len) {
   std::array<uint32_t, 16> input = {0};
   {
-    std::size_t i{msg_len};
-    msg[i] = 0x80;
-    for (++i; i < 56; ++i) {
+    msg[msg_len] = 0x80;
+    for (auto i{msg_len + 1}; i < 56; ++i) {
       msg[i] = 0;
     }
     const auto bit_count = 8 * msg_len;
-    for (; i < msg.size(); ++i) {
+    for (std::size_t i{56}; i < msg.size(); ++i) {
       msg[i] = (bit_count >> (8 * (i - 56))) & 0xff;
     }
   }

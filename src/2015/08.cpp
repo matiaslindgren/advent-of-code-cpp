@@ -41,33 +41,6 @@ enum class State {
   Invalid,
 };
 
-std::ostream& operator<<(std::ostream& os, const State& state) {
-  switch (state) {
-    case State::Init: {
-      os << "State::Init";
-    } break;
-    case State::Literal: {
-      os << "State::Literal";
-    } break;
-    case State::Escaping: {
-      os << "State::Escaping";
-    } break;
-    case State::Hexadecimal1: {
-      os << "State::Hexadecimal1";
-    } break;
-    case State::Hexadecimal2: {
-      os << "State::Hexadecimal2";
-    } break;
-    case State::End: {
-      os << "State::End";
-    } break;
-    case State::Invalid: {
-      os << "State::Invalid";
-    } break;
-  }
-  return os;
-}
-
 auto count_bytes(const std::string& s) {
   decltype(s.size()) char_count{};
   auto state{State::Init};
@@ -132,9 +105,7 @@ auto escape(const std::string& s) {
   out << '"';
   for (auto ch : s) {
     switch (ch) {
-      case '"': {
-        out << '\\';
-      } break;
+      case '"':
       case '\\': {
         out << '\\';
       } break;

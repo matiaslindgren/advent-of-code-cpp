@@ -10,7 +10,7 @@ struct fold_left_fn {
   template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
   constexpr auto operator()(I first, S last, T init, F f) const {
     using U =
-        std::decay_t<std::invoke_result_t<F &, T, std::iter_reference_t<I>>>;
+        std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
     if (first == last) return U(std::move(init));
     U accum = std::invoke(f, std::move(init), *first);
     for (++first; first != last; ++first)
@@ -19,7 +19,7 @@ struct fold_left_fn {
   }
 
   template <std::ranges::input_range R, class T, class F>
-  constexpr auto operator()(R &&r, T init, F f) const {
+  constexpr auto operator()(R&& r, T init, F f) const {
     return (*this)(std::ranges::begin(r),
                    std::ranges::end(r),
                    std::move(init),
@@ -41,7 +41,7 @@ struct Present {
   long ribbon_size() const { return l * w * h; }
 };
 
-std::istream &operator>>(std::istream &is, Present &p) {
+std::istream& operator>>(std::istream& is, Present& p) {
   char ch;
   int l, w, h;
   if (is >> l >> ch && ch == 'x' && is >> w >> ch && ch == 'x' && is >> h) {
@@ -66,11 +66,11 @@ int main() {
                                         std::plus<long>());
 
   const auto part1 =
-      accumulate(std::views::transform(presents, [](const auto &p) {
+      accumulate(std::views::transform(presents, [](const auto& p) {
         return p.surface_area() + p.slack_size();
       }));
   const auto part2 =
-      accumulate(std::views::transform(presents, [](const auto &p) {
+      accumulate(std::views::transform(presents, [](const auto& p) {
         return p.ribbon_size() + p.bow_size();
       }));
   std::print("{} {}\n", part1, part2);

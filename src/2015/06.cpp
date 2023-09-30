@@ -69,28 +69,14 @@ struct Region {
   }
 };
 
-std::ostream &operator<<(std::ostream &os, const Region &r) {
-  std::string cmd;
-  switch (r.command) {
-    case Region::turn_on:
-      cmd = "turn on";
-      break;
-    case Region::turn_off:
-      cmd = "turn off";
-      break;
-    case Region::toggle:
-      cmd = "toggle";
-      break;
-  }
-  return os << "Region { t: " << r.top << " l: " << r.left << " b: " << r.bottom
-            << " r: " << r.right << " cmd: " << cmd << " }";
-}
-
 std::istream &operator>>(std::istream &is, Region &r) {
-  if (!r.parse(is) && !is.eof()) {
-    throw std::runtime_error("failed parsing region");
+  if (r.parse(is)) {
+    return is;
   }
-  return is;
+  if (is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing region");
 }
 
 int main() {

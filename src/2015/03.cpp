@@ -5,10 +5,10 @@ namespace my_ranges {
 template <class Container>
   requires(!std::ranges::view<Container>)
 constexpr auto stride(std::size_t n) {
-  return std::__range_adaptor_closure_t([=]<std::ranges::input_range R>(R &&r) {
+  return std::__range_adaptor_closure_t([=]<std::ranges::input_range R>(R&& r) {
     Container c;
     std::size_t i{0};
-    for (const auto &x : r) {
+    for (const auto& x : r) {
       if (i++ % n == 0) {
         c.push_back(x);
       }
@@ -25,7 +25,7 @@ enum struct Direction : char {
   west = '<',
 };
 
-std::istream &operator>>(std::istream &is, Direction &d) {
+std::istream& operator>>(std::istream& is, Direction& d) {
   std::underlying_type_t<Direction> ch;
   if (is >> ch) {
     switch (ch) {
@@ -37,13 +37,15 @@ std::istream &operator>>(std::istream &is, Direction &d) {
         return is;
     }
   }
-  is.setstate(std::ios_base::failbit);
-  return is;
+  if (is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Direction");
 }
 
-auto count_visited_houses(const auto &...instructions_list) {
+auto count_visited_houses(const auto&... instructions_list) {
   std::unordered_map<long, int> visit_counts;
-  const auto deliver_presents = [&visit_counts](const auto &instructions) {
+  const auto deliver_presents = [&visit_counts](const auto& instructions) {
     const auto grid_size = instructions.size();
     ++visit_counts[0];
     int x{0};
@@ -68,7 +70,7 @@ auto count_visited_houses(const auto &...instructions_list) {
   };
   (deliver_presents(instructions_list), ...);
   return std::ranges::count_if(std::views::values(visit_counts),
-                               [](const auto &n) { return n > 0; });
+                               [](const auto& n) { return n > 0; });
 }
 
 int main() {

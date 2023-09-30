@@ -1,6 +1,6 @@
 import std;
 
-auto is_vowel(char ch) {
+bool is_vowel(char ch) {
   switch (ch) {
     case 'a':
     case 'e':
@@ -12,7 +12,7 @@ auto is_vowel(char ch) {
   return false;
 }
 
-auto is_forbidden(char ch1, char ch2) {
+bool is_forbidden(char ch1, char ch2) {
   switch (ch1) {
     case 'a':
     case 'c':
@@ -26,10 +26,9 @@ auto is_forbidden(char ch1, char ch2) {
 auto contains_forbidden_pair(const std::string& s) {
   // TODO(llvm18)
   // return std::any_of(std::views::pairwise(s), is_forbidden); // unpack?
-  auto it1 = s.begin();
-  auto it2 = std::ranges::next(s.begin(), 1, s.end());
-  for (; it2 != s.end(); ++it1, ++it2) {
-    if (is_forbidden(*it1, *it2)) {
+  for (auto it = std::ranges::next(s.begin(), 1, s.end()); it != s.end();
+       ++it) {
+    if (is_forbidden(*std::prev(it), *it)) {
       return true;
     }
   }
@@ -45,11 +44,9 @@ bool is_nice_part1(const std::string& s) {
 auto contains_sandwich_letter(const std::string& s) {
   // TODO(llvm18)
   // for (const auto [ch0, ch1, ch2] : std::views::adjacent<3>(s)) {
-  auto it1 = s.begin();
-  auto it2 = std::ranges::next(s.begin(), 1, s.end());
-  auto it3 = std::ranges::next(s.begin(), 2, s.end());
-  for (; it3 != s.end(); ++it1, ++it2, ++it3) {
-    if (*it1 == *it3) {
+  for (auto it = std::ranges::next(s.begin(), 2, s.end()); it != s.end();
+       ++it) {
+    if (*std::prev(it, 2) == *it) {
       return true;
     }
   }
@@ -66,11 +63,10 @@ auto contains_letter_pair_twice(const std::string& s) {
   char ch0{0};
   // TODO(llvm18)
   // for (const auto [ch1, ch2] : std::views::pairwise(s)) {
-  auto it1 = s.begin();
-  auto it2 = std::ranges::next(it1, 1, s.end());
-  for (; it2 != s.end(); ++it1, ++it2) {
-    const auto ch1 = *it1;
-    const auto ch2 = *it2;
+  for (auto it = std::ranges::next(s.begin(), 1, s.end()); it != s.end();
+       ++it) {
+    const auto ch1 = *std::prev(it);
+    const auto ch2 = *it;
     if (ch0 == ch1 && ch1 == ch2) {
       ch0 = 0;
       continue;
