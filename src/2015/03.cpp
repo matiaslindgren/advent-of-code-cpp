@@ -76,9 +76,6 @@ int main() {
 
   const auto instructions = std::views::istream<Direction>(std::cin) |
                             my_ranges::stride<std::vector<Direction>>(1);
-
-  const auto part1 = count_visited_houses(instructions);
-
   // TODO(llvm18)
 #if 0
   const auto santa_instructions = instructions | std::views::stride(2) |
@@ -87,14 +84,15 @@ int main() {
                                 std::views::stride(2) |
                                 std::ranges::to<std::vector<Direction>>();
 #endif
-
   const auto santa_instructions =
       instructions | my_ranges::stride<std::vector<Direction>>(2);
   const auto robot_instructions = instructions | std::views::drop(1) |
                                   my_ranges::stride<std::vector<Direction>>(2);
-  const auto part2 =
-      count_visited_houses(santa_instructions, robot_instructions);
 
-  std::cout << part1 << ' ' << part2 << '\n';
+  const auto part1{count_visited_houses(instructions)};
+  const auto part2{
+      count_visited_houses(santa_instructions, robot_instructions)};
+  std::print("{} {}\n", part1, part2);
+
   return 0;
 }

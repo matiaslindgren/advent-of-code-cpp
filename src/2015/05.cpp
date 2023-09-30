@@ -91,8 +91,10 @@ bool is_nice_part2(const std::string& s) {
 int main() {
   const auto lines = std::views::istream<std::string>(std::cin) |
                      std::ranges::to<std::vector<std::string>>();
+
   const auto part1{std::ranges::count_if(lines, is_nice_part1)};
   const auto part2{std::ranges::count_if(lines, is_nice_part2)};
-  std::cout << part1 << ' ' << part2 << '\n';
+  std::print("{} {}\n", part1, part2);
+
   return 0;
 }

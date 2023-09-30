@@ -115,7 +115,7 @@ int main() {
 
   const auto part1{find_next(5)};
   const auto part2{find_next(6)};
-  std::cout << part1 << ' ' << part2 << '\n';
+  std::print("{} {}\n", part1, part2);
 
   return 0;
 }

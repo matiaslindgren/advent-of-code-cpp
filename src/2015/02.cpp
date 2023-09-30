@@ -56,8 +56,10 @@ std::istream &operator>>(std::istream &is, Present &p) {
 
 int main() {
   std::ios_base::sync_with_stdio(false);
+
   const auto presents = std::views::istream<Present>(std::cin) |
                         std::ranges::to<std::vector<Present>>();
+
   const auto part1 = my_std::ranges::fold_left(
       std::views::transform(
           presents,
@@ -70,6 +72,7 @@ int main() {
           [](const auto &p) { return p.ribbon_size() + p.bow_size(); }),
       0L,
       std::plus<long>());
-  std::cout << part1 << ' ' << part2 << '\n';
+  std::print("{} {}\n", part1, part2);
+
   return 0;
 }

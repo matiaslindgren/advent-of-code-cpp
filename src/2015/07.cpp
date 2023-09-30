@@ -108,22 +108,27 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
 
 int main() {
   std::ios_base::sync_with_stdio(false);
+
   const auto circuit =
       std::views::istream<Statement>(std::cin) |
       std::views::transform(
           [](const auto& stmt) { return std::make_tuple(stmt.dst, stmt); }) |
       std::ranges::to<std::unordered_map<std::string, Statement>>();
+
   uint16_t part1{};
-  uint16_t part2{};
   {
     auto circuit_part1 = circuit;
     part1 = compute_signal("a", circuit_part1);
   }
+
+  uint16_t part2{};
   {
     auto circuit_part2 = circuit;
     circuit_part2["b"] = {std::format("{}", part1), "", "b", Statement::Assign};
     part2 = compute_signal("a", circuit_part2);
   }
+
   std::print("{} {}\n", part1, part2);
+
   return 0;
 }
