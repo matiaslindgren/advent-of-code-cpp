@@ -19,6 +19,6 @@ jobs:
         sudo add-apt-repository --yes 'deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main'
     - name: install clang
       run: sudo apt update --yes && sudo apt install --yes clang-17 libc++-17-dev libc++abi-17-dev
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - run: make -j
     - run: make test
