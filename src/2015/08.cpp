@@ -77,7 +77,6 @@ auto count_bytes(const std::string& s) {
             state = State::Literal;
           } break;
           case 'x': {
-            ++char_count;
             state = State::Hexadecimal1;
           } break;
         }
@@ -86,6 +85,7 @@ auto count_bytes(const std::string& s) {
         state = State::Hexadecimal2;
       } break;
       case State::Hexadecimal2: {
+        ++char_count;
         state = State::Literal;
       } break;
       case State::End:
