@@ -64,7 +64,9 @@ bool is_literal(const std::string& s) {
   return std::isdigit(static_cast<unsigned char>(s.front()));
 }
 
-uint16_t parse_literal(const std::string& s) { return std::stoul(s); }
+uint16_t parse_literal(const std::string& s) {
+  return std::stoul(s);
+}
 
 uint16_t compute_signal(const std::string& wire, auto& circuit) {
   if (is_literal(wire)) {

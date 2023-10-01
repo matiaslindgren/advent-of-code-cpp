@@ -35,10 +35,18 @@ struct Present {
   int l;
   int w;
   int h;
-  long surface_area() const { return 2 * (l * w + w * h + h * l); }
-  long slack_size() const { return std::min(std::min(l * w, w * h), h * l); }
-  long bow_size() const { return 2 * std::min(std::min(l + w, w + h), h + l); }
-  long ribbon_size() const { return l * w * h; }
+  long surface_area() const {
+    return 2 * (l * w + w * h + h * l);
+  }
+  long slack_size() const {
+    return std::min(std::min(l * w, w * h), h * l);
+  }
+  long bow_size() const {
+    return 2 * std::min(std::min(l + w, w + h), h + l);
+  }
+  long ribbon_size() const {
+    return l * w * h;
+  }
 };
 
 std::istream& operator>>(std::istream& is, Present& p) {

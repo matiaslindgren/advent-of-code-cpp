@@ -6,3 +6,5 @@ BinPackParameters: false
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AlignArrayOfStructures: Right
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
