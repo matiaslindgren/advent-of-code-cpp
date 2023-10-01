@@ -50,12 +50,13 @@ test: $(TEST_TARGETS)
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
 	@printf '$*\n'; \
-	result=$$(/usr/bin/env time --verbose --output=time.out make --silent run_$*); \
+	time_log="$${TMPDIR:=/tmp}/time.tmp"; \
+	result=$$(/usr/bin/env time --verbose --output="$$time_log" make --silent run_$*); \
 	expect=$$(cat txt/correct/$*); \
 	printf 'result: %s\n' "$$result"; \
 	printf 'expect: %s\n' "$$expect"; \
 	printf 'time:\n'; \
-	cat time.out; \
+	cat "$$time_log"; \
 	printf '\n'; \
 	if [ "$$result" != "$$expect" ]; then \
 		exit 1; \
