@@ -49,12 +49,12 @@ test: $(TEST_TARGETS)
 
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
-	@printf '$*'; \
-	result=$$(time make --silent run_$*); \
+	@printf '$*\n'; \
+	result=$$(/usr/bin/env time --verbose make --silent run_$*); \
 	expect=$$(cat txt/correct/$*); \
 	printf 'result: %s\n' "$$result"; \
 	printf 'expect: %s\n' "$$expect"; \
 	printf '\n'; \
-	if [[ "$$result" != "$$expect" ]]; then \
+	if [ "$$result" != "$$expect" ]; then \
 		exit 1; \
 	fi \
