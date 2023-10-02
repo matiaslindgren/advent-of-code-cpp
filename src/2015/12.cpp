@@ -29,7 +29,7 @@ std::istream& operator>>(std::istream& is, Object& o) {
     invalid,
   };
   auto state{State::init};
-  for (char ch; is && state != State::end;) {
+  for (char ch; is && state != State::end && state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -75,9 +75,6 @@ std::istream& operator>>(std::istream& is, Object& o) {
       default:
         break;
     }
-    if (state == State::invalid) {
-      break;
-    }
   }
   if (state == State::end) {
     return is;
@@ -93,7 +90,7 @@ std::istream& operator>>(std::istream& is, Array& array) {
     invalid,
   };
   auto state{State::init};
-  for (char ch; is && state != State::end;) {
+  for (char ch; is && state != State::end && state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -128,9 +125,6 @@ std::istream& operator>>(std::istream& is, Array& array) {
       default:
         break;
     }
-    if (state == State::invalid) {
-      break;
-    }
   }
   if (state == State::end) {
     return is;
@@ -158,7 +152,7 @@ std::istream& operator>>(std::istream& is, Value& value) {
     invalid,
   };
   auto state{State::init};
-  for (char ch; is && state != State::end;) {
+  for (char ch; is && state != State::end && state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -207,9 +201,6 @@ std::istream& operator>>(std::istream& is, Value& value) {
       case State::invalid:
       default:
         break;
-    }
-    if (state == State::invalid) {
-      break;
     }
   }
   if (state == State::end) {
