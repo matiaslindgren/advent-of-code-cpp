@@ -65,8 +65,8 @@ auto to_string(const auto& password) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  auto password = views::istream<char>(std::cin) |
-                  views::transform(char2digit) | ranges::to<std::vector<int>>();
+  auto password = views::istream<char>(std::cin) | views::transform(char2digit)
+                  | ranges::to<std::vector<int>>();
 
   std::string results[2] = {};
   for (auto& result : results) {

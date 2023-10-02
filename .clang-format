@@ -8,3 +8,5 @@ AllowAllParametersOfDeclarationOnNextLine: false
 AlignArrayOfStructures: Right
 AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: None
+BreakBeforeBinaryOperators: All
+AlignOperands: Align
