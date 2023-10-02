@@ -1,31 +1,35 @@
 import std;
 
-std::string look_and_say(const std::string& init, auto iterations) {
-  std::string s{init};
-  for (int i{}; i < iterations; ++i) {
-    std::ostringstream res;
-    for (auto lhs{s.begin()}; lhs != s.end();) {
-      auto rhs{lhs};
-      int count{};
-      for (; rhs != s.end() && *lhs == *rhs; ++rhs) {
-        ++count;
-      }
-      res << count << *lhs;
-      lhs = rhs;
-    }
-    s = res.str();
+auto look_and_say(const auto& digits) {
+  std::vector<int> result;
+  for (auto lhs{digits.begin()}; lhs != digits.end();) {
+    const auto is_mismatch = [&](auto x) { return x != *lhs; };
+    const auto rhs = std::ranges::find_if(lhs, digits.end(), is_mismatch);
+    result.push_back(std::ranges::distance(lhs, rhs));
+    result.push_back(*lhs);
+    lhs = rhs;
   }
-  return s;
+  return result;
 }
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  std::string line;
-  std::cin >> line;
+  auto digits = std::views::istream<char>(std::cin) |
+                std::views::transform([](char ch) { return ch - '0'; }) |
+                std::ranges::to<std::vector<int>>();
 
-  const auto part1{look_and_say(line, 40).length()};
-  const auto part2{look_and_say(line, 50).length()};
+  int iteration{};
+  for (; iteration < 40; ++iteration) {
+    digits = look_and_say(digits);
+  }
+  const auto part1{digits.size()};
+
+  for (; iteration < 50; ++iteration) {
+    digits = look_and_say(digits);
+  }
+  const auto part2{digits.size()};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;
