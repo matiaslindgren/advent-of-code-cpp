@@ -1,5 +1,11 @@
 import std;
 
+constexpr static auto alphabet_size = ('z' - 'a') + 1;
+
+constexpr auto pair2index(char ch0, char ch1) {
+  return (ch0 - 'a') * alphabet_size + (ch1 - 'a');
+}
+
 bool is_vowel(char ch) {
   switch (ch) {
     case 'a':
@@ -12,61 +18,44 @@ bool is_vowel(char ch) {
   return false;
 }
 
-bool is_forbidden(char ch1, char ch2) {
-  switch (ch1) {
+bool is_forbidden_pair(char ch0, char ch1) {
+  switch (ch0) {
     case 'a':
     case 'c':
     case 'p':
     case 'x':
-      return ch1 + 1 == ch2;
+      return ch0 + 1 == ch1;
   }
   return false;
 }
 
-auto contains_forbidden_pair(const std::string& s) {
-  // TODO(llvm18)
-  // return std::any_of(std::views::pairwise(s), is_forbidden); // unpack?
-  for (auto it = std::ranges::next(s.begin(), 1, s.end()); it != s.end();
-       ++it) {
-    if (is_forbidden(*std::prev(it), *it)) {
-      return true;
-    }
-  }
-  return false;
-}
+namespace ranges = std::ranges;
+namespace views = std::views;
 
 bool is_nice_part1(const std::string& s) {
-  const auto has_3_vowels = std::ranges::count_if(s, is_vowel) >= 3;
-  const auto has_letter_pair = std::ranges::adjacent_find(s) != s.end();
-  return has_3_vowels && has_letter_pair && !contains_forbidden_pair(s);
+  const auto has_3_vowels = ranges::count_if(s, is_vowel) >= 3;
+  const auto has_letter_pair = ranges::adjacent_find(s) != s.end();
+  const auto has_forbidden_pair
+      = ranges::any_of(views::zip(s, views::drop(s, 1)), [](const auto& t) {
+          const auto& [ch0, ch1] = t;
+          return is_forbidden_pair(ch0, ch1);
+        });
+  return has_3_vowels && has_letter_pair && !has_forbidden_pair;
 }
 
 auto contains_sandwich_letter(const std::string& s) {
-  // TODO(llvm18)
-  // for (const auto [ch0, ch1, ch2] : std::views::adjacent<3>(s)) {
-  for (auto it = std::ranges::next(s.begin(), 2, s.end()); it != s.end();
-       ++it) {
-    if (*std::prev(it, 2) == *it) {
-      return true;
-    }
-  }
-  return false;
+  return ranges::any_of(
+      views::zip(s, views::drop(s, 1), views::drop(s, 2)),
+      [](const auto& t) { return std::get<0>(t) == std::get<2>(t); });
 }
 
 auto contains_letter_pair_twice(const std::string& s) {
-  constexpr auto alphabet_size = ('z' - 'a') + 1;
-  constexpr auto n{alphabet_size * alphabet_size};
+  constexpr static auto n{alphabet_size * alphabet_size};
   std::array<int, n> pair_counts = {0};
-  const auto pair2index = [&alphabet_size](auto a, auto b) {
-    return (a - 'a') * alphabet_size + (b - 'a');
-  };
   char ch0{0};
   // TODO(llvm18)
-  // for (const auto [ch1, ch2] : std::views::pairwise(s)) {
-  for (auto it = std::ranges::next(s.begin(), 1, s.end()); it != s.end();
-       ++it) {
-    const auto ch1 = *std::prev(it);
-    const auto ch2 = *it;
+  // for (const auto [ch1, ch2] : views::pairwise(s)) {
+  for (const auto [ch1, ch2] : views::zip(s, views::drop(s, 1))) {
     if (ch0 == ch1 && ch1 == ch2) {
       ch0 = 0;
       continue;
@@ -85,11 +74,11 @@ bool is_nice_part2(const std::string& s) {
 }
 
 int main() {
-  const auto lines = std::views::istream<std::string>(std::cin) |
-                     std::ranges::to<std::vector<std::string>>();
+  const auto lines = views::istream<std::string>(std::cin)
+                     | ranges::to<std::vector<std::string>>();
 
-  const auto part1{std::ranges::count_if(lines, is_nice_part1)};
-  const auto part2{std::ranges::count_if(lines, is_nice_part2)};
+  const auto part1{ranges::count_if(lines, is_nice_part1)};
+  const auto part2{ranges::count_if(lines, is_nice_part2)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
