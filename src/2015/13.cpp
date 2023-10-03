@@ -40,33 +40,24 @@ struct Pair {
   int happiness;
 };
 
-std::ostream& operator<<(std::ostream& os, const Pair& pair) {
-  return os << "pair { " << pair.src << " & " << pair.dst << " : "
-            << pair.happiness << " }";
-}
-
-std::istream& operator>>(std::istream& is, Pair& pair) {
-  std::string tmp;
-  std::string src;
-  std::string dst;
-  int happiness;
-  if (is >> src && is >> tmp && tmp == "would" && is >> tmp
-      && (tmp == "gain" || tmp == "lose") && is >> happiness) {
-    if (tmp == "lose") {
-      happiness = -happiness;
-    }
+std::istream& operator>>(std::istream& is, Pair& p) {
+  const auto skip = [&is](std::string_view s) {
     using std::operator""sv;
-    if (ranges::all_of(
-            views::split("happiness units by sitting next to"sv, " "sv),
-            [&](auto&& w) {
-              return is >> tmp && tmp == std::string_view{w};
-            })) {
-      if (is >> dst) {
-        dst.pop_back();
-        pair = {src, dst, happiness};
-        return is;
-      }
+    return ranges::all_of(views::split(s, " "sv), [&is](auto&& w) {
+      std::string tmp;
+      return is >> tmp && tmp == std::string_view{w};
+    });
+  };
+  std::string sign;
+  if (is >> p.src && skip("would") && is >> sign
+      && (sign == "gain" || sign == "lose") && is >> p.happiness
+      && skip("happiness units by sitting next to") && is >> p.dst
+      && !p.dst.empty() && p.dst.back() == '.') {
+    if (sign == "lose") {
+      p.happiness = -p.happiness;
     }
+    p.dst.pop_back();
+    return is;
   }
   if (is.eof()) {
     return is;
