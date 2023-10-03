@@ -102,17 +102,7 @@ auto count_bytes(const std::string& s) {
 
 auto escape(const std::string& s) {
   std::ostringstream out;
-  out << '"';
-  for (auto ch : s) {
-    switch (ch) {
-      case '"':
-      case '\\': {
-        out << '\\';
-      } break;
-    }
-    out << ch;
-  }
-  out << '"';
+  out << std::quoted(s);
   return out.str();
 }
 
@@ -128,8 +118,8 @@ int main() {
                                         std::plus<int>());
 
   const auto part1 = accumulate(lines | std::views::transform(count_bytes));
-  const auto part2 = accumulate(lines | std::views::transform(escape) |
-                                std::views::transform(count_bytes));
+  const auto part2 = accumulate(lines | std::views::transform(escape)
+                                | std::views::transform(count_bytes));
   std::print("{} {}\n", part1, part2);
 
   return 0;
