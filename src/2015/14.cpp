@@ -49,8 +49,7 @@ int main() {
 
   for (int t{1}; t <= 2503; ++t) {
     for (auto&& p : views::zip(herd, race_state)) {
-      const auto& r{std::get<0>(p)};
-      auto& s{std::get<1>(p)};
+      auto&& [r, s] = p;
       if (s.resting) {
         s.rest_time += 1;
         if (s.rest_time >= r.rest_need) {

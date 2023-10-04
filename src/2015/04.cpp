@@ -1,5 +1,8 @@
 import std;
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 // MD5 algorithm references (accessed 2023-09-28)
 // 1. https://datatracker.ietf.org/doc/html/rfc1321
 // 2. https://en.wikipedia.org/wiki/MD5
@@ -25,8 +28,8 @@ auto pack_md5_input(std::array<uint8_t, 64>& msg, const auto msg_len) {
 }
 
 uint32_t partial_md5(std::array<uint8_t, 64>& msg, const auto msg_len) {
-  static constexpr std::array<uint32_t, 16> md5_rotations =
-      {7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
+  static constexpr std::array<uint32_t, 16> md5_rotations
+      = {7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
 
   static std::array<uint32_t, 64> md5_sine_table = {0};
   if (md5_sine_table.front() == 0) {
@@ -82,26 +85,25 @@ std::size_t append_digits(std::array<uint8_t, 64>& msg,
   for (auto x{number}; x; x /= 10) {
     digits[digit_count++] = '0' + (x % 10);
   }
-  for (std::size_t d{0}; d < digit_count; ++d) {
-    msg[msg_size + d] = digits[digit_count - d - 1];
-  }
+  ranges::move(views::reverse(views::take(digits, digit_count)),
+               ranges::next(msg.begin(), msg_size));
   return msg_size + digit_count;
 }
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  std::string input;
-  std::cin >> input;
-
-  const auto input_size{input.size()};
-
   std::array<uint8_t, 64> msg = {0};
-  for (std::size_t i{0}; i < input_size; ++i) {
-    msg[i] = input[i];
+  std::size_t input_size{};
+  {
+    std::string input;
+    std::cin >> input;
+    input_size = input.size();
+    ranges::move(input, msg.begin());
   }
 
-  auto find_next = [i = 1, &input_size, &msg](const auto num_zeros) mutable {
+  const auto find_next{[&](const auto begin, const auto num_zeros) {
+    auto i{begin};
     for (; i < 10'000'000; ++i) {
       const auto msg_len = append_digits(msg, input_size, i);
       const auto res = partial_md5(msg, msg_len);
@@ -110,10 +112,10 @@ int main() {
       }
     }
     return i;
-  };
+  }};
 
-  const auto part1{find_next(5)};
-  const auto part2{find_next(6)};
+  const auto part1{find_next(0uz, 5)};
+  const auto part2{find_next(part1, 6)};
   std::print("{} {}\n", part1, part2);
 
   return 0;

@@ -9,8 +9,8 @@ namespace ranges {
 struct fold_left_fn {
   template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
   constexpr auto operator()(I first, S last, T init, F f) const {
-    using U =
-        std::decay_t<std::invoke_result_t<F &, T, std::iter_reference_t<I>>>;
+    using U
+        = std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
     if (first == last) return U(std::move(init));
     U accum = std::invoke(f, std::move(init), *first);
     for (++first; first != last; ++first)
@@ -19,7 +19,7 @@ struct fold_left_fn {
   }
 
   template <std::ranges::input_range R, class T, class F>
-  constexpr auto operator()(R &&r, T init, F f) const {
+  constexpr auto operator()(R&& r, T init, F f) const {
     return (*this)(std::ranges::begin(r),
                    std::ranges::end(r),
                    std::move(init),
@@ -31,6 +31,9 @@ inline constexpr fold_left_fn fold_left;
 }  // namespace ranges
 }  // namespace my_std
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 struct Region {
   int top;
   int left;
@@ -41,51 +44,39 @@ struct Region {
     turn_off,
     toggle,
   } command;
-
-  bool parse(std::istream &is) {
-    std::string str;
-    if (!(is >> str && (str == "turn" || str == "toggle"))) {
-      return false;
-    }
-    if (str == "turn") {
-      if (!(is >> str && (str == "on" || str == "off"))) {
-        return false;
-      }
-      command = (str == "on") ? turn_on : turn_off;
-    } else {
-      command = toggle;
-    }
-    char ch;
-    if (!(is >> top && is >> ch && ch == ',' && is >> left)) {
-      return false;
-    }
-    if (!(is >> str && str == "through")) {
-      return false;
-    }
-    if (!(is >> bottom && is >> ch && ch == ',' && is >> right)) {
-      return false;
-    }
-    return true;
-  }
 };
 
-std::istream &operator>>(std::istream &is, Region &r) {
-  if (r.parse(is)) {
+std::istream& operator>>(std::istream& is, Region& r) {
+  std::string turn;
+  std::string tmp;
+  char ch;
+  if (((is >> turn && turn == "toggle")
+       || (is >> turn && (turn == "on" || turn == "off")))
+      && is >> r.top >> ch && ch == ',' && is >> r.left >> tmp
+      && tmp == "through" && is >> r.bottom >> ch && ch == ','
+      && is >> r.right) {
+    if (turn == "toggle") {
+      r.command = Region::toggle;
+    } else if (turn == "on") {
+      r.command = Region::turn_on;
+    } else {
+      r.command = Region::turn_off;
+    }
     return is;
   }
   if (is.eof()) {
     return is;
   }
-  throw std::runtime_error("failed parsing region");
+  throw std::runtime_error("failed parsing Region");
 }
 
 int main() {
-  const auto regions = std::views::istream<Region>(std::cin) |
-                       std::ranges::to<std::vector<Region>>();
+  const auto regions
+      = views::istream<Region>(std::cin) | ranges::to<std::vector<Region>>();
 
   std::vector<bool> part1_lights(1'000'000, false);
   std::vector<long long> part2_lights(1'000'000, 0);
-  for (const auto &r : regions) {
+  for (const auto& r : regions) {
     for (auto y{std::min(r.top, r.bottom)}; y <= std::max(r.top, r.bottom);
          ++y) {
       for (auto x{std::min(r.left, r.right)}; x <= std::max(r.left, r.right);
@@ -109,7 +100,7 @@ int main() {
     }
   }
 
-  const auto part1{std::ranges::count_if(part1_lights, std::identity())};
+  const auto part1{ranges::count_if(part1_lights, std::identity())};
   const auto part2{
       my_std::ranges::fold_left(part2_lights, 0LL, std::plus<long long>())};
   std::print("{} {}\n", part1, part2);

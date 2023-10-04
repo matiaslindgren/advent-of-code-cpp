@@ -9,8 +9,8 @@ namespace ranges {
 struct fold_left_fn {
   template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
   constexpr auto operator()(I first, S last, T init, F f) const {
-    using U =
-        std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
+    using U
+        = std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
     if (first == last) return U(std::move(init));
     U accum = std::invoke(f, std::move(init), *first);
     for (++first; first != last; ++first)
@@ -30,6 +30,9 @@ struct fold_left_fn {
 inline constexpr fold_left_fn fold_left;
 }  // namespace ranges
 }  // namespace my_std
+
+namespace ranges = std::ranges;
+namespace views = std::views;
 
 struct Present {
   int l;
@@ -51,9 +54,8 @@ struct Present {
 
 std::istream& operator>>(std::istream& is, Present& p) {
   char ch;
-  int l, w, h;
-  if (is >> l >> ch && ch == 'x' && is >> w >> ch && ch == 'x' && is >> h) {
-    p = {l, w, h};
+  if (is >> p.l >> ch && ch == 'x' && is >> p.w >> ch && ch == 'x'
+      && is >> p.h) {
     return is;
   }
   if (is.eof()) {
@@ -65,22 +67,20 @@ std::istream& operator>>(std::istream& is, Present& p) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto presents = std::views::istream<Present>(std::cin) |
-                        std::ranges::to<std::vector<Present>>();
+  const auto presents
+      = views::istream<Present>(std::cin) | ranges::to<std::vector<Present>>();
 
   constexpr auto accumulate = std::bind(my_std::ranges::fold_left,
                                         std::placeholders::_1,
                                         0L,
                                         std::plus<long>());
 
-  const auto part1 =
-      accumulate(std::views::transform(presents, [](const auto& p) {
-        return p.surface_area() + p.slack_size();
-      }));
-  const auto part2 =
-      accumulate(std::views::transform(presents, [](const auto& p) {
-        return p.ribbon_size() + p.bow_size();
-      }));
+  const auto part1 = accumulate(views::transform(presents, [](const auto& p) {
+    return p.surface_area() + p.slack_size();
+  }));
+  const auto part2 = accumulate(views::transform(presents, [](const auto& p) {
+    return p.ribbon_size() + p.bow_size();
+  }));
   std::print("{} {}\n", part1, part2);
 
   return 0;

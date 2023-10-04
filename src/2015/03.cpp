@@ -43,6 +43,9 @@ std::istream& operator>>(std::istream& is, Direction& d) {
   throw std::runtime_error("failed parsing Direction");
 }
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 auto count_visited_houses(const auto&... instructions_list) {
   std::unordered_map<long, int> visit_counts;
   const auto deliver_presents = [&visit_counts](const auto& instructions) {
@@ -69,27 +72,28 @@ auto count_visited_houses(const auto&... instructions_list) {
     }
   };
   (deliver_presents(instructions_list), ...);
-  return std::ranges::count_if(std::views::values(visit_counts),
-                               [](const auto& n) { return n > 0; });
+  return ranges::count_if(views::values(visit_counts),
+                          [](auto n) { return n > 0; });
 }
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto instructions = std::views::istream<Direction>(std::cin) |
-                            my_ranges::stride<std::vector<Direction>>(1);
+  const auto instructions = views::istream<Direction>(std::cin)
+                            | my_ranges::stride<std::vector<Direction>>(1);
   // TODO(llvm18)
 #if 0
-  const auto santa_instructions = instructions | std::views::stride(2) |
-                                std::ranges::to<std::vector<Direction>>();
-  const auto robot_instructions = instructions | std::views::drop(1) |
-                                std::views::stride(2) |
-                                std::ranges::to<std::vector<Direction>>();
+  const auto santa_instructions = instructions | views::stride(2) |
+                                ranges::to<std::vector<Direction>>();
+  const auto robot_instructions = instructions | views::drop(1) |
+                                views::stride(2) |
+                                ranges::to<std::vector<Direction>>();
 #endif
-  const auto santa_instructions =
-      instructions | my_ranges::stride<std::vector<Direction>>(2);
-  const auto robot_instructions = instructions | std::views::drop(1) |
-                                  my_ranges::stride<std::vector<Direction>>(2);
+  const auto santa_instructions
+      = instructions | my_ranges::stride<std::vector<Direction>>(2);
+  const auto robot_instructions
+      = instructions | views::drop(1)
+        | my_ranges::stride<std::vector<Direction>>(2);
 
   const auto part1{count_visited_houses(instructions)};
   const auto part2{

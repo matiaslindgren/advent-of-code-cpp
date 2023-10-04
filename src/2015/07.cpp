@@ -1,5 +1,8 @@
 import std;
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 struct Statement {
   std::string lhs0;
   std::string lhs1;
@@ -82,22 +85,20 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
       result = ~compute_signal(stmt.lhs0, circuit);
     } break;
     case Statement::And: {
-      result = compute_signal(stmt.lhs0, circuit) &
-               compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit)
+               & compute_signal(stmt.lhs1, circuit);
     } break;
     case Statement::Or: {
-      result = compute_signal(stmt.lhs0, circuit) |
-               compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit)
+               | compute_signal(stmt.lhs1, circuit);
     } break;
-      // clang-format off
     case Statement::LShift: {
-      result = compute_signal(stmt.lhs0, circuit) <<
-               compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit)
+               << compute_signal(stmt.lhs1, circuit);
     } break;
-      // clang-format on
     case Statement::RShift: {
-      result = compute_signal(stmt.lhs0, circuit) >>
-               compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit)
+               >> compute_signal(stmt.lhs1, circuit);
     } break;
     case Statement::Unknown:
     default:
@@ -111,11 +112,11 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto circuit =
-      std::views::istream<Statement>(std::cin) |
-      std::views::transform(
-          [](const auto& stmt) { return std::make_tuple(stmt.dst, stmt); }) |
-      std::ranges::to<std::unordered_map<std::string, Statement>>();
+  const auto circuit
+      = views::istream<Statement>(std::cin) | views::transform([](auto&& stmt) {
+          return std::make_tuple(stmt.dst, stmt);
+        })
+        | ranges::to<std::unordered_map<std::string, Statement>>();
 
   uint16_t part1{};
   {
