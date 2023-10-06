@@ -44,9 +44,10 @@ bool is_nice_part1(const std::string& s) {
 }
 
 auto contains_sandwich_letter(const std::string& s) {
-  return ranges::any_of(
-      views::zip(s, views::drop(s, 1), views::drop(s, 2)),
-      [](const auto& t) { return std::get<0>(t) == std::get<2>(t); });
+  return ranges::any_of(views::zip(s, views::drop(s, 2)), [](auto&& t) {
+    const auto& [ch0, ch1] = t;
+    return ch0 == ch1;
+  });
 }
 
 auto contains_letter_pair_twice(const std::string& s) {

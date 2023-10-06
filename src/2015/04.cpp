@@ -11,16 +11,13 @@ auto pack_md5_input(std::array<uint8_t, 64>& msg, const auto msg_len) {
   std::array<uint32_t, 16> input = {0};
   {
     msg[msg_len] = 0x80;
-    for (auto i{msg_len + 1}; i < 56; ++i) {
-      msg[i] = 0;
-    }
     const auto bit_count = 8 * msg_len;
-    for (std::size_t i{56}; i < msg.size(); ++i) {
-      msg[i] = (bit_count >> (8 * (i - 56))) & 0xff;
+    for (auto i : views::iota(msg_len + 1, msg.size())) {
+      msg[i] = (i < 56) ? 0 : (bit_count >> (8 * (i - 56))) & 0xff;
     }
   }
-  for (std::size_t i{0}; i < input.size(); ++i) {
-    for (std::size_t j{0}; j < 4; ++j) {
+  for (auto i : views::iota(0u, input.size())) {
+    for (auto j : views::iota(0u, 4u)) {
       input[i] |= msg[4 * i + j] << (8 * j);
     }
   }
@@ -33,9 +30,9 @@ uint32_t partial_md5(std::array<uint8_t, 64>& msg, const auto msg_len) {
 
   static std::array<uint32_t, 64> md5_sine_table = {0};
   if (md5_sine_table.front() == 0) {
-    for (std::size_t i{0}; i < md5_sine_table.size(); ++i) {
-      const auto x{(1LL << 32) * std::abs(std::sin(i + 1))};
-      md5_sine_table[i] = static_cast<uint32_t>(x);
+    for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1),
+                                    md5_sine_table)) {
+      x = static_cast<uint32_t>((1LL << 32) * std::abs(std::sin(i)));
     }
   }
 
@@ -50,7 +47,7 @@ uint32_t partial_md5(std::array<uint8_t, 64>& msg, const auto msg_len) {
   auto c{c0};
   auto d{d0};
 
-  for (uint32_t i{0}; i < 64; ++i) {
+  for (auto i : views::iota(uint32_t{0}, uint32_t{64})) {
     uint32_t f{0};
     uint32_t g{0};
     if (i < 16) {

@@ -47,7 +47,7 @@ class Graph {
     node_count_ = nodes.size();
 
     distances.resize(node_count() * node_count(), max_distance());
-    for (auto n{0uz}; n < node_count(); ++n) {
+    for (auto n : views::iota(0uz, node_count())) {
       distance(n, n) = 0;
     }
 
@@ -91,7 +91,7 @@ class Graph {
       std::size_t node;
       std::size_t path_length;
     };
-    for (auto start{0uz}; start < node_count(); ++start) {
+    for (auto start : views::iota(0uz, node_count())) {
       std::vector<State> q = {
           {{}, start, {}}
       };
@@ -106,7 +106,7 @@ class Graph {
           lengths.push_back(current.path_length);
           continue;
         }
-        for (auto node{0uz}; node < node_count(); ++node) {
+        for (auto node : views::iota(0uz, node_count())) {
           const auto edge_length{distance(current.node, node)};
           q.emplace_back(current.visited,
                          node,
