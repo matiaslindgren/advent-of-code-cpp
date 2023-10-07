@@ -13,17 +13,17 @@ struct Aunt {
 std::istream& operator>>(std::istream& is, Aunt& aunt) {
   std::string tmp;
   std::size_t id;
-  if (is >> tmp && tmp == "Sue" && is >> id >> tmp && tmp == ":"
-      && std::getline(is, tmp) && !tmp.empty()) {
+  if (is >> tmp && tmp == "Sue" && is >> id >> tmp && tmp == ":") {
     Aunt::Items items;
-    std::istringstream ss{tmp};
-    std::string key;
-    int value;
-    while (ss >> key && key.ends_with(":") && ss >> value) {
-      key.pop_back();
-      items[key] = value;
-      if (!(ss >> tmp && tmp == ",")) {
-        break;
+    {
+      std::string key;
+      int value;
+      while (is >> key && key.ends_with(":") && is >> value) {
+        key.pop_back();
+        items[key] = value;
+        if (!(is.peek() == ',' && is.get())) {
+          break;
+        }
       }
     }
     aunt = {id, items};
