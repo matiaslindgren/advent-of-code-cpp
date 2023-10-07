@@ -53,10 +53,11 @@ long long find_optimal_cookie(const auto& weights,
   const auto scores{compute_scores(weights, spoons)};
   auto best_score{0LL};
   if (!calorie_target || scores.back() == *calorie_target) {
-    best_score = std::accumulate(scores.begin(),
-                                 ranges::next(scores.begin(), 4),
-                                 1LL,
-                                 std::multiplies<long long>());
+    best_score
+        = std::accumulate(scores.begin(),
+                          ranges::next(scores.begin(), weights.size() - 1),
+                          1LL,
+                          std::multiplies<long long>());
   }
   for (auto i{begin}; i < spoons.size(); ++i) {
     if (spoons[i] == 0) {
@@ -66,7 +67,8 @@ long long find_optimal_cookie(const auto& weights,
       if (spoons[j] == 100) {
         continue;
       }
-      for (auto next_spoons{spoons}; --next_spoons[i];) {
+      for (auto next_spoons{spoons}; next_spoons[i];) {
+        --next_spoons[i];
         ++next_spoons[j];
         const auto score{
             find_optimal_cookie(weights, next_spoons, calorie_target, j)};
@@ -90,14 +92,11 @@ int main() {
     }
   }
 
-  const auto init_spoons = [&ingredients] {
-    std::vector<int> s(ingredients.size());
-    s.front() = 100;
-    return s;
-  };
+  std::vector<int> init_spoons(ingredients.size());
+  init_spoons.front() = 100;
 
-  const auto part1{find_optimal_cookie(weights, init_spoons())};
-  const auto part2{find_optimal_cookie(weights, init_spoons(), {500})};
+  const auto part1{find_optimal_cookie(weights, init_spoons)};
+  const auto part2{find_optimal_cookie(weights, init_spoons, {500})};
   std::print("{} {}\n", part1, part2);
 
   return 0;
