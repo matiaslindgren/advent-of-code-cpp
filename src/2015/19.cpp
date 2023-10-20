@@ -25,15 +25,6 @@ Units split_molecule(const std::string& molecule) {
   return units;
 }
 
-std::ostream& operator<<(std::ostream& os, const Replacement& r) {
-  os << "R { ";
-  ranges::copy(r.src, std::ostream_iterator<std::string>(os, " "));
-  os << " -> ";
-  ranges::copy(r.dst, std::ostream_iterator<std::string>(os, " "));
-  os << " }";
-  return os;
-}
-
 std::istream& operator>>(std::istream& is, Replacement& r) {
   std::string tmp;
   std::string src;
