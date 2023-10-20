@@ -1,5 +1,5 @@
 BasedOnStyle: Google
-ColumnLimit: 80
+ColumnLimit: 100
 InsertTrailingCommas: Wrapped
 BinPackArguments: false
 BinPackParameters: false
@@ -10,3 +10,4 @@ AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: None
 BreakBeforeBinaryOperators: All
 AlignOperands: Align
+AlignAfterOpenBracket: BlockIndent

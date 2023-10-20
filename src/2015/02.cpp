@@ -54,14 +54,15 @@ struct Present {
 
 std::istream& operator>>(std::istream& is, Present& p) {
   char ch;
-  if (is >> p.l >> ch && ch == 'x' && is >> p.w >> ch && ch == 'x'
-      && is >> p.h) {
+  int l, w, h;
+  if (is >> l >> ch && ch == 'x' && is >> w >> ch && ch == 'x' && is >> h) {
+    p = {l, w, h};
     return is;
   }
   if (is.eof()) {
     return is;
   }
-  throw std::runtime_error("failed parsing present");
+  throw std::runtime_error("failed parsing Present");
 }
 
 int main() {
