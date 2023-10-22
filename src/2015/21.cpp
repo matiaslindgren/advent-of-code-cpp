@@ -1,99 +1,37 @@
 import std;
 
-namespace ranges = std::ranges;
-namespace views = std::views;
-
-/*
-Weapons:    Cost  Damage  Armor
-Dagger        8     4       0
-Shortsword   10     5       0
-Warhammer    25     6       0
-Longsword    40     7       0
-Greataxe     74     8       0
-
-Armor:      Cost  Damage  Armor
-Leather      13     0       1
-Chainmail    31     0       2
-Splintmail   53     0       3
-Bandedmail   75     0       4
-Platemail   102     0       5
-
-Rings:      Cost  Damage  Armor
-Damage +1    25     1       0
-Damage +2    50     2       0
-Damage +3   100     3       0
-Defense +1   20     0       1
-Defense +2   40     0       2
-Defense +3   80     0       3
-*/
-
-struct Weapon {
-  enum : int {
-    Dagger,
-    Shortsword,
-    Warhammer,
-    Longsword,
-    Greataxe,
-  } type;
+struct Item {
   int cost;
   int damage;
   int armor;
+  bool operator==(const Item&) const = default;
 };
 
-struct Armor {
-  enum : int {
-    None,
-    Leather,
-    Chainmail,
-    Splintmail,
-    Bandedmail,
-    Platemail,
-  } type;
-  int cost;
-  int damage;
-  int armor;
+static const std::vector<Item> weapons{
+    { 8, 4, 0},
+    {10, 5, 0},
+    {25, 6, 0},
+    {40, 7, 0},
+    {74, 8, 0},
 };
 
-struct Ring {
-  enum : int {
-    None,
-    Damage1,
-    Damage2,
-    Damage3,
-    Defense1,
-    Defense2,
-    Defense3,
-  } type;
-  int cost;
-  int damage;
-  int armor;
+static const std::vector<Item> armor{
+    {  0, 0, 0},
+    { 13, 0, 1},
+    { 31, 0, 2},
+    { 53, 0, 3},
+    { 75, 0, 4},
+    {102, 0, 5},
 };
 
-static const std::vector<Weapon> weapons{
-    {    Weapon::Dagger,  8, 4, 0},
-    {Weapon::Shortsword, 10, 5, 0},
-    { Weapon::Warhammer, 25, 6, 0},
-    { Weapon::Longsword, 40, 7, 0},
-    {  Weapon::Greataxe, 74, 8, 0},
-};
-
-static const std::vector<Armor> armor{
-    {      Armor::None,   0, 0, 0},
-    {   Armor::Leather,  13, 0, 1},
-    { Armor::Chainmail,  31, 0, 2},
-    {Armor::Splintmail,  53, 0, 3},
-    {Armor::Bandedmail,  75, 0, 4},
-    { Armor::Platemail, 102, 0, 5},
-};
-
-static const std::vector<Ring> rings{
-    {    Ring::None,   0, 0, 0},
-    { Ring::Damage1,  25, 1, 0},
-    { Ring::Damage2,  50, 2, 0},
-    { Ring::Damage3, 100, 3, 0},
-    {Ring::Defense1,  20, 0, 1},
-    {Ring::Defense2,  40, 0, 2},
-    {Ring::Defense3,  80, 0, 3},
+static const std::vector<Item> rings{
+    {  0, 0, 0},
+    { 25, 1, 0},
+    { 50, 2, 0},
+    {100, 3, 0},
+    { 20, 0, 1},
+    { 40, 0, 2},
+    { 80, 0, 3},
 };
 
 struct Boss {
@@ -117,10 +55,10 @@ std::istream& operator>>(std::istream& is, Boss& boss) {
 }
 
 struct Player {
-  Weapon weapon;
-  Armor armor;
-  Ring ring1;
-  Ring ring2;
+  Item weapon;
+  Item armor;
+  Item ring1;
+  Item ring2;
   int hp = 100;
 
   int total_damage() const {
@@ -133,18 +71,9 @@ struct Player {
     return weapon.cost + armor.cost + ring1.cost + ring2.cost;
   }
   bool wins(const Boss& boss) const {
-    const int delta_hp_p{std::min(-1, total_armor() - boss.damage)};
-    const int delta_hp_b{std::min(-1, boss.armor - total_damage())};
-    int hp_p{hp};
-    int hp_b{boss.hp};
-    for (bool my_turn{true}; hp_p > 0 && hp_b > 0; my_turn = !my_turn) {
-      if (my_turn) {
-        hp_b += delta_hp_b;
-      } else {
-        hp_p += delta_hp_p;
-      }
-    }
-    return hp_p > 0;
+    const int player_hp_delta{std::min(-1, total_armor() - boss.damage)};
+    const int boss_hp_delta{std::min(-1, boss.armor - total_damage())};
+    return hp * player_hp_delta >= boss.hp * boss_hp_delta;
   }
 };
 
@@ -155,7 +84,7 @@ std::pair<int, int> minmax_gold(const Boss& boss) {
     for (const auto& a : armor) {
       for (const auto& r1 : rings) {
         for (const auto& r2 : rings) {
-          if (r1.type == r2.type && r1.type != Ring::None) {
+          if (r1 == r2 && !r1.cost) {
             continue;
           }
           const Player player = {w, a, r1, r2};
