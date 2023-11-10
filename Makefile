@@ -1,6 +1,9 @@
 SHELL    := /bin/sh
-CLANG    := clang++-17
+CLANG    := clang-17
+INCLUDES :=
+LDFLAGS  :=
 CXXFLAGS := \
+	-lc++ \
 	-std=c++23 \
 	-stdlib=libc++ \
 	-O2 \
@@ -9,7 +12,21 @@ CXXFLAGS := \
 	-Wpedantic \
 	-Werror \
 	-fmodules \
-	-fsanitize=address,undefined
+	-fexperimental-library
+
+ifeq ($(shell uname),Darwin)
+	SDK_PATH := $(shell xcrun --show-sdk-path)
+	LLVM_DIR := $(shell brew --prefix llvm)
+	CLANG    := $(LLVM_DIR)/bin/$(CLANG)
+	LDFLAGS  := \
+		-L$(LLVM_DIR)/lib/c++ \
+		-Wl,-rpath,$(LLVM_DIR)/lib/c++,-syslibroot,$(SDK_PATH)
+	INCLUDES := \
+		-nostdinc++ \
+		-nostdlib++ \
+		-isysroot $(SDK_PATH) \
+		-isystem $(LLVM_DIR)/include/c++/v1
+endif
 
 SRC       := src
 OUT       := out
@@ -33,7 +50,7 @@ $(OUT_DIRS): $(OUT)
 	mkdir $@
 
 $(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $(OUT_DIRS)
-	$(CLANG) $(CXXFLAGS) -o $@ $^
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $(LDFLAGS) $^
 
 RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
 
@@ -51,7 +68,7 @@ test: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
 	@printf '$*\n'; \
 	time_log="$${TMPDIR:=/tmp}/time.tmp"; \
-	result=$$(/usr/bin/env time --verbose --output="$$time_log" make --silent run_$*); \
+	result=$$(/usr/bin/env time -l -o "$$time_log" make --silent run_$*); \
 	expect=$$(cat txt/correct/$*); \
 	printf 'result: %s\n' "$$result"; \
 	printf 'expect: %s\n' "$$expect"; \
