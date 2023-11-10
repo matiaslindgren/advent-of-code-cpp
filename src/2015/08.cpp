@@ -1,35 +1,5 @@
 import std;
-
-// TODO(llvm18)
-namespace my_std {
-namespace ranges {
-// Taken from "Possible implementations" at
-// https://en.cppreference.com/w/cpp/algorithm/ranges/fold_left
-// (accessed 2023-09-30)
-struct fold_left_fn {
-  template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
-  constexpr auto operator()(I first, S last, T init, F f) const {
-    using U =
-        std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
-    if (first == last) return U(std::move(init));
-    U accum = std::invoke(f, std::move(init), *first);
-    for (++first; first != last; ++first)
-      accum = std::invoke(f, std::move(accum), *first);
-    return std::move(accum);
-  }
-
-  template <std::ranges::input_range R, class T, class F>
-  constexpr auto operator()(R&& r, T init, F f) const {
-    return (*this)(std::ranges::begin(r),
-                   std::ranges::end(r),
-                   std::move(init),
-                   std::ref(f));
-  }
-};
-
-inline constexpr fold_left_fn fold_left;
-}  // namespace ranges
-}  // namespace my_std
+#include "tmp_util.hpp"
 
 enum class State {
   Init,
@@ -109,17 +79,15 @@ auto escape(const std::string& s) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto lines = std::views::istream<std::string>(std::cin) |
-                     std::ranges::to<std::vector<std::string>>();
+  const auto lines
+      = std::views::istream<std::string>(std::cin) | std::ranges::to<std::vector<std::string>>();
 
-  constexpr auto accumulate = std::bind(my_std::ranges::fold_left,
-                                        std::placeholders::_1,
-                                        0,
-                                        std::plus<int>());
+  constexpr auto accumulate
+      = std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>());
 
   const auto part1 = accumulate(lines | std::views::transform(count_bytes));
-  const auto part2 = accumulate(lines | std::views::transform(escape)
-                                | std::views::transform(count_bytes));
+  const auto part2
+      = accumulate(lines | std::views::transform(escape) | std::views::transform(count_bytes));
   std::print("{} {}\n", part1, part2);
 
   return 0;

@@ -1,22 +1,5 @@
 import std;
-
-// TODO(llvm18)
-namespace my_ranges {
-template <class Container>
-  requires(!std::ranges::view<Container>)
-constexpr auto stride(std::size_t n) {
-  return std::__range_adaptor_closure_t([=]<std::ranges::input_range R>(R&& r) {
-    Container c;
-    std::size_t i{0};
-    for (const auto& x : r) {
-      if (i++ % n == 0) {
-        c.push_back(x);
-      }
-    }
-    return c;
-  });
-}
-}  // namespace my_ranges
+#include "tmp_util.hpp"
 
 enum struct Direction : char {
   north = '^',
@@ -72,15 +55,14 @@ auto count_visited_houses(const auto&... instructions_list) {
     }
   };
   (deliver_presents(instructions_list), ...);
-  return ranges::count_if(views::values(visit_counts),
-                          [](auto n) { return n > 0; });
+  return ranges::count_if(views::values(visit_counts), [](auto n) { return n > 0; });
 }
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto instructions = views::istream<Direction>(std::cin)
-                            | my_ranges::stride<std::vector<Direction>>(1);
+  const auto instructions
+      = views::istream<Direction>(std::cin) | my_std::ranges::stride<std::vector<Direction>>(1);
   // TODO(llvm18)
 #if 0
   const auto santa_instructions = instructions | views::stride(2) |
@@ -89,15 +71,12 @@ int main() {
                                 views::stride(2) |
                                 ranges::to<std::vector<Direction>>();
 #endif
-  const auto santa_instructions
-      = instructions | my_ranges::stride<std::vector<Direction>>(2);
+  const auto santa_instructions = instructions | my_std::ranges::stride<std::vector<Direction>>(2);
   const auto robot_instructions
-      = instructions | views::drop(1)
-        | my_ranges::stride<std::vector<Direction>>(2);
+      = instructions | views::drop(1) | my_std::ranges::stride<std::vector<Direction>>(2);
 
   const auto part1{count_visited_houses(instructions)};
-  const auto part2{
-      count_visited_houses(santa_instructions, robot_instructions)};
+  const auto part2{count_visited_houses(santa_instructions, robot_instructions)};
   std::print("{} {}\n", part1, part2);
 
   return 0;

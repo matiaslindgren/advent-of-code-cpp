@@ -1,6 +1,6 @@
 SHELL    := /bin/sh
 CLANG    := clang-17
-INCLUDES :=
+INCLUDES := -I./include
 LDFLAGS  :=
 CXXFLAGS := \
 	-lc++ \
@@ -21,7 +21,7 @@ ifeq ($(shell uname),Darwin)
 	LDFLAGS  := \
 		-L$(LLVM_DIR)/lib/c++ \
 		-Wl,-rpath,$(LLVM_DIR)/lib/c++,-syslibroot,$(SDK_PATH)
-	INCLUDES := \
+	INCLUDES += \
 		-nostdinc++ \
 		-nostdlib++ \
 		-isysroot $(SDK_PATH) \

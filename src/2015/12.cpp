@@ -13,12 +13,10 @@ struct Array {
   std::vector<Value> values;
 };
 
-// clang-format off
 std::istream& operator>>(std::istream&, Object&);
 std::istream& operator>>(std::istream&, Array&);
 std::istream& operator>>(std::istream&, Key&);
 std::istream& operator>>(std::istream&, Value&);
-// clang-format on
 
 std::istream& operator>>(std::istream& is, Object& o) {
   enum class State {
@@ -230,8 +228,7 @@ Number sum(const Array& a, std::optional<Key> sentinel) {
 Number sum(const Object& o, std::optional<Key> sentinel = {}) {
   Number result{};
   for (const auto& [key, value] : o.values) {
-    if (sentinel && std::holds_alternative<Key>(value)
-        && std::get<Key>(value) == *sentinel) {
+    if (sentinel && std::holds_alternative<Key>(value) && std::get<Key>(value) == *sentinel) {
       return {};
     }
     result += sum(value, sentinel);
@@ -241,8 +238,7 @@ Number sum(const Object& o, std::optional<Key> sentinel = {}) {
 
 Number sum(const Value& v, std::optional<Key> sentinel) {
   Number result{};
-  std::visit([&result, &sentinel](auto&& arg) { result += sum(arg, sentinel); },
-             v);
+  std::visit([&result, &sentinel](auto&& arg) { result += sum(arg, sentinel); }, v);
   return result;
 }
 

@@ -1,35 +1,5 @@
 import std;
-
-// TODO(llvm18)
-namespace my_std {
-namespace ranges {
-// Taken from "Possible implementations" at
-// https://en.cppreference.com/w/cpp/algorithm/ranges/fold_left
-// (accessed 2023-09-30)
-struct fold_left_fn {
-  template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
-  constexpr auto operator()(I first, S last, T init, F f) const {
-    using U
-        = std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
-    if (first == last) return U(std::move(init));
-    U accum = std::invoke(f, std::move(init), *first);
-    for (++first; first != last; ++first)
-      accum = std::invoke(f, std::move(accum), *first);
-    return std::move(accum);
-  }
-
-  template <std::ranges::input_range R, class T, class F>
-  constexpr auto operator()(R&& r, T init, F f) const {
-    return (*this)(std::ranges::begin(r),
-                   std::ranges::end(r),
-                   std::move(init),
-                   std::ref(f));
-  }
-};
-
-inline constexpr fold_left_fn fold_left;
-}  // namespace ranges
-}  // namespace my_std
+#include "tmp_util.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -49,9 +19,8 @@ std::istream& operator>>(std::istream& is, Pair& p) {
     });
   };
   std::string sign;
-  if (is >> p.src && skip("would") && is >> sign
-      && (sign == "gain" || sign == "lose") && is >> p.happiness
-      && skip("happiness units by sitting next to") && is >> p.dst
+  if (is >> p.src && skip("would") && is >> sign && (sign == "gain" || sign == "lose")
+      && is >> p.happiness && skip("happiness units by sitting next to") && is >> p.dst
       && !p.dst.empty() && p.dst.back() == '.') {
     if (sign == "lose") {
       p.happiness = -p.happiness;
@@ -99,8 +68,7 @@ class Graph {
     const auto n{node_count()};
     weights.resize(n * n);
     const auto find_node_index = [this](const auto& name) {
-      return ranges::distance(this->nodes.begin(),
-                              ranges::find(this->nodes, name));
+      return ranges::distance(this->nodes.begin(), ranges::find(this->nodes, name));
     };
     for (const auto& p : pairs) {
       const auto n1{find_node_index(p.src)};
@@ -110,10 +78,8 @@ class Graph {
   }
 };
 
-constexpr auto accumulate = std::bind(my_std::ranges::fold_left,
-                                      std::placeholders::_1,
-                                      0,
-                                      std::plus<int>());
+constexpr auto accumulate
+    = std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>());
 
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {
@@ -127,8 +93,7 @@ auto find_seating_happiness(const auto& seating, const Graph& g) {
 
 auto maximize_happiness(const auto& pairs) {
   Graph g{pairs};
-  auto seating = views::iota(0uz, g.node_count())
-                 | ranges::to<std::vector<std::size_t>>();
+  auto seating = views::iota(0uz, g.node_count()) | ranges::to<std::vector<std::size_t>>();
   int happiness{};
   do {
     happiness = std::max(happiness, find_seating_happiness(seating, g));
