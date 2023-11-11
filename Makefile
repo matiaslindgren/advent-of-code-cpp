@@ -50,7 +50,7 @@ $(OUT_DIRS): $(OUT)
 	mkdir $@
 
 $(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $(OUT_DIRS)
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $(LDFLAGS) $^
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(LDFLAGS)
 
 RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
 
