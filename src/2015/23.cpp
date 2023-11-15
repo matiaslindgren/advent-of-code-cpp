@@ -1,5 +1,8 @@
 import std;
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 enum Code {
   half,
   triple,
@@ -108,9 +111,6 @@ void run(Memory& memory, const Program& program) {
     i += jump;
   }
 }
-
-namespace ranges = std::ranges;
-namespace views = std::views;
 
 int main() {
   std::ios_base::sync_with_stdio(false);

@@ -1,14 +1,14 @@
 import std;
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 using Units = std::vector<std::string>;
 
 struct Replacement {
   Units src;
   Units dst;
 };
-
-namespace ranges = std::ranges;
-namespace views = std::views;
 
 Units split_molecule(const std::string& molecule) {
   const auto islower{[](unsigned char ch) { return std::islower(ch); }};

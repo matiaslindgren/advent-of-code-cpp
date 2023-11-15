@@ -1,6 +1,9 @@
 import std;
 #include "tmp_util.hpp"
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 enum class State {
   Init,
   Literal,
@@ -15,9 +18,7 @@ auto count_bytes(const std::string& s) {
   decltype(s.size()) char_count{};
   auto state{State::Init};
   for (auto ch : s) {
-    const auto prev_state{state};
-    state = State::Invalid;
-    switch (prev_state) {
+    switch (std::exchange(state, State::Invalid)) {
       case State::Init: {
         switch (ch) {
           case '"': {
@@ -79,15 +80,13 @@ auto escape(const std::string& s) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto lines
-      = std::views::istream<std::string>(std::cin) | std::ranges::to<std::vector<std::string>>();
+  const auto lines = views::istream<std::string>(std::cin) | ranges::to<std::vector<std::string>>();
 
   constexpr auto accumulate
       = std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>());
 
-  const auto part1 = accumulate(lines | std::views::transform(count_bytes));
-  const auto part2
-      = accumulate(lines | std::views::transform(escape) | std::views::transform(count_bytes));
+  const auto part1 = accumulate(lines | views::transform(count_bytes));
+  const auto part2 = accumulate(lines | views::transform(escape) | views::transform(count_bytes));
   std::print("{} {}\n", part1, part2);
 
   return 0;

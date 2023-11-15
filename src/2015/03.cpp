@@ -1,6 +1,9 @@
 import std;
 #include "tmp_util.hpp"
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 enum struct Direction : char {
   north = '^',
   east = '>',
@@ -25,9 +28,6 @@ std::istream& operator>>(std::istream& is, Direction& d) {
   }
   throw std::runtime_error("failed parsing Direction");
 }
-
-namespace ranges = std::ranges;
-namespace views = std::views;
 
 auto count_visited_houses(const auto&... instructions_list) {
   std::unordered_map<long, int> visit_counts;

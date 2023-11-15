@@ -1,5 +1,8 @@
 import std;
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 constexpr static auto alphabet_size = ('z' - 'a') + 1;
 
 constexpr auto pair2index(char ch0, char ch1) {
@@ -28,9 +31,6 @@ bool is_forbidden_pair(char ch0, char ch1) {
   }
   return false;
 }
-
-namespace ranges = std::ranges;
-namespace views = std::views;
 
 bool is_nice_part1(const std::string& s) {
   const auto has_3_vowels = ranges::count_if(s, is_vowel) >= 3;
@@ -75,8 +75,7 @@ bool is_nice_part2(const std::string& s) {
 }
 
 int main() {
-  const auto lines = views::istream<std::string>(std::cin)
-                     | ranges::to<std::vector<std::string>>();
+  const auto lines = views::istream<std::string>(std::cin) | ranges::to<std::vector<std::string>>();
 
   const auto part1{ranges::count_if(lines, is_nice_part1)};
   const auto part2{ranges::count_if(lines, is_nice_part2)};
