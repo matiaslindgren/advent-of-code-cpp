@@ -1,5 +1,6 @@
 SHELL    := /bin/sh
 CLANG    := clang-17
+
 INCLUDES := -I./include
 LDFLAGS  := -lm
 CXXFLAGS := \
@@ -14,6 +15,8 @@ CXXFLAGS := \
 	-fmodules \
 	-fexperimental-library
 
+TIME_VERBOSE := -v
+
 ifeq ($(shell uname),Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
 	LLVM_DIR := $(shell brew --prefix llvm)
@@ -27,6 +30,7 @@ ifeq ($(shell uname),Darwin)
 		-nostdlib++ \
 		-isysroot $(SDK_PATH) \
 		-isystem $(LLVM_DIR)/include/c++/v1
+	TIME_VERBOSE := -l
 endif
 
 SRC       := src
@@ -69,7 +73,7 @@ test: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
 	@printf '$*\n'; \
 	time_log="$${TMPDIR:=/tmp}/time.tmp"; \
-	result=$$(/usr/bin/env time -l -o "$$time_log" make --silent run_$*); \
+	result=$$(/usr/bin/env time $(TIME_VERBOSE) -o "$$time_log" make --silent run_$*); \
 	expect=$$(cat txt/correct/$*); \
 	printf 'result: %s\n' "$$result"; \
 	printf 'expect: %s\n' "$$expect"; \
