@@ -1,7 +1,7 @@
 SHELL    := /bin/sh
 CLANG    := clang-17
 INCLUDES := -I./include
-LDFLAGS  :=
+LDFLAGS  := -lm
 CXXFLAGS := \
 	-lc++ \
 	-std=c++23 \
@@ -19,6 +19,7 @@ ifeq ($(shell uname),Darwin)
 	LLVM_DIR := $(shell brew --prefix llvm)
 	CLANG    := $(LLVM_DIR)/bin/$(CLANG)
 	LDFLAGS  := \
+		$(LDFLAGS) \
 		-L$(LLVM_DIR)/lib/c++ \
 		-Wl,-rpath,$(LLVM_DIR)/lib/c++,-syslibroot,$(SDK_PATH)
 	INCLUDES += \
