@@ -23,8 +23,7 @@ using ull = unsigned long long;
 ull find(const int target_row, const int target_col) {
   const ull factor{252533};
   const ull rem{33554393};
-  ull value{20151125};
-  for (ull diag{1};; ++diag) {
+  for (ull value{20151125}, diag{1};; ++diag) {
     for (ull y{diag}, x{1}; y > 0; --y, ++x) {
       if (y == target_row && x == target_col) {
         return value;
