@@ -41,15 +41,9 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
   throw std::runtime_error("failed parsing Steps");
 }
 
-std::ostream& operator<<(std::ostream& os, const Steps& steps) {
-  for (const auto& s : steps) {
-    os << std::to_underlying(s);
-  }
-  return os;
-}
+using Keypad = std::vector<std::string>;
 
-template <typename Keypad>
-std::pair<unsigned, unsigned> find_xy_of_5(const Keypad& keypad) {
+std::pair<unsigned, unsigned> find_yx_of_5(const Keypad& keypad) {
   for (unsigned y{}; y < keypad.size(); ++y) {
     for (unsigned x{}; x < keypad.size(); ++x) {
       if (keypad[y][x] == '5') {
@@ -60,10 +54,9 @@ std::pair<unsigned, unsigned> find_xy_of_5(const Keypad& keypad) {
   throw std::runtime_error("keypad has no 5");
 }
 
-template <typename Keypad>
 std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructions) {
   std::string code;
-  auto [y, x] = find_xy_of_5(keypad);
+  auto [y, x] = find_yx_of_5(keypad);
   for (const auto& steps : instructions) {
     for (const auto& step : steps) {
       unsigned y2{y}, x2{x};
@@ -96,19 +89,19 @@ int main() {
 
   const auto instructions = views::istream<Steps>(std::cin) | ranges::to<std::vector<Steps>>();
 
-  const std::vector<std::string> keypad1 = {
+  const Keypad keypad1 = {
       "123",
       "456",
       "789",
   };
   const auto part1{find_code(keypad1, instructions)};
 
-  const std::vector<std::string> keypad2 = {
-      {'\0', '\0', '1', '\0', '\0'},
-      {'\0',  '2', '3',  '4', '\0'},
-      { '5',  '6', '7',  '8',  '9'},
-      {'\0',  'A', 'B',  'C', '\0'},
-      {'\0', '\0', 'D', '\0', '\0'},
+  const Keypad keypad2 = {
+      {  0,   0, '1',   0,   0},
+      {  0, '2', '3', '4',   0},
+      {'5', '6', '7', '8', '9'},
+      {  0, 'A', 'B', 'C',   0},
+      {  0,   0, 'D',   0,   0},
   };
   const auto part2{find_code(keypad2, instructions)};
 
