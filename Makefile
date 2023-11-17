@@ -8,14 +8,11 @@ CXXFLAGS := \
 	-std=c++23 \
 	-stdlib=libc++ \
 	-O2 \
-	-g \
 	-Wall \
 	-Wpedantic \
 	-Werror \
 	-fmodules \
 	-fexperimental-library
-
-TIME_VERBOSE := -v
 
 ifeq ($(shell uname),Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
@@ -30,7 +27,6 @@ ifeq ($(shell uname),Darwin)
 		-nostdlib++ \
 		-isysroot $(SDK_PATH) \
 		-isystem $(LLVM_DIR)/include/c++/v1
-	TIME_VERBOSE := -l
 endif
 
 SRC       := src
@@ -54,10 +50,6 @@ $(OUT)/:
 $(addsuffix /,$(OUT_DIRS)): $(OUT)/
 	mkdir $@
 
-.SECONDEXPANSION:
-$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $$(dir $(OUT)/%)
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
-
 RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
 
 .PHONY: $(RUN_TARGETS)
@@ -72,15 +64,14 @@ test: $(TEST_TARGETS)
 
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
-	@printf '$*\n'; \
-	time_log="$${TMPDIR:=/tmp}/time.tmp"; \
-	result=$$(/usr/bin/env time $(TIME_VERBOSE) -o "$$time_log" make --silent run_$*); \
-	expect=$$(cat txt/correct/$*); \
-	printf 'result: %s\n' "$$result"; \
-	printf 'expect: %s\n' "$$expect"; \
-	printf 'time:\n'; \
-	cat "$$time_log"; \
-	printf '\n'; \
-	if [ "$$result" != "$$expect" ]; then \
-		exit 1; \
-	fi \
+	@./test.bash $*
+
+.SECONDEXPANSION:
+
+$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $$(dir $(OUT)/%)
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
+
+PERCENT := %
+TEST_YEARS := $(subst out/,test_,$(OUT_DIRS))
+.PHONY: $(TEST_YEARS)
+$(TEST_YEARS): test_% : $$(filter test_%$$(PERCENT),$(TEST_TARGETS))
