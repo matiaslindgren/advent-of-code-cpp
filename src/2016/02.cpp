@@ -62,16 +62,16 @@ std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructio
       unsigned y2{y}, x2{x};
       switch (step) {
         case Step::up: {
-          y2 = std::min(y, y - 1);
+          y2 = y - 1;
         } break;
         case Step::left: {
-          x2 = std::min(x, x - 1);
+          x2 = x - 1;
         } break;
         case Step::down: {
-          y2 = std::min(keypad.size(), y + 1uz);
+          y2 = y + 1;
         } break;
         case Step::right: {
-          x2 = std::min(keypad.size(), x + 1uz);
+          x2 = x + 1;
         } break;
       }
       if (keypad[y2][x2]) {
@@ -90,18 +90,22 @@ int main() {
   const auto instructions = views::istream<Steps>(std::cin) | ranges::to<std::vector<Steps>>();
 
   const Keypad keypad1 = {
-      "123",
-      "456",
-      "789",
+      {'\0', '\0', '\0', '\0', '\0'},
+      {'\0',  '1',  '2',  '3', '\0'},
+      {'\0',  '4',  '5',  '6', '\0'},
+      {'\0',  '7',  '8',  '9', '\0'},
+      {'\0', '\0', '\0', '\0', '\0'},
   };
   const auto part1{find_code(keypad1, instructions)};
 
   const Keypad keypad2 = {
-      {  0,   0, '1',   0,   0},
-      {  0, '2', '3', '4',   0},
-      {'5', '6', '7', '8', '9'},
-      {  0, 'A', 'B', 'C',   0},
-      {  0,   0, 'D',   0,   0},
+      {'\0', '\0', '\0', '\0', '\0', '\0', '\0'},
+      {'\0', '\0', '\0',  '1', '\0', '\0', '\0'},
+      {'\0', '\0',  '2',  '3',  '4', '\0', '\0'},
+      {'\0',  '5',  '6',  '7',  '8',  '9', '\0'},
+      {'\0', '\0',  'A',  'B',  'C', '\0', '\0'},
+      {'\0', '\0', '\0',  'D', '\0', '\0', '\0'},
+      {'\0', '\0', '\0', '\0', '\0', '\0', '\0'},
   };
   const auto part2{find_code(keypad2, instructions)};
 
