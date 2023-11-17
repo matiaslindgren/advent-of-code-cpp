@@ -37,57 +37,55 @@ struct Vec2D {
   Vec2D rotate_right() const {
     return {x, -y};
   }
-  Vec2D& operator+=(const Vec2D& rhs) {
-    y += rhs.y;
-    x += rhs.x;
-    return *this;
-  }
-  Vec2D operator*(int factor) const {
-    return {factor * y, factor * x};
+  Vec2D operator+(const Vec2D& rhs) {
+    return {y + rhs.y, x + rhs.x};
   }
 };
 
+using Path = std::vector<Vec2D>;
 using Moves = std::vector<Move>;
 
-std::pair<Vec2D, Vec2D> walk(const Moves& moves) {
-  Vec2D delta = {1, 0};
-  Vec2D p1 = {};
-  Vec2D p2 = {};
-  bool found_part2{false};
-
-  std::vector<Vec2D> visited;
-  visited.push_back(p1);
-
+Path walk(const Moves& moves) {
+  std::vector<Vec2D> path = {{}};
+  Vec2D facing = {1, 0};
   for (const auto& move : moves) {
     switch (move.direction) {
       case Move::Left: {
-        delta = delta.rotate_left();
+        facing = facing.rotate_left();
       } break;
       case Move::Right: {
-        delta = delta.rotate_right();
+        facing = facing.rotate_right();
       } break;
     }
     for (int n{}; n < move.steps; ++n) {
-      p1 += delta;
-      if (!found_part2 && ranges::find(visited, p1) != visited.end()) {
-        found_part2 = true;
-        p2 = p1;
-      } else {
-        visited.push_back(p1);
-      }
+      path.push_back(path.back() + facing);
     }
   }
+  return path;
+}
 
-  return {p1, p2};
+int find_part1(const Path& path) {
+  return path.back().distance();
+}
+
+int find_part2(const Path& path) {
+  for (auto it{path.begin()}; it != path.end(); ++it) {
+    if (ranges::find(it + 1, path.end(), *it) != path.end()) {
+      return it->distance();
+    }
+  }
+  throw std::runtime_error("oh no");
 }
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
   const auto moves = views::istream<Move>(std::cin) | ranges::to<std::vector<Move>>();
-  const auto [p1, p2] = walk(moves);
-  const auto part1{p1.distance()};
-  const auto part2{p2.distance()};
+
+  const auto path = walk(moves);
+
+  const auto part1{find_part1(path)};
+  const auto part2{find_part2(path)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
