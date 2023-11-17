@@ -48,14 +48,15 @@ all: $(OUT_PATHS)
 clean:
 	$(RM) -rv $(OUT)
 
-$(OUT):
+$(OUT)/:
 	mkdir $@
 
-$(OUT_DIRS): $(OUT)
+$(addsuffix /,$(OUT_DIRS)): $(OUT)/
 	mkdir $@
 
-$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $(OUT_DIRS)
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(LDFLAGS)
+.SECONDEXPANSION:
+$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $$(dir $(OUT)/%)
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
 
 RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
 
