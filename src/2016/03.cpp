@@ -3,38 +3,30 @@ import std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Triple {
-  int a;
-  int b;
-  int c;
-};
-
-bool is_triangle(const Triple& t) {
-  const auto [a, b, c] = t;
+bool is_triangle(const int a, const int b, const int c) {
   return a + b > c && b + c > a && c + a > b;
 }
 
 using Ints = std::vector<int>;
-using Triples = std::vector<Triple>;
 
-Triples parse_row_order(const Ints& input) {
-  Triples result;
+int count_triangles_row_order(const Ints& input) {
+  int n{};
   for (std::size_t row{}; row < input.size() / 3; ++row) {
     const auto i{3 * row};
-    result.push_back({input[i], input[i + 1], input[i + 2]});
+    n += is_triangle(input[i], input[i + 1], input[i + 2]);
   }
-  return result;
+  return n;
 }
 
-Triples parse_col_order(const Ints& input) {
-  Triples result;
+int count_triangles_col_order(const Ints& input) {
+  int n{};
   for (std::size_t col{}; col < 3; ++col) {
     for (std::size_t row{}; row < input.size() / 3; row += 3) {
       const auto i{3 * row + col};
-      result.push_back({input[i], input[i + 3], input[i + 6]});
+      n += is_triangle(input[i], input[i + 3], input[i + 6]);
     }
   }
-  return result;
+  return n;
 }
 
 int main() {
@@ -45,8 +37,8 @@ int main() {
     throw std::runtime_error("input must be divisible by 3");
   }
 
-  const auto part1{ranges::count_if(parse_row_order(input), is_triangle)};
-  const auto part2{ranges::count_if(parse_col_order(input), is_triangle)};
+  const auto part1{count_triangles_row_order(input)};
+  const auto part2{count_triangles_col_order(input)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
