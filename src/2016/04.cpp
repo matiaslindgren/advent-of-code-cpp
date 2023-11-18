@@ -11,23 +11,23 @@ struct Room {
 
   static constexpr auto alphabet_size = 'z' - 'a' + 1;
 
-  std::string decode_name() const {
-    using CharCounts = std::array<std::pair<int, char>, alphabet_size>;
+  std::string check_name() const {
+    using CharCounts = std::array<std::pair<char, int>, alphabet_size>;
     CharCounts cc;
     for (char ch : name) {
-      const auto i{ch - 'a'};
-      cc[i].first += 1;
-      cc[i].second = ch;
+      auto& p{cc[ch - 'a']};
+      p.first = ch;
+      p.second += 1;
     }
-    std::ranges::sort(cc, [](auto&& p1, auto&& p2) {
-      auto&& [n1, ch1] = p1;
-      auto&& [n2, ch2] = p2;
+    ranges::sort(cc, [](auto&& p1, auto&& p2) {
+      auto&& [ch1, n1] = p1;
+      auto&& [ch2, n2] = p2;
       return n1 > n2 || (n1 == n2 && ch1 < ch2);
     });
     // clang-format off
     return (
       views::take(cc, 5)
-      | views::transform([](auto&& p) { return p.second; })
+      | views::transform([](auto&& p) { return p.first; })
       | ranges::to<std::string>()
     );
     // clang-format on
@@ -76,7 +76,7 @@ int find_part1(const auto& rooms) {
   // clang-format off
   return my_std::ranges::fold_left(
     rooms
-      | views::filter([](auto&& r) { return r.decode_name() == r.checksum; })
+      | views::filter([](auto&& r) { return r.check_name() == r.checksum; })
       | views::transform([](auto&& r) { return r.id; }),
     0L,
     std::plus<int>()
