@@ -43,45 +43,49 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
 
 using Keypad = std::vector<std::string>;
 
-std::pair<unsigned, unsigned> find_yx_of_5(const Keypad& keypad) {
+std::pair<unsigned, unsigned> find(const Keypad& keypad, char key) {
   for (unsigned y{}; y < keypad.size(); ++y) {
     for (unsigned x{}; x < keypad.size(); ++x) {
-      if (keypad[y][x] == '5') {
+      if (keypad[y][x] == key) {
         return {y, x};
       }
     }
   }
-  throw std::runtime_error("keypad has no 5");
+  throw std::runtime_error(std::format("keypad has no {}", key));
 }
 
 std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructions) {
-  std::string code;
-  auto [y, x] = find_yx_of_5(keypad);
-  for (const auto& steps : instructions) {
-    for (const auto& step : steps) {
-      unsigned y2{y}, x2{x};
-      switch (step) {
-        case Step::up: {
-          y2 = y - 1;
-        } break;
-        case Step::left: {
-          x2 = x - 1;
-        } break;
-        case Step::down: {
-          y2 = y + 1;
-        } break;
-        case Step::right: {
-          x2 = x + 1;
-        } break;
-      }
-      if (keypad[y2][x2]) {
-        y = y2;
-        x = x2;
-      }
-    }
-    code.push_back(keypad[y][x]);
-  }
-  return code;
+  auto [y, x] = find(keypad, '5');
+  return (
+      views::transform(
+          instructions,
+          [&](auto&& steps) mutable -> char {
+            for (const auto& step : steps) {
+              unsigned y2{y}, x2{x};
+              switch (step) {
+                case Step::up: {
+                  y2 = y - 1;
+                } break;
+                case Step::left: {
+                  x2 = x - 1;
+                } break;
+                case Step::down: {
+                  y2 = y + 1;
+                } break;
+                case Step::right: {
+                  x2 = x + 1;
+                } break;
+              }
+              if (keypad[y2][x2]) {
+                y = y2;
+                x = x2;
+              }
+            }
+            return keypad[y][x];
+          }
+      )
+      | ranges::to<std::string>()
+  );
 }
 
 int main() {
