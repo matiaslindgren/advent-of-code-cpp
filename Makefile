@@ -8,6 +8,7 @@ CXXFLAGS := \
 	-std=c++23 \
 	-stdlib=libc++ \
 	-O2 \
+	-flto \
 	-Wall \
 	-Wpedantic \
 	-Werror \
