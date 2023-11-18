@@ -3,6 +3,7 @@ import std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+// TODO(reinterpret 3chars to fixed width type)
 enum Code {
   half,
   triple,
