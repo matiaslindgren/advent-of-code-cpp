@@ -2,7 +2,7 @@
 set -ue
 
 if [ $# -ne 1 ]; then
-  printf 'usage: test.sh executable\n'
+  printf 'usage: test.sh target\n'
   exit 2
 fi
 
