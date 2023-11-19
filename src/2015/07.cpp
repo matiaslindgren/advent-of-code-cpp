@@ -64,7 +64,7 @@ std::istream& operator>>(std::istream& is, Statement& s) {
 }
 
 bool is_literal(const std::string& s) {
-  return std::isdigit(static_cast<unsigned char>(s.front()));
+  return !s.empty() && std::isdigit(static_cast<unsigned char>(s.front()));
 }
 
 uint16_t parse_literal(const std::string& s) {
@@ -77,7 +77,6 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
   }
   const auto& stmt{circuit.at(wire)};
   uint16_t result{};
-  // clang-format off
   switch (stmt.gate) {
     case Statement::Assign: {
       result = compute_signal(stmt.lhs0, circuit);
@@ -86,27 +85,21 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
       result = ~compute_signal(stmt.lhs0, circuit);
     } break;
     case Statement::And: {
-      result = compute_signal(stmt.lhs0, circuit)
-               & compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit) & compute_signal(stmt.lhs1, circuit);
     } break;
     case Statement::Or: {
-      result = compute_signal(stmt.lhs0, circuit)
-               | compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit) | compute_signal(stmt.lhs1, circuit);
     } break;
     case Statement::LShift: {
-      result = compute_signal(stmt.lhs0, circuit)
-               << compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit) << compute_signal(stmt.lhs1, circuit);
     } break;
     case Statement::RShift: {
-      result = compute_signal(stmt.lhs0, circuit)
-               >> compute_signal(stmt.lhs1, circuit);
+      result = compute_signal(stmt.lhs0, circuit) >> compute_signal(stmt.lhs1, circuit);
     } break;
     case Statement::Unknown:
     default:
       throw std::runtime_error("broken circuit");
-      break;
   }
-  // clang-format on
   circuit[wire] = {std::format("{}", result), "", wire, Statement::Assign};
   return result;
 }

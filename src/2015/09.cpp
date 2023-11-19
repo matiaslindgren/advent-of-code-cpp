@@ -17,15 +17,16 @@ struct Edge {
 };
 
 std::istream& operator>>(std::istream& is, Edge& edge) {
-  std::string tmp;
-  if (is >> edge.src && is >> tmp && tmp == "to" && is >> edge.dst && is >> tmp && tmp == "="
-      && is >> edge.dist) {
+  std::string src, dst, tmp;
+  std::size_t dist;
+  if (is >> src && is >> tmp && tmp == "to" && is >> dst && is >> tmp && tmp == "=" && is >> dist) {
+    edge = {src, dst, dist};
     return is;
   }
   if (is.eof()) {
     return is;
   }
-  throw std::runtime_error("failed parsing input");
+  throw std::runtime_error("failed parsing Edge");
 }
 
 class Graph {
@@ -120,7 +121,7 @@ int main() {
   std::ios_base::sync_with_stdio(false);
   constexpr auto max_node_count{8};
 
-  const auto edges = views::istream<Edge>(std::cin) | ranges::to<std::vector<Edge>>();
+  const auto edges{views::istream<Edge>(std::cin) | ranges::to<std::vector<Edge>>()};
 
   Graph g{edges};
   const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<max_node_count>()};
