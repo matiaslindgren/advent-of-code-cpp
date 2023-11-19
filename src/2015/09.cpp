@@ -18,8 +18,8 @@ struct Edge {
 
 std::istream& operator>>(std::istream& is, Edge& edge) {
   std::string tmp;
-  if (is >> edge.src && is >> tmp && tmp == "to" && is >> edge.dst && is >> tmp
-      && tmp == "=" && is >> edge.dist) {
+  if (is >> edge.src && is >> tmp && tmp == "to" && is >> edge.dst && is >> tmp && tmp == "="
+      && is >> edge.dist) {
     return is;
   }
   if (is.eof()) {
@@ -108,9 +108,7 @@ class Graph {
         }
         for (auto node : views::iota(0uz, node_count())) {
           const auto edge_length{distance(current.node, node)};
-          q.emplace_back(current.visited,
-                         node,
-                         saturating_add(current.path_length, edge_length));
+          q.emplace_back(current.visited, node, saturating_add(current.path_length, edge_length));
         }
       }
     }
@@ -122,14 +120,11 @@ int main() {
   std::ios_base::sync_with_stdio(false);
   constexpr auto max_node_count{8};
 
-  const auto edges
-      = views::istream<Edge>(std::cin) | ranges::to<std::vector<Edge>>();
+  const auto edges = views::istream<Edge>(std::cin) | ranges::to<std::vector<Edge>>();
 
   Graph g{edges};
-  const auto hamiltonian_path_lengths{
-      g.find_all_hamiltonian_path_lengths<max_node_count>()};
-  const auto [shortest_path, longest_path]
-      = ranges::minmax_element(hamiltonian_path_lengths);
+  const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<max_node_count>()};
+  const auto [shortest_path, longest_path] = ranges::minmax_element(hamiltonian_path_lengths);
 
   const auto part1{*shortest_path};
   const auto part2{*longest_path};

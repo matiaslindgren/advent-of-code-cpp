@@ -4,15 +4,16 @@ import md5;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-std::size_t append_digits(md5::Message& msg, const auto msg_size,
-                          const auto number) {
+std::size_t append_digits(md5::Message& msg, const auto msg_size, const auto number) {
   std::array<uint8_t, 16> digits = {0};
   std::size_t digit_count{0};
   for (auto x{number}; x; x /= 10) {
     digits[digit_count++] = '0' + (x % 10);
   }
-  ranges::move(views::reverse(views::take(digits, digit_count)),
-               ranges::next(msg.begin(), msg_size));
+  ranges::move(
+      views::reverse(views::take(digits, digit_count)),
+      ranges::next(msg.begin(), msg_size)
+  );
   return msg_size + digit_count;
 }
 

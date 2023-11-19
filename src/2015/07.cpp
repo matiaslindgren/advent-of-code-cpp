@@ -77,6 +77,7 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
   }
   const auto& stmt = circuit.at(wire);
   uint16_t result{};
+  // clang-format off
   switch (stmt.gate) {
     case Statement::Assign: {
       result = compute_signal(stmt.lhs0, circuit);
@@ -105,6 +106,7 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
       throw std::runtime_error("broken circuit");
       break;
   }
+  // clang-format on
   circuit[wire] = {std::format("{}", result), "", wire, Statement::Assign};
   return result;
 }
@@ -113,9 +115,8 @@ int main() {
   std::ios_base::sync_with_stdio(false);
 
   const auto circuit
-      = views::istream<Statement>(std::cin) | views::transform([](auto&& stmt) {
-          return std::make_tuple(stmt.dst, stmt);
-        })
+      = views::istream<Statement>(std::cin)
+        | views::transform([](auto&& stmt) { return std::make_tuple(stmt.dst, stmt); })
         | ranges::to<std::unordered_map<std::string, Statement>>();
 
   uint16_t part1{};

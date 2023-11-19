@@ -42,7 +42,8 @@ bool valid(const auto& password) {
       [](const auto& t) {
         const auto& [x0, x1, x2] = t;
         return x0 + 1 == x1 && x1 + 1 == x2;
-      });
+      }
+  );
 }
 
 template <auto base>

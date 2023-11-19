@@ -36,9 +36,8 @@ std::istream& operator>>(std::istream& is, Aunt& aunt) {
 
 Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
   for (const auto& [k, v] : target.items) {
-    const auto is_mismatch = [&](const auto& aunt) {
-      return aunt.items.contains(k) && !comp(k, aunt.items.at(k), v);
-    };
+    const auto is_mismatch
+        = [&](const auto& aunt) { return aunt.items.contains(k) && !comp(k, aunt.items.at(k), v); };
     const auto [rm_begin, rm_end] = ranges::remove_if(aunts, is_mismatch);
     aunts.erase(rm_begin, rm_end);
   }
@@ -48,24 +47,23 @@ Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto aunts
-      = views::istream<Aunt>(std::cin) | ranges::to<std::vector<Aunt>>();
+  const auto aunts = views::istream<Aunt>(std::cin) | ranges::to<std::vector<Aunt>>();
 
   const Aunt target{
-      .items = {{"children", 3},
-                {"cats", 7},
-                {"samoyeds", 2},
-                {"pomeranians", 3},
-                {"akitas", 0},
-                {"vizslas", 0},
-                {"goldfish", 5},
-                {"trees", 3},
-                {"cars", 2},
-                {"perfumes", 1}}
+      .items
+      = {{"children", 3},
+         {"cats", 7},
+         {"samoyeds", 2},
+         {"pomeranians", 3},
+         {"akitas", 0},
+         {"vizslas", 0},
+         {"goldfish", 5},
+         {"trees", 3},
+         {"cars", 2},
+         {"perfumes", 1}}
   };
 
-  const auto equal_compare{
-      [](const auto&, int lhs, int rhs) { return lhs == rhs; }};
+  const auto equal_compare{[](const auto&, int lhs, int rhs) { return lhs == rhs; }};
 
   const auto fancy_compare{[](const auto& key, int lhs, int rhs) {
     if (key == "cats" || key == "trees") {

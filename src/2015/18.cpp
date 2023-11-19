@@ -105,14 +105,12 @@ Grid2D simulate(Grid2D grid, int steps) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const Grid2D input{views::istream<Light>(std::cin)
-                     | ranges::to<std::vector<Light>>()};
+  const Grid2D input{views::istream<Light>(std::cin) | ranges::to<std::vector<Light>>()};
   Grid2D grid1{input.pad()};
   Grid2D grid2{grid1};
   {
     const auto n{grid2.size - 2};
-    grid2.get(1, 1) = grid2.get(1, n) = grid2.get(n, 1) = grid2.get(n, n)
-        = Light::stuck;
+    grid2.get(1, 1) = grid2.get(1, n) = grid2.get(n, 1) = grid2.get(n, n) = Light::stuck;
   }
 
   const auto part1{simulate(grid1, 100).count_on()};

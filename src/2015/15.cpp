@@ -23,10 +23,9 @@ std::istream& operator>>(std::istream& is, Ingredient& i) {
       return is >> tmp && tmp == std::string_view{w};
     });
   };
-  if (is >> i.name && i.name.ends_with(":") && skip("capacity")
-      && is >> i.capacity && skip(", durability") && is >> i.durability
-      && skip(", flavor") && is >> i.flavor && skip(", texture")
-      && is >> i.texture && skip(", calories") && is >> i.calories) {
+  if (is >> i.name && i.name.ends_with(":") && skip("capacity") && is >> i.capacity
+      && skip(", durability") && is >> i.durability && skip(", flavor") && is >> i.flavor
+      && skip(", texture") && is >> i.texture && skip(", calories") && is >> i.calories) {
     i.name.pop_back();
     return is;
   }
@@ -38,26 +37,27 @@ std::istream& operator>>(std::istream& is, Ingredient& i) {
 
 auto compute_scores(const auto& weights, const auto& spoons) {
   const auto inner_product_clamp_to_zero{[&spoons](const auto& w) {
-    return std::max(
-        0LL,
-        std::inner_product(w.begin(), w.end(), spoons.begin(), 0LL));
+    return std::max(0LL, std::inner_product(w.begin(), w.end(), spoons.begin(), 0LL));
   }};
   return views::transform(weights, inner_product_clamp_to_zero)
          | ranges::to<std::vector<long long>>();
 }
 
-long long find_optimal_cookie(const auto& weights,
-                              const auto& spoons,
-                              const std::optional<int>& calorie_target = {},
-                              const std::size_t& begin = {}) {
+long long find_optimal_cookie(
+    const auto& weights,
+    const auto& spoons,
+    const std::optional<int>& calorie_target = {},
+    const std::size_t& begin = {}
+) {
   const auto scores{compute_scores(weights, spoons)};
   auto best_score{0LL};
   if (!calorie_target || scores.back() == *calorie_target) {
-    best_score
-        = std::accumulate(scores.begin(),
-                          ranges::next(scores.begin(), weights.size() - 1),
-                          1LL,
-                          std::multiplies<long long>());
+    best_score = std::accumulate(
+        scores.begin(),
+        ranges::next(scores.begin(), weights.size() - 1),
+        1LL,
+        std::multiplies<long long>()
+    );
   }
   for (auto i{begin}; i < spoons.size(); ++i) {
     if (spoons[i] == 0) {
@@ -70,8 +70,7 @@ long long find_optimal_cookie(const auto& weights,
       for (auto next_spoons{spoons}; next_spoons[i];) {
         --next_spoons[i];
         ++next_spoons[j];
-        const auto score{
-            find_optimal_cookie(weights, next_spoons, calorie_target, j)};
+        const auto score{find_optimal_cookie(weights, next_spoons, calorie_target, j)};
         best_score = std::max(best_score, score);
       }
     }
@@ -82,8 +81,8 @@ long long find_optimal_cookie(const auto& weights,
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto ingredients = views::istream<Ingredient>(std::cin)
-                           | ranges::to<std::vector<Ingredient>>();
+  const auto ingredients
+      = views::istream<Ingredient>(std::cin) | ranges::to<std::vector<Ingredient>>();
 
   std::vector<std::vector<int>> weights{ingredients.front().as_vector().size()};
   for (const auto& ingredient : ingredients) {

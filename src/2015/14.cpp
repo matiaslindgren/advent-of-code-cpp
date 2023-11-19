@@ -18,9 +18,8 @@ std::istream& operator>>(std::istream& is, Reindeer& r) {
       return is >> tmp && tmp == std::string_view{w};
     });
   };
-  if (is >> r.name && skip("can fly") && is >> r.speed && skip("km/s for")
-      && is >> r.stamina && skip("seconds, but then must rest for")
-      && is >> r.rest_need && skip("seconds.")) {
+  if (is >> r.name && skip("can fly") && is >> r.speed && skip("km/s for") && is >> r.stamina
+      && skip("seconds, but then must rest for") && is >> r.rest_need && skip("seconds.")) {
     return is;
   }
   if (is.eof()) {
@@ -32,8 +31,7 @@ std::istream& operator>>(std::istream& is, Reindeer& r) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto herd = views::istream<Reindeer>(std::cin)
-                    | ranges::to<std::vector<Reindeer>>();
+  const auto herd = views::istream<Reindeer>(std::cin) | ranges::to<std::vector<Reindeer>>();
 
   struct ReindeerState {
     bool resting;

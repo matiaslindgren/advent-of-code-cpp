@@ -65,6 +65,10 @@ TEST_TARGETS := $(subst txt/correct/,test_,$(SOLUTIONS))
 .PHONY: test
 test: $(TEST_TARGETS)
 
+.PHONY: fmt
+fmt:
+	find . -type f -name '*.cpp*' -exec clang-format -i {} \;
+
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
 	@./test_one.bash $*
