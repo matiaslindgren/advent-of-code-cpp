@@ -1,24 +1,21 @@
 SHELL    := /bin/sh
-CLANG    := clang-17
+CLANG    := clang++-17
 
-INCLUDES := -I./include
-LDFLAGS  := -lm
+INCLUDES :=
+LDFLAGS  := -lm -fuse-ld=lld
 CXXFLAGS := \
-	-lc++ \
 	-std=c++23 \
 	-stdlib=libc++ \
 	-O2 \
-	-flto \
 	-Wall \
 	-Wpedantic \
 	-Werror \
-	-fmodules \
-	-fexperimental-library
+	-fmodules
 
 ifeq ($(shell uname),Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
 	LLVM_DIR := $(shell brew --prefix llvm)
-	CLANG    := $(LLVM_DIR)/bin/$(CLANG)
+	CLANG    := $(LLVM_DIR)/bin/clang-17
 	LDFLAGS  := \
 		$(LDFLAGS) \
 		-L$(LLVM_DIR)/lib/c++ \
@@ -33,10 +30,15 @@ endif
 SRC       := src
 OUT       := out
 SRC_DIRS  := $(wildcard $(SRC)/*)
+OUT_DIRS  := $(subst $(SRC)/,$(OUT)/,$(SRC_DIRS))
 SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
 OUT_FILES := $(basename $(SRC_PATHS:$(SRC)/%=%))
 OUT_PATHS := $(addprefix $(OUT)/,$(OUT_FILES))
-OUT_DIRS  := $(subst $(SRC)/,$(OUT)/,$(SRC_DIRS))
+
+MODULES       := modules
+MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
+MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT)/,$(MOD_SRC_PATHS)))
+MOD_OUT_FILES := $(notdir $(MOD_OUT_PATHS))
 
 .PHONY: all
 all: $(OUT_PATHS)
@@ -48,7 +50,7 @@ clean:
 $(OUT)/:
 	mkdir $@
 
-$(addsuffix /,$(OUT_DIRS)): $(OUT)/
+$(addsuffix /,$(OUT_DIRS)): | $(OUT)/
 	mkdir $@
 
 RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
@@ -67,12 +69,15 @@ test: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
 	@./test.bash $*
 
+$(MOD_OUT_PATHS): $(OUT)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT)/$(MODULES)/
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
+
 .SECONDEXPANSION:
 
-$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp | $$(dir $(OUT)/%)
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
+$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp $(MOD_OUT_PATHS) | $$(dir $(OUT)/%)
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) -l c++ $< -fprebuilt-module-path=$(OUT)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
 
 PERCENT := %
-TEST_YEARS := $(subst out/,test_,$(OUT_DIRS))
+TEST_YEARS := $(subst $(OUT)/,test_,$(OUT_DIRS))
 .PHONY: $(TEST_YEARS)
 $(TEST_YEARS): test_% : $$(filter test_%$$(PERCENT),$(TEST_TARGETS))
