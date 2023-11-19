@@ -10,10 +10,7 @@ std::size_t append_digits(md5::Message& msg, const auto msg_size, const auto num
   for (auto x{number}; x; x /= 10) {
     digits[digit_count++] = '0' + (x % 10);
   }
-  ranges::move(
-      views::reverse(views::take(digits, digit_count)),
-      ranges::next(msg.begin(), msg_size)
-  );
+  ranges::move(digits | views::take(digit_count) | views::reverse, msg.begin() + msg_size);
   return msg_size + digit_count;
 }
 
