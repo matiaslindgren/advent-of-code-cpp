@@ -37,8 +37,8 @@ find_all_combinations(const int init_target, const vector<int>& all_containers) 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto containers = views::istream<int>(std::cin) | ranges::to<vector<int>>();
-  const auto combinations = find_all_combinations(150, containers);
+  const auto containers{views::istream<int>(std::cin) | ranges::to<vector<int>>()};
+  const auto combinations{find_all_combinations(150, containers)};
 
   const auto part1{combinations.size()};
 

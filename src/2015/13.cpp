@@ -11,13 +11,13 @@ struct Pair {
 };
 
 std::istream& operator>>(std::istream& is, Pair& p) {
-  const auto skip = [&is](std::string_view s) {
+  const auto skip{[&is](std::string_view s) {
     using std::operator""sv;
     return ranges::all_of(views::split(s, " "sv), [&is](auto&& w) {
       std::string tmp;
       return is >> tmp && tmp == std::string_view{w};
     });
-  };
+  }};
   std::string sign;
   if (is >> p.src && skip("would") && is >> sign && (sign == "gain" || sign == "lose")
       && is >> p.happiness && skip("happiness units by sitting next to") && is >> p.dst
@@ -61,15 +61,15 @@ class Graph {
     }
     {
       ranges::sort(nodes);
-      const auto duplicates = ranges::unique(nodes);
+      const auto duplicates{ranges::unique(nodes)};
       nodes.erase(duplicates.begin(), duplicates.end());
     }
 
     const auto n{node_count()};
     weights.resize(n * n);
-    const auto find_node_index = [this](const auto& name) {
+    const auto find_node_index{[this](const auto& name) {
       return ranges::distance(this->nodes.begin(), ranges::find(this->nodes, name));
-    };
+    }};
     for (const auto& p : pairs) {
       const auto n1{find_node_index(p.src)};
       const auto n2{find_node_index(p.dst)};
@@ -78,8 +78,8 @@ class Graph {
   }
 };
 
-constexpr auto accumulate
-    = std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>());
+static constexpr auto accumulate{
+    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())};
 
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {
@@ -104,7 +104,7 @@ auto maximize_happiness(const auto& pairs) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  auto pairs = views::istream<Pair>(std::cin) | ranges::to<std::vector<Pair>>();
+  auto pairs{views::istream<Pair>(std::cin) | ranges::to<std::vector<Pair>>()};
 
   const auto part1{maximize_happiness(pairs)};
 

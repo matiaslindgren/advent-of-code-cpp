@@ -39,8 +39,9 @@ std::istream& operator>>(std::istream& is, Region& r) {
 }
 
 int main() {
-  const auto regions = views::istream<Region>(std::cin) | ranges::to<std::vector<Region>>();
+  const auto regions{views::istream<Region>(std::cin) | ranges::to<std::vector<Region>>()};
 
+  // TODO
   std::vector<bool> part1_lights(1'000'000, false);
   std::vector<long long> part2_lights(1'000'000, 0);
   for (const auto& r : regions) {

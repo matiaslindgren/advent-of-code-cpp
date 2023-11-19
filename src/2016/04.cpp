@@ -9,7 +9,7 @@ struct Room {
   std::string checksum;
   int id;
 
-  static constexpr auto alphabet_size = 'z' - 'a' + 1;
+  static constexpr auto alphabet_size{'z' - 'a' + 1};
 
   std::string check_name() const {
     using CharCounts = std::array<std::pair<char, int>, alphabet_size>;

@@ -32,7 +32,7 @@ int count_triangles_col_order(const Ints& input) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto input = views::istream<int>(std::cin) | ranges::to<Ints>();
+  const auto input{views::istream<int>(std::cin) | ranges::to<Ints>()};
   if (input.size() % 3) {
     throw std::runtime_error("input must be divisible by 3");
   }

@@ -12,7 +12,7 @@ constexpr char digit2char(int x) {
   return x + 'a';
 }
 
-constexpr static auto forbidden_chars = views::transform("iol", char2digit);
+constexpr static auto forbidden_chars{views::transform("iol", char2digit)};
 
 bool valid(const auto& password) {
   const auto begin{password.begin()};
@@ -66,8 +66,9 @@ auto to_string(const auto& password) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  auto password = views::istream<char>(std::cin) | views::transform(char2digit)
-                  | ranges::to<std::vector<int>>();
+  auto password{
+      views::istream<char>(std::cin) | views::transform(char2digit)
+      | ranges::to<std::vector<int>>()};
 
   std::string results[2] = {};
   for (auto& result : results) {

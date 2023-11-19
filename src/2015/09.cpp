@@ -41,7 +41,7 @@ class Graph {
     }
     {
       ranges::sort(nodes);
-      const auto duplicates = ranges::unique(nodes);
+      const auto duplicates{ranges::unique(nodes)};
       nodes.erase(duplicates.begin(), duplicates.end());
     }
     node_count_ = nodes.size();
@@ -51,9 +51,9 @@ class Graph {
       distance(n, n) = 0;
     }
 
-    const auto find_node_index = [&nodes](const auto& name) {
+    const auto find_node_index{[&nodes](const auto& name) {
       return ranges::distance(nodes.begin(), ranges::find(nodes, name));
-    };
+    }};
     for (const auto& e : edges) {
       const auto n1{find_node_index(e.src)};
       const auto n2{find_node_index(e.dst)};

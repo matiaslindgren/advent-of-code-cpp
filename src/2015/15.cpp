@@ -17,12 +17,12 @@ struct Ingredient {
 };
 
 std::istream& operator>>(std::istream& is, Ingredient& i) {
-  const auto skip = [&is](std::string_view s) {
+  const auto skip{[&is](std::string_view s) {
     return ranges::all_of(views::split(s, " "sv), [&is](auto&& w) {
       std::string tmp;
       return is >> tmp && tmp == std::string_view{w};
     });
-  };
+  }};
   if (is >> i.name && i.name.ends_with(":") && skip("capacity") && is >> i.capacity
       && skip(", durability") && is >> i.durability && skip(", flavor") && is >> i.flavor
       && skip(", texture") && is >> i.texture && skip(", calories") && is >> i.calories) {
@@ -81,8 +81,8 @@ long long find_optimal_cookie(
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto ingredients
-      = views::istream<Ingredient>(std::cin) | ranges::to<std::vector<Ingredient>>();
+  const auto ingredients{
+      views::istream<Ingredient>(std::cin) | ranges::to<std::vector<Ingredient>>()};
 
   std::vector<std::vector<int>> weights{ingredients.front().as_vector().size()};
   for (const auto& ingredient : ingredients) {

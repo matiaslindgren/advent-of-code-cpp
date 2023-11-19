@@ -45,7 +45,7 @@ std::vector<Units> replace(const Units& molecule, const Replacement& repl) {
   std::vector<Units> new_molecules;
   const auto begin{molecule.begin()};
   const auto end{molecule.end()};
-  for (auto it = begin; it != end;) {
+  for (auto it{begin}; it != end;) {
     const auto [match_begin, match_end] = ranges::search(ranges::subrange(it, end), repl.src);
     if (match_begin != end) {
       const auto back_inserter{std::back_inserter(new_molecules.emplace_back())};
@@ -113,13 +113,14 @@ int main() {
 
   const auto part1{replace_all(medicine, replacements).size()};
 
-  auto reverse_replacements = views::transform(
-                                  replacements,
-                                  [](auto&& r) -> Replacement {
-                                    return {r.dst, r.src};
-                                  }
-                              )
-                              | ranges::to<std::vector<Replacement>>();
+  auto reverse_replacements{
+      views::transform(
+          replacements,
+          [](auto&& r) -> Replacement {
+            return {r.dst, r.src};
+          }
+      )
+      | ranges::to<std::vector<Replacement>>()};
   ranges::sort(reverse_replacements, ranges::greater{}, [](const auto& r) { return r.src.size(); });
   const auto part2{count_shortest_path_to(medicine, reverse_replacements, {"e"s})};
 

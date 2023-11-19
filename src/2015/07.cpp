@@ -25,7 +25,7 @@ std::istream& operator>>(std::istream& is, Statement& s) {
     lhs.push_back(str);
   }
   if (0 < lhs.size() && lhs.size() < 4 && str == "->" && is >> str) {
-    auto gate = Statement::Unknown;
+    auto gate{Statement::Unknown};
     switch (lhs.size()) {
       case 1: {
         s.lhs0 = lhs[0];
@@ -75,7 +75,7 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
   if (is_literal(wire)) {
     return parse_literal(wire);
   }
-  const auto& stmt = circuit.at(wire);
+  const auto& stmt{circuit.at(wire)};
   uint16_t result{};
   // clang-format off
   switch (stmt.gate) {
@@ -114,20 +114,20 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto circuit
-      = views::istream<Statement>(std::cin)
-        | views::transform([](auto&& stmt) { return std::make_tuple(stmt.dst, stmt); })
-        | ranges::to<std::unordered_map<std::string, Statement>>();
+  const auto circuit{
+      views::istream<Statement>(std::cin)
+      | views::transform([](auto&& stmt) { return std::make_tuple(stmt.dst, stmt); })
+      | ranges::to<std::unordered_map<std::string, Statement>>()};
 
   uint16_t part1{};
   {
-    auto circuit_part1 = circuit;
+    auto circuit_part1{circuit};
     part1 = compute_signal("a", circuit_part1);
   }
 
   uint16_t part2{};
   {
-    auto circuit_part2 = circuit;
+    auto circuit_part2{circuit};
     circuit_part2["b"] = {std::format("{}", part1), "", "b", Statement::Assign};
     part2 = compute_signal("a", circuit_part2);
   }

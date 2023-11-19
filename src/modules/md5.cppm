@@ -18,7 +18,7 @@ auto pack_md5_input(Message& msg, const auto msg_len) {
   std::array<uint32_t, 16> input = {0};
   {
     msg[msg_len] = 0x80;
-    const auto bit_count = 8 * msg_len;
+    const auto bit_count{8 * msg_len};
     for (auto i : views::iota(msg_len + 1, msg.size())) {
       msg[i] = (i < 56) ? 0 : (bit_count >> (8 * (i - 56))) & 0xff;
     }
@@ -47,7 +47,7 @@ uint32_t compute(Message& msg, const auto msg_len) {
   uint32_t c0{std::byteswap(0xfedcba98)};
   uint32_t d0{std::byteswap(0x76543210)};
 
-  const std::array<uint32_t, 16> input = pack_md5_input(msg, msg_len);
+  const std::array<uint32_t, 16> input{pack_md5_input(msg, msg_len)};
   auto a{a0};
   auto b{b0};
   auto c{c0};
@@ -73,7 +73,7 @@ uint32_t compute(Message& msg, const auto msg_len) {
     a = d;
     d = c;
     c = b;
-    const auto s = md5_rotations[4 * (i / 16) + i % 4];
+    const auto s{md5_rotations[4 * (i / 16) + i % 4]};
     b += std::rotl(f, s);
   }
 

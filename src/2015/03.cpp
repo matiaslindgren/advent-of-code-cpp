@@ -33,7 +33,7 @@ using Moves = std::vector<Direction>;
 int count_visited_houses(const auto&... moves_list) {
   std::unordered_map<long, int> visit_counts;
   const auto deliver_presents{[&visit_counts](const auto& moves) {
-    const auto grid_size = moves.size();
+    const auto grid_size{moves.size()};
     ++visit_counts[0];
     int x{0};
     int y{0};

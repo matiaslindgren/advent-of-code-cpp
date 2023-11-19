@@ -35,20 +35,20 @@ std::istream& operator>>(std::istream& is, Present& p) {
   throw std::runtime_error("failed parsing Present");
 }
 
-constexpr auto accumulate
-    = std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>());
+static constexpr auto accumulate{
+    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())};
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
   const auto presents = views::istream<Present>(std::cin) | ranges::to<std::vector<Present>>();
 
-  const auto part1 = accumulate(views::transform(presents, [](const auto& p) {
+  const auto part1{accumulate(views::transform(presents, [](const auto& p) {
     return p.surface_area() + p.slack_size();
-  }));
-  const auto part2 = accumulate(views::transform(presents, [](const auto& p) {
+  }))};
+  const auto part2{accumulate(views::transform(presents, [](const auto& p) {
     return p.ribbon_size() + p.bow_size();
-  }));
+  }))};
   std::print("{} {}\n", part1, part2);
 
   return 0;

@@ -80,9 +80,9 @@ int find_part2(const Path& path) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto moves = views::istream<Move>(std::cin) | ranges::to<std::vector<Move>>();
+  const auto moves{views::istream<Move>(std::cin) | ranges::to<std::vector<Move>>()};
 
-  const auto path = walk(moves);
+  const auto path{walk(moves)};
 
   const auto part1{find_part1(path)};
   const auto part2{find_part2(path)};

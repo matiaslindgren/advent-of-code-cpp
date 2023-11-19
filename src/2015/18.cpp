@@ -3,7 +3,7 @@ import std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum struct Light : char {
+enum class Light : char {
   on = '#',
   off = '.',
   stuck = 'S',

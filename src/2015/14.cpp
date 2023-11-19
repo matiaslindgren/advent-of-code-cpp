@@ -12,12 +12,12 @@ struct Reindeer {
 };
 
 std::istream& operator>>(std::istream& is, Reindeer& r) {
-  const auto skip = [&is](std::string_view s) {
+  const auto skip{[&is](std::string_view s) {
     return ranges::all_of(views::split(s, " "sv), [&is](auto&& w) {
       std::string tmp;
       return is >> tmp && tmp == std::string_view{w};
     });
-  };
+  }};
   if (is >> r.name && skip("can fly") && is >> r.speed && skip("km/s for") && is >> r.stamina
       && skip("seconds, but then must rest for") && is >> r.rest_need && skip("seconds.")) {
     return is;
@@ -41,9 +41,9 @@ int main() {
     int points;
   };
   std::vector<ReindeerState> race_state(herd.size());
-  const auto find_leader = [&race_state](auto&& state_accessor) {
+  const auto find_leader{[&race_state](auto&& state_accessor) {
     return *ranges::max_element(race_state, {}, state_accessor);
-  };
+  }};
 
   for (int t{1}; t <= 2503; ++t) {
     for (auto&& p : views::zip(herd, race_state)) {
