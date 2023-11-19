@@ -2,7 +2,7 @@
 set -ue
 
 if [ $# -ne 1 ]; then
-  printf 'usage: test.sh target\n'
+  printf "usage: $0 target\n"
   exit 2
 fi
 

@@ -67,7 +67,7 @@ test: $(TEST_TARGETS)
 
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
-	@./test.bash $*
+	@./test_one.bash $*
 
 $(MOD_OUT_PATHS): $(OUT)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT)/$(MODULES)/
 	$(CLANG) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
