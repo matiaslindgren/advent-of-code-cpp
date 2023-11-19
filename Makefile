@@ -67,7 +67,7 @@ test: $(TEST_TARGETS)
 
 .PHONY: fmt
 fmt:
-	find . -type f -name '*.cpp*' -exec clang-format -i {} \;
+	@find . -type f -name '*.cpp*' -exec clang-format --verbose -i {} \;
 
 .PHONY: $(TEST_TARGETS)
 $(TEST_TARGETS): test_% : $(OUT)/% | txt/input/%
