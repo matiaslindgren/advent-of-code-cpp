@@ -9,6 +9,7 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 export module md5;
+
 export namespace md5 {
 
 using Message = std::array<uint8_t, 64>;

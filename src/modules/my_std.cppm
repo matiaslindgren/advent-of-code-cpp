@@ -1,7 +1,11 @@
+module;
+// simplified replacements for stuff currently missing from libc++
+
 import std;
 
-// TODO(llvm18?)
-namespace my_std {
+export module my_std;
+
+export namespace my_std {
 namespace ranges {
 // Taken from "Possible implementations" at
 // https://en.cppreference.com/w/cpp/algorithm/ranges/fold_left
