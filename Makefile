@@ -2,7 +2,7 @@ SHELL    := /bin/sh
 CLANG    := clang++-17
 
 INCLUDES :=
-LDFLAGS  := -lm -fuse-ld=lld
+LDFLAGS  := -lm -fuse-ld=lld -lc++
 CXXFLAGS := \
 	-std=c++23 \
 	-stdlib=libc++ \
@@ -75,7 +75,7 @@ $(MOD_OUT_PATHS): $(OUT)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT)/$(M
 .SECONDEXPANSION:
 
 $(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp $(MOD_OUT_PATHS) | $$(dir $(OUT)/%)
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) -l c++ $< -fprebuilt-module-path=$(OUT)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
 
 PERCENT := %
 TEST_YEARS := $(subst $(OUT)/,test_,$(OUT_DIRS))
