@@ -108,7 +108,15 @@ class stride_view<V>::iterator_ {
   }
 
   constexpr void operator++(int) {
-    ++current_;
+    ++(*this);
+  }
+
+  constexpr iterator_ operator++(int)
+    requires std::ranges::forward_range<Base>
+  {
+    auto r = *this;
+    ++(*this);
+    return r;
   }
 
   friend constexpr bool operator==(const iterator_& x, std::default_sentinel_t) {
@@ -119,6 +127,40 @@ class stride_view<V>::iterator_ {
     requires std::equality_comparable<std::ranges::iterator_t<Base>>
   {
     return x.current_ == y.current_;
+  }
+
+  constexpr iterator_& operator+=(difference_type n)
+    requires std::ranges::random_access_range<Base>
+  {
+    if (n > 0) {
+      missing_ = std::ranges::advance(current_, stride_ * n, end_);
+    } else if (n < 0) {
+      std::ranges::advance(current_, stride_ * n + missing_);
+      missing_ = 0;
+    }
+    return *this;
+  }
+
+  constexpr iterator_& operator-=(difference_type n)
+    requires std::ranges::random_access_range<Base>
+  {
+    return *this += -n;
+  }
+
+  friend constexpr iterator_ operator+(const iterator_& x, difference_type n)
+    requires std::ranges::random_access_range<Base>
+  {
+    auto r = x;
+    r += n;
+    return r;
+  }
+
+  friend constexpr iterator_ operator-(const iterator_& x, difference_type n)
+    requires std::ranges::random_access_range<Base>
+  {
+    auto r = x;
+    r -= n;
+    return r;
   }
 };
 
