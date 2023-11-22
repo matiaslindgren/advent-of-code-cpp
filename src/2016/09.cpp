@@ -38,29 +38,31 @@ std::istream& operator>>(std::istream& is, Marker& marker) {
 
 using Markers = std::vector<Marker>;
 
-long cumulative_repeat(const Markers& markers) {
-  return my_std::ranges::fold_left(
-      markers | views::transform([](auto&& m) { return m.repeat; }),
-      1L,
-      std::multiplies{}
-  );
-};
-
 long count_decompressed(const Markers& markers, const bool simple) {
   std::size_t str_pos{};
   Markers repeating;
+
   const auto drop_nonrepeating{[&] {
     const auto rm{ranges::remove_if(repeating, [&str_pos](auto&& m) {
       return m.begin + m.length <= str_pos;
     })};
     repeating.erase(rm.begin(), rm.end());
   }};
+
+  const auto get_current_total_repeat{[&] {
+    return my_std::ranges::fold_left(
+        repeating | views::transform([](auto&& m) { return m.repeat; }),
+        1L,
+        std::multiplies{}
+    );
+  }};
+
   long n{};
   for (const auto& m : markers) {
     drop_nonrepeating();
     str_pos += m.width;
     if (m.is_letter() || (simple && !repeating.empty())) {
-      n += m.width * cumulative_repeat(repeating);
+      n += m.width * get_current_total_repeat();
     } else {
       Marker r = m;
       r.begin = str_pos;
