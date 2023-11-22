@@ -1,0 +1,82 @@
+import std;
+import my_std;
+
+namespace ranges = std::ranges;
+namespace views = std::views;
+
+struct Marker {
+  int length;
+  int repeat;
+  int width;
+  int begin = 0;
+  constexpr bool is_letter() const {
+    return repeat == 0;
+  }
+};
+
+std::istream& operator>>(std::istream& is, Marker& marker) {
+  if (char ch; is >> ch) {
+    if (ch == '(') {
+      if (std::string m_str; std::getline(is, m_str, ')')) {
+        std::stringstream ms{m_str};
+        if (int length, repeat; ms >> length && ms.ignore(1, 'x') && ms >> repeat) {
+          const int width{static_cast<int>(m_str.size())};
+          marker = {length, repeat, width + 2};
+          return is;
+        }
+      }
+    } else {
+      marker = {0, 0, 1};
+      return is;
+    }
+  }
+  if (is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Marker");
+}
+
+using Markers = std::vector<Marker>;
+
+long cumulative_repeat(const Markers& markers) {
+  return my_std::ranges::fold_left(
+      markers | views::transform([](auto&& m) { return m.repeat; }),
+      1L,
+      std::multiplies{}
+  );
+};
+
+long count_decompressed(const Markers& markers, const bool simple) {
+  std::size_t str_pos{};
+  Markers repeating;
+  const auto drop_nonrepeating{[&] {
+    const auto rm{ranges::remove_if(repeating, [&str_pos](auto&& m) {
+      return m.begin + m.length <= str_pos;
+    })};
+    repeating.erase(rm.begin(), rm.end());
+  }};
+  long n{};
+  for (const auto& m : markers) {
+    drop_nonrepeating();
+    str_pos += m.width;
+    if (m.is_letter() || (simple && !repeating.empty())) {
+      n += m.width * cumulative_repeat(repeating);
+    } else {
+      Marker r = m;
+      r.begin = str_pos;
+      repeating.push_back(r);
+    }
+  }
+  return n;
+}
+
+int main() {
+  std::ios_base::sync_with_stdio(false);
+
+  const auto markers{views::istream<Marker>(std::cin) | ranges::to<Markers>()};
+  const auto part1{count_decompressed(markers, true)};
+  const auto part2{count_decompressed(markers, false)};
+  std::print("{} {}\n", part1, part2);
+
+  return 0;
+}
