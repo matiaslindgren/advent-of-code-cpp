@@ -4,6 +4,17 @@ import std;
 using std::operator""s;
 export module aoc;
 export namespace aoc {
+
+std::istream& skip(std::istream& is, auto s) {
+  for (char rhs : s) {
+    if (char lhs; !(is.get(lhs) && lhs == rhs)) {
+      is.setstate(std::ios_base::failbit);
+      return is;
+    }
+  }
+  return is;
+}
+
 // Character map adapted from
 // https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
 // Accessed 2023-11-20

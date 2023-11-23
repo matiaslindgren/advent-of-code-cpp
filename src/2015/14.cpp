@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -12,14 +13,11 @@ struct Reindeer {
 };
 
 std::istream& operator>>(std::istream& is, Reindeer& r) {
-  const auto skip{[&is](std::string_view s) {
-    return ranges::all_of(views::split(s, " "sv), [&is](auto&& w) {
-      std::string tmp;
-      return is >> tmp && tmp == std::string_view{w};
-    });
-  }};
-  if (is >> r.name && skip("can fly") && is >> r.speed && skip("km/s for") && is >> r.stamina
-      && skip("seconds, but then must rest for") && is >> r.rest_need && skip("seconds.")) {
+  using std::operator""s;
+  using aoc::skip;
+  if (is >> r.name && skip(is, " can fly"s) && is >> r.speed && skip(is, " km/s for"s)
+      && is >> r.stamina && skip(is, " seconds, but then must rest for"s) && is >> r.rest_need
+      && skip(is, " seconds."s)) {
     return is;
   }
   if (is.eof()) {

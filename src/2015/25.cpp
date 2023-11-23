@@ -1,30 +1,27 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 std::pair<int, int> parse_input(std::istream& is) {
-  const auto skip = [&is](std::string_view s) {
-    auto it{s.begin()};
-    for (char ch; it != s.end() && is.get(ch) && *it == ch; ++it) {
-    }
-    return it == s.end();
-  };
+  using std::operator""s;
+  using aoc::skip;
   if (int row, col;
-      skip("To continue, please consult the code grid in the manual.  Enter the code at row ")
-      && is >> row && skip(", column ") && is >> col) {
+      skip(is, "To continue, please consult the code grid in the manual.  Enter the code at row "s)
+      && is >> row && skip(is, ", column "s) && is >> col) {
     return {row, col};
   }
   throw std::runtime_error("failed parsing input");
 }
 
-using ull = unsigned long long;
+using UInt = unsigned long;
 
-ull find(const int target_row, const int target_col) {
-  const ull factor{252533};
-  const ull rem{33554393};
-  for (ull value{20151125}, diag{1};; ++diag) {
-    for (ull y{diag}, x{1}; y > 0; --y, ++x) {
+UInt find(const int target_row, const int target_col) {
+  const UInt factor{252533u};
+  const UInt rem{33554393u};
+  for (UInt value{20151125u}, diag{1u};; ++diag) {
+    for (UInt y{diag}, x{1u}; y > 0; --y, ++x) {
       if (y == target_row && x == target_col) {
         return value;
       }

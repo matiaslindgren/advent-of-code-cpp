@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -11,16 +12,11 @@ struct Pair {
 };
 
 std::istream& operator>>(std::istream& is, Pair& p) {
-  const auto skip{[&is](std::string_view s) {
-    using std::operator""sv;
-    return ranges::all_of(views::split(s, " "sv), [&is](auto&& w) {
-      std::string tmp;
-      return is >> tmp && tmp == std::string_view{w};
-    });
-  }};
+  using std::operator""s;
+  using aoc::skip;
   std::string sign;
-  if (is >> p.src && skip("would") && is >> sign && (sign == "gain" || sign == "lose")
-      && is >> p.happiness && skip("happiness units by sitting next to") && is >> p.dst
+  if (is >> p.src && skip(is, " would"s) && is >> sign && (sign == "gain" || sign == "lose")
+      && is >> p.happiness && skip(is, " happiness units by sitting next to"s) && is >> p.dst
       && !p.dst.empty() && p.dst.back() == '.') {
     if (sign == "lose") {
       p.happiness = -p.happiness;
@@ -31,7 +27,7 @@ std::istream& operator>>(std::istream& is, Pair& p) {
   if (is.eof()) {
     return is;
   }
-  throw std::runtime_error("failed parsing input");
+  throw std::runtime_error("failed parsing Pair");
 }
 
 class Graph {

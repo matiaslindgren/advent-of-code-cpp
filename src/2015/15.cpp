@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -16,17 +17,15 @@ struct Ingredient {
   }
 };
 
-std::istream& operator>>(std::istream& is, Ingredient& i) {
-  const auto skip{[&is](std::string_view s) {
-    return ranges::all_of(views::split(s, " "sv), [&is](auto&& w) {
-      std::string tmp;
-      return is >> tmp && tmp == std::string_view{w};
-    });
-  }};
-  if (is >> i.name && i.name.ends_with(":") && skip("capacity") && is >> i.capacity
-      && skip(", durability") && is >> i.durability && skip(", flavor") && is >> i.flavor
-      && skip(", texture") && is >> i.texture && skip(", calories") && is >> i.calories) {
-    i.name.pop_back();
+std::istream& operator>>(std::istream& is, Ingredient& ingredient) {
+  using std::operator""s;
+  using aoc::skip;
+  if (Ingredient ing; is >> ing.name && ing.name.ends_with(":") && skip(is, " capacity"s)
+                      && is >> ing.capacity && skip(is, ", durability"s) && is >> ing.durability
+                      && skip(is, ", flavor"s) && is >> ing.flavor && skip(is, ", texture"s)
+                      && is >> ing.texture && skip(is, ", calories"s) && is >> ing.calories) {
+    ing.name.pop_back();
+    ingredient = ing;
     return is;
   }
   if (is.eof()) {
