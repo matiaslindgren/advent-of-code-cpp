@@ -1,8 +1,9 @@
 module;
 // Various helpers, independent of each AoC year
 import std;
-using std::operator""s;
+
 export module aoc;
+
 export namespace aoc {
 
 std::istream& skip(std::istream& is, auto s) {
@@ -19,6 +20,7 @@ std::istream& skip(std::istream& is, auto s) {
 // https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
 // Accessed 2023-11-20
 char as_ascii(std::string aoc_letter) {
+  using std::operator""s;
   static const std::unordered_map<std::string, char> charmap = {
       {".##.#..##..######..##..#"s, 'A'},
       {"###.#..####.#..##..####."s, 'B'},
