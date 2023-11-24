@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import aoc;
 
 namespace ranges = std::ranges;
@@ -7,9 +8,9 @@ namespace views = std::views;
 struct Instruction {
   enum class Type {
     set_value,
-    bot_to_lo_bot_hi_bot,
-    bot_to_lo_out_hi_bot,
-    bot_to_lo_out_hi_out,
+    lo_bot_hi_bot,
+    lo_out_hi_bot,
+    lo_out_hi_out,
   } type;
   int input;
   int out1;
@@ -24,44 +25,25 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
   if (auto [cmd, num] = std::tuple(std::string{}, int{}); is >> cmd >> num) {
     if (cmd == "value") {
       if (int bot; skip(is, " goes to bot"s) && is >> bot) {
-        ins = {
-            Type::set_value,
-            num,
-            bot,
-        };
+        ins = {Type::set_value, num, bot};
         return is;
       }
     }
     if (cmd == "bot" && skip(is, " gives low to"s) && is >> cmd) {
       if (cmd == "bot") {
         if (int out1, out2; is >> out1 && skip(is, " and high to bot"s) && is >> out2) {
-          ins = {
-              Type::bot_to_lo_bot_hi_bot,
-              num,
-              out1,
-              out2,
-          };
+          ins = {Type::lo_bot_hi_bot, num, out1, out2};
           return is;
         }
       }
       if (cmd == "output") {
         if (int out1, out2; is >> out1 && skip(is, " and high to"s) && is >> cmd >> out2) {
           if (cmd == "bot") {
-            ins = {
-                Type::bot_to_lo_out_hi_bot,
-                num,
-                out1,
-                out2,
-            };
+            ins = {Type::lo_out_hi_bot, num, out1, out2};
             return is;
           }
           if (cmd == "output") {
-            ins = {
-                Type::bot_to_lo_out_hi_out,
-                num,
-                out1,
-                out2,
-            };
+            ins = {Type::lo_out_hi_out, num, out1, out2};
             return is;
           }
         }
@@ -86,24 +68,11 @@ struct Gate {
       input2 = value;
     }
   }
+  constexpr std::pair<int, int> value() const {
+    return {std::min(input1, input2), std::max(input1, input2)};
+  }
   constexpr bool is_full() const {
-    return out_lo >= 0 && out_hi >= 0 && input1 >= 0 && input2 >= 0;
-  }
-  template <typename Comp>
-  constexpr int value(Comp comp) const {
-    if (input1 < 0) {
-      return input2;
-    }
-    if (input2 < 0) {
-      return input1;
-    }
-    return comp(input1, input2) ? input1 : input2;
-  }
-  constexpr int lo_value() const {
-    return value(ranges::less{});
-  }
-  constexpr int hi_value() const {
-    return value(ranges::greater{});
+    return !(out_lo < 0 || out_hi < 0 || input1 < 0 || input2 < 0);
   }
 };
 
@@ -114,24 +83,24 @@ int main() {
   mem.fill({-1, -1, -1, -1});
 
   const auto bots{ranges::subrange(mem.begin(), mem.begin() + 256)};
+  const auto outputs{ranges::subrange(mem.begin() + 256, mem.end())};
 
   for (Instruction ins : views::istream<Instruction>(std::cin)) {
-    using Type = Instruction::Type;
     switch (ins.type) {
-      case Type::set_value: {
+      case Instruction::Type::set_value: {
         bots[ins.out1].set(ins.input);
       } break;
-      case Type::bot_to_lo_bot_hi_bot: {
+      case Instruction::Type::lo_bot_hi_bot: {
         auto& bot{bots[ins.input]};
         bot.out_lo = ins.out1;
         bot.out_hi = ins.out2;
       } break;
-      case Type::bot_to_lo_out_hi_bot: {
+      case Instruction::Type::lo_out_hi_bot: {
         auto& bot{bots[ins.input]};
         bot.out_lo = 256 + ins.out1;
         bot.out_hi = ins.out2;
       } break;
-      case Type::bot_to_lo_out_hi_out: {
+      case Instruction::Type::lo_out_hi_out: {
         auto& bot{bots[ins.input]};
         bot.out_lo = 256 + ins.out1;
         bot.out_hi = 256 + ins.out2;
@@ -159,12 +128,16 @@ int main() {
     }
   }
 
-  const auto outputs{ranges::subrange(mem.begin() + 256, mem.end())};
-
   const auto part1{ranges::distance(bots.begin(), ranges::find_if(bots, [](auto&& b) {
-                                      return b.lo_value() == 17 && b.hi_value() == 61;
+                                      const auto [lo, hi] = b.value();
+                                      return lo == 17 && hi == 61;
                                     }))};
-  const auto part2{outputs[0].lo_value() * outputs[1].lo_value() * outputs[2].lo_value()};
+  const auto part2{my_std::ranges::fold_left(
+      ranges::subrange(outputs.begin(), outputs.begin() + 3)
+          | views::transform([](auto&& out) { return out.value().second; }),
+      1,
+      std::multiplies{}
+  )};
   std::print("{} {}\n", part1, part2);
 
   return 0;
