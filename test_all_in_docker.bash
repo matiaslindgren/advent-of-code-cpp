@@ -10,8 +10,8 @@ docker run \
   -v $(pwd)/src:${workdir}/src \
   -v $(pwd)/txt:${workdir}/txt \
   -v $(pwd)/Makefile:${workdir}/Makefile \
-  -v $(pwd)/test_one.bash:${workdir}/test_one.bash \
+  -v $(pwd)/test_one_verbose.bash:${workdir}/test_one_verbose.bash \
   --pull never \
   --rm \
   $image \
-  bash -c 'make -j && make test'
+  bash -c 'make -j && make test_verbose'

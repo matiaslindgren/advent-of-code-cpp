@@ -26,4 +26,4 @@ jobs:
       run: sudo apt update --yes && sudo apt install --yes clang-${CLANG_VERSION} libc++-${CLANG_VERSION}-dev libc++abi-${CLANG_VERSION}-dev lld-${CLANG_VERSION}
     - uses: actions/checkout@v4
     - run: make -j
-    - run: make test
+    - run: make test_verbose
