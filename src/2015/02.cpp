@@ -36,7 +36,8 @@ std::istream& operator>>(std::istream& is, Present& p) {
 }
 
 static constexpr auto accumulate{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())};
+    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())
+};
 
 int main() {
   std::ios_base::sync_with_stdio(false);

@@ -36,8 +36,9 @@ std::istream& operator>>(std::istream& is, Aunt& aunt) {
 
 Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
   for (const auto& [k, v] : target.items) {
-    const auto is_mismatch{
-        [&](const auto& aunt) { return aunt.items.contains(k) && !comp(k, aunt.items.at(k), v); }};
+    const auto is_mismatch{[&](const auto& aunt) {
+      return aunt.items.contains(k) && !comp(k, aunt.items.at(k), v);
+    }};
     const auto [rm_begin, rm_end] = ranges::remove_if(aunts, is_mismatch);
     aunts.erase(rm_begin, rm_end);
   }

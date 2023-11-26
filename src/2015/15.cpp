@@ -81,7 +81,8 @@ int main() {
   std::ios_base::sync_with_stdio(false);
 
   const auto ingredients{
-      views::istream<Ingredient>(std::cin) | ranges::to<std::vector<Ingredient>>()};
+      views::istream<Ingredient>(std::cin) | ranges::to<std::vector<Ingredient>>()
+  };
 
   std::vector<std::vector<int>> weights{ingredients.front().as_vector().size()};
   for (const auto& ingredient : ingredients) {

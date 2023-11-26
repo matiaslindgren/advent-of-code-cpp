@@ -44,7 +44,8 @@ int main() {
 
   const auto get_container_count{[](auto&& containers) { return containers.size(); }};
   const auto minimum_combination{
-      ranges::min_element(combinations, ranges::less{}, get_container_count)};
+      ranges::min_element(combinations, ranges::less{}, get_container_count)
+  };
   const auto part2{ranges::count(combinations, minimum_combination->size(), get_container_count)};
 
   std::print("{} {}\n", part1, part2);

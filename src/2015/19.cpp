@@ -120,7 +120,8 @@ int main() {
             return {r.dst, r.src};
           }
       )
-      | ranges::to<std::vector<Replacement>>()};
+      | ranges::to<std::vector<Replacement>>()
+  };
   ranges::sort(reverse_replacements, ranges::greater{}, [](const auto& r) { return r.src.size(); });
   const auto part2{count_shortest_path_to(medicine, reverse_replacements, {"e"s})};
 

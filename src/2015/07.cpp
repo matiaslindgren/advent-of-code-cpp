@@ -110,7 +110,8 @@ int main() {
   const auto circuit{
       views::istream<Statement>(std::cin)
       | views::transform([](auto&& stmt) { return std::make_tuple(stmt.dst, stmt); })
-      | ranges::to<std::unordered_map<std::string, Statement>>()};
+      | ranges::to<std::unordered_map<std::string, Statement>>()
+  };
 
   uint16_t part1{};
   {

@@ -94,7 +94,8 @@ Screen run_instructions(const auto& instructions) {
         if (const int n{ins.b % height}; n) {
           const int x{ins.a};
           auto columns{
-              ranges::subrange(screen.begin() + x, screen.end()) | my_std::views::stride(width)};
+              ranges::subrange(screen.begin() + x, screen.end()) | my_std::views::stride(width)
+          };
           auto lhs{columns.begin()};
           auto rhs{lhs + height};
           auto mid{rhs - n};
@@ -136,7 +137,8 @@ int main() {
   std::ios_base::sync_with_stdio(false);
 
   const auto instructions{
-      views::istream<Instruction>(std::cin) | ranges::to<std::vector<Instruction>>()};
+      views::istream<Instruction>(std::cin) | ranges::to<std::vector<Instruction>>()
+  };
   const auto screen{run_instructions(instructions)};
   const auto part1{count_on(screen)};
   const auto part2{decode_ascii(screen)};

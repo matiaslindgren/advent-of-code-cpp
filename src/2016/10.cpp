@@ -110,7 +110,8 @@ int main() {
 
   for (auto full_bots{
            views::filter(bots, [](auto&& b) { return b.is_full(); })
-           | ranges::to<std::vector<Gate>>()};
+           | ranges::to<std::vector<Gate>>()
+       };
        !full_bots.empty();) {
     const auto bot{full_bots.back()};
     full_bots.pop_back();

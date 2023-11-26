@@ -75,7 +75,8 @@ class Graph {
 };
 
 static constexpr auto accumulate{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())};
+    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
+};
 
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {
