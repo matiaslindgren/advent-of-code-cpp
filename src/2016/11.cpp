@@ -42,26 +42,23 @@ std::istream& operator>>(std::istream& is, FloorItems& fi) {
   using std::operator""s;
   using aoc::skip;
   static const std::unordered_map<std::string, int> floor_numbers = {
-      {"first", 1},
+      { "first", 1},
       {"second", 2},
-      {"third", 3},
+      { "third", 3},
       {"fourth", 4},
   };
   int floor;
   std::vector<Item> items;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (std::string fname; skip(ls, "The "s) && ls >> fname &&
-                           floor_numbers.contains(fname) &&
-                           skip(ls, " floor contains"s)) {
+    if (std::string fname; skip(ls, "The "s) && ls >> fname && floor_numbers.contains(fname)
+                           && skip(ls, " floor contains"s)) {
       floor = floor_numbers.find(fname)->second;
       while (ls) {
         if (std::string s; ls >> s) {
           if (s == "nothing" && skip(ls, " relevant"s)) {
             // skip
-          } else if (Item item;
-                     ((s == "and" && ls >> s && s == "a") || s == "a") &&
-                     ls >> item) {
+          } else if (Item item; ((s == "and" && ls >> s && s == "a") || s == "a") && ls >> item) {
             items.push_back(item);
           } else {
             is.setstate(std::ios_base::failbit);
@@ -106,9 +103,7 @@ auto encode_element_names(const auto& floor_items) {
 //   - exactly 4 floors
 //   - at most 7 unique elements
 //   - 1 elevator
-
 // Encoding requires 4 + 4 * 7 * 2 bits, arranged as follows:
-
 //     bit: encoding
 //   [0-4): elevator on floor 1-4
 //   [4-8): generator 1 on floor 1-4
@@ -121,20 +116,24 @@ static constexpr auto N_FLOORS{4uz};
 static constexpr auto N_ELEMENTS{7uz};
 using FloorState = std::bitset<N_FLOORS * (1 + N_ELEMENTS * 2)>;
 
-decltype(auto) item_indexes(const FloorState& fs, const auto floor = 0) {
-  return views::iota(1uz, fs.count()) |
-         views::transform([=](auto&& i) { return i * N_FLOORS + floor; });
+constexpr decltype(auto) floor_indexes() {
+  return views::iota(0uz, N_FLOORS);
 }
 
-decltype(auto) generator_indexes(auto&&... args) {
+constexpr decltype(auto) item_indexes(const FloorState& fs, const auto floor = 0) {
+  return views::iota(1uz, fs.count())
+         | views::transform([=](auto&& i) { return i * N_FLOORS + floor; });
+}
+
+constexpr decltype(auto) generator_indexes(auto&&... args) {
   return item_indexes(args...) | my_std::views::stride(2);
 }
 
-decltype(auto) microchip_indexes(auto&&... args) {
+constexpr decltype(auto) microchip_indexes(auto&&... args) {
   return item_indexes(args...) | views::drop(1) | my_std::views::stride(2);
 }
 
-decltype(auto) powering_pair_indexes(auto&&... args) {
+constexpr decltype(auto) powering_pair_indexes(auto&&... args) {
   return views::zip(generator_indexes(args...), microchip_indexes(args...));
 }
 
@@ -143,17 +142,11 @@ constexpr std::size_t elevator_floor(const FloorState& fs) {
 }
 
 // Hashing FloorState:
-
-// The specific elements of items on each floor are irrelevant to state
-// uniqueness. Only the floor and if a pair of chip is powered or unpowered
-// matters.
-
-// Uniqueness of states depends on:
-//   - position of the elevator
-//   - number of items on each floor, belonging to one of 3 groups:
-//       1. generators
-//       2. powered chips
-//       3. unpowered chips.
+// Each floor contains a number of items belonging to one of 3 groups:
+//   1. generators
+//   2. powered chips
+//   3. unpowered chips
+// The specific elements of these items are irrelevant for uniqueness.
 template <>
 struct std::hash<FloorState> {
   std::size_t operator()(const FloorState& fs) const noexcept {
@@ -164,7 +157,7 @@ struct std::hash<FloorState> {
       N = 3,
     };
     std::size_t item_counts[N_FLOORS][Type::N] = {};
-    for (std::size_t f{}; f < N_FLOORS; ++f) {
+    for (const auto f : floor_indexes()) {
       for (const auto [g, c] : powering_pair_indexes(fs, f)) {
         item_counts[f][Type::generator] += fs[g];
         item_counts[f][Type::unpowered_chip] += !fs[g] && fs[c];
@@ -172,7 +165,7 @@ struct std::hash<FloorState> {
       }
     }
     std::size_t h{elevator_floor(fs)};
-    for (std::size_t f{}; f < N_FLOORS; ++f) {
+    for (const auto f : floor_indexes()) {
       for (std::size_t i{}; i < Type::N; ++i) {
         h = (h << 3) | item_counts[f][i];
       }
@@ -182,8 +175,9 @@ struct std::hash<FloorState> {
 };
 
 FloorState parse_init_state(std::istream& is) {
-  const auto all_floor_items{views::istream<FloorItems>(is) |
-                             ranges::to<std::vector<FloorItems>>()};
+  const auto all_floor_items{
+      views::istream<FloorItems>(is) | ranges::to<std::vector<FloorItems>>()
+  };
   const auto element_ids{encode_element_names(all_floor_items)};
   FloorState fs;
   // elevator
@@ -191,8 +185,7 @@ FloorState parse_init_state(std::istream& is) {
   for (const auto& floor_items : all_floor_items) {
     for (const auto& item : floor_items.items) {
       const auto item_id{element_ids.find(item.element)->second};
-      const auto item_bit{N_FLOORS *
-                          (1 + 2 * item_id + (item.type == Item::Microchip))};
+      const auto item_bit{N_FLOORS * (1 + 2 * item_id + (item.type == Item::Microchip))};
       const auto floor_bit{floor_items.floor - 1};
       const auto bit{item_bit + floor_bit};
       if (bit >= fs.size()) {
@@ -205,7 +198,7 @@ FloorState parse_init_state(std::istream& is) {
 }
 
 constexpr bool is_frying_chips(const FloorState& fs) {
-  for (std::size_t f{}; f < N_FLOORS; ++f) {
+  for (const auto f : floor_indexes()) {
     int generators{};
     int unpowered_chips{};
     for (const auto [g, c] : powering_pair_indexes(fs, f)) {
@@ -225,12 +218,17 @@ constexpr FloorState move(const int step, FloorState fs, auto&&... bits) {
          fs[bit] = false;
          fs[bit + step] = true;
        },
-       bits),
+       bits
+   ),
    ...);
   return fs;
 }
-constexpr FloorState move_up(auto&&... args) { return move(1, args...); }
-constexpr FloorState move_down(auto&&... args) { return move(-1, args...); }
+constexpr FloorState move_up(auto&&... args) {
+  return move(1, args...);
+}
+constexpr FloorState move_down(auto&&... args) {
+  return move(-1, args...);
+}
 
 class AStar {
  public:
@@ -239,7 +237,8 @@ class AStar {
         m_q{{start}},
         m_frontier{{start}},
         m_g_score{{start, 0}},
-        m_f_score{{start, h(start)}} {}
+        m_f_score{{start, h(start)}} {
+  }
 
   constexpr bool is_end_state(const FloorState& fs) const noexcept {
     return fs == m_end_state;
@@ -247,8 +246,7 @@ class AStar {
 
   auto reconstruct_path(const FloorState& end) const {
     std::vector<FloorState> path;
-    for (auto it{m_parents.find(end)}; it != m_parents.end();
-         it = m_parents.find(it->second)) {
+    for (auto it{m_parents.find(end)}; it != m_parents.end(); it = m_parents.find(it->second)) {
       path.push_back(it->second);
     }
     return path | views::reverse | ranges::to<std::vector<FloorState>>();
@@ -262,9 +260,8 @@ class AStar {
     constexpr int low_floor_penalty{2};
     constexpr int generator_factor{4};
     int total_cost{};
-    for (std::size_t f{}; f < N_FLOORS; ++f) {
-      const int floor_cost{low_floor_penalty *
-                           static_cast<int>(N_FLOORS - (f + 1))};
+    for (const auto f : floor_indexes()) {
+      const int floor_cost{low_floor_penalty * static_cast<int>(N_FLOORS - (f + 1))};
       for (const auto g : generator_indexes(fs, f)) {
         if (fs[g]) {
           total_cost += generator_factor * floor_cost;
@@ -286,8 +283,12 @@ class AStar {
     return score_or_max(m_g_score, fs);
   }
 
-  void set_f_score(auto&&... args) { set_score(m_f_score, args...); }
-  void set_g_score(auto&&... args) { set_score(m_g_score, args...); }
+  void set_f_score(auto&&... args) {
+    set_score(m_f_score, args...);
+  }
+  void set_g_score(auto&&... args) {
+    set_score(m_g_score, args...);
+  }
 
   void set_edge(const FloorState& lhs, const FloorState& rhs) {
     m_parents[lhs] = rhs;
@@ -313,11 +314,12 @@ class AStar {
     return std::numeric_limits<int>::max() - 1;
   }
 
-  void set_score(auto& map, auto&& fs, auto&& score) { map[fs] = score; }
+  void set_score(auto& map, auto&& fs, auto&& score) {
+    map[fs] = score;
+  }
 
   FloorState pop_min_f_score_heap() {
-    ranges::pop_heap(m_q, ranges::greater{},
-                     [=, this](auto&& fs) { return f_score(fs); });
+    ranges::pop_heap(m_q, ranges::greater{}, [=, this](auto&& fs) { return f_score(fs); });
     const FloorState fs{m_q.back()};
     m_q.pop_back();
     return fs;
@@ -325,8 +327,7 @@ class AStar {
 
   void push_min_f_score_heap(const FloorState& fs) {
     m_q.push_back(fs);
-    ranges::push_heap(m_q, ranges::greater{},
-                      [=, this](auto&& fs) { return f_score(fs); });
+    ranges::push_heap(m_q, ranges::greater{}, [=, this](auto&& fs) { return f_score(fs); });
   }
 
   FloorState m_end_state;
@@ -376,8 +377,7 @@ bool a_star_step(auto& a_star) {
   }
 
   for (FloorState adj_state : adjacent_states) {
-    if (const auto g_score{a_star.g_score(state) + 1};
-        g_score < a_star.g_score(adj_state)) {
+    if (const auto g_score{a_star.g_score(state) + 1}; g_score < a_star.g_score(adj_state)) {
       a_star.set_edge(adj_state, state);
       a_star.set_g_score(adj_state, g_score);
       a_star.set_f_score(adj_state, g_score + a_star.h(adj_state));
@@ -399,9 +399,12 @@ auto a_star_search(FloorState begin, FloorState end) {
 }
 
 FloorState as_end_state(FloorState begin) {
+  constexpr auto top_floor{N_FLOORS - 1};
   FloorState end;
-  for (std::size_t i{}; i < begin.count(); ++i) {
-    end[i * N_FLOORS + N_FLOORS - 1] = true;
+  // elevator
+  end[top_floor] = true;
+  for (const auto i : item_indexes(begin, top_floor)) {
+    end[i] = true;
   }
   return end;
 }
@@ -415,8 +418,7 @@ int main() {
   const auto part1{a_star_search(begin1, as_end_state(begin1))};
 
   FloorState begin2{init_state};
-  for (std::size_t i{N_FLOORS * init_state.count()}; i < begin2.size();
-       i += N_FLOORS) {
+  for (std::size_t i{N_FLOORS * init_state.count()}; i < begin2.size(); i += N_FLOORS) {
     begin2[i] = true;
   }
   const auto part2{a_star_search(begin2, as_end_state(begin2))};
