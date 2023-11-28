@@ -15,9 +15,11 @@ struct Room {
     using CharCounts = std::array<std::pair<char, int>, alphabet_size>;
     CharCounts cc;
     for (char ch : name) {
-      auto& p{cc[ch - 'a']};
-      p.first = ch;
-      p.second += 1;
+      if ('a' <= ch && ch <= 'z') {
+        auto& p{cc[ch - 'a']};
+        p.first = ch;
+        p.second += 1;
+      }
     }
     ranges::sort(cc, [](auto&& p1, auto&& p2) {
       auto&& [ch1, n1] = p1;

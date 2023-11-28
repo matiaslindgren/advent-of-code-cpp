@@ -10,7 +10,8 @@ CXXFLAGS := \
 	-Wall \
 	-Wpedantic \
 	-Werror \
-	-fmodules
+	-fmodules \
+	-fsanitize=address,undefined
 
 ifeq ($(shell uname),Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
