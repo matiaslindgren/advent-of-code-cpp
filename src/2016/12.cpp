@@ -72,12 +72,38 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
 
 using Memory = std::array<int, 4>;
 
+// https://www.reddit.com/r/cpp/comments/kst2pu/comment/giilcxv
+// accessed 2023-11-30
+template <std::size_t n>
+constexpr decltype(auto) visit(auto&& func, auto&& var) {
+#define aoc2016_variant_visit_case(c)       \
+  case (c): {                               \
+    if constexpr (n > (c)) {                \
+      return func(*std::get_if<(c)>(&var)); \
+    } else {                                \
+      std::unreachable();                   \
+    }                                       \
+  } break
+  switch (var.index()) {
+    aoc2016_variant_visit_case(0);
+    aoc2016_variant_visit_case(1);
+    aoc2016_variant_visit_case(2);
+  }
+  std::unreachable();
+#undef aoc2016_variant_visit_case
+}
+
 struct Read {
   Read() = delete;
-  explicit Read(const Memory& m) : memory{m} {}
+  explicit Read(const Memory& m) : memory{m} {
+  }
 
-  int operator()(const Register& reg) const { return memory[reg.index]; }
-  int operator()(const Literal& lit) const { return lit.value; }
+  int operator()(const Register& reg) const {
+    return memory[reg.index];
+  }
+  int operator()(const Literal& lit) const {
+    return lit.value;
+  }
 
  private:
   const Memory& memory;
@@ -85,9 +111,12 @@ struct Read {
 
 struct Write {
   Write() = delete;
-  explicit Write(Memory& mem, int val) : memory{mem}, value{val} {}
+  explicit Write(Memory& mem, int val) : memory{mem}, value{val} {
+  }
 
-  void operator()(const Register& reg) const { memory[reg.index] = value; }
+  void operator()(const Register& reg) const {
+    memory[reg.index] = value;
+  }
   void operator()(const Literal&) const {
     throw std::invalid_argument{"can't write to a literal"};
   }
@@ -99,22 +128,23 @@ struct Write {
 
 struct Execute {
   Execute() = delete;
-  explicit Execute(Memory& mem) : memory{mem} {}
+  explicit Execute(Memory& mem) : memory{mem} {
+  }
 
   std::ptrdiff_t operator()(const Add& add) const {
-    const int lhs{std::visit(Read{memory}, add.dst)};
-    const int rhs{std::visit(Read{memory}, add.src)};
-    std::visit(Write{memory, lhs + rhs}, add.dst);
+    const int lhs{visit<2>(Read{memory}, add.dst)};
+    const int rhs{visit<2>(Read{memory}, add.src)};
+    visit<2>(Write{memory, lhs + rhs}, add.dst);
     return 1;
   }
   std::ptrdiff_t operator()(const Copy& copy) const {
-    const int value{std::visit(Read{memory}, copy.src)};
-    std::visit(Write{memory, value}, copy.dst);
+    const int value{visit<2>(Read{memory}, copy.src)};
+    visit<2>(Write{memory, value}, copy.dst);
     return 1;
   }
   std::ptrdiff_t operator()(const JumpIfNotZero& jump) const {
-    if (const int test{std::visit(Read{memory}, jump.test)}; test != 0) {
-      return std::visit(Read{memory}, jump.count);
+    if (const int test{visit<2>(Read{memory}, jump.test)}; test != 0) {
+      return visit<2>(Read{memory}, jump.count);
     }
     return 1;
   }
@@ -125,15 +155,16 @@ struct Execute {
 
 void run(const auto& instructions, auto& memory) {
   for (std::ptrdiff_t pos{}; 0 <= pos && pos < instructions.size();) {
-    pos += std::visit(Execute{memory}, instructions[pos]);
+    pos += visit<3>(Execute{memory}, instructions[pos]);
   }
 }
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto instructions{views::istream<Instruction>(std::cin) |
-                          ranges::to<std::vector<Instruction>>()};
+  const auto instructions{
+      views::istream<Instruction>(std::cin) | ranges::to<std::vector<Instruction>>()
+  };
 
   std::array<int, 4> memory;
 
