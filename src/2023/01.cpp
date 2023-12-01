@@ -7,7 +7,7 @@ constexpr int char2num(const auto ch) {
   return ch - '0';
 }
 
-template <typename It>
+template <std::input_or_output_iterator It>
   requires std::random_access_iterator<It>
 const int find_str_digit(const It begin, const It end) {
   static const std::unordered_map<std::string, int> str2num{
