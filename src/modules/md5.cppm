@@ -15,7 +15,7 @@ export namespace md5 {
 using Message = std::array<uint8_t, 64>;
 using Input = std::array<uint32_t, 16>;
 
-void pack_md5_input(Input& input, Message& msg, const auto msg_len) {
+inline Input pack_md5_input(Message& msg, const auto msg_len) {
   {
     auto i{msg_len};
     msg[i] = 0x80;
@@ -27,6 +27,7 @@ void pack_md5_input(Input& input, Message& msg, const auto msg_len) {
       msg[i] = (bit_count >> (8 * (i - 56))) & 0xff;
     }
   }
+  Input input;
   for (auto i{0u}; i < input.size(); ++i) {
     const auto& chunk{ranges::next(msg.begin(), 4 * i)};
     input[i] = 0;
@@ -34,9 +35,10 @@ void pack_md5_input(Input& input, Message& msg, const auto msg_len) {
       input[i] |= chunk[j] << (8 * j);
     }
   }
+  return input;
 }
 
-uint32_t compute(Message msg, const auto msg_len) {
+inline uint32_t compute(Message msg, const auto msg_len) {
   static std::array<uint32_t, 64> md5_sine_table{};
   if (md5_sine_table.front() == 0) {
     for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1),
@@ -50,8 +52,7 @@ uint32_t compute(Message msg, const auto msg_len) {
   static constexpr uint32_t c0{std::byteswap(0xfedcba98)};
   static constexpr uint32_t d0{std::byteswap(0x76543210)};
 
-  static std::array<uint32_t, 16> input{};
-  pack_md5_input(input, msg, msg_len);
+  const auto input{pack_md5_input(msg, msg_len)};
 
   {
     auto a{a0};

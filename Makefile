@@ -12,6 +12,7 @@ CXXFLAGS := \
 	-Wpedantic \
 	-Werror \
 	-fmodules \
+	-pthread \
 	-fsanitize=address,undefined
 
 ifeq ($(shell uname),Darwin)
