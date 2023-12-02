@@ -6,6 +6,7 @@ LDFLAGS  := -lm -fuse-ld=lld -lc++
 CXXFLAGS := \
 	-std=c++23 \
 	-stdlib=libc++ \
+	-g \
 	-O2 \
 	-Wall \
 	-Wpedantic \
