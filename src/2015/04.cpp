@@ -21,7 +21,8 @@ struct find_next {
     for (auto i{begin}; i < begin + count; ++i) {
       const auto msg_len{md5::append_digits(msg, input_size, i)};
       const auto checksum{md5::compute(msg, msg_len)};
-      if ((checksum >> (32 - 4 * num_zeros)) == 0) {
+      const auto prefix{checksum[0]};
+      if ((prefix >> (32 - 4 * num_zeros)) == 0) {
         results[i_out] = i;
         return;
       }

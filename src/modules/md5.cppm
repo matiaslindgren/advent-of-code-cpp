@@ -14,10 +14,12 @@ export namespace md5 {
 
 using Message = std::array<uint8_t, 64>;
 using Input = std::array<uint32_t, 16>;
+using Output32 = std::array<uint32_t, 4>;
+using Output8 = std::array<uint8_t, 16>;
 
 inline std::size_t append_digits(Message& msg, const auto msg_size, const auto number) {
-  std::array<uint8_t, 16> digits = {0};
-  std::size_t digit_count{0};
+  std::array<uint8_t, 16> digits = {};
+  std::size_t digit_count{};
   for (auto x{number}; x; x /= 10) {
     digits[digit_count++] = '0' + (x % 10);
   }
@@ -48,7 +50,7 @@ inline Input pack_md5_input(Message& msg, const auto msg_len) {
   return input;
 }
 
-inline uint32_t compute(Message msg, const auto msg_len) {
+inline Output32 compute(Message msg, const auto msg_len) {
   static std::array<uint32_t, 64> md5_sine_table{};
   if (md5_sine_table.front() == 0) {
     for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1), md5_sine_table)) {
@@ -56,10 +58,10 @@ inline uint32_t compute(Message msg, const auto msg_len) {
     }
   }
 
-  static constexpr uint32_t a0{std::byteswap(0x01234567)};
-  static constexpr uint32_t b0{std::byteswap(0x89abcdef)};
-  static constexpr uint32_t c0{std::byteswap(0xfedcba98)};
-  static constexpr uint32_t d0{std::byteswap(0x76543210)};
+  constexpr uint32_t a0{std::byteswap(0x01234567)};
+  constexpr uint32_t b0{std::byteswap(0x89abcdef)};
+  constexpr uint32_t c0{std::byteswap(0xfedcba98)};
+  constexpr uint32_t d0{std::byteswap(0x76543210)};
 
   const auto input{pack_md5_input(msg, msg_len)};
 
@@ -95,8 +97,24 @@ inline uint32_t compute(Message msg, const auto msg_len) {
       update(i, c ^ (b | ~d), (7 * i) % 16, rot[i % 4]);
     }
 
-    return std::byteswap(a + a0);
+    return {
+        std::byteswap(a + a0),
+        std::byteswap(b + b0),
+        std::byteswap(c + c0),
+        std::byteswap(d + d0),
+    };
   }
+}
+
+inline constexpr Output8 to_8bit(const Output32& output32) {
+  Output8 output8;
+  for (auto i{0uz}; i < output8.size(); i += 4) {
+    const auto chunk{output32[i / 4]};
+    for (auto j{0uz}; j < 4uz; ++j) {
+      output8[i + j] = chunk & (0xff000000 >> (8 * j));
+    }
+  }
+  return output8;
 }
 
 }  // namespace md5
