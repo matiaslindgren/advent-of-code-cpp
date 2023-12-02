@@ -4,14 +4,45 @@ import md5;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-std::size_t append_digits(md5::Message& msg, const auto msg_size, const auto number) {
-  std::array<uint8_t, 16> digits = {0};
-  std::size_t digit_count{0};
-  for (auto x{number}; x; x /= 10) {
-    digits[digit_count++] = '0' + (x % 10);
+constexpr auto parallel_chunk_size{1uz << 12};
+constexpr auto thread_count{8uz};
+std::vector<std::size_t> results(thread_count);
+std::vector<std::thread> threads(thread_count);
+
+struct find_next {
+  void operator()(
+      const auto i_out,
+      const auto begin,
+      const auto count,
+      const auto num_zeros,
+      md5::Message msg,
+      const auto input_size
+  ) const {
+    for (auto i{begin}; i < begin + count; ++i) {
+      const auto msg_len{md5::append_digits(msg, input_size, i)};
+      const auto checksum{md5::compute(msg, msg_len)};
+      if ((checksum >> (32 - 4 * num_zeros)) == 0) {
+        results[i_out] = i;
+        return;
+      }
+    }
   }
-  ranges::move(digits | views::take(digit_count) | views::reverse, msg.begin() + msg_size);
-  return msg_size + digit_count;
+};
+
+std::size_t parallel_find_next(const auto begin, auto&&... args) {
+  for (auto i{begin}; i < 10'000'000; i += threads.size() * parallel_chunk_size) {
+    for (auto t{0uz}; t < threads.size(); ++t) {
+      threads[t]
+          = std::thread(find_next{}, t, i + t * parallel_chunk_size, parallel_chunk_size, args...);
+    }
+    for (auto& th : threads) {
+      th.join();
+    }
+    if (const auto r{ranges::find_if(results, std::identity{})}; r != results.end()) {
+      return *r;
+    }
+  }
+  return {};
 }
 
 int main() {
@@ -26,20 +57,9 @@ int main() {
     ranges::move(input, msg.begin());
   }
 
-  const auto find_next{[&](const auto begin, const auto num_zeros) {
-    auto i{begin};
-    for (; i < 10'000'000; ++i) {
-      const auto msg_len = append_digits(msg, input_size, i);
-      const auto res = md5::compute(msg, msg_len);
-      if ((res >> (32 - 4 * num_zeros)) == 0) {
-        break;
-      }
-    }
-    return i;
-  }};
-
-  const auto part1{find_next(0uz, 5)};
-  const auto part2{find_next(part1, 6)};
+  const auto part1{parallel_find_next(0uz, 5, msg, input_size)};
+  ranges::fill(results, 0);
+  const auto part2{parallel_find_next(part1, 6, msg, input_size)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
