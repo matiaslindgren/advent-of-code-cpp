@@ -15,6 +15,16 @@ export namespace md5 {
 using Message = std::array<uint8_t, 64>;
 using Input = std::array<uint32_t, 16>;
 
+inline std::size_t append_digits(Message& msg, const auto msg_size, const auto number) {
+  std::array<uint8_t, 16> digits = {0};
+  std::size_t digit_count{0};
+  for (auto x{number}; x; x /= 10) {
+    digits[digit_count++] = '0' + (x % 10);
+  }
+  ranges::move(digits | views::take(digit_count) | views::reverse, msg.begin() + msg_size);
+  return msg_size + digit_count;
+}
+
 inline Input pack_md5_input(Message& msg, const auto msg_len) {
   {
     auto i{msg_len};
@@ -41,8 +51,7 @@ inline Input pack_md5_input(Message& msg, const auto msg_len) {
 inline uint32_t compute(Message msg, const auto msg_len) {
   static std::array<uint32_t, 64> md5_sine_table{};
   if (md5_sine_table.front() == 0) {
-    for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1),
-                                    md5_sine_table)) {
+    for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1), md5_sine_table)) {
       x = static_cast<uint32_t>((1LL << 32) * std::abs(std::sin(i)));
     }
   }
