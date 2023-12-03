@@ -93,8 +93,7 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
 }
 
 // TODO ranges::fold_left_first
-constexpr auto accumulate{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
 };
 
 constexpr int find_part1(const Grid& grid) {
@@ -104,10 +103,10 @@ constexpr int find_part1(const Grid& grid) {
       num_begin.append_range(grid.adjacent_numbers(y, x));
     }
   }
-  return accumulate(num_begin | views::transform([&grid](auto&& p) {
-                      const auto [y, x] = p;
-                      return grid.parse_int(y, x);
-                    }));
+  return sum(num_begin | views::transform([&grid](auto&& p) {
+               const auto [y, x] = p;
+               return grid.parse_int(y, x);
+             }));
 }
 
 // TODO ranges::adjacent
@@ -124,12 +123,12 @@ constexpr int find_part2(const Grid& grid) {
       }
     }
   }
-  return accumulate(pairwise(num_begin) | views::transform([&grid](auto&& p) {
-                      const auto [p1, p2] = p;
-                      const auto [y1, x1] = p1;
-                      const auto [y2, x2] = p2;
-                      return grid.parse_int(y1, x1) * grid.parse_int(y2, x2);
-                    }));
+  return sum(pairwise(num_begin) | views::transform([&grid](auto&& p) {
+               const auto [p1, p2] = p;
+               const auto [y1, x1] = p1;
+               const auto [y2, x2] = p2;
+               return grid.parse_int(y1, x1) * grid.parse_int(y2, x2);
+             }));
 }
 
 int main() {

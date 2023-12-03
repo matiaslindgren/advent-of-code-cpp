@@ -1,15 +1,16 @@
 import std;
+import my_std;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 using Ints = std::vector<int>;
 
-long sum(const Ints& ints) {
-  return std::accumulate(ints.begin(), ints.end(), 0L);
+constexpr auto sum{
+    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())
 };
-long qe(const Ints& ints) {
-  return std::accumulate(ints.begin(), ints.end(), 1L, std::multiplies<long>());
+constexpr auto product{
+    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 1L, std::multiplies<long>())
 };
 
 std::vector<Ints> combinations_with_sum(const Ints& ints, const int k, const long target) {
@@ -42,7 +43,7 @@ long optimize_qe(const Ints& packages, const int group_count) {
       continue;
     }
     // why is not required to check the other groups???
-    const auto all_qe{views::transform(good_1st_groups, qe)};
+    const auto all_qe{views::transform(good_1st_groups, product)};
     return *ranges::min_element(all_qe);
   }
   throw std::runtime_error("oh no");

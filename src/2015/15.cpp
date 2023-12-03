@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import aoc;
 
 namespace ranges = std::ranges;
@@ -36,27 +37,29 @@ std::istream& operator>>(std::istream& is, Ingredient& ingredient) {
 
 auto compute_scores(const auto& weights, const auto& spoons) {
   const auto inner_product_clamp_to_zero{[&spoons](const auto& w) {
-    return std::max(0LL, std::inner_product(w.begin(), w.end(), spoons.begin(), 0LL));
+    return std::max(0L, std::inner_product(w.begin(), w.end(), spoons.begin(), 0L));
   }};
-  return views::transform(weights, inner_product_clamp_to_zero)
-         | ranges::to<std::vector<long long>>();
+  return views::transform(weights, inner_product_clamp_to_zero) | ranges::to<std::vector<long>>();
 }
 
-long long find_optimal_cookie(
+constexpr auto product{std::bind(
+    my_std::ranges::fold_left,
+    std::placeholders::_1,
+    std::placeholders::_2,
+    1L,
+    std::multiplies<long>()
+)};
+
+long find_optimal_cookie(
     const auto& weights,
     const auto& spoons,
     const std::optional<int>& calorie_target = {},
     const std::size_t& begin = {}
 ) {
   const auto scores{compute_scores(weights, spoons)};
-  auto best_score{0LL};
+  auto best_score{0L};
   if (!calorie_target || scores.back() == *calorie_target) {
-    best_score = std::accumulate(
-        scores.begin(),
-        ranges::next(scores.begin(), weights.size() - 1),
-        1LL,
-        std::multiplies<long long>()
-    );
+    best_score = product(scores.begin(), scores.begin() + (weights.size() - 1));
   }
   for (auto i{begin}; i < spoons.size(); ++i) {
     if (spoons[i] == 0) {

@@ -77,16 +77,16 @@ auto escape(const std::string& s) {
   return out.str();
 }
 
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
+};
+
 int main() {
   std::ios_base::sync_with_stdio(false);
 
   const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector<std::string>>()};
 
-  constexpr auto accumulate
-      = std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>());
-
-  const auto part1{accumulate(lines | views::transform(count_bytes))};
-  const auto part2{accumulate(lines | views::transform(escape) | views::transform(count_bytes))};
+  const auto part1{sum(lines | views::transform(count_bytes))};
+  const auto part2{sum(lines | views::transform(escape) | views::transform(count_bytes))};
   std::print("{} {}\n", part1, part2);
 
   return 0;

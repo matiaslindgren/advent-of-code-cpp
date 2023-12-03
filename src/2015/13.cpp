@@ -74,14 +74,13 @@ class Graph {
   }
 };
 
-static constexpr auto accumulate{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
 };
 
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {
   const auto n{g.node_count()};
-  return accumulate(views::transform(views::iota(0uz, n), [&](auto i) {
+  return sum(views::transform(views::iota(0uz, n), [&](auto i) {
     const auto& lhs{seating[i]};
     const auto& rhs{seating[(i + 1) % n]};
     return g.happiness(lhs, rhs) + g.happiness(rhs, lhs);

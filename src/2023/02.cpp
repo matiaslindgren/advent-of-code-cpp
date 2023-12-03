@@ -16,19 +16,15 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   using aoc::skip;
   using std::operator""s;
   if (int id; skip(is, "Game"s) && is >> id && skip(is, ":"s)) {
-    int red{}, green{}, blue{};
+    std::unordered_map<std::string, int> counts;
     while (is && is.peek() != '\n') {
       if (int count; is >> count) {
         if (std::string cube; is >> cube) {
           if (cube.ends_with(",") || cube.ends_with(";")) {
             cube.pop_back();
           }
-          if (cube == "red") {
-            red = std::max(red, count);
-          } else if (cube == "green") {
-            green = std::max(green, count);
-          } else if (cube == "blue") {
-            blue = std::max(blue, count);
+          if (cube == "red" || cube == "green" || cube == "blue") {
+            counts[cube] = std::max(counts[cube], count);
           } else {
             is.setstate(std::ios_base::failbit);
           }
@@ -37,7 +33,7 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
     }
     if (is) {
       is.ignore(1, '\n');
-      gm = {id, red, green, blue};
+      gm = {id, counts["red"], counts["green"], counts["blue"]};
       return is;
     }
   }
@@ -47,28 +43,23 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   throw std::runtime_error("failed parsing GameMax");
 }
 
-static constexpr auto accumulate{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
 };
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto cube_max_counts{
-      views::istream<GameMax>(std::cin) | ranges::to<std::vector<GameMax>>()
-  };
+  const auto max_counts{views::istream<GameMax>(std::cin) | ranges::to<std::vector<GameMax>>()};
 
   auto possible_ids{
-      cube_max_counts
+      max_counts
       | views::filter([](auto gm) { return gm.red <= 12 && gm.green <= 13 && gm.blue <= 14; })
       | views::transform([](auto gm) { return gm.id; })
   };
-  auto powers{cube_max_counts | views::transform([](auto gm) {
-                return gm.red * gm.green * gm.blue;
-              })};
+  auto powers{max_counts | views::transform([](auto gm) { return gm.red * gm.green * gm.blue; })};
 
-  const auto part1{accumulate(possible_ids)};
-  const auto part2{accumulate(powers)};
+  const auto part1{sum(possible_ids)};
+  const auto part2{sum(powers)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
