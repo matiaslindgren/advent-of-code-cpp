@@ -67,21 +67,21 @@ fmt:
 	@find . -type f -name '*.cpp*' -exec clang-format --verbose -i {} \;
 
 SOLUTIONS            := $(wildcard txt/correct/*/*)
-TEST_QUICK_TARGETS   := $(subst txt/correct/,test_,$(SOLUTIONS))
-TEST_VERBOSE_TARGETS := $(subst txt/correct/,test_verbose_,$(SOLUTIONS))
+QUICK_TEST_TARGETS   := $(subst txt/correct/,test_,$(SOLUTIONS))
+VERBOSE_TEST_TARGETS := $(subst txt/correct/,test_verbose_,$(SOLUTIONS))
 
 .PHONY: test
-test: $(TEST_QUICK_TARGETS)
+test: $(QUICK_TEST_TARGETS)
 
-.PHONY: $(TEST_QUICK_TARGETS)
-$(TEST_QUICK_TARGETS): test_% : txt/input/% $(OUT)/%
+.PHONY: $(QUICK_TEST_TARGETS)
+$(QUICK_TEST_TARGETS): test_% : txt/input/% $(OUT)/%
 	@printf '%s\n' '$*'; $(OUT)/$* < $< | cmp - txt/correct/$*
 
 .PHONY: test_verbose
-test_verbose: $(TEST_VERBOSE_TARGETS)
+test_verbose: $(VERBOSE_TEST_TARGETS)
 
-.PHONY: $(TEST_VERBOSE_TARGETS)
-$(TEST_VERBOSE_TARGETS): test_verbose_% : $(OUT)/% | txt/input/%
+.PHONY: $(VERBOSE_TEST_TARGETS)
+$(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT)/% | txt/input/%
 	@./test_one_verbose.bash $*
 
 $(MOD_OUT_PATHS): $(OUT)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT)/$(MODULES)/
@@ -95,4 +95,4 @@ $(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp $(MOD_OUT_PATHS) | $$(dir $(OUT)/%)
 PERCENT := %
 TEST_YEARS := $(subst $(OUT)/,test_,$(OUT_DIRS))
 .PHONY: $(TEST_YEARS)
-$(TEST_YEARS): test_% : $$(filter test_%$$(PERCENT),$(TEST_QUICK_TARGETS))
+$(TEST_YEARS): test_% : $$(filter test_%$$(PERCENT),$(QUICK_TEST_TARGETS))
