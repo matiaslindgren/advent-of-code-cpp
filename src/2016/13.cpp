@@ -16,7 +16,7 @@ struct Point2D {
   constexpr Point2D operator-(int a) const {
     return this->operator+(-a);
   }
-  constexpr bool operator==(const Point2D& rhs) const = default;
+  constexpr auto operator<=>(const Point2D& rhs) const = default;
 };
 
 template <>

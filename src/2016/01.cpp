@@ -27,17 +27,17 @@ std::istream& operator>>(std::istream& is, Move& move) {
 struct Vec2D {
   int y;
   int x;
-  bool operator==(const Vec2D&) const = default;
-  int distance() const {
+  constexpr auto operator<=>(const Vec2D&) const = default;
+  constexpr int distance() const {
     return std::abs(y) + std::abs(x);
   }
-  Vec2D rotate_left() const {
+  constexpr Vec2D rotate_left() const {
     return {-x, y};
   }
-  Vec2D rotate_right() const {
+  constexpr Vec2D rotate_right() const {
     return {x, -y};
   }
-  Vec2D operator+(const Vec2D& rhs) {
+  constexpr Vec2D operator+(const Vec2D& rhs) const {
     return {y + rhs.y, x + rhs.x};
   }
 };

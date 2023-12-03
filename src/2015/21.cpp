@@ -4,7 +4,7 @@ struct Item {
   int cost;
   int damage;
   int armor;
-  bool operator==(const Item&) const = default;
+  constexpr auto operator<=>(const Item&) const = default;
 };
 
 static const std::vector<Item> weapons{
