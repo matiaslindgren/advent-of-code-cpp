@@ -7,10 +7,12 @@ namespace views = std::views;
 constexpr decltype(auto) yx_range(auto y0, auto y1, auto x0, auto x1) {
   const auto ny{y1 - y0};
   const auto nx{x1 - x0};
-  const auto y_range{views::iota(decltype(y0){}, nx * ny) |
-                     views::transform([=](auto&& y) { return y0 + (y / ny); })};
-  const auto x_range{views::iota(decltype(x0){}, nx * ny) |
-                     views::transform([=](auto&& x) { return x0 + (x % nx); })};
+  const auto y_range{views::iota(decltype(y0){}, nx * ny) | views::transform([=](auto&& y) {
+                       return y0 + (y / ny);
+                     })};
+  const auto x_range{views::iota(decltype(x0){}, nx * ny) | views::transform([=](auto&& x) {
+                       return x0 + (x % nx);
+                     })};
   return views::zip(y_range, x_range);
 }
 
@@ -22,7 +24,9 @@ struct Grid {
   std::size_t height;
 
   // TODO llvm18? deducing this
-  constexpr Cell& get(auto y, auto x) { return cells[y * width + x]; }
+  constexpr Cell& get(auto y, auto x) {
+    return cells[y * width + x];
+  }
   constexpr const Cell& get(auto y, auto x) const {
     return cells[y * width + x];
   }
@@ -37,13 +41,18 @@ struct Grid {
     return out;
   }
 
-  constexpr bool is_digit(const Cell c) const { return std::isdigit(c); }
+  constexpr bool is_digit(const Cell c) const {
+    return std::isdigit(c);
+  }
   constexpr bool is_symbol(const Cell c) const {
     return c != '.' && !is_digit(c);
   }
-  constexpr bool is_gear(const Cell c) const { return c == '*'; }
+  constexpr bool is_gear(const Cell c) const {
+    return c == '*';
+  }
 
-  constexpr auto find_num_begin(auto y, auto x) const {}
+  constexpr auto find_num_begin(auto y, auto x) const {
+  }
 
   constexpr std::vector<Point> adjacent_numbers(auto y, auto x) const {
     std::vector<Point> points;
@@ -87,8 +96,9 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
 }
 
 // TODO ranges::fold_left_first
-constexpr auto accumulate{std::bind(
-    my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())};
+constexpr auto accumulate{
+    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
+};
 
 constexpr int find_part1(const Grid& grid) {
   std::vector<Grid::Point> num_begin;
