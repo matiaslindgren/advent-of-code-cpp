@@ -7,12 +7,14 @@ namespace views = std::views;
 constexpr decltype(auto) yx_range(auto y0, auto y1, auto x0, auto x1) {
   const auto ny{y1 - y0};
   const auto nx{x1 - x0};
-  const auto y_range{views::iota(decltype(y0){}, nx * ny) | views::transform([=](auto&& y) {
-                       return y0 + (y / ny);
-                     })};
-  const auto x_range{views::iota(decltype(x0){}, nx * ny) | views::transform([=](auto&& x) {
-                       return x0 + (x % nx);
-                     })};
+  // clang-format off
+  const auto y_range{
+    views::iota(decltype(y0){}, nx * ny) | views::transform([=](auto&& y) { return y0 + (y / ny); })
+  };
+  const auto x_range{
+    views::iota(decltype(x0){}, nx * ny) | views::transform([=](auto&& x) { return x0 + (x % nx); })
+  };
+  // clang-format on
   return views::zip(y_range, x_range);
 }
 
@@ -41,24 +43,19 @@ struct Grid {
     return out;
   }
 
-  constexpr bool is_digit(const Cell c) const {
-    return std::isdigit(c);
-  }
   constexpr bool is_symbol(const Cell c) const {
-    return c != '.' && !is_digit(c);
-  }
-  constexpr bool is_gear(const Cell c) const {
-    return c == '*';
+    return c != '.' && !std::isdigit(c);
   }
 
-  constexpr auto find_num_begin(auto y, auto x) const {
+  constexpr bool is_gear(const Cell c) const {
+    return c == '*';
   }
 
   constexpr std::vector<Point> adjacent_numbers(auto y, auto x) const {
     std::vector<Point> points;
     for (auto&& [dy, dx] : yx_range(-1, 2, -1, 2)) {
-      if (auto y2{y + dy}, x2{x + dx}; is_digit(get(y2, x2))) {
-        while (is_digit(get(y2, x2 - 1))) {
+      if (auto y2{y + dy}, x2{x + dx}; std::isdigit(get(y2, x2))) {
+        while (std::isdigit(get(y2, x2 - 1))) {
           --x2;
         }
         if (const Point p{y2, x2}; ranges::find(points, p) == points.end()) {
@@ -69,9 +66,9 @@ struct Grid {
     return points;
   }
 
-  constexpr int as_number(auto y, auto x) const {
+  constexpr int parse_int(auto y, auto x) const {
     int num{0};
-    for (; is_digit(get(y, x)); ++x) {
+    for (; std::isdigit(get(y, x)); ++x) {
       num = (num * 10) + (get(y, x) - '0');
     }
     return num;
@@ -109,7 +106,7 @@ constexpr int find_part1(const Grid& grid) {
   }
   return accumulate(num_begin | views::transform([&grid](auto&& p) {
                       const auto [y, x] = p;
-                      return grid.as_number(y, x);
+                      return grid.parse_int(y, x);
                     }));
 }
 
@@ -131,7 +128,7 @@ constexpr int find_part2(const Grid& grid) {
                       const auto [p1, p2] = p;
                       const auto [y1, x1] = p1;
                       const auto [y2, x2] = p2;
-                      return grid.as_number(y1, x1) * grid.as_number(y2, x2);
+                      return grid.parse_int(y1, x1) * grid.parse_int(y2, x2);
                     }));
 }
 
