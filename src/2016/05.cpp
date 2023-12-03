@@ -18,7 +18,7 @@ struct Result {
 };
 
 constexpr auto parallel_chunk_size{1uz << 18};
-constexpr auto thread_count{12uz};
+constexpr auto thread_count{8uz};
 std::vector<Result> results(thread_count);
 std::vector<std::thread> threads(thread_count);
 
@@ -34,16 +34,15 @@ struct find_passwords {
     for (auto i{begin}; i < begin + count && !res.is_complete(); ++i) {
       const auto msg_len{md5::append_digits(msg, input_size, i)};
       const auto checksum{md5::compute(msg, msg_len)};
-      const auto prefix{checksum[0]};
-      if (prefix & 0xfffff000) {
+      if (ranges::any_of(checksum | views::take(5), std::identity{})) {
         continue;
       }
-      const auto pw_idx{(prefix & 0xf00) >> 8};
+      const auto pw_idx{checksum[5]};
       if (res.pw1.size() < res.password_len) {
         res.pw1 += std::format("{:x}", pw_idx);
       }
       if (pw_idx < res.password_len && !res.pw2[pw_idx]) {
-        const auto pw_val{(prefix & 0x0f0) >> 4};
+        const auto pw_val{checksum[6]};
         const auto pw_str{std::format("{:x}", pw_val)};
         res.pw2[pw_idx] = pw_str.front();
       }

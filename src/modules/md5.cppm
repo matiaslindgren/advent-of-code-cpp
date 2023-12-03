@@ -14,8 +14,7 @@ export namespace md5 {
 
 using Message = std::array<uint8_t, 64>;
 using Input = std::array<uint32_t, 16>;
-using Output32 = std::array<uint32_t, 4>;
-using Output8 = std::array<uint8_t, 16>;
+using Digits = std::array<uint8_t, 32>;
 
 inline std::size_t append_digits(Message& msg, const auto msg_size, const auto number) {
   std::array<uint8_t, 16> digits = {};
@@ -50,7 +49,7 @@ inline Input pack_md5_input(Message& msg, const auto msg_len) {
   return input;
 }
 
-inline Output32 compute(Message msg, const auto msg_len) {
+inline Digits compute(Message msg, const auto msg_len) {
   static std::array<uint32_t, 64> md5_sine_table{};
   if (md5_sine_table.front() == 0) {
     for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1), md5_sine_table)) {
@@ -97,24 +96,22 @@ inline Output32 compute(Message msg, const auto msg_len) {
       update(i, c ^ (b | ~d), (7 * i) % 16, rot[i % 4]);
     }
 
-    return {
-        std::byteswap(a + a0),
-        std::byteswap(b + b0),
-        std::byteswap(c + c0),
-        std::byteswap(d + d0),
+    const uint32_t output_chunks[4]{
+        a + a0,
+        b + b0,
+        c + c0,
+        d + d0,
     };
-  }
-}
 
-inline constexpr Output8 to_8bit(const Output32& output32) {
-  Output8 output8;
-  for (auto i{0uz}; i < output8.size(); i += 4) {
-    const auto chunk{output32[i / 4]};
-    for (auto j{0uz}; j < 4uz; ++j) {
-      output8[i + j] = chunk & (0xff000000 >> (8 * j));
+    Digits digits;
+    for (auto i{0uz}; i < digits.size(); i += 8) {
+      const auto chunk{std::byteswap(output_chunks[i / 8])};
+      for (auto j{0uz}; j < 8uz; ++j) {
+        digits[i + j] = (chunk >> (28 - 4 * j)) & 0xf;
+      }
     }
+    return digits;
   }
-  return output8;
 }
 
 }  // namespace md5
