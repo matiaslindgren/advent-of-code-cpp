@@ -19,7 +19,7 @@ using Digits = std::array<uint8_t, 32>;
 inline std::size_t append_digits(Message& msg, const auto msg_size, const auto number) {
   std::array<uint8_t, 16> digits = {};
   std::size_t digit_count{};
-  for (auto x{number}; x; x /= 10) {
+  for (auto x{number}; x || !digit_count; x /= 10) {
     digits[digit_count++] = '0' + (x % 10);
   }
   ranges::move(digits | views::take(digit_count) | views::reverse, msg.begin() + msg_size);
@@ -49,7 +49,13 @@ inline Input pack_md5_input(Message& msg, const auto msg_len) {
   return input;
 }
 
-inline Digits compute(Message msg, const auto msg_len) {
+struct digit2hex {
+  constexpr auto operator()(const auto digit) const {
+    return std::format("{:x}", digit)[0];
+  }
+};
+
+inline Digits compute(Message msg, auto msg_len, long iterations = 1) {
   static std::array<uint32_t, 64> md5_sine_table{};
   if (md5_sine_table.front() == 0) {
     for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1), md5_sine_table)) {
@@ -57,18 +63,22 @@ inline Digits compute(Message msg, const auto msg_len) {
     }
   }
 
-  constexpr uint32_t a0{std::byteswap(0x01234567)};
-  constexpr uint32_t b0{std::byteswap(0x89abcdef)};
-  constexpr uint32_t c0{std::byteswap(0xfedcba98)};
-  constexpr uint32_t d0{std::byteswap(0x76543210)};
+  constexpr uint32_t init[4]{
+      std::byteswap(0x01234567),
+      std::byteswap(0x89abcdef),
+      std::byteswap(0xfedcba98),
+      std::byteswap(0x76543210)
+  };
 
-  const auto input{pack_md5_input(msg, msg_len)};
+  Digits output;
 
-  {
-    auto a{a0};
-    auto b{b0};
-    auto c{c0};
-    auto d{d0};
+  while (iterations--) {
+    const auto input{pack_md5_input(msg, msg_len)};
+
+    auto a{init[0]};
+    auto b{init[1]};
+    auto c{init[2]};
+    auto d{init[3]};
 
     const auto update{[&](const auto i, auto f, const auto g, const auto rot) {
       f += a + md5_sine_table[i] + input[g];
@@ -96,22 +106,27 @@ inline Digits compute(Message msg, const auto msg_len) {
       update(i, c ^ (b | ~d), (7 * i) % 16, rot[i % 4]);
     }
 
-    const uint32_t output_chunks[4]{
-        a + a0,
-        b + b0,
-        c + c0,
-        d + d0,
+    const uint32_t chunks[4]{
+        a + init[0],
+        b + init[1],
+        c + init[2],
+        d + init[3],
     };
 
-    Digits digits;
-    for (auto i{0uz}; i < digits.size(); i += 8) {
-      const auto chunk{std::byteswap(output_chunks[i / 8])};
+    for (auto i{0uz}; i < output.size(); i += 8) {
+      const auto chunk{std::byteswap(chunks[i / 8])};
       for (auto j{0uz}; j < 8uz; ++j) {
-        digits[i + j] = (chunk >> (28 - 4 * j)) & 0xf;
+        output[i + j] = (chunk >> (28 - 4 * j)) & 0xf;
       }
     }
-    return digits;
+
+    if (iterations) {
+      ranges::transform(output, msg.begin(), digit2hex{});
+      msg_len = output.size();
+    }
   }
+
+  return output;
 }
 
 }  // namespace md5
