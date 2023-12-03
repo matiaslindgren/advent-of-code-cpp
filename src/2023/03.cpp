@@ -4,12 +4,6 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-inline void unique(auto& v) {
-  ranges::sort(v);
-  const auto dup{ranges::unique(v)};
-  v.erase(dup.begin(), dup.end());
-}
-
 constexpr decltype(auto) yx_range(auto y0, auto y1, auto x0, auto x1) {
   const auto ny{y1 - y0};
   const auto nx{x1 - x0};
@@ -49,28 +43,24 @@ struct Grid {
   }
   constexpr bool is_gear(const Cell c) const { return c == '*'; }
 
-  constexpr auto find_num_begin(auto y, auto x) const {
-    while (is_digit(get(y, x - 1))) {
-      --x;
-    }
-    return x;
-  }
+  constexpr auto find_num_begin(auto y, auto x) const {}
 
   constexpr std::vector<Point> adjacent_numbers(auto y, auto x) const {
     std::vector<Point> points;
     for (auto&& [dy, dx] : yx_range(-1, 2, -1, 2)) {
-      if (dx == 0 && dy == 0) {
-        continue;
-      }
       if (auto y2{y + dy}, x2{x + dx}; is_digit(get(y2, x2))) {
-        points.push_back({y2, find_num_begin(y2, x2)});
+        while (is_digit(get(y2, x2 - 1))) {
+          --x2;
+        }
+        if (const Point p{y2, x2}; ranges::find(points, p) == points.end()) {
+          points.push_back(p);
+        }
       }
     }
-    unique(points);
     return points;
   }
 
-  int as_number(auto y, auto x) const {
+  constexpr int as_number(auto y, auto x) const {
     int num{0};
     for (; is_digit(get(y, x)); ++x) {
       num = (num * 10) + (get(y, x) - '0');
@@ -96,17 +86,17 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
   throw std::runtime_error("failed parsing Grid");
 }
 
+// TODO ranges::fold_left_first
 constexpr auto accumulate{std::bind(
     my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())};
 
-int find_part1(const Grid& grid) {
+constexpr int find_part1(const Grid& grid) {
   std::vector<Grid::Point> num_begin;
   for (auto&& [y, x] : yx_range(1uz, grid.height - 1, 1uz, grid.width - 1)) {
     if (grid.is_symbol(grid.get(y, x))) {
       num_begin.append_range(grid.adjacent_numbers(y, x));
     }
   }
-  unique(num_begin);
   return accumulate(num_begin | views::transform([&grid](auto&& p) {
                       const auto [y, x] = p;
                       return grid.as_number(y, x);
@@ -118,7 +108,7 @@ constexpr decltype(auto) pairwise(auto&& r) {
   return views::zip(r, views::drop(r, 1)) | my_std::views::stride(2);
 }
 
-int find_part2(const Grid& grid) {
+constexpr int find_part2(const Grid& grid) {
   std::vector<Grid::Point> num_begin;
   for (auto&& [y, x] : yx_range(1uz, grid.height - 1, 1uz, grid.width - 1)) {
     if (grid.is_gear(grid.get(y, x))) {
