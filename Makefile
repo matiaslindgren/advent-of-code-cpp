@@ -30,6 +30,7 @@ ifeq ($(shell uname),Darwin)
 		-isystem $(LLVM_DIR)/include/c++/v1
 endif
 
+
 SRC       := src
 OUT       := out
 SRC_DIRS  := $(wildcard $(SRC)/*)
@@ -38,17 +39,9 @@ SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
 OUT_FILES := $(basename $(SRC_PATHS:$(SRC)/%=%))
 OUT_PATHS := $(addprefix $(OUT)/,$(OUT_FILES))
 
-MODULES       := modules
-MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
-MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT)/,$(MOD_SRC_PATHS)))
-MOD_OUT_FILES := $(notdir $(MOD_OUT_PATHS))
 
 .PHONY: all
 all: $(OUT_PATHS)
-
-.PHONY: clean
-clean:
-	$(RM) -rv $(OUT)
 
 $(OUT)/:
 	mkdir $@
@@ -56,15 +49,29 @@ $(OUT)/:
 $(addsuffix /,$(OUT_DIRS)): | $(OUT)/
 	mkdir $@
 
+.PHONY: clean
+clean:
+	$(RM) -rv $(OUT)
+
+.PHONY: fmt
+fmt:
+	@find . -type f -name '*.cpp*' -exec clang-format --verbose -i {} \;
+
+
+MODULES       := modules
+MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
+MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT)/,$(MOD_SRC_PATHS)))
+
+$(MOD_OUT_PATHS): $(OUT)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT)/$(MODULES)/
+	$(CLANG) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
+
+
 RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
 
 .PHONY: $(RUN_TARGETS)
 $(RUN_TARGETS): run_% : txt/input/% $(OUT)/%
 	@$(OUT)/$* < $<
 
-.PHONY: fmt
-fmt:
-	@find . -type f -name '*.cpp*' -exec clang-format --verbose -i {} \;
 
 SOLUTIONS            := $(wildcard txt/correct/*/*)
 QUICK_TEST_TARGETS   := $(subst txt/correct/,test_,$(SOLUTIONS))
@@ -84,8 +91,6 @@ test_verbose: $(VERBOSE_TEST_TARGETS)
 $(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT)/% | txt/input/%
 	@./test_one_verbose.bash $*
 
-$(MOD_OUT_PATHS): $(OUT)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT)/$(MODULES)/
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
 
 .SECONDEXPANSION:
 
