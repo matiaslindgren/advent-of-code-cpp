@@ -15,11 +15,12 @@ struct GameMax {
 std::istream& operator>>(std::istream& is, GameMax& gm) {
   using aoc::skip;
   using std::operator""s;
-  if (int id; skip(is, "Game"s) && is >> id && skip(is, ":"s)) {
-    std::unordered_map<std::string, int> counts;
-    while (is && is.peek() != '\n') {
-      if (int count; is >> count) {
-        if (std::string cube; is >> cube) {
+  if (std::string line; std::getline(is, line)) {
+    std::stringstream ls{line};
+    if (int id; skip(ls, "Game"s) && ls >> id && skip(ls, ":"s)) {
+      std::unordered_map<std::string, int> counts;
+      while (ls && is) {
+        if (auto [count, cube] = std::pair(int{}, ""s); ls >> count >> cube) {
           if (cube.ends_with(",") || cube.ends_with(";")) {
             cube.pop_back();
           }
@@ -30,11 +31,10 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
           }
         }
       }
-    }
-    if (is) {
-      is.ignore(1, '\n');
-      gm = {id, counts["red"], counts["green"], counts["blue"]};
-      return is;
+      if (is) {
+        gm = {id, counts["red"], counts["green"], counts["blue"]};
+        return is;
+      }
     }
   }
   if (is.eof()) {
