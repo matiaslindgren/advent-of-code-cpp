@@ -78,7 +78,7 @@ struct Grid {
         }
       }
     }
-    return numbers | ranges::to<std::vector<int>>();
+    return numbers;
   }
 };
 
