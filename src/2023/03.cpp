@@ -33,11 +33,15 @@ struct Grid {
     return cells[y * width + x];
   }
 
+  constexpr auto iter_yx_with_padding(const std::size_t pad) const {
+    return yx_range(pad, height - pad, pad, width - pad);
+  }
+
   constexpr Grid pad() const {
     const auto w{width + 2};
     const auto h{height + 2};
     Grid out = {std::vector<Cell>(w * h, '.'), w, h};
-    for (auto&& [y, x] : yx_range(0uz, height, 0uz, width)) {
+    for (auto&& [y, x] : iter_yx_with_padding(0)) {
       out.get(y + 1, x + 1) = get(y, x);
     }
     return out;
@@ -51,27 +55,30 @@ struct Grid {
     return c == '*';
   }
 
-  constexpr std::vector<Point> adjacent_numbers(auto y, auto x) const {
-    std::vector<Point> points;
-    for (auto&& [dy, dx] : yx_range(-1, 2, -1, 2)) {
-      if (auto y2{y + dy}, x2{x + dx}; std::isdigit(get(y2, x2))) {
-        while (std::isdigit(get(y2, x2 - 1))) {
-          --x2;
-        }
-        if (const Point p{y2, x2}; ranges::find(points, p) == points.end()) {
-          points.push_back(p);
-        }
-      }
-    }
-    return points;
-  }
-
   constexpr int parse_int(auto y, auto x) const {
     int num{0};
     for (; std::isdigit(get(y, x)); ++x) {
       num = (num * 10) + (get(y, x) - '0');
     }
     return num;
+  }
+
+  constexpr auto adjacent_numbers(const Point& center) const {
+    std::vector<Point> points;
+    std::vector<int> numbers;
+    for (auto&& [dy, dx] : yx_range(-1, 2, -1, 2)) {
+      const auto [y, x] = center;
+      if (auto y2{y + dy}, x2{x + dx}; std::isdigit(get(y2, x2))) {
+        while (std::isdigit(get(y2, x2 - 1))) {
+          --x2;
+        }
+        if (const Point adj{y2, x2}; ranges::find(points, adj) == points.end()) {
+          points.push_back(adj);
+          numbers.push_back(parse_int(y2, x2));
+        }
+      }
+    }
+    return numbers | ranges::to<std::vector<int>>();
   }
 };
 
@@ -86,49 +93,29 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
     }
   }
   if (is || is.eof()) {
-    grid = g;
+    grid = g.pad();
     return is;
   }
   throw std::runtime_error("failed parsing Grid");
 }
 
-// TODO ranges::fold_left_first
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
-};
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
-constexpr int find_part1(const Grid& grid) {
-  std::vector<Grid::Point> num_begin;
-  for (auto&& [y, x] : yx_range(1uz, grid.height - 1, 1uz, grid.width - 1)) {
-    if (grid.is_symbol(grid.get(y, x))) {
-      num_begin.append_range(grid.adjacent_numbers(y, x));
-    }
-  }
-  return sum(num_begin | views::transform([&grid](auto&& p) {
-               const auto [y, x] = p;
-               return grid.parse_int(y, x);
-             }));
-}
-
-// TODO ranges::adjacent
-constexpr decltype(auto) pairwise(auto&& r) {
-  return views::zip(r, views::drop(r, 1)) | my_std::views::stride(2);
-}
-
-constexpr int find_part2(const Grid& grid) {
-  std::vector<Grid::Point> num_begin;
-  for (auto&& [y, x] : yx_range(1uz, grid.height - 1, 1uz, grid.width - 1)) {
-    if (grid.is_gear(grid.get(y, x))) {
-      if (const auto adj{grid.adjacent_numbers(y, x)}; adj.size() == 2) {
-        num_begin.append_range(adj);
+constexpr std::pair<int, int> search(const Grid& grid) {
+  int part1{};
+  int part2{};
+  for (auto&& p : grid.iter_yx_with_padding(1uz)) {
+    auto&& [y, x] = p;
+    if (const auto cell{grid.get(y, x)}; grid.is_symbol(cell)) {
+      if (const auto adj{grid.adjacent_numbers(p)}; !adj.empty()) {
+        part1 += sum(adj);
+        if (grid.is_gear(cell) && adj.size() == 2) {
+          part2 += adj[0] * adj[1];
+        }
       }
     }
   }
-  return sum(pairwise(num_begin) | views::transform([&grid](auto&& p) {
-               const auto [p1, p2] = p;
-               const auto [y1, x1] = p1;
-               const auto [y2, x2] = p2;
-               return grid.parse_int(y1, x1) * grid.parse_int(y2, x2);
-             }));
+  return {part1, part2};
 }
 
 int main() {
@@ -136,10 +123,8 @@ int main() {
 
   Grid grid;
   std::cin >> grid;
-  grid = grid.pad();
 
-  const auto part1{find_part1(grid)};
-  const auto part2{find_part2(grid)};
+  const auto [part1, part2] = search(grid);
   std::print("{} {}\n", part1, part2);
 
   return 0;
