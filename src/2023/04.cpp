@@ -27,7 +27,6 @@ std::istream& operator>>(std::istream& is, Wins& w) {
             [&win](auto&& c) { return win.contains(c); }
           )
         };
-
         w = {count};
         return is;
       }
