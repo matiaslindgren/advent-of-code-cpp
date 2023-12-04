@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import md5;
 
 namespace ranges = std::ranges;
@@ -66,9 +67,9 @@ parallel_stretch_search(md5::Message msg, const auto input_size, const int stret
   DigitRepeats r2s, r5s;
   Keys keys;
   for (auto i{0uz}; keys.size() < 70 && i < 1'000'000; i += threads.size() * parallel_chunk_size) {
-    for (auto t{0uz}; t < threads.size(); ++t) {
+    for (auto&& [t, th] : my_std::views::enumerate(threads)) {
       results[t].clear();
-      threads[t] = std::thread(
+      th = std::thread(
           stretch_search{},
           t,
           msg,

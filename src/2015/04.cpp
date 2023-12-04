@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import md5;
 
 namespace ranges = std::ranges;
@@ -31,9 +32,8 @@ struct find_next {
 
 std::size_t parallel_find_next(const auto begin, auto&&... args) {
   for (auto i{begin}; i < 10'000'000; i += threads.size() * parallel_chunk_size) {
-    for (auto t{0uz}; t < threads.size(); ++t) {
-      threads[t]
-          = std::thread(find_next{}, t, i + t * parallel_chunk_size, parallel_chunk_size, args...);
+    for (auto&& [t, th] : my_std::views::enumerate(threads)) {
+      th = std::thread(find_next{}, t, i + t * parallel_chunk_size, parallel_chunk_size, args...);
     }
     for (auto& th : threads) {
       th.join();

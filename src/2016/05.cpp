@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import md5;
 
 namespace ranges = std::ranges;
@@ -55,8 +56,8 @@ Result parallel_find_passwords(md5::Message msg, const std::size_t input_size) {
   Result res;
   for (auto i{0uz}; i < 100'000'000 && !res.is_complete();
        i += threads.size() * parallel_chunk_size) {
-    for (auto t{0uz}; t < threads.size(); ++t) {
-      threads[t] = std::thread(
+    for (auto&& [t, th] : my_std::views::enumerate(threads)) {
+      th = std::thread(
           find_passwords{},
           t,
           msg,
@@ -74,9 +75,8 @@ Result parallel_find_passwords(md5::Message msg, const std::size_t input_size) {
           res.pw1.push_back(ch);
         }
       }
-      for (auto c{0uz}; c < res.pw2.size(); ++c) {
-        auto src{th_res.pw2[c]};
-        auto& dst{res.pw2[c]};
+      for (auto&& [pos, dst] : my_std::views::enumerate(res.pw2)) {
+        auto src{th_res.pw2[pos]};
         if (src && !dst) {
           dst = src;
         }

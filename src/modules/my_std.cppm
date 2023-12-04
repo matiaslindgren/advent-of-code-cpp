@@ -185,6 +185,17 @@ struct _stride_fn : public std::__range_adaptor_closure<_stride_fn> {
 
 inline constexpr auto stride = _stride_fn{};
 
+// TODO P2164R9 properly (or wait for libc++...)
+struct _enumerate_fn : public std::__range_adaptor_closure<_enumerate_fn> {
+  template <class R>
+    requires std::ranges::sized_range<R>
+  constexpr decltype(auto) operator()(R&& r) const {
+    return std::views::zip(std::views::iota(0uz, r.size()), r);
+  }
+};
+
+inline constexpr auto enumerate = _enumerate_fn{};
+
 }  // namespace views
 
 }  // namespace my_std
