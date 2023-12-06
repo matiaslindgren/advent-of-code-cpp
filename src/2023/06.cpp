@@ -33,26 +33,16 @@ constexpr auto find_part1(const Ints& times, const Ints& dists) {
                  }));
 }
 
-constexpr long pow10(auto n) {
-  long x{1};
-  for (; n; --n) {
-    x *= 10;
+constexpr long pow10_ceil(long x) {
+  long p{10};
+  for (; x >= 10; x /= 10) {
+    p *= 10;
   }
-  return x;
-}
-
-constexpr long count_digits(auto x) {
-  long n{};
-  for (; x || !n; x /= 10) {
-    ++n;
-  }
-  return n;
+  return p;
 }
 
 constexpr auto concat_digits(const Ints& v) {
-  return my_std::ranges::fold_left(v, 0L, [](auto res, auto x) {
-    return res * pow10(count_digits(x)) + x;
-  });
+  return my_std::ranges::fold_left(v, 0L, [](auto res, auto x) { return res * pow10_ceil(x) + x; });
 }
 
 constexpr auto find_part2(const Ints& times, const Ints& dists) {
