@@ -8,6 +8,7 @@ CXXFLAGS := \
 	-stdlib=libc++ \
 	-g \
 	-O2 \
+	-march=native \
 	-Wall \
 	-Wpedantic \
 	-Werror \
