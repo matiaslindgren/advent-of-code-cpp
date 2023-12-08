@@ -32,7 +32,18 @@ constexpr int char2card(char ch) {
 }
 
 struct Hand {
-  std::array<int, 5> values;
+  using Values = std::array<int, 5>;
+  Values values;
+
+  using Counts = std::array<std::pair<int, int>, 15>;
+  constexpr auto count() const {
+    Counts counts = {};
+    for (auto v : values) {
+      auto& p = counts[v];
+      p = {p.first + 1, v};
+    }
+    return counts;
+  }
 
   constexpr bool operator<(const Hand& other) const {
     return ranges::lexicographical_compare(values, other.values);
@@ -44,11 +55,7 @@ struct Card {
   long bid;
 
   constexpr int rank() const {
-    std::array<std::pair<int, int>, 15> counts = {};
-    for (auto v : hand.values) {
-      auto& p = counts[v];
-      p = {p.first + 1, v};
-    }
+    auto counts{hand.count()};
 
     if (const auto jok{ranges::find_if(counts, [=](auto p) { return p.second == joker_id; })};
         jok != counts.end()) {
@@ -88,7 +95,6 @@ struct Card {
     return r1 < r2 || (r1 == r2 && hand < other.hand);
   }
 };
-using Cards = std::vector<Card>;
 
 std::istream& operator>>(std::istream& is, Card& card) {
   if (std::string line; std::getline(is, line)) {
@@ -112,11 +118,7 @@ constexpr auto sum{
     std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())
 };
 
-std::ostream& operator<<(std::ostream& os, const Card& card) {
-  os << card.rank() << " : ";
-  ranges::copy(card.hand.values, std::ostream_iterator<int>(os, " "));
-  return os;
-}
+using Cards = std::vector<Card>;
 
 constexpr auto total_winnings(ranges::random_access_range auto&& r) {
   Cards cards{r | ranges::to<Cards>()};
