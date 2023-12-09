@@ -28,6 +28,28 @@ struct fold_left_fn {
 
 inline constexpr fold_left_fn fold_left;
 
+// Taken from "Possible implementations" at
+// https://en.cppreference.com/w/cpp/algorithm/ranges/fold_right
+// (accessed 2023-12-09)
+struct fold_right_fn {
+  template <std::bidirectional_iterator I, std::sentinel_for<I> S, class T, class F>
+  constexpr auto operator()(I first, S last, T init, F f) const {
+    using U = std::decay_t<std::invoke_result_t<F&, std::iter_reference_t<I>, T>>;
+    if (first == last) return U(std::move(init));
+    I tail = std::ranges::next(first, last);
+    U accum = std::invoke(f, *--tail, std::move(init));
+    while (first != tail) accum = std::invoke(f, *--tail, std::move(accum));
+    return accum;
+  }
+
+  template <std::ranges::bidirectional_range R, class T, class F>
+  constexpr auto operator()(R&& r, T init, F f) const {
+    return (*this)(std::ranges::begin(r), std::ranges::end(r), std::move(init), std::ref(f));
+  }
+};
+
+inline constexpr fold_right_fn fold_right;
+
 // TODO(llvm18?) P1899R3
 template <std::ranges::input_range V>
   requires std::ranges::view<V>

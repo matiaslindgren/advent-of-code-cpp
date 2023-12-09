@@ -8,13 +8,13 @@ namespace views = std::views;
 using Ints = std::vector<int>;
 
 std::vector<Ints> parse_input(std::istream& is) {
-  std::vector<Ints> h;
+  std::vector<Ints> histories;
   for (std::string line; std::getline(is, line);) {
     std::stringstream ls{line};
-    h.push_back(views::istream<int>(ls) | ranges::to<Ints>());
+    histories.push_back(views::istream<int>(ls) | ranges::to<Ints>());
   }
   if (is.eof()) {
-    return h;
+    return histories;
   }
   throw std::runtime_error("failed parsing Ints");
 }
@@ -32,10 +32,6 @@ Ints adjacent_diff(const auto& hist) {
          | ranges::to<Ints>();
 }
 
-constexpr auto sum{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())
-};
-
 int main() {
   std::ios_base::sync_with_stdio(false);
 
@@ -48,10 +44,8 @@ int main() {
       front.push_back(diff.front());
       back.push_back(diff.back());
     }
-    part1 += sum(back);
-    part2 += my_std::ranges::fold_left(front | views::reverse, 0L, [](auto res, auto x) {
-      return x - res;
-    });
+    part1 += my_std::ranges::fold_left(back, 0L, std::plus{});
+    part2 += my_std::ranges::fold_right(front, 0L, std::minus{});
   }
 
   std::print("{} {}\n", part1, part2);
