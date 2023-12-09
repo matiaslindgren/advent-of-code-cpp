@@ -15,16 +15,16 @@ std::istream& operator>>(std::istream& is, Disc& disc) {
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (int id; skip(ls, "Disc #"s) && ls >> id && id > 0) {
-      if (int mod; skip(ls, " has"s) && ls >> mod && skip(ls, " positions;"s)) {
-        if (int time; skip(ls, " at time="s) && ls >> time && time == 0) {
-          if (int pos; skip(ls, ", it is at position"s) && ls >> pos && skip(ls, "."s)) {
-            disc = {pos, mod};
-            return is;
-          }
-        }
-      }
+    // clang-format off
+    if (int id, mod, time, pos;
+        skip(ls, "Disc #"s) && ls >> id && id > 0
+        && skip(ls, " has"s) && ls >> mod && skip(ls, " positions;"s)
+        && skip(ls, " at time="s) && ls >> time && time == 0
+        && skip(ls, ", it is at position"s) && ls >> pos && skip(ls, "."s)) {
+      disc = {pos, mod};
+      return is;
     }
+    // clang-format on
   }
   if (is.eof()) {
     return is;
