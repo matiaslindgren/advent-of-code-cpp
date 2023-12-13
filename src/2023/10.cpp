@@ -16,13 +16,6 @@ enum class Tile : char {
   start = 'S',
 };
 
-enum class Facing {
-  N,
-  E,
-  S,
-  W,
-};
-
 std::istream& operator>>(std::istream& is, Tile& tile) {
   if (std::underlying_type_t<Tile> ch; is >> ch) {
     switch (ch) {
@@ -59,136 +52,64 @@ struct Grid2D {
     }
   }
 
-  std::pair<Tile, Facing> infer_tile(const Tile w, const Tile n, const Tile e, const Tile s) const {
-    const auto w_pipe{w == Tile::EW || w == Tile::NE || w == Tile::SE};
-    const auto n_pipe{n == Tile::NS || n == Tile::SE || n == Tile::SW};
-    const auto e_pipe{e == Tile::EW || e == Tile::NW || e == Tile::SW};
-    const auto s_pipe{s == Tile::NS || s == Tile::NE || s == Tile::NW};
-
-    if (n_pipe && s_pipe) {
-      return {Tile::NS, Facing::N};
-    }
-    if (e_pipe && w_pipe) {
-      return {Tile::EW, Facing::E};
-    }
-    if (n_pipe && e_pipe) {
-      return {Tile::NE, Facing::N};
-    }
-    if (n_pipe && w_pipe) {
-      return {Tile::NW, Facing::N};
-    }
-    if (s_pipe && w_pipe) {
-      return {Tile::SW, Facing::S};
-    }
-    if (s_pipe && e_pipe) {
-      return {Tile::SE, Facing::S};
-    }
-
-    throw std::runtime_error("tile not part of pipe");
+  constexpr std::size_t index_of(const Tile tile) const {
+    return ranges::find(tiles, tile) - tiles.begin();
   }
 
-  std::pair<std::size_t, Facing> replace_start() {
-    const auto mid{ranges::find(tiles, Tile::start) - tiles.begin()};
-    const auto tW{tiles.at(mid - 1)};
-    const auto tN{tiles.at(mid - size)};
-    const auto tE{tiles.at(mid + 1)};
-    const auto tS{tiles.at(mid + size)};
-    const auto [tmid, facing] = infer_tile(tW, tN, tE, tS);
-    tiles.at(mid) = tmid;
-    return {mid, facing};
+  bool is_connected(const auto src, const auto dst) const {
+    if (dst < src) {
+      return is_connected(dst, src);
+    }
+    const auto t1{tiles.at(src)};
+    const auto t2{tiles.at(dst)};
+    if (dst - src == 1) {
+      return (t1 == Tile::EW || t1 == Tile::NE || t1 == Tile::SE || t1 == Tile::start)
+             && (t2 == Tile::EW || t2 == Tile::NW || t2 == Tile::SW || t2 == Tile::start);
+    } else if (dst - src == size) {
+      return (t1 == Tile::NS || t1 == Tile::SW || t1 == Tile::SE || t1 == Tile::start)
+             && (t2 == Tile::NS || t2 == Tile::NE || t2 == Tile::NW || t2 == Tile::start);
+    }
+    return false;
   }
 
-  auto find_path(const auto start_index, const auto start_face) const {
+  std::array<std::size_t, 4> adjacent(const std::size_t i) const {
+    return {i - 1, i - size, i + 1, i + size};
+  }
+
+  auto find_path(const auto start_index) const {
     std::unordered_set<std::size_t> path{start_index};
-    for (auto [i, f] = std::make_pair(start_index, start_face);
-         path.size() < 2 || i != start_index;) {
-      switch (f) {
-        case Facing::N: {
-          i -= size;
-        } break;
-        case Facing::E: {
-          i += 1;
-        } break;
-        case Facing::S: {
-          i += size;
-        } break;
-        case Facing::W: {
-          i -= 1;
-        } break;
+    for (auto src{start_index};;) {
+      auto prev{src};
+      for (const auto dst : adjacent(src)) {
+        if (!path.contains(dst) && is_connected(src, dst)) {
+          src = dst;
+          break;
+        }
       }
-      if (i == start_index) {
+      if (prev == src) {
         break;
       }
-      path.insert(i);
-      const auto t{tiles.at(i)};
-      switch (f) {
-        case Facing::N: {
-          switch (t) {
-            case Tile::NS: {
-              f = Facing::N;
-            } break;
-            case Tile::SW: {
-              f = Facing::W;
-            } break;
-            case Tile::SE: {
-              f = Facing::E;
-            } break;
-            default:
-              throw std::runtime_error("cannot find N facing");
-          }
-        } break;
-        case Facing::E: {
-          switch (t) {
-            case Tile::EW: {
-              f = Facing::E;
-            } break;
-            case Tile::NW: {
-              f = Facing::N;
-            } break;
-            case Tile::SW: {
-              f = Facing::S;
-            } break;
-            default:
-              throw std::runtime_error("cannot find E facing");
-          }
-        } break;
-        case Facing::S: {
-          switch (t) {
-            case Tile::NS: {
-              f = Facing::S;
-            } break;
-            case Tile::NE: {
-              f = Facing::E;
-            } break;
-            case Tile::NW: {
-              f = Facing::W;
-            } break;
-            default:
-              throw std::runtime_error("cannot find S facing");
-          }
-        } break;
-        case Facing::W: {
-          switch (t) {
-            case Tile::EW: {
-              f = Facing::W;
-            } break;
-            case Tile::NE: {
-              f = Facing::N;
-            } break;
-            case Tile::SE: {
-              f = Facing::S;
-            } break;
-            default:
-              throw std::runtime_error("cannot find W facing");
-          }
-        } break;
-      }
+      path.insert(src);
     }
     return path;
+  }
+
+  void infer_tile(const auto i) {
+    for (const auto tile : {Tile::NS, Tile::EW, Tile::NE, Tile::NW, Tile::SW, Tile::SE}) {
+      const auto prev{std::exchange(tiles.at(i), tile)};
+      const auto adjacent_count{ranges::count_if(adjacent(i), [=, this](auto adj) {
+        return this->is_connected(i, adj);
+      })};
+      if (adjacent_count == 2) {
+        return;
+      }
+      tiles.at(i) = prev;
+    }
   }
 };
 
 auto count_inner(Grid2D grid, const auto& path) {
+  grid.infer_tile(grid.index_of(Tile::start));
   for (auto i{0uz}; i < grid.tiles.size(); ++i) {
     if (!path.contains(i)) {
       grid.tiles.at(i) = Tile::ground;
@@ -222,9 +143,8 @@ auto count_inner(Grid2D grid, const auto& path) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  Grid2D grid{views::istream<Tile>(std::cin) | ranges::to<std::vector<Tile>>()};
-  const auto [start_index, start_face] = grid.replace_start();
-  const auto path{grid.find_path(start_index, start_face)};
+  const Grid2D grid{views::istream<Tile>(std::cin) | ranges::to<std::vector<Tile>>()};
+  const auto path{grid.find_path(grid.index_of(Tile::start))};
 
   const auto part1{path.size() / 2};
   const auto part2{count_inner(grid, path)};
