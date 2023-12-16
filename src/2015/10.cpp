@@ -20,7 +20,7 @@ int main() {
 
   auto digits{
       views::istream<char>(std::cin) | views::transform([](char ch) { return ch - '0'; })
-      | ranges::to<std::vector<int>>()
+      | ranges::to<std::vector>()
   };
 
   int iteration{};

@@ -43,7 +43,7 @@ long count_decompressed(const Markers& markers, const bool simple) {
   Markers repeating;
 
   const auto drop_nonrepeating{[&] {
-    const auto rm{ranges::remove_if(repeating, [&str_pos](auto&& m) {
+    const auto rm{ranges::remove_if(repeating, [&str_pos](const auto& m) {
       return m.begin + m.length <= str_pos;
     })};
     repeating.erase(rm.begin(), rm.end());
@@ -51,7 +51,7 @@ long count_decompressed(const Markers& markers, const bool simple) {
 
   const auto get_current_total_repeat{[&] {
     return my_std::ranges::fold_left(
-        repeating | views::transform([](auto&& m) { return m.repeat; }),
+        repeating | views::transform([](const auto& m) { return m.repeat; }),
         1L,
         std::multiplies{}
     );

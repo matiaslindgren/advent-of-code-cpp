@@ -119,7 +119,7 @@ int main() {
   std::ios_base::sync_with_stdio(false);
   constexpr auto max_node_count{8};
 
-  const auto edges{views::istream<Edge>(std::cin) | ranges::to<std::vector<Edge>>()};
+  const auto edges{views::istream<Edge>(std::cin) | ranges::to<std::vector>()};
 
   Graph g{edges};
   const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<max_node_count>()};
@@ -127,6 +127,7 @@ int main() {
 
   const auto part1{*shortest_path};
   const auto part2{*longest_path};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

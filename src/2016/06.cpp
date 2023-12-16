@@ -9,29 +9,25 @@ CharPairs minmax_char_freq_by_column(const auto& lines) {
   if (lines.empty()) {
     throw std::runtime_error("empty input");
   }
-  auto&& col_count{lines.front().size()};
-  // clang-format off
+  const auto col_count{lines.front().size()};
   return (
-      views::iota(0uz, col_count)
-      | views::transform([&lines](const auto column) {
-          using CharCount = std::unordered_map<char, int>;
-          CharCount cc;
-          for (const auto& line : lines) {
-            ++cc[line[column]];
-          }
-          auto&& get_freq{[](auto&& p) { return p.second; }};
-          auto [min, max] = ranges::minmax_element(cc, {}, get_freq);
-          return std::make_tuple(min->first, max->first);
+      views::iota(0uz, col_count) | views::transform([&lines](const auto column) {
+        std::unordered_map<char, int> char_count;
+        for (const auto& line : lines) {
+          ++char_count[line[column]];
+        }
+        const auto get_freq{[](const auto& p) { return p.second; }};
+        auto [min, max] = ranges::minmax_element(char_count, {}, get_freq);
+        return std::tuple{min->first, max->first};
       })
       | ranges::to<CharPairs>()
   );
-  // clang-format on
 }
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector<std::string>>()};
+  const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 
   const CharPairs minmax_chars{minmax_char_freq_by_column(lines)};
 

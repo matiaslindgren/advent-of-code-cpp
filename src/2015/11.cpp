@@ -67,7 +67,7 @@ int main() {
   std::ios_base::sync_with_stdio(false);
 
   auto password{
-      views::istream<char>(std::cin) | views::transform(char2digit) | ranges::to<std::vector<int>>()
+      views::istream<char>(std::cin) | views::transform(char2digit) | ranges::to<std::vector>()
   };
 
   std::string results[2] = {};

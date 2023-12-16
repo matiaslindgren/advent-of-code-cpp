@@ -48,7 +48,7 @@ Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto aunts = views::istream<Aunt>(std::cin) | ranges::to<std::vector<Aunt>>();
+  const auto aunts = views::istream<Aunt>(std::cin) | ranges::to<std::vector>();
 
   const Aunt target{
       .items

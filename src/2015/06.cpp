@@ -39,7 +39,7 @@ std::istream& operator>>(std::istream& is, Region& r) {
 }
 
 int main() {
-  const auto regions{views::istream<Region>(std::cin) | ranges::to<std::vector<Region>>()};
+  const auto regions{views::istream<Region>(std::cin) | ranges::to<std::vector>()};
 
   // TODO
   std::vector<bool> part1_lights(1'000'000, false);
@@ -67,7 +67,8 @@ int main() {
   }
 
   const auto part1{ranges::count_if(part1_lights, std::identity())};
-  const auto part2{my_std::ranges::fold_left(part2_lights, 0LL, std::plus<long long>())};
+  const auto part2{my_std::ranges::fold_left(part2_lights, 0LL, std::plus{})};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

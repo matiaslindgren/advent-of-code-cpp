@@ -43,7 +43,7 @@ bool is_nice_part1(const std::string& s) {
 }
 
 auto contains_sandwich_letter(const std::string& s) {
-  return ranges::any_of(views::zip(s, views::drop(s, 2)), [](auto&& t) {
+  return ranges::any_of(views::zip(s, views::drop(s, 2)), [](const auto& t) {
     const auto& [ch0, ch1] = t;
     return ch0 == ch1;
   });
@@ -74,10 +74,11 @@ bool is_nice_part2(const std::string& s) {
 }
 
 int main() {
-  const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector<std::string>>()};
+  const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{ranges::count_if(lines, is_nice_part1)};
   const auto part2{ranges::count_if(lines, is_nice_part2)};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

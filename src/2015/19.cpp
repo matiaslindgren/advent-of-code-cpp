@@ -85,7 +85,7 @@ std::size_t count_shortest_path_to(
   // greedy works?? hmm lazy
   Units new_molecule;
   for (const auto& r : replacements) {
-    for (auto&& m : replace(molecule, r)) {
+    for (const auto& m : replace(molecule, r)) {
       if (new_molecule.empty() || m.size() < new_molecule.size()) {
         new_molecule = m;
       }
@@ -116,11 +116,11 @@ int main() {
   auto reverse_replacements{
       views::transform(
           replacements,
-          [](auto&& r) -> Replacement {
+          [](const auto& r) -> Replacement {
             return {r.dst, r.src};
           }
       )
-      | ranges::to<std::vector<Replacement>>()
+      | ranges::to<std::vector>()
   };
   ranges::sort(reverse_replacements, ranges::greater{}, [](const auto& r) { return r.src.size(); });
   const auto part2{count_shortest_path_to(medicine, reverse_replacements, {"e"s})};

@@ -43,13 +43,12 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   throw std::runtime_error("failed parsing GameMax");
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
-};
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto max_counts{views::istream<GameMax>(std::cin) | ranges::to<std::vector<GameMax>>()};
+  const auto max_counts{views::istream<GameMax>(std::cin) | ranges::to<std::vector>()};
 
   auto possible_ids{
       max_counts

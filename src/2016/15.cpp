@@ -35,8 +35,8 @@ std::istream& operator>>(std::istream& is, Disc& disc) {
 auto find_time_to_press(const auto& discs) {
   // TODO no loop, find common multiple/divisor
   for (auto t{0uz}; t < 100'000'000; ++t) {
-    const auto has_open_slot{[=](auto&& p) {
-      auto&& [i, disc] = p;
+    const auto has_open_slot{[=](const auto& p) {
+      const auto& [i, disc] = p;
       return ((disc.pos + t + i + 1) % disc.mod) == 0;
     }};
     if (ranges::all_of(my_std::views::enumerate(discs), has_open_slot)) {
@@ -49,7 +49,7 @@ auto find_time_to_press(const auto& discs) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  auto discs{views::istream<Disc>(std::cin) | ranges::to<std::vector<Disc>>()};
+  auto discs{views::istream<Disc>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{find_time_to_press(discs)};
 

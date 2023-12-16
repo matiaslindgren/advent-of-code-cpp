@@ -37,25 +37,25 @@ std::istream& operator>>(std::istream& is, Item& item) {
   throw std::runtime_error("failed parsing Item");
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
-};
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  auto items{views::istream<Item>(std::cin) | ranges::to<std::vector<Item>>()};
+  auto items{views::istream<Item>(std::cin) | ranges::to<std::vector>()};
   ranges::copy(items, std::ostream_iterator<Item>(std::cout, "\n"));
 
   std::cout << sum(views::transform(items, [](auto i) { return i.id; })) << "\n";
 
+  long part1{0};
 #if 0
   for (std::string line; std::getline(line);) {
     std::cout << line << '\n';
   }
 #endif
 
-  long part1{0};
   long part2{0};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

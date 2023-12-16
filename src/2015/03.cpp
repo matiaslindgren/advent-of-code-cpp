@@ -85,6 +85,7 @@ int main() {
 
   const auto part1{count_visited_houses(all_moves)};
   const auto part2{count_visited_houses(santa_moves, robot_moves)};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

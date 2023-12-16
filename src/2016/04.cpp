@@ -21,15 +21,15 @@ struct Room {
         p.second += 1;
       }
     }
-    ranges::sort(cc, [](auto&& p1, auto&& p2) {
-      auto&& [ch1, n1] = p1;
-      auto&& [ch2, n2] = p2;
+    ranges::sort(cc, [](const auto& p1, const auto& p2) {
+      const auto& [ch1, n1] = p1;
+      const auto& [ch2, n2] = p2;
       return n1 > n2 || (n1 == n2 && ch1 < ch2);
     });
     // clang-format off
     return (
       views::take(cc, 5)
-      | views::transform([](auto&& p) { return p.first; })
+      | views::transform([](const auto& p) { return p.first; })
       | ranges::to<std::string>()
     );
     // clang-format on
@@ -78,10 +78,10 @@ int find_part1(const auto& rooms) {
   // clang-format off
   return my_std::ranges::fold_left(
     rooms
-      | views::filter([](auto&& r) { return r.check_name() == r.checksum; })
-      | views::transform([](auto&& r) { return r.id; }),
+      | views::filter([](const auto& r) { return r.check_name() == r.checksum; })
+      | views::transform([](const auto& r) { return r.id; }),
     0L,
-    std::plus<int>()
+    std::plus{}
   );
   // clang-format on
 }
@@ -90,7 +90,7 @@ int find_part2(const auto& rooms) {
   using std::operator""sv;
   if (const auto it{ranges::find_if(
           rooms,
-          [](auto&& r) {
+          [](const auto& r) {
             const auto& s{r.decrypt_name()};
             return s.starts_with("northpole object storage"sv);
           }
@@ -104,10 +104,11 @@ int find_part2(const auto& rooms) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto rooms{views::istream<Room>(std::cin) | ranges::to<std::vector<Room>>()};
+  const auto rooms{views::istream<Room>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{find_part1(rooms)};
   const auto part2{find_part2(rooms)};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

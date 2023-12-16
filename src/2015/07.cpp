@@ -109,7 +109,7 @@ int main() {
 
   const auto circuit{
       views::istream<Statement>(std::cin)
-      | views::transform([](auto&& stmt) { return std::make_tuple(stmt.dst, stmt); })
+      | views::transform([](const auto& stmt) { return std::make_tuple(stmt.dst, stmt); })
       | ranges::to<std::unordered_map<std::string, Statement>>()
   };
 

@@ -6,12 +6,12 @@ namespace views = std::views;
 
 using Ints = std::vector<int>;
 
-constexpr auto sum{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())
-};
-constexpr auto product{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 1L, std::multiplies<long>())
-};
+constexpr decltype(auto) make_fold(auto&& init, auto&& f) {
+  return std::bind(my_std::ranges::fold_left, std::placeholders::_1, init, f);
+}
+
+constexpr auto sum{make_fold(0L, std::plus{})};
+constexpr auto product{make_fold(1L, std::multiplies{})};
 
 std::vector<Ints> combinations_with_sum(const Ints& ints, const int k, const long target) {
   std::vector<bool> selected(ints.size(), false);
@@ -23,8 +23,8 @@ std::vector<Ints> combinations_with_sum(const Ints& ints, const int k, const lon
     // clang-format off
     const Ints candidate{
       views::zip(selected, ints)
-      | views::filter([](auto&& pair) { return pair.first; })
-      | views::transform([](auto&& pair) { return pair.second; })
+      | views::filter([](const auto& p) { return p.first; })
+      | views::transform([](const auto& p) { return p.second; })
       | ranges::to<Ints>()
     };
     // clang-format on

@@ -114,17 +114,15 @@ std::istream& operator>>(std::istream& is, Card& card) {
   throw std::runtime_error("failed parsing Card");
 }
 
-constexpr auto sum{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus<long>())
-};
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus{})};
 
 using Cards = std::vector<Card>;
 
 constexpr auto total_winnings(ranges::random_access_range auto&& r) {
   Cards cards{r | ranges::to<Cards>()};
   std::sort(cards.begin(), cards.end());
-  return sum(my_std::views::enumerate(cards) | views::transform([=](auto&& p) {
-               auto&& [i, c] = p;
+  return sum(my_std::views::enumerate(cards) | views::transform([=](const auto& p) {
+               const auto& [i, c] = p;
                return (i + 1) * c.bid;
              }));
 }

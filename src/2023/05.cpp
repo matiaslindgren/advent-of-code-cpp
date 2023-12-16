@@ -32,7 +32,7 @@ using MapGroups = std::vector<std::vector<Map>>;
 std::istream& operator>>(std::istream& is, Seeds& ss) {
   if (std::string line; skip(is, "seeds:"s) && std::getline(is, line)) {
     std::stringstream ls{line};
-    ss = views::istream<long>(ls) | ranges::to<std::vector<long>>();
+    ss = views::istream<long>(ls) | ranges::to<std::vector>();
     return is;
   }
   throw std::runtime_error("failed parsing Seeds");
@@ -69,7 +69,7 @@ std::istream& operator>>(std::istream& is, MapGroups& mg) {
 
 constexpr void prune(Ranges& rs) {
   {
-    const auto empty{ranges::remove_if(rs, [](auto&& r) { return r.len <= 0; })};
+    const auto empty{ranges::remove_if(rs, [](const auto& r) { return r.len <= 0; })};
     rs.erase(empty.begin(), empty.end());
   }
   ranges::sort(rs);
@@ -83,10 +83,10 @@ Ranges split_subranges(const Range& input, const auto& map_groups) {
   Ranges subranges{{input}};
 
   for (const auto& maps : map_groups) {
-    for (auto&& subrange : std::exchange(subranges, Ranges{})) {
+    for (const auto& subrange : std::exchange(subranges, Ranges{})) {
       Ranges unmapped{{subrange}};
       for (const auto& map : maps) {
-        for (auto&& r : std::exchange(unmapped, Ranges{})) {
+        for (const auto& r : std::exchange(unmapped, Ranges{})) {
           const auto src{map.src};
 
           if (r.rhs() < src.lhs() || src.rhs() < r.lhs()) {
@@ -120,7 +120,7 @@ Ranges split_subranges(const Range& input, const auto& map_groups) {
 auto search(const Ranges& seeds, const auto& map_groups) {
   auto min_idx{std::numeric_limits<long>::max()};
   for (const auto& input : seeds) {
-    auto&& subranges{split_subranges(input, map_groups)};
+    const auto& subranges{split_subranges(input, map_groups)};
     min_idx = std::min(min_idx, ranges::min_element(subranges)->idx);
   }
   return min_idx;
@@ -141,12 +141,12 @@ int main() {
   };
   const auto part1{search(seed_ranges1, map_groups)};
 
-  const auto chunks2{[](auto&& r) {
+  const auto chunks2{[](const auto& r) {
     return views::zip(r, views::drop(r, 1)) | my_std::views::stride(2);
   }};
   const auto seed_ranges2{
-      chunks2(seeds) | views::transform([](auto&& chunk) {
-        auto&& [idx, len] = chunk;
+      chunks2(seeds) | views::transform([](const auto& chunk) {
+        const auto& [idx, len] = chunk;
         return Range{idx, len};
       })
       | ranges::to<Ranges>()

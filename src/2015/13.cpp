@@ -74,8 +74,7 @@ class Graph {
   }
 };
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
-};
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {
@@ -89,7 +88,7 @@ auto find_seating_happiness(const auto& seating, const Graph& g) {
 
 auto maximize_happiness(const auto& pairs) {
   Graph g{pairs};
-  auto seating = views::iota(0uz, g.node_count()) | ranges::to<std::vector<std::size_t>>();
+  auto seating = views::iota(0uz, g.node_count()) | ranges::to<std::vector>();
   int happiness{};
   do {
     happiness = std::max(happiness, find_seating_happiness(seating, g));
@@ -100,7 +99,7 @@ auto maximize_happiness(const auto& pairs) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  auto pairs{views::istream<Pair>(std::cin) | ranges::to<std::vector<Pair>>()};
+  auto pairs{views::istream<Pair>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{maximize_happiness(pairs)};
 

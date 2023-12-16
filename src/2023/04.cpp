@@ -17,14 +17,14 @@ std::istream& operator>>(std::istream& is, Wins& w) {
   if (unsigned id; skip(is, "Card"s) && is >> id && skip(is, ":"s)) {
     if (std::string tmp; std::getline(is, tmp, '|') && !tmp.empty()) {
       std::stringstream win_str{tmp};
-      const auto win{views::istream<int>(win_str) | ranges::to<std::unordered_set<int>>()};
+      const auto win{views::istream<int>(win_str) | ranges::to<std::unordered_set>()};
 
       if (std::getline(is, tmp) && !tmp.empty()) {
         std::stringstream given_str{tmp};
         const auto count{
           ranges::count_if(
             views::istream<int>(given_str),
-            [&win](auto&& c) { return win.contains(c); }
+            [&win](const auto c) { return win.contains(c); }
           )
         };
         w = {count};
@@ -44,7 +44,7 @@ auto find_part1(const auto& wins) {
   auto points{
     wins
     | views::filter(std::identity{})
-    | views::transform([](auto&& w) { return 1 << (w - 1); })
+    | views::transform([](const auto w) { return 1 << (w - 1); })
   };
   return sum(points);
 }
@@ -68,8 +68,8 @@ int main() {
 
   const auto wins{
     views::istream<Wins>(std::cin)
-      | views::transform([](auto&& w) { return w.count; })
-      | ranges::to<std::vector<long>>()
+      | views::transform([](const auto w) { return w.count; })
+      | ranges::to<std::vector>()
   };
 
   const auto part1{find_part1(wins)};

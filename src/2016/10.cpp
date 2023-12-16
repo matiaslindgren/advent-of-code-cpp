@@ -109,8 +109,8 @@ int main() {
   }
 
   for (auto full_bots{
-           views::filter(bots, [](auto&& b) { return b.is_full(); })
-           | ranges::to<std::vector<Gate>>()
+           views::filter(bots, [](const auto& b) { return b.is_full(); })
+           | ranges::to<std::vector>()
        };
        !full_bots.empty();) {
     const auto bot{full_bots.back()};
@@ -129,13 +129,13 @@ int main() {
     }
   }
 
-  const auto part1{ranges::distance(bots.begin(), ranges::find_if(bots, [](auto&& b) {
+  const auto part1{ranges::distance(bots.begin(), ranges::find_if(bots, [](const auto& b) {
                                       const auto [lo, hi] = b.value();
                                       return lo == 17 && hi == 61;
                                     }))};
   const auto part2{my_std::ranges::fold_left(
       ranges::subrange(outputs.begin(), outputs.begin() + 3)
-          | views::transform([](auto&& out) { return out.value().second; }),
+          | views::transform([](const auto& out) { return out.value().second; }),
       1,
       std::multiplies{}
   )};

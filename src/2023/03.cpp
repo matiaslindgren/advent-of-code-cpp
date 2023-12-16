@@ -7,15 +7,12 @@ namespace views = std::views;
 constexpr decltype(auto) yx_range(auto y0, auto y1, auto x0, auto x1) {
   const auto ny{y1 - y0};
   const auto nx{x1 - x0};
-  // clang-format off
-  const auto y_range{
-    views::iota(decltype(y0){}, nx * ny) | views::transform([=](auto&& y) { return y0 + (y / ny); })
-  };
-  const auto x_range{
-    views::iota(decltype(x0){}, nx * ny) | views::transform([=](auto&& x) { return x0 + (x % nx); })
-  };
-  // clang-format on
-  return views::zip(y_range, x_range);
+  return views::zip(
+      views::iota(decltype(y0){}, nx * ny)
+          | views::transform([=](const auto& y) { return y0 + (y / ny); }),
+      views::iota(decltype(x0){}, nx * ny)
+          | views::transform([=](const auto& x) { return x0 + (x % nx); })
+  );
 }
 
 struct Grid {
@@ -41,7 +38,7 @@ struct Grid {
     const auto w{width + 2};
     const auto h{height + 2};
     Grid out = {std::vector<Cell>(w * h, '.'), w, h};
-    for (auto&& [y, x] : iter_yx_with_padding(0)) {
+    for (const auto& [y, x] : iter_yx_with_padding(0)) {
       out.get(y + 1, x + 1) = get(y, x);
     }
     return out;
@@ -66,7 +63,7 @@ struct Grid {
   constexpr auto adjacent_numbers(const Point& center) const {
     std::vector<Point> points;
     std::vector<int> numbers;
-    for (auto&& [dy, dx] : yx_range(-1, 2, -1, 2)) {
+    for (const auto& [dy, dx] : yx_range(-1, 2, -1, 2)) {
       const auto [y, x] = center;
       if (auto y2{y + dy}, x2{x + dx}; std::isdigit(get(y2, x2))) {
         while (std::isdigit(get(y2, x2 - 1))) {
@@ -104,8 +101,8 @@ constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0
 constexpr std::pair<int, int> search(const Grid& grid) {
   int part1{};
   int part2{};
-  for (auto&& p : grid.iter_yx_with_padding(1uz)) {
-    auto&& [y, x] = p;
+  for (const auto& p : grid.iter_yx_with_padding(1uz)) {
+    const auto& [y, x] = p;
     if (const auto cell{grid.get(y, x)}; grid.is_symbol(cell)) {
       if (const auto adj{grid.adjacent_numbers(p)}; !adj.empty()) {
         part1 += sum(adj);

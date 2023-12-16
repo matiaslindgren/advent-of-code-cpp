@@ -117,7 +117,7 @@ auto count_inner(Grid2D grid, const auto& path) {
   }
   return ranges::count_if(
       views::iota(0uz, grid.tiles.size()),
-      [prev_angle = Tile::ground, is_in = false, &grid](auto&& i) mutable {
+      [prev_angle = Tile::ground, is_in = false, &grid](const auto& i) mutable {
         if (i % grid.size == 0) {
           prev_angle = Tile::ground;
           is_in = false;
@@ -143,7 +143,7 @@ auto count_inner(Grid2D grid, const auto& path) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const Grid2D grid{views::istream<Tile>(std::cin) | ranges::to<std::vector<Tile>>()};
+  const Grid2D grid{views::istream<Tile>(std::cin) | ranges::to<std::vector>()};
   const auto path{grid.find_path(grid.index_of(Tile::start))};
 
   const auto part1{path.size() / 2};

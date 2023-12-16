@@ -2,13 +2,12 @@ import std;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
-using std::vector;
 
 void _find_all_combinations(
-    vector<vector<int>>& results,
+    std::vector<std::vector<int>>& results,
     int target,
-    vector<int> used,
-    vector<int> available,
+    std::vector<int> used,
+    std::vector<int> available,
     const std::size_t pos
 ) {
   if (target == 0) {
@@ -26,10 +25,10 @@ void _find_all_combinations(
   _find_all_combinations(results, target, used, available, pos);
 }
 
-vector<vector<int>>
-find_all_combinations(const int init_target, const vector<int>& all_containers) {
+std::vector<std::vector<int>>
+find_all_combinations(const int init_target, const std::vector<int>& all_containers) {
   // TODO(llvm18) deducing this, recursive lambda
-  vector<vector<int>> results;
+  std::vector<std::vector<int>> results;
   _find_all_combinations(results, init_target, {}, all_containers, 0);
   return results;
 }
@@ -37,12 +36,12 @@ find_all_combinations(const int init_target, const vector<int>& all_containers) 
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto containers{views::istream<int>(std::cin) | ranges::to<vector<int>>()};
+  const auto containers{views::istream<int>(std::cin) | ranges::to<std::vector>()};
   const auto combinations{find_all_combinations(150, containers)};
 
   const auto part1{combinations.size()};
 
-  const auto get_container_count{[](auto&& containers) { return containers.size(); }};
+  const auto get_container_count{[](const auto& c) { return c.size(); }};
   const auto minimum_combination{
       ranges::min_element(combinations, ranges::less{}, get_container_count)
   };

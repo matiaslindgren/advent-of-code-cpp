@@ -49,10 +49,6 @@ constexpr auto count_length(
   return n;
 }
 
-/* constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0,
- * std::plus<int>()) */
-/* }; */
-
 int main() {
   std::ios_base::sync_with_stdio(false);
 
@@ -65,13 +61,13 @@ int main() {
 
   const auto steps{
       views::istream<Step>(std::cin)
-      | views::transform([](auto&& step) { return std::make_pair(step.src, step); })
+      | views::transform([](const auto& step) { return std::make_pair(step.src, step); })
       | ranges::to<Steps>()
   };
 
   const auto starts{
-      steps | views::keys | views::filter([](auto&& s) { return s.back() == 'A'; })
-      | ranges::to<std::vector<std::string>>()
+      steps | views::keys | views::filter([](const auto& s) { return s.back() == 'A'; })
+      | ranges::to<std::vector>()
   };
 
   const auto part1{count_length(loop, steps, "AAA"s, [](auto s) { return s == "ZZZ"s; })};

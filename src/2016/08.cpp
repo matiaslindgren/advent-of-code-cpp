@@ -118,7 +118,7 @@ std::string decode_ascii(const Screen& screen) {
   return (
       views::iota(0, width)
       | my_std::views::stride(char_width)
-      | views::transform([&](auto&& char_x_begin) {
+      | views::transform([&](const auto& char_x_begin) {
           std::string ch;
           for (int y{}; y < char_height; ++y) {
             for (int x{}; x < char_width - 1; ++x) {
@@ -136,12 +136,13 @@ std::string decode_ascii(const Screen& screen) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto instructions{
-      views::istream<Instruction>(std::cin) | ranges::to<std::vector<Instruction>>()
-  };
+  const auto instructions{views::istream<Instruction>(std::cin) | ranges::to<std::vector>()};
+
   const auto screen{run_instructions(instructions)};
+
   const auto part1{count_on(screen)};
   const auto part2{decode_ascii(screen)};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

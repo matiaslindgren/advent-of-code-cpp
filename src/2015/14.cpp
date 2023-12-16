@@ -29,7 +29,7 @@ std::istream& operator>>(std::istream& is, Reindeer& r) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto herd = views::istream<Reindeer>(std::cin) | ranges::to<std::vector<Reindeer>>();
+  const auto herd = views::istream<Reindeer>(std::cin) | ranges::to<std::vector>();
 
   struct ReindeerState {
     bool resting;
@@ -39,13 +39,13 @@ int main() {
     int points;
   };
   std::vector<ReindeerState> race_state(herd.size());
-  const auto find_leader{[&race_state](auto&& state_accessor) {
+  const auto find_leader{[&race_state](const auto& state_accessor) {
     return *ranges::max_element(race_state, {}, state_accessor);
   }};
 
   for (int t{1}; t <= 2503; ++t) {
-    for (auto&& p : views::zip(herd, race_state)) {
-      auto&& [r, s] = p;
+    for (const auto& p : views::zip(herd, race_state)) {
+      const auto& [r, s] = p;
       if (s.resting) {
         s.rest_time += 1;
         if (s.rest_time >= r.rest_need) {
@@ -61,14 +61,14 @@ int main() {
         }
       }
     }
-    const auto leader_state{find_leader([](auto&& s) { return s.distance; })};
+    const auto leader_state{find_leader([](const auto& s) { return s.distance; })};
     for (auto& s : race_state) {
       s.points += (s.distance == leader_state.distance);
     }
   }
 
-  const auto part1{find_leader([](auto&& s) { return s.distance; }).distance};
-  const auto part2{find_leader([](auto&& s) { return s.points; }).points};
+  const auto part1{find_leader([](const auto& s) { return s.distance; }).distance};
+  const auto part2{find_leader([](const auto& s) { return s.points; }).points};
 
   std::print("{} {}\n", part1, part2);
 

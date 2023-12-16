@@ -117,8 +117,7 @@ int main() {
   std::ios_base::sync_with_stdio(false);
 
   Memory memory = {0};
-  const Program program
-      = views::istream<Instruction>(std::cin) | ranges::to<std::vector<Instruction>>();
+  const auto program{views::istream<Instruction>(std::cin) | ranges::to<Program>()};
 
   run(memory, program);
   const auto part1{memory[1]};

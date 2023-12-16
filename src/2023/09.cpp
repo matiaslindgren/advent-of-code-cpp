@@ -20,12 +20,12 @@ std::vector<Ints> parse_input(std::istream& is) {
 }
 
 // TODO ranges::adjacent
-constexpr decltype(auto) window2(auto&& r) {
+constexpr decltype(auto) window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }
 
 Ints adjacent_diff(const auto& hist) {
-  return window2(hist) | views::transform([](auto&& w) {
+  return window2(hist) | views::transform([](const auto& w) {
            const auto [x1, x2] = w;
            return x2 - x1;
          })

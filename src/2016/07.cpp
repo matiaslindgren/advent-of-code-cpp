@@ -34,16 +34,16 @@ std::istream& operator>>(std::istream& is, IP& ip) {
 }
 
 // TODO ranges::adjacent
-constexpr decltype(auto) window3(auto&& r) {
+constexpr decltype(auto) window3(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2));
 }
-constexpr decltype(auto) window4(auto&& r) {
+constexpr decltype(auto) window4(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2), views::drop(r, 3));
 }
 
 bool contains_abba(std::string_view s) {
-  return ranges::any_of(window4(s), [](auto&& window) {
-    auto&& [ch1, ch2, ch3, ch4] = window;
+  return ranges::any_of(window4(s), [](const auto& window) {
+    const auto& [ch1, ch2, ch3, ch4] = window;
     return ch1 != ch2 && ch1 == ch4 && ch2 == ch3;
   });
 }
@@ -57,7 +57,7 @@ bool supports_tls(const IP& ip) {
 bool supports_ssl(const IP& ip) {
   std::vector<std::pair<char, char>> super_abas;
   for (const auto& s : ip.supernets) {
-    for (auto&& [ch1, ch2, ch3] : window3(s)) {
+    for (const auto& [ch1, ch2, ch3] : window3(s)) {
       if (ch1 != ch2 && ch1 == ch3) {
         super_abas.push_back({ch1, ch2});
       }
@@ -67,12 +67,12 @@ bool supports_ssl(const IP& ip) {
   // clang-format off
   const auto has_hyper_bab{
     ranges::any_of(ip.hypernets, [&](const auto& s) {
-      return ranges::any_of(window3(s), [&](auto&& window) {
-        auto&& [ch1, ch2, ch3] = window;
+      return ranges::any_of(window3(s), [&](const auto& window) {
+        const auto& [ch1, ch2, ch3] = window;
         return (
           ch1 == ch3
-          && ranges::any_of(super_abas, [&](auto&& ab) {
-            auto&& [a, b] = ab;
+          && ranges::any_of(super_abas, [&](const auto& ab) {
+            const auto& [a, b] = ab;
             return a == ch2 && b == ch1;
           })
         );
@@ -86,10 +86,11 @@ bool supports_ssl(const IP& ip) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto ips{views::istream<IP>(std::cin) | ranges::to<std::vector<IP>>()};
+  const auto ips{views::istream<IP>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{ranges::count_if(ips, supports_tls)};
   const auto part2{ranges::count_if(ips, supports_ssl)};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

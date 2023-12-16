@@ -162,9 +162,7 @@ void run(const auto& instructions, auto& memory) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto instructions{
-      views::istream<Instruction>(std::cin) | ranges::to<std::vector<Instruction>>()
-  };
+  const auto instructions{views::istream<Instruction>(std::cin) | ranges::to<std::vector>()};
 
   std::array<int, 4> memory;
 

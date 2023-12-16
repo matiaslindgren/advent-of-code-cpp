@@ -66,8 +66,8 @@ class Dijkstra {
   }
 
   Distances all_distances() const {
-    return dist | views::transform([](auto&& item) -> std::pair<Point2D, int> {
-             auto&& [k, v] = item;
+    return dist | views::transform([](const auto& item) -> std::pair<Point2D, int> {
+             const auto& [k, v] = item;
              return {k - 1, v};
            })
            | ranges::to<Distances>();
@@ -76,17 +76,17 @@ class Dijkstra {
   void reset(Point2D new_end) {
     end = new_end;
     q = dist | views::keys | ranges::to<decltype(q)>();
-    ranges::make_heap(q, ranges::greater{}, [=, this](auto&& p) { return distance(p); });
+    ranges::make_heap(q, ranges::greater{}, [=, this](const auto& p) { return distance(p); });
   }
 
  private:
   void push_min_dist_heap(const Point2D& new_p) {
     q.push_back(new_p);
-    ranges::push_heap(q, ranges::greater{}, [=, this](auto&& p) { return distance(p); });
+    ranges::push_heap(q, ranges::greater{}, [=, this](const auto& p) { return distance(p); });
   }
 
   Point2D pop_min_dist_heap() {
-    ranges::pop_heap(q, ranges::greater{}, [=, this](auto&& p) { return distance(p); });
+    ranges::pop_heap(q, ranges::greater{}, [=, this](const auto& p) { return distance(p); });
     const Point2D p{q.back()};
     q.pop_back();
     return p;

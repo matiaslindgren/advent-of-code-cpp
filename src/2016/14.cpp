@@ -26,10 +26,10 @@ std::vector<std::thread> threads(thread_count);
 
 // TODO ranges::adjacent
 // TODO template index sequence
-constexpr decltype(auto) window3(auto&& r) {
+constexpr decltype(auto) window3(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2));
 }
-constexpr decltype(auto) window5(auto&& r) {
+constexpr decltype(auto) window5(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2), views::drop(r, 3), views::drop(r, 4));
 }
 

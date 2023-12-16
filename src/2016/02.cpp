@@ -59,7 +59,7 @@ std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructio
   return (
       views::transform(
           instructions,
-          [&](auto&& steps) mutable -> char {
+          [&](const auto& steps) mutable -> char {
             for (const auto& step : steps) {
               unsigned y2{y}, x2{x};
               switch (step) {
@@ -91,7 +91,7 @@ std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructio
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto instructions{views::istream<Steps>(std::cin) | ranges::to<std::vector<Steps>>()};
+  const auto instructions{views::istream<Steps>(std::cin) | ranges::to<std::vector>()};
 
   const Keypad keypad1{{
       {'\0', '\0', '\0', '\0', '\0'},

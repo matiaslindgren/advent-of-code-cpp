@@ -27,7 +27,7 @@ struct Space {
 
   explicit Space() = default;
   explicit Space(const Points& input) : galaxies{input} {
-    for (auto&& p : input) {
+    for (const auto& p : input) {
       galaxy_rows.insert(p.y);
       galaxy_cols.insert(p.x);
     }
@@ -36,7 +36,7 @@ struct Space {
   auto distance_sum(const auto expansion) const {
     const auto n{galaxies.size()};
     return my_std::ranges::fold_left(
-        views::iota(0uz, n * n) | views::transform([=, this](auto&& i) -> long {
+        views::iota(0uz, n * n) | views::transform([=, this](const auto& i) -> long {
           if (const auto i1{i / n}, i2{i % n}; i1 < i2) {
             const auto p1{this->galaxies[i1]};
             const auto p2{this->galaxies[i2]};
@@ -56,9 +56,10 @@ struct Space {
   }
 
   long count_expansions(const auto src, const auto dst, const auto& has_galaxy) const {
-    return ranges::count_if(views::iota(std::min(src, dst), std::max(src, dst) + 1), [&](auto&& i) {
-      return !has_galaxy.contains(i);
-    });
+    return ranges::count_if(
+        views::iota(std::min(src, dst), std::max(src, dst) + 1),
+        [&](const auto& i) { return !has_galaxy.contains(i); }
+    );
   }
 };
 

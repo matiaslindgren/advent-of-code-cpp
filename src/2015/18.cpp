@@ -105,7 +105,7 @@ Grid2D simulate(Grid2D grid, int steps) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const Grid2D input{views::istream<Light>(std::cin) | ranges::to<std::vector<Light>>()};
+  const Grid2D input{views::istream<Light>(std::cin) | ranges::to<std::vector>()};
   Grid2D grid1{input.pad()};
   Grid2D grid2{grid1};
   {
@@ -115,6 +115,7 @@ int main() {
 
   const auto part1{simulate(grid1, 100).count_on()};
   const auto part2{simulate(grid2, 100).count_on()};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

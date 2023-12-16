@@ -39,7 +39,7 @@ auto compute_scores(const auto& weights, const auto& spoons) {
   const auto inner_product_clamp_to_zero{[&spoons](const auto& w) {
     return std::max(0L, std::inner_product(w.begin(), w.end(), spoons.begin(), 0L));
   }};
-  return views::transform(weights, inner_product_clamp_to_zero) | ranges::to<std::vector<long>>();
+  return views::transform(weights, inner_product_clamp_to_zero) | ranges::to<std::vector>();
 }
 
 constexpr auto product{std::bind(
@@ -47,7 +47,7 @@ constexpr auto product{std::bind(
     std::placeholders::_1,
     std::placeholders::_2,
     1L,
-    std::multiplies<long>()
+    std::multiplies{}
 )};
 
 long find_optimal_cookie(
@@ -83,13 +83,11 @@ long find_optimal_cookie(
 int main() {
   std::ios_base::sync_with_stdio(false);
 
-  const auto ingredients{
-      views::istream<Ingredient>(std::cin) | ranges::to<std::vector<Ingredient>>()
-  };
+  const auto ingredients{views::istream<Ingredient>(std::cin) | ranges::to<std::vector>()};
 
   std::vector<std::vector<int>> weights{ingredients.front().as_vector().size()};
   for (const auto& ingredient : ingredients) {
-    for (auto&& [w, i] : views::zip(weights, ingredient.as_vector())) {
+    for (const auto& [w, i] : views::zip(weights, ingredient.as_vector())) {
       w.push_back(i);
     }
   }
@@ -99,6 +97,7 @@ int main() {
 
   const auto part1{find_optimal_cookie(weights, init_spoons)};
   const auto part2{find_optimal_cookie(weights, init_spoons, {500})};
+
   std::print("{} {}\n", part1, part2);
 
   return 0;

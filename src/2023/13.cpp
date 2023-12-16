@@ -4,8 +4,7 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus<int>())
-};
+constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 struct Diffs {
   std::size_t width;
@@ -52,7 +51,7 @@ auto pairwise_diff(
     const auto stride2
 ) {
   return (
-      views::iota(0uz, n * n) | views::transform([&](auto i) {
+      views::iota(0uz, n * n) | views::transform([&](auto i) -> int {
         const auto i1{i / n};
         const auto i2{i % n};
         return ranges::count_if(views::iota(0uz, m), [&](auto j) {
@@ -61,7 +60,7 @@ auto pairwise_diff(
           return x1 != x2;
         });
       })
-      | ranges::to<std::vector<int>>()
+      | ranges::to<std::vector>()
   );
 }
 
@@ -76,8 +75,8 @@ std::istream& operator>>(std::istream& is, Mirrors& m) {
   }
   if (!chars.empty()) {
     const auto height{chars.size() / width};
-    auto&& row_diff{pairwise_diff(chars, height, width, width, 1)};
-    auto&& col_diff{pairwise_diff(chars, width, height, 1, width)};
+    const auto& row_diff{pairwise_diff(chars, height, width, width, 1)};
+    const auto& col_diff{pairwise_diff(chars, width, height, 1, width)};
     m = {.rows = {height, row_diff}, .cols = {width, col_diff}};
     return is;
   }
@@ -98,6 +97,7 @@ auto summarize(const auto& mirrors, const auto fix_count) {
 int main() {
   std::ios_base::sync_with_stdio(false);
 
+  // TODO views::istream
   std::vector<Mirrors> mirrors;
   while (std::cin >> mirrors.emplace_back()) {
   }

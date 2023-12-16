@@ -56,7 +56,7 @@ auto find_part1(const auto& steps) {
 }
 
 // TODO ranges::adjacent
-constexpr decltype(auto) window2(auto&& r) {
+constexpr decltype(auto) window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }
 
@@ -88,11 +88,11 @@ auto find_part2(const auto& steps) {
     }
   }
 
-  auto ordered{lenses | views::values | ranges::to<std::vector<Lens>>()};
+  auto ordered{lenses | views::values | ranges::to<std::vector>()};
   ranges::sort(ordered);
 
   return my_std::ranges::fold_left(
-      window2(ordered) | views::transform([slot = 1](auto&& w) mutable {
+      window2(ordered) | views::transform([slot = 1](const auto& w) mutable {
         const auto& [l1, l2] = w;
         if (l1.box != l2.box) {
           slot = 0;
@@ -108,7 +108,7 @@ int main() {
   std::ios_base::sync_with_stdio(false);
   using std::operator""s;
 
-  const auto steps{views::istream<Step>(std::cin) | ranges::to<std::vector<Step>>()};
+  const auto steps{views::istream<Step>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{find_part1(steps)};
   const auto part2{find_part2(steps)};

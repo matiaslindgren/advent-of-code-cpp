@@ -238,7 +238,7 @@ Number sum(const Object& o, std::optional<Key> sentinel = {}) {
 
 Number sum(const Value& v, std::optional<Key> sentinel) {
   Number result{};
-  std::visit([&result, &sentinel](auto&& arg) { result += sum(arg, sentinel); }, v);
+  std::visit([&result, &sentinel](const auto& arg) { result += sum(arg, sentinel); }, v);
   return result;
 }
 

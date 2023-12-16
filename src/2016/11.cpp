@@ -122,7 +122,7 @@ constexpr decltype(auto) floor_indexes() {
 
 constexpr decltype(auto) item_indexes(const FloorState& fs, const auto floor = 0) {
   return views::iota(1uz, fs.count())
-         | views::transform([=](auto&& i) { return i * N_FLOORS + floor; });
+         | views::transform([=](const auto& i) { return i * N_FLOORS + floor; });
 }
 
 constexpr decltype(auto) generator_indexes(auto&&... args) {
@@ -175,9 +175,7 @@ struct std::hash<FloorState> {
 };
 
 FloorState parse_init_state(std::istream& is) {
-  const auto all_floor_items{
-      views::istream<FloorItems>(is) | ranges::to<std::vector<FloorItems>>()
-  };
+  const auto all_floor_items{views::istream<FloorItems>(is) | ranges::to<std::vector>()};
   const auto element_ids{encode_element_names(all_floor_items)};
   FloorState fs;
   // elevator
@@ -214,7 +212,7 @@ constexpr bool is_frying_chips(const FloorState& fs) {
 
 constexpr FloorState move(const int step, FloorState fs, auto&&... bits) {
   (std::invoke(
-       [&fs, &step](auto&& bit) {
+       [&fs, &step](const auto& bit) {
          fs[bit] = false;
          fs[bit + step] = true;
        },
@@ -249,7 +247,7 @@ class AStar {
     for (auto it{m_parents.find(end)}; it != m_parents.end(); it = m_parents.find(it->second)) {
       path.push_back(it->second);
     }
-    return path | views::reverse | ranges::to<std::vector<FloorState>>();
+    return path | views::reverse | ranges::to<std::vector>();
   }
 
   constexpr explicit operator bool() const noexcept {
@@ -314,12 +312,12 @@ class AStar {
     return std::numeric_limits<int>::max() - 1;
   }
 
-  void set_score(auto& map, auto&& fs, auto&& score) {
+  void set_score(auto& map, const auto& fs, const auto& score) {
     map[fs] = score;
   }
 
   FloorState pop_min_f_score_heap() {
-    ranges::pop_heap(m_q, ranges::greater{}, [=, this](auto&& fs) { return f_score(fs); });
+    ranges::pop_heap(m_q, ranges::greater{}, [=, this](const auto& fs) { return f_score(fs); });
     const FloorState fs{m_q.back()};
     m_q.pop_back();
     return fs;
@@ -327,7 +325,7 @@ class AStar {
 
   void push_min_f_score_heap(const FloorState& fs) {
     m_q.push_back(fs);
-    ranges::push_heap(m_q, ranges::greater{}, [=, this](auto&& fs) { return f_score(fs); });
+    ranges::push_heap(m_q, ranges::greater{}, [=, this](const auto& fs) { return f_score(fs); });
   }
 
   FloorState m_end_state;
