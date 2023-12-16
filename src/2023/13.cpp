@@ -1,9 +1,5 @@
 import std;
-import aoc;
 import my_std;
-
-using aoc::skip;
-using std::operator""s;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -48,6 +44,27 @@ struct Mirrors {
   Diffs cols;
 };
 
+auto pairwise_diff(
+    const auto& v,
+    const auto n,
+    const auto m,
+    const auto stride1,
+    const auto stride2
+) {
+  return (
+      views::iota(0uz, n * n) | views::transform([&](auto i) {
+        const auto i1{i / n};
+        const auto i2{i % n};
+        return ranges::count_if(views::iota(0uz, m), [&](auto j) {
+          const auto x1{v[i1 * stride1 + j * stride2]};
+          const auto x2{v[i2 * stride1 + j * stride2]};
+          return x1 != x2;
+        });
+      })
+      | ranges::to<std::vector<int>>()
+  );
+}
+
 std::istream& operator>>(std::istream& is, Mirrors& m) {
   std::vector<char> chars;
   auto width{0uz};
@@ -59,26 +76,9 @@ std::istream& operator>>(std::istream& is, Mirrors& m) {
   }
   if (!chars.empty()) {
     const auto height{chars.size() / width};
-    std::vector<int> row_diff;
-    for (auto row1{0uz}; row1 < height; ++row1) {
-      for (auto row2{0uz}; row2 < height; ++row2) {
-        row_diff.push_back(ranges::count_if(views::iota(0uz, width), [&](auto x) {
-          return chars[row1 * width + x] != chars[row2 * width + x];
-        }));
-      }
-    }
-    std::vector<int> col_diff;
-    for (auto col1{0uz}; col1 < width; ++col1) {
-      for (auto col2{0uz}; col2 < width; ++col2) {
-        col_diff.push_back(ranges::count_if(views::iota(0uz, height), [&](auto y) {
-          return chars[y * width + col1] != chars[y * width + col2];
-        }));
-      }
-    }
-    m = {
-        .rows = {height, row_diff},
-        .cols = { width, col_diff}
-    };
+    auto&& row_diff{pairwise_diff(chars, height, width, width, 1)};
+    auto&& col_diff{pairwise_diff(chars, width, height, 1, width)};
+    m = {.rows = {height, row_diff}, .cols = {width, col_diff}};
     return is;
   }
   if (is.eof()) {
