@@ -43,12 +43,8 @@ struct State {
 int find_min_win_mana(const Boss& boss, const int player_poison = 0) {
   int min_win_mana{std::numeric_limits<int>::max()};
 
-  for (std::vector<State> q = {
-        {.player = {50, 500},
-         .boss = boss,
-         .player_turn = true}
-      };
-      !q.empty();) {
+  for (std::vector<State> q = {{.player = {50, 500}, .boss = boss, .player_turn = true}};
+       !q.empty();) {
     State state = q.back();
     q.pop_back();
 

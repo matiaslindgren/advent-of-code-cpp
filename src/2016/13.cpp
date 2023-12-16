@@ -108,9 +108,7 @@ Distances find_shortest_paths(
     const std::size_t designer_num,
     const int step_limit = std::numeric_limits<int>::max() - 1
 ) {
-  const std::array<std::pair<int, int>, 4> adj_deltas{
-      {{-1, 0}, {0, -1}, {1, 0}, {0, 1}}
-  };
+  const std::array<std::pair<int, int>, 4> adj_deltas{{{-1, 0}, {0, -1}, {1, 0}, {0, 1}}};
   Dijkstra search(begin + 1, begin + 1, step_limit + 1);
   for (const Point2D& target : targets) {
     search.reset(target + 1);

@@ -93,9 +93,7 @@ class Graph {
       std::size_t path_length;
     };
     for (auto start : views::iota(0uz, node_count())) {
-      std::vector<State> q = {
-          {{}, start, {}}
-      };
+      std::vector<State> q = {{{}, start, {}}};
       while (!q.empty()) {
         auto current{q.back()};
         q.pop_back();

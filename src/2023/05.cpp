@@ -54,10 +54,7 @@ std::istream& operator>>(std::istream& is, MapGroups& mg) {
       for (std::string line; std::getline(is, line) && !line.empty();) {
         std::stringstream ls{line};
         if (long dst, src, len; ls >> dst >> src >> len) {
-          mg.back().push_back({
-              .dst = {dst, len},
-              .src = {src, len}
-          });
+          mg.back().push_back({.dst = {dst, len}, .src = {src, len}});
         } else {
           is.setstate(std::ios_base::failbit);
         }
