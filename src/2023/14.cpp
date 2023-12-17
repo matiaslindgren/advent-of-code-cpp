@@ -30,7 +30,7 @@ struct Grid2D {
 
  public:
   void append_padding() {
-    tiles.append_range(std::vector<Tile>(width, Tile::pound));
+    tiles.append_range(views::repeat(Tile::pound, width));
     ++height;
   }
 
