@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -46,7 +47,7 @@ Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto aunts = views::istream<Aunt>(std::cin) | ranges::to<std::vector>();
 

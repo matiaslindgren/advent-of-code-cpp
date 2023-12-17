@@ -40,7 +40,7 @@ std::istream& operator>>(std::istream& is, Item& item) {
 constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   auto items{views::istream<Item>(std::cin) | ranges::to<std::vector>()};
   ranges::copy(items, std::ostream_iterator<Item>(std::cout, "\n"));

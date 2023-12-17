@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -31,7 +32,7 @@ const int find_str_digit(const It begin, const It end) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto isdigit{[](unsigned char ch) { return std::isdigit(ch); }};
 

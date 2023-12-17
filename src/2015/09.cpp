@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -116,7 +117,7 @@ class Graph {
 };
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
   constexpr auto max_node_count{8};
 
   const auto edges{views::istream<Edge>(std::cin) | ranges::to<std::vector>()};

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -89,7 +90,7 @@ std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructio
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto instructions{views::istream<Steps>(std::cin) | ranges::to<std::vector>()};
 

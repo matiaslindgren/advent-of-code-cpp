@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 
@@ -18,7 +19,7 @@ int deliver_presents(
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   int target;
   std::cin >> target;

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -105,7 +106,7 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto circuit{
       views::istream<Statement>(std::cin)

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -103,7 +104,7 @@ Grid2D simulate(Grid2D grid, int steps) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const Grid2D input{views::istream<Light>(std::cin) | ranges::to<std::vector>()};
   Grid2D grid1{input.pad()};

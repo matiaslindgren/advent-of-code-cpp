@@ -81,7 +81,7 @@ long find_optimal_cookie(
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto ingredients{views::istream<Ingredient>(std::cin) | ranges::to<std::vector>()};
 

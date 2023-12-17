@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -78,7 +79,7 @@ int find_part2(const Path& path) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto moves{views::istream<Move>(std::cin) | ranges::to<std::vector>()};
 

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -25,7 +26,7 @@ CharPairs minmax_char_freq_by_column(const auto& lines) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 

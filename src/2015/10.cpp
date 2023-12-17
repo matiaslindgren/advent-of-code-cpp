@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -16,7 +17,7 @@ auto look_and_say(const auto& digits) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   auto digits{
       views::istream<char>(std::cin) | views::transform([](char ch) { return ch - '0'; })

@@ -32,7 +32,7 @@ UInt find(const int target_row, const int target_col) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto [row, col] = parse_input(std::cin);
   const auto part1{find(row, col)};

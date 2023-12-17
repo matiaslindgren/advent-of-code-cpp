@@ -1,7 +1,8 @@
 import std;
+import aoc;
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   int part1{0};
   int part2{0};

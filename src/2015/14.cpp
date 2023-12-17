@@ -27,7 +27,7 @@ std::istream& operator>>(std::istream& is, Reindeer& r) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto herd = views::istream<Reindeer>(std::cin) | ranges::to<std::vector>();
 

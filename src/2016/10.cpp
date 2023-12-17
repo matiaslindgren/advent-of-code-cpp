@@ -77,7 +77,7 @@ struct Gate {
 };
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   std::array<Gate, 512> mem;
   mem.fill({-1, -1, -1, -1});

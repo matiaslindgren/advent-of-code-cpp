@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace views = std::views;
 
@@ -185,7 +186,7 @@ auto find_part2(const Grid2D& grid) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Grid2D grid;
   std::cin >> grid;

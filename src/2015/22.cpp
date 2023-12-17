@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 struct Boss {
   int hp;
@@ -128,7 +129,7 @@ int find_min_win_mana(const Boss& boss, const int player_poison = 0) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Boss boss;
   std::cin >> boss;

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -95,7 +96,7 @@ auto summarize(const auto& mirrors, const auto fix_count) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   // TODO views::istream
   std::vector<Mirrors> mirrors;

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -73,7 +74,7 @@ long count_decompressed(const Markers& markers, const bool simple) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto markers{views::istream<Marker>(std::cin) | ranges::to<Markers>()};
   const auto part1{count_decompressed(markers, true)};

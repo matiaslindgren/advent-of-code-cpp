@@ -64,7 +64,7 @@ auto find_part2(const auto& wins) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto wins{
     views::istream<Wins>(std::cin)

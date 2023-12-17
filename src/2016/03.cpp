@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -30,7 +31,7 @@ int count_triangles_col_order(const Ints& input) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto input{views::istream<int>(std::cin) | ranges::to<Ints>()};
   if (input.size() % 3) {

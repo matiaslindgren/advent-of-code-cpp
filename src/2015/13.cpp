@@ -97,7 +97,7 @@ auto maximize_happiness(const auto& pairs) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   auto pairs{views::istream<Pair>(std::cin) | ranges::to<std::vector>()};
 

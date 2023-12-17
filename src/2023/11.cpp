@@ -88,7 +88,7 @@ std::istream& operator>>(std::istream& is, Space& space) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Space space;
   std::cin >> space;

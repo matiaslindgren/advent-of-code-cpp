@@ -134,7 +134,7 @@ std::string decode_ascii(const Screen& screen) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto instructions{views::istream<Instruction>(std::cin) | ranges::to<std::vector>()};
 

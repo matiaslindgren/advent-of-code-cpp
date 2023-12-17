@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -34,7 +35,7 @@ find_all_combinations(const int init_target, const std::vector<int>& all_contain
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto containers{views::istream<int>(std::cin) | ranges::to<std::vector>()};
   const auto combinations{find_all_combinations(150, containers)};

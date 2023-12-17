@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -60,7 +61,7 @@ int count_visited_houses(const auto&... moves_list) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   // clang-format off
   const auto all_moves{

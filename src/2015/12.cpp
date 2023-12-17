@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 struct Object;
 struct Array;
@@ -243,7 +244,7 @@ Number sum(const Value& v, std::optional<Key> sentinel) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Object o;
   std::cin >> o;

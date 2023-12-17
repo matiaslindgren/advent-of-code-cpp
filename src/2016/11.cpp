@@ -408,7 +408,7 @@ FloorState as_end_state(FloorState begin) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const FloorState init_state{parse_init_state(std::cin)};
 

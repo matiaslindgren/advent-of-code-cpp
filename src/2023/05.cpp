@@ -127,7 +127,7 @@ auto search(const Ranges& seeds, const auto& map_groups) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Seeds seeds;
   MapGroups map_groups;

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -84,7 +85,7 @@ bool supports_ssl(const IP& ip) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto ips{views::istream<IP>(std::cin) | ranges::to<std::vector>()};
 

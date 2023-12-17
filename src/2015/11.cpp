@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -64,7 +65,7 @@ auto to_string(const auto& password) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   auto password{
       views::istream<char>(std::cin) | views::transform(char2digit) | ranges::to<std::vector>()

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -114,7 +115,7 @@ void run(Memory& memory, const Program& program) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Memory memory = {0};
   const auto program{views::istream<Instruction>(std::cin) | ranges::to<Program>()};

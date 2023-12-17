@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 struct Item {
   int cost;
@@ -101,7 +102,7 @@ std::pair<int, int> minmax_gold(const Boss& boss) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Boss boss;
   std::cin >> boss;

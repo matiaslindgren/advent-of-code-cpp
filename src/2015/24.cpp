@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -50,7 +51,7 @@ long optimize_qe(const Ints& packages, const int group_count) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto packages{views::istream<int>(std::cin) | ranges::to<Ints>()};
   const auto part1{optimize_qe(packages, 3)};

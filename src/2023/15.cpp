@@ -105,7 +105,7 @@ auto find_part2(const auto& steps) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
   using std::operator""s;
 
   const auto steps{views::istream<Step>(std::cin) | ranges::to<std::vector>()};

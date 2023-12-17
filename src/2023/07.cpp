@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -128,7 +129,7 @@ constexpr auto total_winnings(ranges::random_access_range auto&& r) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto cards{views::istream<Card>(std::cin) | ranges::to<Cards>()};
 

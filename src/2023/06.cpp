@@ -52,7 +52,7 @@ constexpr auto find_part2(const Ints& times, const Ints& dists) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
   using std::operator""sv;
 
   const auto times{parse_input(std::cin, "Time:"sv)};

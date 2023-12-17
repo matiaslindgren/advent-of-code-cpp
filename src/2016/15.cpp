@@ -47,7 +47,7 @@ auto find_time_to_press(const auto& discs) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   auto discs{views::istream<Disc>(std::cin) | ranges::to<std::vector>()};
 

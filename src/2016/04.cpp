@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -102,7 +103,7 @@ int find_part2(const auto& rooms) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto rooms{views::istream<Room>(std::cin) | ranges::to<std::vector>()};
 

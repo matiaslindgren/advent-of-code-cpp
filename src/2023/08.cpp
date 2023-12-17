@@ -50,7 +50,7 @@ constexpr auto count_length(
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   std::string loop;
   std::cin >> loop;

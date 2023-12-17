@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 import md5;
 
@@ -104,7 +105,7 @@ parallel_stretch_search(md5::Message msg, const auto input_size, const int stret
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   md5::Message msg = {0};
   std::size_t input_size{};

@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -106,7 +107,7 @@ auto parse_input(std::istream& is) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
   using std::operator""s;
 
   const auto [replacements, medicine] = parse_input(std::cin);

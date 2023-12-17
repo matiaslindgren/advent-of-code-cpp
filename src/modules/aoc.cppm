@@ -6,6 +6,11 @@ export module aoc;
 
 export namespace aoc {
 
+void init_io() {
+  std::ios::sync_with_stdio(false);
+  std::cin.exceptions(std::ifstream::badbit);
+}
+
 std::istream& skip(std::istream& is, auto s) {
   for (char rhs : s) {
     if (char lhs; !(is.get(lhs) && lhs == rhs)) {

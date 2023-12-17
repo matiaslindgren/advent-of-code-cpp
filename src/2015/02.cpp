@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -38,7 +39,7 @@ std::istream& operator>>(std::istream& is, Present& p) {
 constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus{})};
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto presents{views::istream<Present>(std::cin) | ranges::to<std::vector>()};
 

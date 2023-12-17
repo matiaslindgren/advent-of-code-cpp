@@ -1,4 +1,5 @@
 import std;
+import aoc;
 import my_std;
 
 namespace ranges = std::ranges;
@@ -116,7 +117,7 @@ constexpr std::pair<int, int> search(const Grid& grid) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   Grid grid;
   std::cin >> grid;

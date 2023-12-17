@@ -33,7 +33,7 @@ Ints adjacent_diff(const auto& hist) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   const auto histories{parse_input(std::cin)};
 

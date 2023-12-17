@@ -1,4 +1,5 @@
 import std;
+import aoc;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -144,7 +145,7 @@ auto find_part2(const int designer_num, const int step_limit) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  aoc::init_io();
 
   std::size_t input;
   std::cin >> input;
