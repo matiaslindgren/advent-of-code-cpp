@@ -88,14 +88,13 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
   };
 
   const auto n_blocks{blocks.loss.size()};
-  const auto n_moves{max_moves + 1uz};
+  const auto n_moves{max_moves};
   const auto n_directions{4uz};
   std::vector<int> search_space(n_blocks * n_moves * n_directions, Blocks::max_loss);
   const auto loss_data{std::mdspan(search_space.data(), n_blocks, n_moves, n_directions)};
 
-  const auto loss{[&](const auto& state) -> auto& {
-    const auto& [block, moves, direction] = state;
-    return loss_data[block, moves, std::to_underlying(direction)];
+  const auto loss{[&](const auto& s) -> auto& {
+    return loss_data[s.block, s.moves - 1, std::to_underlying(s.direction)];
   }};
 
   const auto push_min_loss_heap{[&](auto& q, const auto& state) {

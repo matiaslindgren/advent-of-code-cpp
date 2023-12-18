@@ -1,25 +1,21 @@
-SHELL    := /bin/sh
-CLANG    := clang++-17
+SHELL ?= /bin/sh
+CXX   ?= clang++-17
 
-INCLUDES :=
-LDFLAGS  := -lm -fuse-ld=lld -lc++
-CXXFLAGS := \
+INCLUDES ?=
+LDFLAGS  ?= -lm -fuse-ld=lld -lc++
+CXXFLAGS ?= \
 	-std=c++23 \
 	-stdlib=libc++ \
-	-g \
-	-O2 \
-	-march=native \
 	-Wall \
 	-Wpedantic \
 	-Werror \
 	-fmodules \
-	-pthread \
-	-fsanitize=address,undefined
+	-pthread
 
-ifeq ($(shell uname),Darwin)
+ifeq ($(shell uname), Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
 	LLVM_DIR := $(shell brew --prefix llvm)
-	CLANG    := $(LLVM_DIR)/bin/clang-17
+	CXX      := $(LLVM_DIR)/bin/clang-17
 	LDFLAGS  := \
 		$(LDFLAGS) \
 		-L$(LLVM_DIR)/lib/c++ \
@@ -31,24 +27,29 @@ ifeq ($(shell uname),Darwin)
 		-isystem $(LLVM_DIR)/include/c++/v1
 endif
 
+SRC := src
+OUT := out
 
-SRC       := src
-OUT       := out
+FAST ?= 0
+ifeq ($(FAST), 1)
+	OUT_DIR  := $(OUT)/fast
+	CXXFLAGS += -O3 -march=native -ffast-math
+else
+	OUT_DIR  := $(OUT)/debug
+	CXXFLAGS += -g -O2 -fsanitize=address,undefined
+endif
+
 SRC_DIRS  := $(wildcard $(SRC)/*)
-OUT_DIRS  := $(subst $(SRC)/,$(OUT)/,$(SRC_DIRS))
+OUT_DIRS  := $(subst $(SRC)/,$(OUT_DIR)/,$(SRC_DIRS))
 SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
 OUT_FILES := $(basename $(SRC_PATHS:$(SRC)/%=%))
-OUT_PATHS := $(addprefix $(OUT)/,$(OUT_FILES))
-
+OUT_PATHS := $(addprefix $(OUT_DIR)/,$(OUT_FILES))
 
 .PHONY: all
 all: $(OUT_PATHS)
 
-$(OUT)/:
-	mkdir $@
-
-$(addsuffix /,$(OUT_DIRS)): | $(OUT)/
-	mkdir $@
+$(addsuffix /,$(OUT_DIRS)):
+	mkdir -p $@
 
 .PHONY: clean
 clean:
@@ -61,17 +62,17 @@ fmt:
 
 MODULES       := modules
 MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
-MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT)/,$(MOD_SRC_PATHS)))
+MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT_DIR)/,$(MOD_SRC_PATHS)))
 
-$(MOD_OUT_PATHS): $(OUT)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT)/$(MODULES)/
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
+$(MOD_OUT_PATHS): $(OUT_DIR)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT_DIR)/$(MODULES)/
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
 
 
 RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
 
 .PHONY: $(RUN_TARGETS)
-$(RUN_TARGETS): run_% : txt/input/% $(OUT)/%
-	@$(OUT)/$* < $<
+$(RUN_TARGETS): run_% : txt/input/% $(OUT_DIR)/%
+	$(OUT_DIR)/$* < $<
 
 
 SOLUTIONS            := $(wildcard txt/correct/*/*)
@@ -82,23 +83,23 @@ VERBOSE_TEST_TARGETS := $(subst txt/correct/,test_verbose_,$(SOLUTIONS))
 test: $(QUICK_TEST_TARGETS)
 
 .PHONY: $(QUICK_TEST_TARGETS)
-$(QUICK_TEST_TARGETS): test_% : txt/input/% $(OUT)/%
-	@printf '%s\n' '$*'; $(OUT)/$* < $< | cmp - txt/correct/$*
+$(QUICK_TEST_TARGETS): test_% : txt/input/% $(OUT_DIR)/%
+	@printf '%s\n' '$*'; $(OUT_DIR)/$* < $< | cmp - txt/correct/$*
 
 .PHONY: test_verbose
 test_verbose: $(VERBOSE_TEST_TARGETS)
 
 .PHONY: $(VERBOSE_TEST_TARGETS)
-$(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT)/% | txt/input/%
+$(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT_DIR)/% | txt/input/%
 	@./test_one_verbose.bash $*
 
 
 .SECONDEXPANSION:
 
-$(OUT_PATHS): $(OUT)/%: $(SRC)/%.cpp $(MOD_OUT_PATHS) | $$(dir $(OUT)/%)
-	$(CLANG) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
+$(OUT_PATHS): $(OUT_DIR)/%: $(SRC)/%.cpp $(MOD_OUT_PATHS) | $$(dir $(OUT_DIR)/%)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT_DIR)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
 
 PERCENT := %
-TEST_YEARS := $(subst $(OUT)/,test_,$(OUT_DIRS))
+TEST_YEARS := $(subst $(OUT_DIR)/,test_,$(OUT_DIRS))
 .PHONY: $(TEST_YEARS)
 $(TEST_YEARS): test_% : $$(filter test_%$$(PERCENT),$(QUICK_TEST_TARGETS))

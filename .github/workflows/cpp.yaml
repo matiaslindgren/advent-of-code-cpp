@@ -3,11 +3,10 @@ name: build and test
 on:
   push:
     branches: main
-    paths-ignore:
-      - '*.md'
-      - '*.json'
+    paths:
+      - 'Makefile'
       - '*.bash'
-      - 'Dockerfile'
+      - 'src/**/*'
 
 env:
   CLANG_VERSION: 17
