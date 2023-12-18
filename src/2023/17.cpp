@@ -23,8 +23,12 @@ struct Blocks {
   constexpr auto height() const {
     return loss.size() / width();
   }
-  constexpr std::array<std::size_t, 4> adjacent(auto i) const {
-    return {i + 1, i + width(), i - 1, i - width()};
+  constexpr auto size() const {
+    return height() * width();
+  }
+  constexpr std::array<unsigned, 4> adjacent(auto i) const {
+    const unsigned dy = width();
+    return {i + 1, i + dy, i - 1, i - dy};
   }
 };
 
@@ -82,19 +86,21 @@ constexpr auto saturating_add(Int a, Int b) -> Int {
 
 constexpr auto search(const auto& blocks, const auto min_moves, const auto max_moves) {
   struct State {
-    std::size_t block;
+    unsigned block;
     int moves{};
     Direction direction;
   };
 
-  const auto n_blocks{blocks.loss.size()};
+  const auto n_blocks{blocks.size()};
   const auto n_moves{max_moves};
   const auto n_directions{4uz};
-  std::vector<int> search_space(n_blocks * n_moves * n_directions, Blocks::max_loss);
-  const auto loss_data{std::mdspan(search_space.data(), n_blocks, n_moves, n_directions)};
+  std::vector<int> loss_data(n_blocks * n_moves * n_directions, Blocks::max_loss);
 
   const auto loss{[&](const auto& s) -> auto& {
-    return loss_data[s.block, s.moves - 1, std::to_underlying(s.direction)];
+    const auto i{s.block * n_moves * n_directions};
+    const auto j{s.moves * n_directions};
+    const auto k{std::to_underlying(s.direction)};
+    return loss_data[i + j + k];
   }};
 
   const auto push_min_loss_heap{[&](auto& q, const auto& state) {
@@ -108,8 +114,8 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
     return s;
   }};
 
-  const auto begin{blocks.width() + 1};
-  const auto end{blocks.width() * blocks.height() - begin - 1};
+  const unsigned begin = blocks.width() + 1;
+  const unsigned end = blocks.size() - begin - 1;
 
   std::vector<State> q{
       {begin, 1, Direction::east},
