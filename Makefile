@@ -45,6 +45,10 @@ SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
 OUT_FILES := $(basename $(SRC_PATHS:$(SRC)/%=%))
 OUT_PATHS := $(addprefix $(OUT_DIR)/,$(OUT_FILES))
 
+MODULES       := modules
+MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
+MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT_DIR)/,$(MOD_SRC_PATHS)))
+
 .PHONY: all
 all: $(OUT_PATHS)
 
@@ -56,13 +60,9 @@ clean:
 	$(RM) -rv $(OUT)
 
 .PHONY: fmt
-fmt:
-	@find . -type f -name '*.cpp*' -exec clang-format --verbose -i {} \;
+fmt: $(SRC_PATHS) $(MOD_SRC_PATHS)
+	@clang-format --verbose -i $^
 
-
-MODULES       := modules
-MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
-MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT_DIR)/,$(MOD_SRC_PATHS)))
 
 $(MOD_OUT_PATHS): $(OUT_DIR)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT_DIR)/$(MODULES)/
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
