@@ -1,5 +1,5 @@
 SHELL ?= /bin/sh
-CXX   ?= clang++-17
+CXX   := clang++-17
 
 INCLUDES ?=
 LDFLAGS  ?= -lm -fuse-ld=lld -lc++
