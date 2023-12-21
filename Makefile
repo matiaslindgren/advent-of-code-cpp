@@ -90,8 +90,8 @@ $(QUICK_TEST_TARGETS): test_% : txt/input/% $(OUT_DIR)/%
 test_verbose: $(VERBOSE_TEST_TARGETS)
 
 .PHONY: $(VERBOSE_TEST_TARGETS)
-$(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT_DIR)/% | txt/input/%
-	@./test_one_verbose.bash $*
+$(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT_DIR)/% txt/input/% txt/correct/%
+	@./test_one_verbose.bash $^
 
 
 .SECONDEXPANSION:

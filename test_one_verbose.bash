@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -ue
 
-if [ $# -ne 1 ]; then
-  printf "usage: $0 target\n"
+if [ $# -ne 3 ]; then
+  printf "usage: $0 solution input correct\n"
   exit 2
 fi
 
-target="$1"
+solution="$1"
+input="$2"
+correct="$3"
 
 test_dir="$(mktemp --directory)"
 function rm_test_dir {
@@ -14,31 +16,20 @@ function rm_test_dir {
 }
 trap rm_test_dir EXIT
 
-time_log="${test_dir}/time.log"
-make_log="${test_dir}/make.log"
+log="${test_dir}/${solution//\//_}.log"
 
 time_verbose_flag=-v
 if [ "$(uname)" = 'Darwin' ]; then
   time_verbose_flag=-l
 fi
 
-/usr/bin/env time \
-  $time_verbose_flag \
-  -o "$time_log" \
-  make "run_${target}" > "$make_log" 2>&1
+result=$(/usr/bin/env time $time_verbose_flag -o "$log" "$solution" < "$input")
+expect=$(cat $correct)
 
-result=$(tail -n 1 "$make_log")
-expect=$(cat txt/correct/${target})
-
-printf '%s\n' "$target"
+printf '%s < %s\n' "$solution" "$input"
 printf 'result: %s\n' "$result"
 printf 'expect: %s\n' "$expect"
-
-printf 'make:\n'
-head -n 1 "$make_log"
-
-printf 'time:\n'
-cat "$time_log"
+cat "$log"
 printf '\n'
 
 if [ "$result" != "$expect" ]; then
