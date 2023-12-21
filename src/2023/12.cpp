@@ -49,11 +49,6 @@ std::istream& operator>>(std::istream& is, Springs& springs) {
   throw std::runtime_error("failed parsing Springs");
 }
 
-// TODO ranges::adjacent
-constexpr decltype(auto) window2(ranges::range auto&& r) {
-  return views::zip(r, views::drop(r, 1));
-}
-
 static constexpr auto no_value{std::numeric_limits<std::size_t>::max()};
 
 auto count_valid(const auto& springs, const auto& cache, const auto i, const auto c, const auto n) {

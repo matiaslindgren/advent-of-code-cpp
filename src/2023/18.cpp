@@ -102,8 +102,8 @@ auto dig(ranges::view auto&& steps) {
     trench.push_back(trench.back() + delta);
     trench_len += step.len;
   }
-  auto&& trapezoid_areas{views::transform(window2(trench), [](auto w) {
-    const auto& [p1, p2] = w;
+  auto&& trapezoid_areas{views::transform(window2(trench), [](auto p1p2) {
+    const auto& [p1, p2] = p1p2;
     return (p1.y + p2.y) * (p1.x - p2.x);
   })};
   const auto trench_area{std::abs(sum(trapezoid_areas)) / 2};
@@ -113,10 +113,10 @@ auto dig(ranges::view auto&& steps) {
 int main() {
   aoc::init_io();
 
-  auto steps{views::istream<Steps>(std::cin) | ranges::to<std::vector>()};
+  const auto steps{views::istream<Steps>(std::cin) | ranges::to<std::vector>()};
 
-  const auto part1{dig(views::transform(steps, [](auto p) { return p.first; }))};
-  const auto part2{dig(views::transform(steps, [](auto p) { return p.second; }))};
+  const auto part1{dig(views::elements<0>(steps))};
+  const auto part2{dig(views::elements<1>(steps))};
 
   std::print("{} {}\n", part1, part2);
 
