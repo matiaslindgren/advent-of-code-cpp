@@ -23,10 +23,9 @@ if [ "$(uname)" = 'Darwin' ]; then
   time_verbose_flag=-l
 fi
 
+printf '%s < %s\n' "$solution" "$input"
 result=$(/usr/bin/env time $time_verbose_flag -o "$log" "$solution" < "$input")
 expect=$(cat $correct)
-
-printf '%s < %s\n' "$solution" "$input"
 printf 'result: %s\n' "$result"
 printf 'expect: %s\n' "$expect"
 cat "$log"
