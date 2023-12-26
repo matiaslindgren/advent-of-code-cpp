@@ -142,11 +142,12 @@ auto search(auto modules) {
         .high = false,
     };
     for (std::deque<Signal> q{{init_signal}}; !q.empty(); q.pop_front()) {
-      for (const auto& [i, high] : my_std::views::enumerate(rx_input.high | views::values)) {
-        if (cycle_lengths[i] < 2 && high) {
-          cycle_lengths[i] = press;
+      for (auto&& [cycle_len, high] : views::zip(cycle_lengths, rx_input.high | views::values)) {
+        if (high && cycle_len < 2) {
+          cycle_len = press;
         }
       }
+
       const auto [src, dst, hi] = q.front();
       if (press <= 1000) {
         lo_count += !hi;
@@ -154,29 +155,37 @@ auto search(auto modules) {
       }
 
       auto& m{modules.at(dst)};
+      bool send_out{false}, high_out{false};
+
       switch (m.type) {
         case Module::Type::FlipFlop: {
           if (!hi) {
+            send_out = true;
             m.high[m.id] = !m.high[m.id];
-            for (const auto& out : m.outputs) {
-              q.push_back({dst, out, m.high[m.id]});
-            }
+            high_out = m.high[m.id];
           }
         } break;
         case Module::Type::Broadcaster: {
-          for (const auto& out : m.outputs) {
-            q.push_back({dst, out, false});
-          }
+          send_out = true;
+          high_out = false;
         } break;
         case Module::Type::Conjunction: {
+          send_out = true;
           m.high[src] = hi;
-          const auto high_out{!ranges::all_of(m.high | views::values, std::identity{})};
-          for (const auto& out : m.outputs) {
-            q.push_back({dst, out, high_out});
-          }
+          high_out = !ranges::all_of(m.high | views::values, std::identity{});
         } break;
         case Module::Type::Output: {
         } break;
+      }
+
+      if (send_out) {
+        for (const auto& out : m.outputs) {
+          q.push_back({
+              .src = dst,
+              .dst = out,
+              .high = high_out,
+          });
+        }
       }
     }
   }
