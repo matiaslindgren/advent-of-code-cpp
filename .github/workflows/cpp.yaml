@@ -23,8 +23,10 @@ jobs:
         sudo add-apt-repository --yes "deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${CLANG_VERSION} main"
     - name: install clang
       run: sudo apt update --yes && sudo apt install --yes clang-${CLANG_VERSION} libc++-${CLANG_VERSION}-dev libc++abi-${CLANG_VERSION}-dev lld-${CLANG_VERSION}
-    - uses: actions/checkout@v4
-    - uses: actions/checkout@v4
+    - name: checkout solutions
+      uses: actions/checkout@v4
+    - name: checkout inputs and answers
+      uses: actions/checkout@v4
       with:
         repository: matiaslindgren/advent-of-code-data
         token: ${{ secrets.read_aoc_data }}
