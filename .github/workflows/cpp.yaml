@@ -33,3 +33,6 @@ jobs:
         path: txt
     - run: make -j
     - run: make test_verbose
+    - run: make clean
+    - run: make FAST=1 -j
+    - run: make FAST=1 test_verbose
