@@ -67,6 +67,38 @@ struct Grid2D {
     }
     return adj;
   }
+
+  auto compress_edges() const {
+    std::unordered_map<std::size_t, std::unordered_map<std::size_t, int>> edges;
+    for (std::vector q = {start_index()}; !q.empty();) {
+      const auto src{q.back()};
+      q.pop_back();
+      for (const auto& dst : adjacent(src)) {
+        if (tiles.at(dst) == Tile::forest) {
+          continue;
+        }
+        if (!edges[src].contains(dst)) {
+          edges[src][dst] = 1;
+          q.push_back(dst);
+        }
+      }
+    }
+    const auto has_2_edges{[](const auto& adj) { return adj.second.size() == 2; }};
+    while (true) {
+      const auto redundant_node{ranges::find_if(edges, has_2_edges)};
+      if (redundant_node == edges.end()) {
+        return edges;
+      }
+      const auto [node, adj] = *redundant_node;
+      auto it{adj.begin()};
+      const auto [adj1, dist1] = *it;
+      const auto [adj2, dist2] = *(++it);
+      edges[adj1][adj2] = edges[adj2][adj1] = dist1 + dist2;
+      edges[adj1].erase(node);
+      edges[adj2].erase(node);
+      edges.erase(node);
+    }
+  }
 };
 
 std::istream& operator>>(std::istream& is, Grid2D& grid) {
@@ -99,38 +131,7 @@ struct Graph {
   std::vector<std::vector<std::pair<std::size_t, int>>> edges;
 
   explicit Graph(const Grid2D& grid) {
-    std::unordered_map<std::size_t, std::unordered_map<std::size_t, int>> all_edges;
-    for (std::vector q = {grid.start_index()}; !q.empty();) {
-      const auto src{q.back()};
-      q.pop_back();
-      for (const auto& dst : grid.adjacent(src)) {
-        if (grid.tiles.at(dst) == Tile::forest) {
-          continue;
-        }
-        if (!all_edges[src].contains(dst)) {
-          all_edges[src][dst] = 1;
-          q.push_back(dst);
-        }
-      }
-    }
-
-    while (true) {
-      const auto redundant_node{ranges::find_if(all_edges, [](const auto& edge) {
-        return edge.second.size() == 2;
-      })};
-      if (redundant_node == all_edges.end()) {
-        break;
-      }
-      const auto [node, adj] = *redundant_node;
-      auto it{adj.begin()};
-      const auto [adj1, dist1] = *it;
-      const auto [adj2, dist2] = *(++it);
-      all_edges[adj1][adj2] = all_edges[adj2][adj1] = dist1 + dist2;
-      all_edges[adj1].erase(node);
-      all_edges[adj2].erase(node);
-      all_edges.erase(node);
-    }
-
+    const auto all_edges{grid.compress_edges()};
     nodes = views::zip(all_edges | views::keys, views::iota(0uz, all_edges.size()))
             | ranges::to<std::unordered_map>();
     edges.resize(nodes.size());
@@ -161,20 +162,20 @@ auto find_longest_path(const Grid2D& grid) {
   int max_dist{0};
 
   for (std::vector q = {State{.current = start}}; !q.empty();) {
-    auto [curr, dist, visited] = q.back();
+    auto [curr, dist_total, visited] = q.back();
     q.pop_back();
     if (curr == end) {
-      max_dist = std::max(max_dist, dist);
+      max_dist = std::max(max_dist, dist_total);
       continue;
     }
     if (visited[curr]) {
       continue;
     }
     visited[curr] = true;
-    for (const auto& [next, dist_next] : graph.edges.at(curr)) {
+    for (const auto& [next, dist] : graph.edges.at(curr)) {
       q.push_back(State{
           .current = next,
-          .distance = dist + dist_next,
+          .distance = dist_total + dist,
           .visited = visited,
       });
     }
