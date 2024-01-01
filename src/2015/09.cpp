@@ -18,9 +18,13 @@ struct Edge {
 };
 
 std::istream& operator>>(std::istream& is, Edge& edge) {
-  std::string src, dst, tmp;
+  using aoc::skip;
+  using std::operator""s;
+
+  std::string src, dst;
   std::size_t dist;
-  if (is >> src && is >> tmp && tmp == "to" && is >> dst && is >> tmp && tmp == "=" && is >> dist) {
+  if (is >> src >> std::ws && skip(is, "to"s) && is >> dst >> std::ws && skip(is, "="s)
+      && is >> dist) {
     edge = {src, dst, dist};
     return is;
   }
