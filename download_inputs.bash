@@ -1,28 +1,38 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
-if [ $# -ne 1 ]; then
-  printf "usage: $0 output_dir\n"
-  exit 2
-fi
+# this script downloads text inputs and problem descriptions from adventofcode.com
+# the data is downloaded with curl, using an existing Firefox session cookie
 
-output_dir="$1"
 
-function err {
-  echo "$@" >> /dev/stderr
+function error {
+  printf "$@\n" >> /dev/stderr
   exit 1
 }
 
-firefox_dir="$HOME/Library/Application Support/Firefox"
-if [ ! -d "$firefox_dir" ]; then
-  err "cannot search for firefox cookies in non-existing directory '${firefox_dir}'"
+cookie_file=cookies.sqlite
+aoc_url=adventofcode.com
+
+if [ $# -ne 2 ]; then
+  error "\
+usage: $0 cookie_dir output_dir\n\
+example: $0 \"\$HOME/Library/Application Support/Firefox\" ./txt"
 fi
 
-cookie_file=cookies.sqlite
+cookie_dir="$1"
+output_dir="$2"
 
-firefox_cookies=$(find "$firefox_dir" -type f -name ${cookie_file} | head -n 1)
+if [ -z $(type -p curl) -o -z $(type -p sqlite3) ]; then
+  error "cannot find curl and sqlite3"
+fi
+
+if [ ! -d "$cookie_dir" ]; then
+  error "cannot search for firefox cookies in non-existing directory '${cookie_dir}'"
+fi
+
+firefox_cookies=$(find "$cookie_dir" -type f -name ${cookie_file} | head -n 1)
 if [ ! -f "$firefox_cookies" ]; then
-  err "unable to find '${cookie_file}' in '${firefox_dir}'"
+  error "cannot find '${cookie_file}' within '${cookie_dir}'"
 fi
 
 tmpdir="$(mktemp --directory)"
@@ -35,40 +45,65 @@ cp "$firefox_cookies" $tmpdir
 
 get_session_value="
   select value from moz_cookies
-  where host = '.adventofcode.com' and name = 'session';
+  where host = '.${aoc_url}' and name = 'session';
 "
 session_token=$(sqlite3 "${tmpdir}/${cookie_file}" "$get_session_value")
 if [ -z "$session_token" ]; then
-  err 'unable to find session cookie for host adventofcode.com, log in with firefox to adventofcode.com, then try again'
+  error "unable to find session cookie for host ${aoc_url}, log in with firefox to ${aoc_url}, then try again"
 else
-  printf "found adventofcode.com login session token inside '%s'\n" "$firefox_cookies"
+  echo "using an $aoc_url login session found inside '$firefox_cookies'"
 fi
 
-exist_count=0
-download_count=0
+skipped_problems_count=0
+download_problems_count=0
+skipped_inputs_count=0
+download_inputs_count=0
 
-for year in $(seq 2015 $(TZ=America/New_York date '+%Y')); do
-  for day in $(seq 1 25); do
-    release_date=$(printf "%04d-12-%02d" $year $day)
-    if [ $(TZ=America/New_York date -I) '<' "$release_date" ]; then
-      echo skip future "$release_date"
-      continue
+year_now="$(TZ=America/New_York date '+%Y')"
+
+for y in $(seq 2015 "$year_now"); do
+  for d in $(seq 1 25); do
+    year=$(printf "%04d" $y)
+    day=$(printf "%02d" $d)
+
+    date_now="$(TZ=America/New_York date -I)"
+    date_release="${year}-12-${day}"
+    if [ "$date_now" '<' "$date_release" ]; then
+      break
     fi
-    output_path=$(printf "%s/%04d/%02d" "$output_dir" $year $day)
-    if [ ! -f "$output_path" ]; then
-      printf "downloading ${output_path}\n"
-      mkdir -p $(dirname "$output_path")
-      curl \
-        --output "$output_path" \
-        --cookie "session=${session_token}" \
-        https://adventofcode.com/${year}/day/${day}/input
-      sleep 1
-      download_count=$(($download_count + 1))
+
+    problem_path="${output_dir}/problem/${year}/${day}.html"
+    if grep --quiet '<h2 id="part2">' "$problem_path" > /dev/null 2>&1; then
+      skipped_problems_count=$(($skipped_problems_count + 1))
     else
-      exist_count=$(($exist_count + 1))
+      echo "downloading ${problem_path}"
+      mkdir -p $(dirname "$problem_path")
+      curl \
+        --output "$problem_path" \
+        --cookie "session=${session_token}" \
+        https://${aoc_url}/${y}/day/${d}
+      download_problems_count=$(($download_problems_count + 1))
+      sleep 1
+    fi
+
+    input_path="${output_dir}/input/${year}/${day}"
+    if [ -f "$input_path" ]; then
+      skipped_inputs_count=$(($skipped_inputs_count + 1))
+    else
+      echo "downloading ${input_path}"
+      mkdir -p $(dirname "$input_path")
+      curl \
+        --output "$input_path" \
+        --cookie "session=${session_token}" \
+        https://${aoc_url}/${y}/day/${d}/input
+      download_inputs_count=$(($download_inputs_count + 1))
+      sleep 1
     fi
   done
 done
 
-printf "downloaded %d inputs\n" $download_count
-printf "skipped %d existing inputs\n" $exist_count
+echo "downloaded $download_problems_count problems"
+echo "skipped $skipped_problems_count existing problems"
+echo
+echo "downloaded $download_inputs_count inputs"
+echo "skipped $skipped_inputs_count existing inputs"
