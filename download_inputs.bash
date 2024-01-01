@@ -13,14 +13,22 @@ function error {
 cookie_file=cookies.sqlite
 aoc_url=adventofcode.com
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 2 -a $# -ne 3 ]; then
   error "\
-usage: $0 cookie_dir output_dir\n\
+usage: $0 cookie_dir output_dir [year]\n\
 example: $0 \"\$HOME/Library/Application Support/Firefox\" ./txt"
 fi
 
 cookie_dir="$1"
 output_dir="$2"
+
+if [ $# -eq 3 ]; then
+  year_begin=$3
+  year_end=$3
+else
+  year_begin=2015
+  year_end=$(TZ=America/New_York date '+%Y')
+fi
 
 if [ -z $(type -p curl) -o -z $(type -p sqlite3) ]; then
   error "cannot find curl and sqlite3"
@@ -54,14 +62,21 @@ else
   echo "using an $aoc_url login session found inside '$firefox_cookies'"
 fi
 
-skipped_problems_count=0
-download_problems_count=0
-skipped_inputs_count=0
-download_inputs_count=0
+function download {
+  local url="$1"
+  local output="$2"
+  echo "downloading $output"
+  mkdir -p $(dirname "$output")
+  curl \
+    --output "$output" \
+    --cookie "session=${session_token}" \
+    "$url"
+}
 
-year_now="$(TZ=America/New_York date '+%Y')"
+n_html=0
+n_inputs=0
 
-for y in $(seq 2015 "$year_now"); do
+for y in $(seq $year_begin $year_end); do
   for d in $(seq 1 25); do
     year=$(printf "%04d" $y)
     day=$(printf "%02d" $d)
@@ -72,38 +87,25 @@ for y in $(seq 2015 "$year_now"); do
       break
     fi
 
-    problem_path="${output_dir}/problem/${year}/${day}.html"
-    if grep --quiet '<h2 id="part2">' "$problem_path" > /dev/null 2>&1; then
-      skipped_problems_count=$(($skipped_problems_count + 1))
-    else
-      echo "downloading ${problem_path}"
-      mkdir -p $(dirname "$problem_path")
-      curl \
-        --output "$problem_path" \
-        --cookie "session=${session_token}" \
-        https://${aoc_url}/${y}/day/${d}
-      download_problems_count=$(($download_problems_count + 1))
-      sleep 1
+    aoc_day_url=https://${aoc_url}/${y}/day/${d}
+
+    html_path="${output_dir}/html/${year}/${day}.html"
+    if ! grep '<h2 id="part2">' "$html_path" > /dev/null 2>&1; then
+      download ${aoc_day_url} "$html_path"
+      sed -n '/<main>/,/<\/main>/p' "$html_path" > ${tmpdir}/tmp.html
+      mv "${tmpdir}/tmp.html" "$html_path"
+      n_html=$(($n_html + 1))
+      sleep 0.2
     fi
 
     input_path="${output_dir}/input/${year}/${day}"
-    if [ -f "$input_path" ]; then
-      skipped_inputs_count=$(($skipped_inputs_count + 1))
-    else
-      echo "downloading ${input_path}"
-      mkdir -p $(dirname "$input_path")
-      curl \
-        --output "$input_path" \
-        --cookie "session=${session_token}" \
-        https://${aoc_url}/${y}/day/${d}/input
-      download_inputs_count=$(($download_inputs_count + 1))
-      sleep 1
+    if [ ! -f "$input_path" ]; then
+      download ${aoc_day_url}/input "$input_path"
+      n_inputs=$(($n_inputs + 1))
+      sleep 0.2
     fi
   done
 done
 
-echo "downloaded $download_problems_count problems"
-echo "skipped $skipped_problems_count existing problems"
-echo
-echo "downloaded $download_inputs_count inputs"
-echo "skipped $skipped_inputs_count existing inputs"
+echo "downloaded $n_html html pages"
+echo "downloaded $n_inputs inputs"
