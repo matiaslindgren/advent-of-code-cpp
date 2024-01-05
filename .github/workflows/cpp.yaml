@@ -7,22 +7,31 @@ on:
       - 'Makefile'
       - '*.bash'
       - 'src/**/*'
-
-env:
-  CLANG_VERSION: 17
+      - '.github/**/*.yaml'
 
 jobs:
   build-and-test:
+    strategy:
+      matrix:
+        fast: [0, 1]
+        llvm: [17]
+    name: "fast: ${{ matrix.fast }}, llvm: ${{ matrix.llvm }}"
     runs-on: ubuntu-22.04
     steps:
     - name: trust LLVM apt repositories
       run: wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
     - name: add LLVM apt repositories
       run: |
-        sudo add-apt-repository --yes "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${CLANG_VERSION} main"
-        sudo add-apt-repository --yes "deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${CLANG_VERSION} main"
-    - name: install clang
-      run: sudo apt update --yes && sudo apt install --yes clang-${CLANG_VERSION} libc++-${CLANG_VERSION}-dev libc++abi-${CLANG_VERSION}-dev lld-${CLANG_VERSION}
+        sudo add-apt-repository --yes "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.llvm }} main"
+        sudo add-apt-repository --yes "deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.llvm }} main"
+    - name: install llvm
+      run: |
+        sudo apt update --yes
+        sudo apt install --yes \
+          clang-${{ matrix.llvm }} \
+          libc++-${{ matrix.llvm }}-dev \
+          libc++abi-${{ matrix.llvm }}-dev \
+          lld-${{ matrix.llvm }}
     - name: checkout solutions
       uses: actions/checkout@v4
     - name: checkout inputs and answers
@@ -31,8 +40,5 @@ jobs:
         repository: matiaslindgren/advent-of-code-data
         token: ${{ secrets.read_aoc_data }}
         path: txt
-    - run: make -j
-    - run: make test_verbose
-    - run: make clean
-    - run: make FAST=1 -j
-    - run: make FAST=1 test_verbose
+    - run: make FAST=${{ matrix.fast }} -j
+    - run: make FAST=${{ matrix.fast }} test_verbose
