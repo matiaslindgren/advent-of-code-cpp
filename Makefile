@@ -33,7 +33,7 @@ OUT := out
 FAST ?= 0
 ifeq ($(FAST), 1)
 	OUT_DIR  := $(OUT)/fast
-	CXXFLAGS += -O3 -march=native -ffast-math
+	CXXFLAGS += -O3 -march=native
 else
 	OUT_DIR  := $(OUT)/debug
 	CXXFLAGS += -g -O2 -fsanitize=address,undefined
