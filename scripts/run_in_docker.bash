@@ -10,7 +10,7 @@ docker run \
   -v $(pwd)/src:${workdir}/src \
   -v $(pwd)/txt:${workdir}/txt \
   -v $(pwd)/Makefile:${workdir}/Makefile \
-  -v $(pwd)/test_one_verbose.bash:${workdir}/test_one_verbose.bash \
+  -v $(pwd)/scripts/test_one_verbose.bash:${workdir}/scripts/test_one_verbose.bash \
   --pull never \
   --rm \
   -it \

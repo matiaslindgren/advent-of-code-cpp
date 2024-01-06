@@ -91,7 +91,7 @@ test_verbose: $(VERBOSE_TEST_TARGETS)
 
 .PHONY: $(VERBOSE_TEST_TARGETS)
 $(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT_DIR)/% txt/input/% txt/correct/%
-	@./test_one_verbose.bash $^
+	@./scripts/test_one_verbose.bash $^
 
 
 .PHONY: run_sysinfo
