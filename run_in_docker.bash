@@ -13,5 +13,6 @@ docker run \
   -v $(pwd)/test_one_verbose.bash:${workdir}/test_one_verbose.bash \
   --pull never \
   --rm \
+  -it \
   $image \
-  bash -c 'make -j && make test_verbose'
+  bash
