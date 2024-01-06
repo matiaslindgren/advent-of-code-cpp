@@ -41,5 +41,5 @@ jobs:
         repository: matiaslindgren/advent-of-code-data
         token: ${{ secrets.read_aoc_data }}
         path: txt
-    - run: make FAST=${{ matrix.fast }} -j4
+    - run: make FAST=${{ matrix.fast }} --jobs $(getconf _NPROCESSORS_ONLN)
     - run: make FAST=${{ matrix.fast }} test_verbose
