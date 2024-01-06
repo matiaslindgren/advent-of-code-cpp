@@ -7,7 +7,7 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 constexpr auto parallel_chunk_size{1uz << 12};
-constexpr auto thread_count{8uz};
+const auto thread_count{aoc::cpu_count()};
 std::vector<std::size_t> results(thread_count);
 std::vector<std::thread> threads(thread_count);
 

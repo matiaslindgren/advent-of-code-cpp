@@ -21,7 +21,7 @@ struct std::hash<Repeat> {
 };
 
 constexpr auto parallel_chunk_size{256u};
-constexpr auto thread_count{8u};
+const auto thread_count{aoc::cpu_count()};
 std::vector<std::set<Repeat>> results(thread_count);
 std::vector<std::thread> threads(thread_count);
 

@@ -11,6 +11,10 @@ void init_io() {
   std::cin.exceptions(std::ifstream::badbit);
 }
 
+auto cpu_count() {
+  return std::max(1u, std::thread::hardware_concurrency());
+};
+
 std::istream& skip(std::istream& is, auto s) {
   for (char rhs : s) {
     if (char lhs; !(is.get(lhs) && lhs == rhs)) {
