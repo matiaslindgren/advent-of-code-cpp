@@ -13,7 +13,7 @@ constexpr auto max_coord{400000000000000L};
 constexpr auto distance_epsilon{20.0};
 
 struct Vec3 {
-  double x{}, y{}, z{};
+  long double x{}, y{}, z{};
 
   Vec3 operator-(const Vec3& v) const {
     return {x - v.x, y - v.y, z - v.z};
@@ -50,7 +50,7 @@ struct Stone {
 };
 
 std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (double x, y, z; is >> x && skip(is, ","s) && is >> y && skip(is, ","s) && is >> z) {
+  if (long double x, y, z; is >> x && skip(is, ","s) && is >> y && skip(is, ","s) && is >> z) {
     v = {x, y, z};
     return is;
   }
@@ -107,7 +107,6 @@ auto infer_collision_time(const Vec3& p, const Stone& s) {
 }
 
 auto find_part2(const auto& stones) {
-  auto debug_min_l1_distance{std::numeric_limits<double>::max()};
   for (int radius{0}; radius < 4000; ++radius) {
     Vec3 v{};
     const auto lo{-radius};
@@ -121,14 +120,10 @@ auto find_part2(const auto& stones) {
         const Stone s1{.p = stones[0].p, .v = stones[0].v - v};
         const Stone s2{.p = stones[1].p, .v = stones[1].v - v};
         if (const auto is1{intersectXY(s1, s2)}) {
-          if (ranges::all_of(stones | views::drop(2), [&](Stone s3) {
+          if (ranges::all_of(stones | views::drop(2), [&v, &s1, &is1](Stone s3) {
                 s3.v = s3.v - v;
-                if (const auto is2{intersectXY(s1, s3)}) {
-                  const auto intersection_dist{is1->l1_distance(*is2)};
-                  debug_min_l1_distance = std::min(debug_min_l1_distance, intersection_dist);
-                  return intersection_dist < distance_epsilon;
-                }
-                return false;
+                const auto is2{intersectXY(s1, s3)};
+                return is2 && is1->l1_distance(*is2) < distance_epsilon;
               })) {
             const auto t1{infer_collision_time(*is1, s1)};
             const auto t2{infer_collision_time(*is1, s2)};
@@ -144,10 +139,7 @@ auto find_part2(const auto& stones) {
       }
     }
   }
-  throw std::runtime_error(std::format(
-      "search space exhausted, smallest intersection distance {}",
-      debug_min_l1_distance
-  ));
+  throw std::runtime_error("search space exhausted");
 }
 
 int main() {
