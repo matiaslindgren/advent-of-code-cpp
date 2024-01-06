@@ -94,6 +94,10 @@ $(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT_DIR)/% txt/input/% txt/correct/%
 	@./test_one_verbose.bash $^
 
 
+.PHONY: run_sysinfo
+run_sysinfo: $(OUT_DIR)/tools/sysinfo
+	@$^
+
 .SECONDEXPANSION:
 
 $(OUT_PATHS): $(OUT_DIR)/%: $(SRC)/%.cpp $(MOD_OUT_PATHS) | $$(dir $(OUT_DIR)/%)
