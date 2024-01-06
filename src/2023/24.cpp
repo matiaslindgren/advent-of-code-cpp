@@ -10,7 +10,7 @@ namespace views = std::views;
 
 constexpr auto min_coord{200000000000000L};
 constexpr auto max_coord{400000000000000L};
-constexpr auto distance_epsilon{10.0};
+constexpr auto distance_epsilon{20.0};
 
 struct Vec3 {
   double x{}, y{}, z{};
@@ -107,7 +107,7 @@ auto infer_collision_time(const Vec3& p, const Stone& s) {
 }
 
 auto find_part2(const auto& stones) {
-  for (int radius{0};; ++radius) {
+  for (int radius{0}; radius < 4000; ++radius) {
     Vec3 v{};
     const auto lo{-radius};
     const auto hi{radius};
@@ -139,6 +139,7 @@ auto find_part2(const auto& stones) {
       }
     }
   }
+  throw std::runtime_error("search space exhausted");
 }
 
 int main() {
