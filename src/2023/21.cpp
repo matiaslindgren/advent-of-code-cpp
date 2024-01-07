@@ -75,16 +75,15 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
     lines.push_back(line);
   }
   std::stringstream input;
+  const auto center{repeat_count / 2};
   for (int r1{0}; r1 < repeat_count; ++r1) {
     for (const auto& original_line : lines) {
       for (int r2{0}; r2 < repeat_count; ++r2) {
-        if (r1 == 2 && r2 == 2) {
-          input << original_line;
-        } else {
-          auto line{original_line};
+        auto line{original_line};
+        if (!(r1 == center && r2 == center)) {
           ranges::replace(line, std::to_underlying(Tile::start), std::to_underlying(Tile::garden));
-          input << line;
         }
+        input << line;
       }
       input << "\n";
     }
@@ -97,13 +96,9 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
 auto visit_until_limit(const Grid2D& grid, const auto limit) {
   const auto n{grid.tiles.size()};
   std::vector<bool> visited((limit + 1) * n);
-
   for (std::deque q = {std::pair{0, grid.start_index()}}; !q.empty(); q.pop_front()) {
     const auto& [step, index] = q.front();
-    if (step > limit) {
-      continue;
-    }
-    if (visited.at(step * n + index)) {
+    if (step > limit or visited.at(step * n + index)) {
       continue;
     }
     visited.at(step * n + index) = true;
@@ -113,7 +108,6 @@ auto visit_until_limit(const Grid2D& grid, const auto limit) {
       }
     }
   }
-
   return visited;
 }
 
