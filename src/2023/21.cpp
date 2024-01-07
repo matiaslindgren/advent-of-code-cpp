@@ -114,10 +114,17 @@ auto visit_until_limit(const Grid2D& grid, const auto limit) {
 using Input = std::array<long, 3>;
 
 auto lagrange_interpolation(const long x, const Input& xs, const Input& ys) {
-  const auto l0{((x - xs[1]) * (x - xs[2])) / ((xs[0] - xs[1]) * (xs[0] - xs[2]))};
-  const auto l1{((x - xs[0]) * (x - xs[2])) / ((xs[1] - xs[0]) * (xs[1] - xs[2]))};
-  const auto l2{((x - xs[0]) * (x - xs[1])) / ((xs[2] - xs[0]) * (xs[2] - xs[1]))};
-  return ys[0] * l0 + ys[1] * l1 + ys[2] * l2;
+  // https://en.wikipedia.org/wiki/Lagrange_polynomial
+  // (2024-01-07)
+  const auto basis{[=](const long x0, const long x1, const long x2) {
+    return ((x - x1) * (x - x2)) / ((x0 - x1) * (x0 - x2));
+  }};
+  const Input l = {
+      basis(xs[0], xs[1], xs[2]),
+      basis(xs[1], xs[0], xs[2]),
+      basis(xs[2], xs[0], xs[1]),
+  };
+  return std::inner_product(l.begin(), l.end(), ys.begin(), 0L);
 }
 
 int main() {
