@@ -2,25 +2,24 @@
 set -ueo pipefail
 
 # this script downloads text inputs and problem descriptions from adventofcode.com
-# the data is downloaded with curl, using an existing Firefox session cookie
+# the data is downloaded with curl, using an existing session cookie
 
 
 function error {
   printf "$@\n" >> /dev/stderr
-  exit 1
 }
 
-cookie_file=cookies.sqlite
 aoc_url=adventofcode.com
 
 if [ $# -ne 2 -a $# -ne 3 ]; then
-  error "\
-usage: $0 cookie_dir output_dir [year]\n\
-example: $0 \"\$HOME/Library/Application Support/Firefox\" ./txt"
+  error "usage: $0 output_dir session_token [year]"
+  error "example: $0 ./txt ./aoc_session"
+  error "example: $0 ./txt ./aoc_session 2017"
+  exit 2
 fi
 
-cookie_dir="$1"
-output_dir="$2"
+output_dir="$1"
+session_token="$2"
 
 if [ $# -eq 3 ]; then
   year_begin=$3
@@ -30,17 +29,14 @@ else
   year_end=$(TZ=America/New_York date '+%Y')
 fi
 
-if [ -z $(type -p curl) -o -z $(type -p sqlite3) ]; then
-  error "cannot find curl and sqlite3"
+if [ -z $(type -p curl) ]; then
+  error "cannot find curl"
+  exit 1
 fi
 
-if [ ! -d "$cookie_dir" ]; then
-  error "cannot search for firefox cookies in non-existing directory '${cookie_dir}'"
-fi
-
-firefox_cookies=$(find "$cookie_dir" -type f -name ${cookie_file} | head -n 1)
-if [ ! -f "$firefox_cookies" ]; then
-  error "cannot find '${cookie_file}' within '${cookie_dir}'"
+if [ ! -s "$session_token" ]; then
+  error "cannot read session token from non-existing or empty '${session_token}'"
+  exit 1
 fi
 
 tmpdir="$(mktemp --directory)"
@@ -49,27 +45,15 @@ function rm_tmpdir {
 }
 trap rm_tmpdir EXIT
 
-cp "$firefox_cookies" $tmpdir
-
-get_session_value="
-  select value from moz_cookies
-  where host = '.${aoc_url}' and name = 'session';
-"
-session_token=$(sqlite3 "${tmpdir}/${cookie_file}" "$get_session_value")
-if [ -z "$session_token" ]; then
-  error "unable to find session cookie for host ${aoc_url}, log in with firefox to ${aoc_url}, then try again"
-else
-  echo "using an $aoc_url login session found inside '$firefox_cookies'"
-fi
-
 function download {
   local url="$1"
   local output="$2"
+  local token=$(cat "$session_token")
   echo "downloading $output"
   mkdir -p $(dirname "$output")
   curl \
     --output "$output" \
-    --cookie "session=${session_token}" \
+    --cookie "session=${token}" \
     "$url"
 }
 
