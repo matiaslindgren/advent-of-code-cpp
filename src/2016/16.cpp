@@ -16,21 +16,23 @@ auto search_checksum(const std::string& input, const auto length) {
   }
 
   auto n{input.size()};
+
   while (n < length) {
-    bits[n++] = 0;
-    for (const auto b : bits | views::take(n - 1) | views::reverse) {
-      if (n < length) {
-        bits[n++] = !b;
-      }
-    }
+    bits[n] = 0;
+    const auto n_take{std::min(n, length - n)};
+    ranges::transform(
+        bits | views::take(n) | views::reverse | views::take(n_take),
+        ranges::next(bits.begin(), n + 1),
+        std::logical_not{}
+    );
+    n += 1 + n_take;
   }
 
   for (n = length; n % 2 == 0; n /= 2) {
-    auto bit{bits.begin()};
-    for (const auto& chunk : chunks2(bits | views::take(n))) {
-      const auto [b1, b2] = chunk;
-      *(bit++) = b1 == b2;
-    }
+    ranges::transform(chunks2(bits | views::take(n)), bits.begin(), [](const auto& b1b2) {
+      const auto [b1, b2] = b1b2;
+      return b1 == b2;
+    });
   }
 
   return views::transform(bits | views::take(n), [](const bool b) { return b ? '1' : '0'; })
