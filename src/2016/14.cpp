@@ -20,10 +20,10 @@ struct std::hash<Repeat> {
   }
 };
 
-constexpr auto parallel_chunk_size{256u};
-const auto thread_count{aoc::cpu_count()};
-std::vector<std::set<Repeat>> results(thread_count);
-std::vector<std::thread> threads(thread_count);
+constexpr auto chunk_size{256u};
+const auto n_threads{aoc::cpu_count()};
+std::vector<std::set<Repeat>> results(n_threads);
+std::vector<std::thread> threads(n_threads);
 
 // TODO ranges::adjacent
 // TODO template index sequence
@@ -38,15 +38,15 @@ struct stretch_search {
   void operator()(
       const auto i_out,
       md5::Message msg,
-      const auto input_size,
       const auto begin,
       const auto count,
       const auto stretch_count
   ) const {
+    const auto msg_len{msg.size()};
     for (auto i{begin}; i < begin + count; ++i) {
-      msg.len = input_size;
       md5::append_digits(msg, i);
       const auto checksum{md5::compute(msg, 1 + stretch_count)};
+      msg.erase(msg.begin() + msg_len, msg.end());
       for (const auto [d0, d1, d2] : window3(checksum)) {
         if (d0 == d1 && d1 == d2) {
           results[i_out].insert({i, 3u, d0});
@@ -67,18 +67,10 @@ std::size_t parallel_stretch_search(md5::Message msg, const int stretch_count = 
   using DigitRepeats = std::unordered_map<unsigned char, Keys>;
   DigitRepeats r2s, r5s;
   Keys keys;
-  for (auto i{0uz}; keys.size() < 70 && i < 1'000'000; i += threads.size() * parallel_chunk_size) {
+  for (auto i{0uz}; keys.size() < 70 && i < 1'000'000; i += threads.size() * chunk_size) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
       results[t].clear();
-      th = std::thread(
-          stretch_search{},
-          t,
-          msg,
-          msg.len,
-          i + t * parallel_chunk_size,
-          parallel_chunk_size,
-          stretch_count
-      );
+      th = std::thread(stretch_search{}, t, msg, i + t * chunk_size, chunk_size, stretch_count);
     }
     for (auto& th : threads) {
       th.join();
@@ -107,8 +99,7 @@ std::size_t parallel_stretch_search(md5::Message msg, const int stretch_count = 
 int main() {
   aoc::init_io();
 
-  md5::Message msg;
-  std::cin >> msg;
+  const md5::Message msg{md5::parse_line(std::cin)};
 
   const auto part1{parallel_stretch_search(msg)};
   const auto part2{parallel_stretch_search(msg, 2016)};

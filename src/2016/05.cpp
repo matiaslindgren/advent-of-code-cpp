@@ -19,24 +19,19 @@ struct Result {
   }
 };
 
-constexpr auto parallel_chunk_size{1uz << 18};
-const auto thread_count{aoc::cpu_count()};
-std::vector<Result> results(thread_count);
-std::vector<std::thread> threads(thread_count);
+constexpr auto chunk_size{1uz << 18};
+const auto n_threads{aoc::cpu_count()};
+std::vector<Result> results(n_threads);
+std::vector<std::thread> threads(n_threads);
 
 struct find_passwords {
-  void operator()(
-      const auto i_out,
-      md5::Message msg,
-      const auto input_size,
-      const auto begin,
-      const auto count
-  ) const {
+  void operator()(const auto i_out, md5::Message msg, const auto begin, const auto count) const {
     Result res;
+    const auto msg_len{msg.size()};
     for (auto i{begin}; i < begin + count && !res.is_complete(); ++i) {
-      msg.len = input_size;
       md5::append_digits(msg, i);
       const auto checksum{md5::compute(msg)};
+      msg.erase(msg.begin() + msg_len, msg.end());
       if (ranges::any_of(checksum | views::take(5), std::identity{})) {
         continue;
       }
@@ -56,17 +51,9 @@ struct find_passwords {
 
 Result parallel_find_passwords(md5::Message msg) {
   Result res;
-  for (auto i{0uz}; i < 100'000'000 && !res.is_complete();
-       i += threads.size() * parallel_chunk_size) {
+  for (auto i{0uz}; i < 100'000'000 && !res.is_complete(); i += threads.size() * chunk_size) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
-      th = std::thread(
-          find_passwords{},
-          t,
-          msg,
-          msg.len,
-          i + t * parallel_chunk_size,
-          parallel_chunk_size
-      );
+      th = std::thread(find_passwords{}, t, msg, i + t * chunk_size, chunk_size);
     }
     for (auto& th : threads) {
       th.join();
@@ -91,8 +78,7 @@ Result parallel_find_passwords(md5::Message msg) {
 int main() {
   aoc::init_io();
 
-  md5::Message msg;
-  std::cin >> msg;
+  const md5::Message msg{md5::parse_line(std::cin)};
 
   const auto [part1, part2] = parallel_find_passwords(msg);
   std::print("{} {}\n", part1, part2);

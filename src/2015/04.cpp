@@ -6,10 +6,10 @@ import md5;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr auto parallel_chunk_size{1uz << 12};
-const auto thread_count{aoc::cpu_count()};
-std::vector<std::size_t> results(thread_count);
-std::vector<std::thread> threads(thread_count);
+constexpr auto chunk_size{1uz << 12};
+const auto n_threads{aoc::cpu_count()};
+std::vector<std::size_t> results(n_threads);
+std::vector<std::thread> threads(n_threads);
 
 struct find_next {
   void operator()(
@@ -17,13 +17,13 @@ struct find_next {
       const auto begin,
       const auto count,
       const auto num_zeros,
-      md5::Message msg,
-      const auto input_size
+      md5::Message msg
   ) const {
+    const auto msg_len{msg.size()};
     for (auto i{begin}; i < begin + count; ++i) {
-      msg.len = input_size;
       md5::append_digits(msg, i);
       const auto checksum{md5::compute(msg)};
+      msg.erase(msg.begin() + msg_len, msg.end());
       if (!ranges::any_of(checksum | views::take(num_zeros), std::identity{})) {
         results[i_out] = i;
         return;
@@ -33,17 +33,9 @@ struct find_next {
 };
 
 std::size_t parallel_find_next(const auto begin, const auto num_zeros, const auto msg) {
-  for (auto i{begin}; i < 10'000'000; i += threads.size() * parallel_chunk_size) {
+  for (auto i{begin}; i < 10'000'000; i += threads.size() * chunk_size) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
-      th = std::thread(
-          find_next{},
-          t,
-          i + t * parallel_chunk_size,
-          parallel_chunk_size,
-          num_zeros,
-          msg,
-          msg.len
-      );
+      th = std::thread(find_next{}, t, i + t * chunk_size, chunk_size, num_zeros, msg);
     }
     for (auto& th : threads) {
       th.join();
@@ -58,8 +50,7 @@ std::size_t parallel_find_next(const auto begin, const auto num_zeros, const aut
 int main() {
   aoc::init_io();
 
-  md5::Message msg;
-  std::cin >> msg;
+  const md5::Message msg{md5::parse_line(std::cin)};
 
   const auto part1{parallel_find_next(0uz, 5, msg)};
   ranges::fill(results, 0);
