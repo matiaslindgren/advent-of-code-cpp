@@ -12,17 +12,16 @@ export module md5;
 
 export namespace md5 {
 
-using byte = uint8_t;
-using chunk = uint32_t;
-using Message = std::vector<byte>;
-using Input = std::array<chunk, 16>;
+using Byte = uint8_t;
+using Message = std::vector<Byte>;
+using Chunk = uint32_t;
 
 Message parse_line(std::istream& is) {
   return views::istream<char>(is) | ranges::to<Message>();
 }
 
 inline void append_digits(Message& msg, const auto number) {
-  std::vector<byte> digits{};
+  std::vector<Byte> digits{};
   for (auto x{number}; x || digits.empty(); x /= 10) {
     digits.push_back('0' + (x % 10));
   }
@@ -30,37 +29,37 @@ inline void append_digits(Message& msg, const auto number) {
 }
 
 struct num2hex {
-  constexpr auto operator()(const auto digit) const {
-    return std::format("{:x}", digit)[0];
+  constexpr auto operator()(const auto x) const {
+    return std::format("{:x}", x)[0];
   }
 };
 
-Input pack_input_chunk(ranges::sized_range auto&& msg) {
-  Input chunk;
+auto pack_input_chunks(ranges::sized_range auto&& msg) {
+  std::array<Chunk, 16> chunks;
   auto it{msg.begin()};
-  for (auto i{0u}; i < chunk.size(); ++i) {
-    chunk[i] = 0;
+  for (auto i{0u}; i < chunks.size(); ++i) {
+    chunks[i] = 0;
     for (auto j{0u}; it != msg.end() && j < 4u; ++j) {
-      chunk[i] |= *(it++) << (8 * j);
+      chunks[i] |= *(it++) << (8 * j);
     }
   }
-  return chunk;
+  return chunks;
 }
 
 inline Message compute(Message msg, int iterations = 1) {
-  static std::array<chunk, 64> md5_sine_table{};
+  static std::array<Chunk, 64> md5_sine_table{};
   if (md5_sine_table.front() == 0) {
     for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1), md5_sine_table)) {
-      x = static_cast<chunk>((1LL << 32) * std::abs(std::sin(i)));
+      x = static_cast<Chunk>((1LL << 32) * std::abs(std::sin(i)));
     }
   }
-  static std::array<chunk, 16> rotations
+  static std::array<Chunk, 16> rotations
       = {7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
 
   Message output;
 
   for (int iter{}; iter < iterations; ++iter) {
-    chunk chunks[4]{
+    Chunk chunks[4]{
         std::byteswap(0x01234567),
         std::byteswap(0x89abcdef),
         std::byteswap(0xfedcba98),
@@ -78,7 +77,7 @@ inline Message compute(Message msg, int iterations = 1) {
     }
 
     for (auto it{msg.begin()}; it != msg.end(); it += 64) {
-      const auto input{pack_input_chunk(ranges::subrange(it, it + 64))};
+      const auto input{pack_input_chunks(ranges::subrange(it, it + 64))};
 
       auto a{chunks[0]};
       auto b{chunks[1]};
@@ -93,7 +92,7 @@ inline Message compute(Message msg, int iterations = 1) {
         b += std::rotl(f, rotations[4 * (i / 16) + i % 4]);
       }};
 
-      chunk i{};
+      Chunk i{};
       for (; i < 16u; ++i) {
         update(i, (b & c) | (~b & d), i);
       }
