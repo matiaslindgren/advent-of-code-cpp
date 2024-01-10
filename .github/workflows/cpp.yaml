@@ -41,10 +41,14 @@ jobs:
         repository: matiaslindgren/advent-of-code-data
         token: ${{ secrets.read_aoc_data }}
         path: txt
-    - run: make FAST=${{ matrix.fast }} --jobs $(getconf _NPROCESSORS_ONLN)
-    - run: make FAST=${{ matrix.fast }} run_tools/sysinfo
-    - run: |
+    - name: build all
+      run: make FAST=${{ matrix.fast }} --jobs $(getconf _NPROCESSORS_ONLN)
+    - name: dump sysinfo
+      run: make FAST=${{ matrix.fast }} run_tools/sysinfo
+    - name: test md5
+      run: |
         set -x
         mymd5=$(make FAST=${{ matrix.fast }} run_tools/md5 < Makefile)
-        [ "$mymd5" -eq "$(md5sum < Makefile | cut -f1 -d' ')" ] || exit 2
-    - run: make FAST=${{ matrix.fast }} test_verbose
+        [ "$mymd5" == "$(md5sum < Makefile | cut -f1 -d' ')" ] || exit 2
+    - name: test all solutions
+      run: make FAST=${{ matrix.fast }} test_verbose
