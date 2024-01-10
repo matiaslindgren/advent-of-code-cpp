@@ -12,29 +12,55 @@ export module md5;
 
 export namespace md5 {
 
-using Message = std::array<uint8_t, 64>;
+struct Message {
+  std::array<uint8_t, 64> data;
+  std::size_t len;
+
+  auto begin() {
+    return ranges::begin(data);
+  }
+  auto end() {
+    return ranges::next(ranges::begin(data), len, ranges::end(data));
+  }
+  // TODO deducing this
+  auto& operator[](auto&& i) {
+    return data[i];
+  }
+  const auto& operator[](auto&& i) const {
+    return data[i];
+  }
+};
+
+std::istream& operator>>(std::istream& is, Message& msg) {
+  if (std::string s; is >> s) {
+    ranges::copy(s, msg.begin());
+    msg.len = s.size();
+  }
+  return is;
+}
+
 using Input = std::array<uint32_t, 16>;
 using Digits = std::array<uint8_t, 32>;
 
-inline std::size_t append_digits(Message& msg, const auto msg_size, const auto number) {
+inline void append_digits(Message& msg, const auto number) {
   std::array<uint8_t, 16> digits = {};
   std::size_t digit_count{};
   for (auto x{number}; x || !digit_count; x /= 10) {
     digits[digit_count++] = '0' + (x % 10);
   }
-  ranges::move(digits | views::take(digit_count) | views::reverse, msg.begin() + msg_size);
-  return msg_size + digit_count;
+  ranges::move(digits | views::take(digit_count) | views::reverse, msg.end());
+  msg.len += digit_count;
 }
 
-inline Input pack_md5_input(Message& msg, const auto msg_len) {
+inline Input pack_md5_input(Message& msg) {
   {
-    auto i{msg_len};
+    auto i{msg.len};
     msg[i] = 0x80;
     for (++i; i < 56; ++i) {
       msg[i] = 0;
     }
-    const auto bit_count{8 * msg_len};
-    for (; i < msg.size(); ++i) {
+    const auto bit_count{8 * msg.len};
+    for (; i < msg.data.size(); ++i) {
       msg[i] = (bit_count >> (8 * (i - 56))) & 0xff;
     }
   }
@@ -55,13 +81,15 @@ struct digit2hex {
   }
 };
 
-inline Digits compute(Message msg, auto msg_len, long iterations = 1) {
+inline Digits compute(Message msg, long iterations = 1) {
   static std::array<uint32_t, 64> md5_sine_table{};
   if (md5_sine_table.front() == 0) {
     for (auto&& [i, x] : views::zip(views::iota(1uz, md5_sine_table.size() + 1), md5_sine_table)) {
       x = static_cast<uint32_t>((1LL << 32) * std::abs(std::sin(i)));
     }
   }
+  static std::array<uint32_t, 16> rotations
+      = {7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
 
   constexpr uint32_t init[4]{
       std::byteswap(0x01234567),
@@ -72,38 +100,34 @@ inline Digits compute(Message msg, auto msg_len, long iterations = 1) {
 
   Digits output;
 
-  while (iterations--) {
-    const auto input{pack_md5_input(msg, msg_len)};
+  for (long n_it{}; n_it < iterations; ++n_it) {
+    const auto input{pack_md5_input(msg)};
 
     auto a{init[0]};
     auto b{init[1]};
     auto c{init[2]};
     auto d{init[3]};
 
-    const auto update{[&](const auto i, auto f, const auto g, const auto rot) {
+    const auto update{[&](const auto i, auto f, const auto g) {
       f += a + md5_sine_table[i] + input[g];
       a = d;
       d = c;
       c = b;
-      b += std::rotl(f, rot);
+      b += std::rotl(f, rotations[4 * (i / 16) + i % 4]);
     }};
 
     uint32_t i{};
     for (; i < 16u; ++i) {
-      constexpr uint32_t rot[4] = {7, 12, 17, 22};
-      update(i, (b & c) | (~b & d), i, rot[i % 4]);
+      update(i, (b & c) | (~b & d), i);
     }
     for (; i < 32u; ++i) {
-      constexpr uint32_t rot[4] = {5, 9, 14, 20};
-      update(i, (b & d) | (~d & c), (5 * i + 1) % 16, rot[i % 4]);
+      update(i, (b & d) | (~d & c), (5 * i + 1) % 16);
     }
     for (; i < 48u; ++i) {
-      constexpr uint32_t rot[4] = {4, 11, 16, 23};
-      update(i, b ^ c ^ d, (3 * i + 5) % 16, rot[i % 4]);
+      update(i, b ^ c ^ d, (3 * i + 5) % 16);
     }
     for (; i < 64u; ++i) {
-      constexpr uint32_t rot[4] = {6, 10, 15, 21};
-      update(i, c ^ (b | ~d), (7 * i) % 16, rot[i % 4]);
+      update(i, c ^ (b | ~d), (7 * i) % 16);
     }
 
     const uint32_t chunks[4]{
@@ -120,9 +144,9 @@ inline Digits compute(Message msg, auto msg_len, long iterations = 1) {
       }
     }
 
-    if (iterations) {
+    if (n_it + 1 < iterations) {
       ranges::transform(output, msg.begin(), digit2hex{});
-      msg_len = output.size();
+      msg.len = output.size();
     }
   }
 

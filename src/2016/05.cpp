@@ -34,8 +34,9 @@ struct find_passwords {
   ) const {
     Result res;
     for (auto i{begin}; i < begin + count && !res.is_complete(); ++i) {
-      const auto msg_len{md5::append_digits(msg, input_size, i)};
-      const auto checksum{md5::compute(msg, msg_len)};
+      msg.len = input_size;
+      md5::append_digits(msg, i);
+      const auto checksum{md5::compute(msg)};
       if (ranges::any_of(checksum | views::take(5), std::identity{})) {
         continue;
       }
@@ -53,7 +54,7 @@ struct find_passwords {
   }
 };
 
-Result parallel_find_passwords(md5::Message msg, const std::size_t input_size) {
+Result parallel_find_passwords(md5::Message msg) {
   Result res;
   for (auto i{0uz}; i < 100'000'000 && !res.is_complete();
        i += threads.size() * parallel_chunk_size) {
@@ -62,7 +63,7 @@ Result parallel_find_passwords(md5::Message msg, const std::size_t input_size) {
           find_passwords{},
           t,
           msg,
-          input_size,
+          msg.len,
           i + t * parallel_chunk_size,
           parallel_chunk_size
       );
@@ -90,16 +91,10 @@ Result parallel_find_passwords(md5::Message msg, const std::size_t input_size) {
 int main() {
   aoc::init_io();
 
-  md5::Message msg = {0};
-  std::size_t input_size{};
-  {
-    std::string input;
-    std::cin >> input;
-    input_size = input.size();
-    ranges::move(input, msg.begin());
-  }
+  md5::Message msg;
+  std::cin >> msg;
 
-  const auto [part1, part2] = parallel_find_passwords(msg, input_size);
+  const auto [part1, part2] = parallel_find_passwords(msg);
   std::print("{} {}\n", part1, part2);
 
   return 0;

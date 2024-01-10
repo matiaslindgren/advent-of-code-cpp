@@ -44,8 +44,9 @@ struct stretch_search {
       const auto stretch_count
   ) const {
     for (auto i{begin}; i < begin + count; ++i) {
-      const auto msg_len{md5::append_digits(msg, input_size, i)};
-      const auto checksum{md5::compute(msg, msg_len, 1 + stretch_count)};
+      msg.len = input_size;
+      md5::append_digits(msg, i);
+      const auto checksum{md5::compute(msg, 1 + stretch_count)};
       for (const auto [d0, d1, d2] : window3(checksum)) {
         if (d0 == d1 && d1 == d2) {
           results[i_out].insert({i, 3u, d0});
@@ -61,8 +62,7 @@ struct stretch_search {
   }
 };
 
-std::size_t
-parallel_stretch_search(md5::Message msg, const auto input_size, const int stretch_count = 0) {
+std::size_t parallel_stretch_search(md5::Message msg, const int stretch_count = 0) {
   using Keys = std::set<std::size_t>;
   using DigitRepeats = std::unordered_map<unsigned char, Keys>;
   DigitRepeats r2s, r5s;
@@ -74,7 +74,7 @@ parallel_stretch_search(md5::Message msg, const auto input_size, const int stret
           stretch_search{},
           t,
           msg,
-          input_size,
+          msg.len,
           i + t * parallel_chunk_size,
           parallel_chunk_size,
           stretch_count
@@ -107,17 +107,11 @@ parallel_stretch_search(md5::Message msg, const auto input_size, const int stret
 int main() {
   aoc::init_io();
 
-  md5::Message msg = {0};
-  std::size_t input_size{};
-  {
-    std::string input;
-    std::cin >> input;
-    input_size = input.size();
-    ranges::move(input, msg.begin());
-  }
+  md5::Message msg;
+  std::cin >> msg;
 
-  const auto part1{parallel_stretch_search(msg, input_size)};
-  const auto part2{parallel_stretch_search(msg, input_size, 2016)};
+  const auto part1{parallel_stretch_search(msg)};
+  const auto part2{parallel_stretch_search(msg, 2016)};
   std::print("{} {}\n", part1, part2);
 
   return 0;

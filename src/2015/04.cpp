@@ -21,8 +21,9 @@ struct find_next {
       const auto input_size
   ) const {
     for (auto i{begin}; i < begin + count; ++i) {
-      const auto msg_len{md5::append_digits(msg, input_size, i)};
-      const auto checksum{md5::compute(msg, msg_len)};
+      msg.len = input_size;
+      md5::append_digits(msg, i);
+      const auto checksum{md5::compute(msg)};
       if (!ranges::any_of(checksum | views::take(num_zeros), std::identity{})) {
         results[i_out] = i;
         return;
@@ -31,10 +32,18 @@ struct find_next {
   }
 };
 
-std::size_t parallel_find_next(const auto begin, auto&&... args) {
+std::size_t parallel_find_next(const auto begin, const auto num_zeros, const auto msg) {
   for (auto i{begin}; i < 10'000'000; i += threads.size() * parallel_chunk_size) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
-      th = std::thread(find_next{}, t, i + t * parallel_chunk_size, parallel_chunk_size, args...);
+      th = std::thread(
+          find_next{},
+          t,
+          i + t * parallel_chunk_size,
+          parallel_chunk_size,
+          num_zeros,
+          msg,
+          msg.len
+      );
     }
     for (auto& th : threads) {
       th.join();
@@ -49,18 +58,12 @@ std::size_t parallel_find_next(const auto begin, auto&&... args) {
 int main() {
   aoc::init_io();
 
-  md5::Message msg = {0};
-  std::size_t input_size{};
-  {
-    std::string input;
-    std::cin >> input;
-    input_size = input.size();
-    ranges::move(input, msg.begin());
-  }
+  md5::Message msg;
+  std::cin >> msg;
 
-  const auto part1{parallel_find_next(0uz, 5, msg, input_size)};
+  const auto part1{parallel_find_next(0uz, 5, msg)};
   ranges::fill(results, 0);
-  const auto part2{parallel_find_next(part1, 6, msg, input_size)};
+  const auto part2{parallel_find_next(part1, 6, msg)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
