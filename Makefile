@@ -39,6 +39,7 @@ else
 	CXXFLAGS += -g -O2 -fsanitize=address,undefined
 endif
 
+YEARS     := $(subst $(SRC)/,,$(wildcard $(SRC)/20??))
 SRC_DIRS  := $(wildcard $(SRC)/*)
 OUT_DIRS  := $(subst $(SRC)/,$(OUT_DIR)/,$(SRC_DIRS))
 SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
@@ -68,13 +69,6 @@ $(MOD_OUT_PATHS): $(OUT_DIR)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT_
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
 
 
-RUN_TARGETS := $(addprefix run_,$(OUT_FILES))
-
-.PHONY: $(RUN_TARGETS)
-$(RUN_TARGETS): run_% : txt/input/% $(OUT_DIR)/%
-	$(OUT_DIR)/$* < $<
-
-
 SOLUTIONS            := $(wildcard txt/correct/*/*)
 QUICK_TEST_TARGETS   := $(subst txt/correct/,test_,$(SOLUTIONS))
 VERBOSE_TEST_TARGETS := $(subst txt/correct/,test_verbose_,$(SOLUTIONS))
@@ -94,9 +88,17 @@ $(VERBOSE_TEST_TARGETS): test_verbose_% : $(OUT_DIR)/% txt/input/% txt/correct/%
 	@./scripts/test_one_verbose.bash $^
 
 
-.PHONY: run_sysinfo
-run_sysinfo: $(OUT_DIR)/tools/sysinfo
-	@$^
+RUN_SOLUTIONS := $(addprefix run_,$(filter $(addsuffix %,$(YEARS)),$(OUT_FILES)))
+.PHONY: $(RUN_SOLUTIONS)
+$(RUN_SOLUTIONS): run_% : txt/input/% $(OUT_DIR)/%
+	$(OUT_DIR)/$* < $<
+
+
+RUN_TOOLS := $(addprefix run_,$(filter tools%,$(OUT_FILES)))
+.PHONY: $(RUN_TOOLS)
+$(RUN_TOOLS): run_% : $(OUT_DIR)/%
+	$(OUT_DIR)/$*
+
 
 .SECONDEXPANSION:
 

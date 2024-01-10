@@ -42,5 +42,5 @@ jobs:
         token: ${{ secrets.read_aoc_data }}
         path: txt
     - run: make FAST=${{ matrix.fast }} --jobs $(getconf _NPROCESSORS_ONLN)
-    - run: make FAST=${{ matrix.fast }} run_sysinfo
+    - run: make FAST=${{ matrix.fast }} run_tools/sysinfo
     - run: make FAST=${{ matrix.fast }} test_verbose
