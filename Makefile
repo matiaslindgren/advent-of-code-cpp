@@ -97,7 +97,7 @@ $(RUN_SOLUTIONS): run_% : txt/input/% $(OUT_DIR)/%
 RUN_TOOLS := $(addprefix run_,$(filter tools%,$(OUT_FILES)))
 .PHONY: $(RUN_TOOLS)
 $(RUN_TOOLS): run_% : $(OUT_DIR)/%
-	$(OUT_DIR)/$*
+	@$(OUT_DIR)/$*
 
 
 .SECONDEXPANSION:

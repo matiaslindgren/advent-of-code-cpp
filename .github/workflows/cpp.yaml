@@ -43,4 +43,8 @@ jobs:
         path: txt
     - run: make FAST=${{ matrix.fast }} --jobs $(getconf _NPROCESSORS_ONLN)
     - run: make FAST=${{ matrix.fast }} run_tools/sysinfo
+    - run: |
+        set -x
+        mymd5=$(make FAST=${{ matrix.fast }} run_tools/md5 < Makefile)
+        [ "$mymd5" -eq "$(md5sum < Makefile | cut -f1 -d' ')" ] || exit 2
     - run: make FAST=${{ matrix.fast }} test_verbose
