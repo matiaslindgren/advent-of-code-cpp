@@ -20,14 +20,6 @@ struct md5sum_32bit {
   }
 };
 
-int count_left_zeros(md5::Chunk sum) {
-  int n{};
-  for (md5::Chunk mask{0xf0000000}; mask && !(sum & mask); mask >>= 4) {
-    ++n;
-  }
-  return n;
-}
-
 std::pair<int, int> search(std::string_view msg) {
   auto part1{std::numeric_limits<int>::max()};
   for (int i{}; i < 10'000'000; i += results.size()) {
@@ -37,7 +29,7 @@ std::pair<int, int> search(std::string_view msg) {
     }
     ranges::for_each(threads, [](auto& th) { th.join(); });
     for (const auto& [j, sum] : results) {
-      const auto n_zero{count_left_zeros(sum)};
+      const auto n_zero{md5::count_zeros(sum)};
       if (n_zero == 5) {
         part1 = std::min(part1, j);
       } else if (n_zero == 6) {

@@ -25,9 +25,11 @@ void compute_chunk(const Input& input, State& state) {
 
   if (first_call) {
     first_call = false;
+
     for (auto&& [i, t] : views::zip(views::iota(1uz), T)) {
       t = static_cast<Chunk>((1LL << 32) * std::abs(std::sin(i)));
     }
+
     constexpr std::array<Chunk, 16> base_rotations
         = {7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
     for (auto&& [i, s] : views::zip(views::iota(0uz), rotations)) {
@@ -50,7 +52,7 @@ void compute_chunk(const Input& input, State& state) {
   }};
 
   {
-    std::size_t i{};
+    unsigned i{};
     for (; i < 16u; ++i) {
       update(i, (b & c) | (~b & d), i);
     }
@@ -71,10 +73,6 @@ void compute_chunk(const Input& input, State& state) {
   state[3] += d;
 }
 
-void append_chunk_item(Input& input, const auto i, Byte item) {
-  input[i / 4] |= item << (8 * (i % 4));
-}
-
 State sum(ranges::range auto&& msg) {
   State state = {
       std::byteswap(0x01234567),
@@ -86,11 +84,12 @@ State sum(ranges::range auto&& msg) {
   Input input;
   input.fill(0);
 
+  const auto append_input{[&input](auto i, Byte b) { input[i / 4] |= b << (8 * (i % 4)); }};
+
   auto msg_size{0uz};
 
   for (auto ch : msg) {
-    const auto i{msg_size % 64};
-    append_chunk_item(input, i, static_cast<Byte>(ch));
+    append_input(msg_size % 64, ch);
     if (++msg_size % 64 == 0) {
       compute_chunk(input, state);
       input.fill(0);
@@ -98,10 +97,10 @@ State sum(ranges::range auto&& msg) {
   }
 
   {
-    append_chunk_item(input, msg_size % 64, 0x80);
+    append_input(msg_size % 64, 0x80);
     auto n_bits{8 * msg_size};
     for (auto i{56u}; i < 64; ++i) {
-      append_chunk_item(input, i, n_bits & 0xff);
+      append_input(i, n_bits & 0xff);
       n_bits >>= 8;
     }
     compute_chunk(input, state);
@@ -114,9 +113,17 @@ Chunk sum32bit(ranges::range auto&& msg) {
   return std::byteswap(sum(msg)[0]);
 }
 
+int count_zeros(Chunk sum) {
+  int n{};
+  for (Chunk mask{0xf0000000}; mask && !(sum & mask); mask >>= 4) {
+    ++n;
+  }
+  return n;
+}
+
 std::string hexdigest(const State& state) {
   return std::accumulate(state.begin(), state.end(), std::string{}, [](auto&& res, auto&& chunk) {
-    return res + std::format("{:x}", std::byteswap(chunk));
+    return res + std::format("{:08x}", std::byteswap(chunk));
   });
 }
 

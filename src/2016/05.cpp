@@ -25,23 +25,20 @@ std::vector<Result> results(n_threads);
 std::vector<std::thread> threads(n_threads);
 
 struct find_passwords {
-  void operator()(const auto i_out, md5::Message msg, const auto begin, const auto count) const {
+  void operator()(const auto i_out, std::string_view msg, const auto begin, const auto count)
+      const {
     Result res;
-    const auto msg_len{msg.size()};
     for (auto i{begin}; i < begin + count && !res.is_complete(); ++i) {
-      md5::append_digits(msg, i);
-      const auto checksum{md5::compute(msg)};
-      msg.erase(msg.begin() + msg_len, msg.end());
-      if (ranges::any_of(checksum | views::take(5), std::identity{})) {
+      const auto sum{md5::sum32bit(std::format("{}{:d}", msg, i))};
+      if (sum & 0xfffff000) {
         continue;
       }
-      const auto pw_idx{checksum[5]};
+      const auto pw_idx{(sum >> 8) & 0xf};
       if (res.pw1.size() < res.password_len) {
         res.pw1 += std::format("{:x}", pw_idx);
       }
       if (pw_idx < res.password_len && !res.pw2[pw_idx]) {
-        const auto pw_val{checksum[6]};
-        const auto pw_str{std::format("{:x}", pw_val)};
+        const auto pw_str{std::format("{:x}", (sum >> 4) & 0xf)};
         res.pw2[pw_idx] = pw_str.front();
       }
     }
@@ -49,7 +46,7 @@ struct find_passwords {
   }
 };
 
-Result parallel_find_passwords(md5::Message msg) {
+Result parallel_find_passwords(std::string_view msg) {
   Result res;
   for (auto i{0uz}; i < 100'000'000 && !res.is_complete(); i += threads.size() * chunk_size) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
@@ -76,12 +73,13 @@ Result parallel_find_passwords(md5::Message msg) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  std::ios::sync_with_stdio(false);
 
-  const md5::Message msg{md5::parse_line(input)};
+  std::string msg;
+  std::cin >> msg;
 
   const auto [part1, part2] = parallel_find_passwords(msg);
-  std::print("{} {}\n", part1, part2);
 
+  std::print("{} {}\n", part1, part2);
   return 0;
 }

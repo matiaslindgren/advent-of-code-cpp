@@ -37,16 +37,13 @@ constexpr decltype(auto) window5(ranges::range auto&& r) {
 struct stretch_search {
   void operator()(
       const auto i_out,
-      md5::Message msg,
+      std::string_view msg,
       const auto begin,
       const auto count,
       const auto stretch_count
   ) const {
-    const auto msg_len{msg.size()};
     for (auto i{begin}; i < begin + count; ++i) {
-      md5::append_digits(msg, i);
       const auto checksum{md5::compute(msg, 1 + stretch_count)};
-      msg.erase(msg.begin() + msg_len, msg.end());
       for (const auto [d0, d1, d2] : window3(checksum)) {
         if (d0 == d1 && d1 == d2) {
           results[i_out].insert({i, 3u, d0});
@@ -62,7 +59,7 @@ struct stretch_search {
   }
 };
 
-std::size_t parallel_stretch_search(md5::Message msg, const int stretch_count = 0) {
+std::size_t parallel_stretch_search(std::string_view msg, const int stretch_count = 0) {
   using Keys = std::set<std::size_t>;
   using DigitRepeats = std::unordered_map<unsigned char, Keys>;
   DigitRepeats r2s, r5s;
@@ -97,9 +94,10 @@ std::size_t parallel_stretch_search(md5::Message msg, const int stretch_count = 
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  std::ios::sync_with_stdio(false);
 
-  const md5::Message msg{md5::parse_line(input)};
+  std::string msg;
+  std::cin >> msg;
 
   const auto part1{parallel_stretch_search(msg)};
   const auto part2{parallel_stretch_search(msg, 2016)};
