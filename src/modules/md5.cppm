@@ -110,6 +110,10 @@ State sum(ranges::range auto&& msg) {
   return state;
 }
 
+Chunk sum32bit(ranges::range auto&& msg) {
+  return std::byteswap(sum(msg)[0]);
+}
+
 std::string hexdigest(const State& state) {
   return std::accumulate(state.begin(), state.end(), std::string{}, [](auto&& res, auto&& chunk) {
     return res + std::format("{:x}", std::byteswap(chunk));

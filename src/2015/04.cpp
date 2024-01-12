@@ -8,53 +8,54 @@ namespace views = std::views;
 
 constexpr auto chunk_size{1uz << 12};
 const auto n_threads{aoc::cpu_count()};
-std::vector<std::size_t> results(n_threads);
+std::vector<std::pair<int, md5::Chunk>> results(n_threads* chunk_size);
 std::vector<std::thread> threads(n_threads);
 
-struct find_next {
-  void operator()(
-      const auto i_out,
-      const auto begin,
-      const auto count,
-      const auto num_zeros,
-      md5::Message msg
-  ) const {
-    const auto msg_len{msg.size()};
-    for (auto i{begin}; i < begin + count; ++i) {
-      md5::append_digits(msg, i);
-      const auto checksum{md5::compute(msg)};
-      msg.erase(msg.begin() + msg_len, msg.end());
-      if (!ranges::any_of(checksum | views::take(num_zeros), std::identity{})) {
-        results[i_out] = i;
-        return;
-      }
+struct md5sum_32bit {
+  void operator()(std::string_view msg, const auto begin, const auto res_begin, const auto count)
+      const {
+    for (int i{0}; i < count; ++i) {
+      results[res_begin + i] = {begin + i, md5::sum32bit(std::format("{}{:d}", msg, begin + i))};
     }
   }
 };
 
-std::size_t parallel_find_next(const auto begin, const auto num_zeros, const auto msg) {
-  for (auto i{begin}; i < 10'000'000; i += threads.size() * chunk_size) {
+int count_left_zeros(md5::Chunk sum) {
+  int n{};
+  for (md5::Chunk mask{0xf0000000}; mask && !(sum & mask); mask >>= 4) {
+    ++n;
+  }
+  return n;
+}
+
+std::pair<int, int> search(std::string_view msg) {
+  auto part1{std::numeric_limits<int>::max()};
+  for (int i{}; i < 10'000'000; i += results.size()) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
-      th = std::thread(find_next{}, t, i + t * chunk_size, chunk_size, num_zeros, msg);
+      const auto offset{t * chunk_size};
+      th = std::thread(md5sum_32bit{}, msg, i + offset, offset, chunk_size);
     }
-    for (auto& th : threads) {
-      th.join();
-    }
-    if (const auto r{ranges::find_if(results, std::identity{})}; r != results.end()) {
-      return *r;
+    ranges::for_each(threads, [](auto& th) { th.join(); });
+    for (const auto& [j, sum] : results) {
+      const auto n_zero{count_left_zeros(sum)};
+      if (n_zero == 5) {
+        part1 = std::min(part1, j);
+      } else if (n_zero == 6) {
+        return {part1, j};
+      }
     }
   }
-  return {};
+  throw std::runtime_error("search space exhausted, no answer");
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  std::ios::sync_with_stdio(false);
 
-  const md5::Message msg{md5::parse_line(input)};
+  std::string msg;
+  std::cin >> msg;
 
-  const auto part1{parallel_find_next(0uz, 5, msg)};
-  ranges::fill(results, 0);
-  const auto part2{parallel_find_next(part1, 6, msg)};
+  const auto [part1, part2] = search(msg);
+
   std::print("{} {}\n", part1, part2);
 
   return 0;
