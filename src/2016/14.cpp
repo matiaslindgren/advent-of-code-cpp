@@ -6,91 +6,57 @@ import md5;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Repeat {
-  std::size_t i;
-  unsigned char len;
-  unsigned char digit;
-  constexpr auto operator<=>(const Repeat&) const = default;
-};
-
-template <>
-struct std::hash<Repeat> {
-  std::size_t operator()(const Repeat& r) const noexcept {
-    return std::hash<std::size_t>{}(r.i * 16 * 16 + r.len * 16 + r.digit);
-  }
-};
-
-constexpr auto chunk_size{256u};
-const auto n_threads{aoc::cpu_count()};
-std::vector<std::set<Repeat>> results(n_threads);
-std::vector<std::thread> threads(n_threads);
-
 // TODO ranges::adjacent
 // TODO template index sequence
-constexpr decltype(auto) window3(ranges::range auto&& r) {
-  return views::zip(r, views::drop(r, 1), views::drop(r, 2));
-}
 constexpr decltype(auto) window5(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2), views::drop(r, 3), views::drop(r, 4));
 }
 
-struct stretch_search {
-  void operator()(
-      const auto i_out,
-      std::string_view msg,
-      const auto begin,
-      const auto count,
-      const auto stretch_count
-  ) const {
-    for (auto i{begin}; i < begin + count; ++i) {
-      const auto checksum{md5::compute(msg, 1 + stretch_count)};
-      for (const auto [d0, d1, d2] : window3(checksum)) {
-        if (d0 == d1 && d1 == d2) {
-          results[i_out].insert({i, 3u, d0});
-          break;
-        }
-      }
-      for (const auto [d0, d1, d2, d3, d4] : window5(checksum)) {
-        if (d0 == d1 && d1 == d2 && d2 == d3 && d3 == d4) {
-          results[i_out].insert({i, 5u, d0});
-        }
-      }
-    }
-  }
-};
+auto stretch_search(std::string_view msg, const int stretch_count = 0) {
+  using std::operator""s;
 
-std::size_t parallel_stretch_search(std::string_view msg, const int stretch_count = 0) {
-  using Keys = std::set<std::size_t>;
-  using DigitRepeats = std::unordered_map<unsigned char, Keys>;
-  DigitRepeats r2s, r5s;
-  Keys keys;
-  for (auto i{0uz}; keys.size() < 70 && i < 1'000'000; i += threads.size() * chunk_size) {
-    for (auto&& [t, th] : my_std::views::enumerate(threads)) {
-      results[t].clear();
-      th = std::thread(stretch_search{}, t, msg, i + t * chunk_size, chunk_size, stretch_count);
+  std::unordered_map<char, std::set<int>> r3s, r5s;
+  std::set<int> keys;
+
+  for (int i{}; keys.size() < 70 && i < 1'000'000; ++i) {
+    auto checksum{std::format("{}{:d}", msg, i)};
+    for (int s{}; s < stretch_count + 1; ++s) {
+      checksum = md5::hexdigest(md5::sum(checksum));
     }
-    for (auto& th : threads) {
-      th.join();
-    }
-    for (const auto& repeats : results) {
-      for (const auto& r : repeats) {
-        (r.len == 5 ? r5s : r2s)[r.digit].insert(r.i);
+    bool r3{false};
+    for (const auto [ch0, ch1, ch2, ch3, ch4] : window5(checksum)) {
+      if (!r3) {
+        if (ch0 == ch1 && ch1 == ch2) {
+          r3s[ch0].insert(i);
+          r3 = true;
+        } else if (ch1 == ch2 && ch2 == ch3) {
+          r3s[ch1].insert(i);
+          r3 = true;
+        } else if (ch2 == ch3 && ch3 == ch4) {
+          r3s[ch2].insert(i);
+          r3 = true;
+        }
+      }
+      if (ch0 == ch1 && ch1 == ch2 && ch2 == ch3 && ch3 == ch4) {
+        r5s[ch0].insert(i);
       }
     }
-    for (auto digit{0u}; digit < 16; ++digit) {
-      for (const auto& r5_i : r5s[digit]) {
-        for (const auto& r2_i : r2s[digit]) {
-          if (const auto dist{r5_i - r2_i}; 0 < dist && dist <= 1000) {
-            keys.insert(r2_i);
+    for (const auto& ch : r5s | views::keys) {
+      for (const auto& r5_i : r5s[ch]) {
+        for (const auto& r3_i : r3s[ch]) {
+          if (const auto dist{r5_i - r3_i}; 0 < dist && dist <= 1000) {
+            keys.insert(r3_i);
           }
         }
       }
     }
   }
+
   if (const auto key{ranges::begin(views::drop(keys, 63))}; key != keys.end()) {
     return *key;
   }
-  return std::numeric_limits<std::size_t>::max();
+
+  return std::numeric_limits<int>::max();
 }
 
 int main() {
@@ -99,8 +65,8 @@ int main() {
   std::string msg;
   std::cin >> msg;
 
-  const auto part1{parallel_stretch_search(msg)};
-  const auto part2{parallel_stretch_search(msg, 2016)};
+  const auto part1{stretch_search(msg)};
+  const auto part2{stretch_search(msg, 2016)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
