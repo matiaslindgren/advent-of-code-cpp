@@ -1,11 +1,10 @@
 import std;
+import aoc;
 import md5;
 
 int main() {
-  md5::Message input;
-  for (char ch; std::cin.get(ch);) {
-    input.push_back(ch);
-  }
-  std::print("{}\n", md5::hexdigest(md5::compute(input)));
+  const auto input{aoc::slurp_file("/dev/stdin")};
+  const auto output{md5::sum(input)};
+  std::print("{}\n", md5::hexdigest(output));
   return 0;
 }

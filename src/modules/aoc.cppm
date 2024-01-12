@@ -11,6 +11,18 @@ void init_io() {
   std::cin.exceptions(std::ifstream::badbit);
 }
 
+std::string slurp_file(std::string_view path) {
+  std::ios::sync_with_stdio(false);
+  std::ifstream is{path, std::ios::in | std::ios::binary};
+  is.exceptions(std::ifstream::badbit);
+  std::string data;
+  for (std::array<char, 1024> buffer; is;) {
+    is.read(buffer.data(), buffer.size());
+    std::ranges::copy(buffer | std::views::take(is.gcount()), std::back_inserter(data));
+  }
+  return data;
+}
+
 auto cpu_count() {
   return std::max(1u, std::thread::hardware_concurrency());
 };
