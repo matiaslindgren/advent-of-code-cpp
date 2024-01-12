@@ -61,11 +61,11 @@ int count_visited_houses(const auto&... moves_list) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   // clang-format off
   const auto all_moves{
-    views::istream<Direction>(std::cin)
+    views::istream<Direction>(input)
     | ranges::to<Moves>()
   };
 

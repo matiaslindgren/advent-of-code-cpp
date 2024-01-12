@@ -102,7 +102,7 @@ std::pair<int, int> minmax_gold(const Boss& boss) {
 }
 
 int main() {
-  aoc::init_io();
+  std::ios::sync_with_stdio(false);
 
   Boss boss;
   std::cin >> boss;

@@ -74,9 +74,9 @@ long count_decompressed(const Markers& markers, const bool simple) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto markers{views::istream<Marker>(std::cin) | ranges::to<Markers>()};
+  const auto markers{views::istream<Marker>(input) | ranges::to<Markers>()};
   const auto part1{count_decompressed(markers, true)};
   const auto part2{count_decompressed(markers, false)};
   std::print("{} {}\n", part1, part2);

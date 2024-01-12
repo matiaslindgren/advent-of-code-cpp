@@ -156,10 +156,10 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Blocks blocks;
-  std::cin >> blocks;
+  input >> blocks;
 
   const auto part1{search(blocks, 1, 3)};
   const auto part2{search(blocks, 4, 10)};

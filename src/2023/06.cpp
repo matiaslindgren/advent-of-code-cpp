@@ -52,11 +52,11 @@ constexpr auto find_part2(const Ints& times, const Ints& dists) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
   using std::operator""sv;
 
-  const auto times{parse_input(std::cin, "Time:"sv)};
-  const auto dists{parse_input(std::cin, "Distance:"sv)};
+  const auto times{parse_input(input, "Time:"sv)};
+  const auto dists{parse_input(input, "Distance:"sv)};
 
   const auto part1{find_part1(times, dists)};
   const auto part2{find_part2(times, dists)};

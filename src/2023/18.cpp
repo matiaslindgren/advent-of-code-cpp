@@ -111,9 +111,9 @@ auto dig(ranges::view auto&& steps) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto steps{views::istream<Steps>(std::cin) | ranges::to<std::vector>()};
+  const auto steps{views::istream<Steps>(input) | ranges::to<std::vector>()};
 
   const auto part1{dig(views::elements<0>(steps))};
   const auto part2{dig(views::elements<1>(steps))};

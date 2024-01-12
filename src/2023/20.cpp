@@ -201,9 +201,9 @@ auto search(auto modules) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto modules{update_module_connections(parse_input(std::cin))};
+  const auto modules{update_module_connections(parse_input(input))};
   const auto [part1, part2] = search(modules);
 
   std::print("{} {}\n", part1, part2);

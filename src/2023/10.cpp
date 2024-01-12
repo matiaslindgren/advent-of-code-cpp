@@ -141,9 +141,9 @@ auto count_inner(Grid2D grid, const auto& path) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const Grid2D grid{views::istream<Tile>(std::cin) | ranges::to<std::vector>()};
+  const Grid2D grid{views::istream<Tile>(input) | ranges::to<std::vector>()};
   const auto path{grid.find_path(grid.index_of(Tile::start))};
 
   const auto part1{path.size() / 2};

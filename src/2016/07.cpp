@@ -85,9 +85,9 @@ bool supports_ssl(const IP& ip) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto ips{views::istream<IP>(std::cin) | ranges::to<std::vector>()};
+  const auto ips{views::istream<IP>(input) | ranges::to<std::vector>()};
 
   const auto part1{ranges::count_if(ips, supports_tls)};
   const auto part2{ranges::count_if(ips, supports_ssl)};

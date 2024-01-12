@@ -103,9 +103,9 @@ int find_part2(const auto& rooms) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto rooms{views::istream<Room>(std::cin) | ranges::to<std::vector>()};
+  const auto rooms{views::istream<Room>(input) | ranges::to<std::vector>()};
 
   const auto part1{find_part1(rooms)};
   const auto part2{find_part2(rooms)};

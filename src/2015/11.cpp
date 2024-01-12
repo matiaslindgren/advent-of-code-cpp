@@ -65,10 +65,10 @@ auto to_string(const auto& password) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   auto password{
-      views::istream<char>(std::cin) | views::transform(char2digit) | ranges::to<std::vector>()
+      views::istream<char>(input) | views::transform(char2digit) | ranges::to<std::vector>()
   };
 
   std::string results[2] = {};

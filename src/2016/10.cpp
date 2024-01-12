@@ -77,7 +77,7 @@ struct Gate {
 };
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   std::array<Gate, 512> mem;
   mem.fill({-1, -1, -1, -1});
@@ -85,7 +85,7 @@ int main() {
   const auto bots{ranges::subrange(mem.begin(), mem.begin() + 256)};
   const auto outputs{ranges::subrange(mem.begin() + 256, mem.end())};
 
-  for (Instruction ins : views::istream<Instruction>(std::cin)) {
+  for (Instruction ins : views::istream<Instruction>(input)) {
     switch (ins.type) {
       case Instruction::Type::set_value: {
         bots[ins.out1].set(ins.input);

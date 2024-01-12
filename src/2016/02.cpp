@@ -90,9 +90,9 @@ std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructio
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto instructions{views::istream<Steps>(std::cin) | ranges::to<std::vector>()};
+  const auto instructions{views::istream<Steps>(input) | ranges::to<std::vector>()};
 
   const Keypad keypad1{{
       {'\0', '\0', '\0', '\0', '\0'},

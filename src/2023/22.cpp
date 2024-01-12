@@ -116,9 +116,9 @@ auto find_part2(const SupportGraph& sg) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const SupportGraph sg{views::istream<Brick>(std::cin) | ranges::to<std::vector>()};
+  const SupportGraph sg{views::istream<Brick>(input) | ranges::to<std::vector>()};
 
   const auto part1{find_part1(sg)};
   const auto part2{find_part2(sg)};

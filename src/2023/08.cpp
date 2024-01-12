@@ -50,17 +50,17 @@ constexpr auto count_length(
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   std::string loop;
-  std::cin >> loop;
+  input >> loop;
 
   if (!ranges::all_of(loop, [](auto ch) { return ch == 'L' || ch == 'R'; })) {
     throw std::runtime_error("loop must consist of only L or R");
   }
 
   const auto steps{
-      views::istream<Step>(std::cin)
+      views::istream<Step>(input)
       | views::transform([](const auto& step) { return std::make_pair(step.src, step); })
       | ranges::to<Steps>()
   };

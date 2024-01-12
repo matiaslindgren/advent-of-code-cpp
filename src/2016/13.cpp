@@ -145,8 +145,6 @@ auto find_part2(const int designer_num, const int step_limit) {
 }
 
 int main() {
-  aoc::init_io();
-
   std::size_t input;
   std::cin >> input;
 

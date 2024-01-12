@@ -88,10 +88,10 @@ std::istream& operator>>(std::istream& is, Space& space) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Space space;
-  std::cin >> space;
+  input >> space;
 
   const auto part1{space.distance_sum(2)};
   const auto part2{space.distance_sum(1'000'000)};

@@ -6,11 +6,6 @@ export module aoc;
 
 export namespace aoc {
 
-void init_io() {
-  std::ios::sync_with_stdio(false);
-  std::cin.exceptions(std::ifstream::badbit);
-}
-
 std::string slurp_file(std::string_view path) {
   std::ios::sync_with_stdio(false);
   std::ifstream is{path, std::ios::in | std::ios::binary};

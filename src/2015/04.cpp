@@ -48,9 +48,9 @@ std::size_t parallel_find_next(const auto begin, const auto num_zeros, const aut
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const md5::Message msg{md5::parse_line(std::cin)};
+  const md5::Message msg{md5::parse_line(input)};
 
   const auto part1{parallel_find_next(0uz, 5, msg)};
   ranges::fill(results, 0);

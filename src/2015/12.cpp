@@ -244,10 +244,10 @@ Number sum(const Value& v, std::optional<Key> sentinel) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Object o;
-  std::cin >> o;
+  input >> o;
 
   auto part1{sum(o)};
   auto part2{sum(o, std::optional("red"))};

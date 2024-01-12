@@ -117,10 +117,10 @@ constexpr std::pair<int, int> search(const Grid& grid) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Grid grid;
-  std::cin >> grid;
+  input >> grid;
 
   const auto [part1, part2] = search(grid);
   std::print("{} {}\n", part1, part2);

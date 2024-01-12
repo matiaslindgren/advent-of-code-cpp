@@ -17,10 +17,10 @@ auto look_and_say(const auto& digits) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   auto digits{
-      views::istream<char>(std::cin) | views::transform([](char ch) { return ch - '0'; })
+      views::istream<char>(input) | views::transform([](char ch) { return ch - '0'; })
       | ranges::to<std::vector>()
   };
 

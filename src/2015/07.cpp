@@ -106,10 +106,10 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   const auto circuit{
-      views::istream<Statement>(std::cin)
+      views::istream<Statement>(input)
       | views::transform([](const auto& stmt) { return std::make_tuple(stmt.dst, stmt); })
       | ranges::to<std::unordered_map<std::string, Statement>>()
   };

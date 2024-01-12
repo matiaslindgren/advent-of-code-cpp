@@ -96,12 +96,9 @@ auto summarize(const auto& mirrors, const auto fix_count) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  // TODO views::istream
-  std::vector<Mirrors> mirrors;
-  while (std::cin >> mirrors.emplace_back()) {
-  }
+  const auto mirrors{views::istream<Mirrors>(input) | ranges::to<std::vector<Mirrors>>()};
 
   const auto part1{sum(summarize(mirrors, 0))};
   const auto part2{sum(summarize(mirrors, 1))};

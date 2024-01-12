@@ -204,10 +204,10 @@ auto find_part2(Grid2D grid) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Grid2D grid;
-  std::cin >> grid;
+  input >> grid;
 
   const auto part1{find_part1(grid)};
   const auto part2{find_part2(grid)};

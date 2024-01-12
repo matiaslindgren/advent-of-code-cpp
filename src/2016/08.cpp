@@ -134,9 +134,9 @@ std::string decode_ascii(const Screen& screen) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto instructions{views::istream<Instruction>(std::cin) | ranges::to<std::vector>()};
+  const auto instructions{views::istream<Instruction>(input) | ranges::to<std::vector>()};
 
   const auto screen{run_instructions(instructions)};
 

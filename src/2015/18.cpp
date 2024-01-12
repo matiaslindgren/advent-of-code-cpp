@@ -104,10 +104,10 @@ Grid2D simulate(Grid2D grid, int steps) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const Grid2D input{views::istream<Light>(std::cin) | ranges::to<std::vector>()};
-  Grid2D grid1{input.pad()};
+  const Grid2D grid0{views::istream<Light>(input) | ranges::to<std::vector>()};
+  Grid2D grid1{grid0.pad()};
   Grid2D grid2{grid1};
   {
     const auto n{grid2.size - 2};

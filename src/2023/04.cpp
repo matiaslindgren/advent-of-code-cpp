@@ -64,10 +64,10 @@ auto find_part2(const auto& wins) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   const auto wins{
-    views::istream<Wins>(std::cin)
+    views::istream<Wins>(input)
       | views::transform([](const auto w) { return w.count; })
       | ranges::to<std::vector>()
   };

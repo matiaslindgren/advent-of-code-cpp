@@ -143,9 +143,9 @@ auto find_part2(const auto& stones) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto stones{views::istream<Stone>(std::cin) | ranges::to<std::vector>()};
+  const auto stones{views::istream<Stone>(input) | ranges::to<std::vector>()};
   if (stones.size() < 3) {
     throw std::runtime_error("too few hailstones in input");
   }

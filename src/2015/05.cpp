@@ -74,6 +74,8 @@ bool is_nice_part2(const std::string& s) {
 }
 
 int main() {
+  std::ios::sync_with_stdio(false);
+
   const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{ranges::count_if(lines, is_nice_part1)};

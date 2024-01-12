@@ -76,9 +76,9 @@ Result parallel_find_passwords(md5::Message msg) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const md5::Message msg{md5::parse_line(std::cin)};
+  const md5::Message msg{md5::parse_line(input)};
 
   const auto [part1, part2] = parallel_find_passwords(msg);
   std::print("{} {}\n", part1, part2);

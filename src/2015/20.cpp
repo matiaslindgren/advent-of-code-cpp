@@ -19,8 +19,6 @@ int deliver_presents(
 }
 
 int main() {
-  aoc::init_io();
-
   int target;
   std::cin >> target;
 

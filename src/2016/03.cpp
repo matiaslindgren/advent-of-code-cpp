@@ -31,15 +31,15 @@ int count_triangles_col_order(const Ints& input) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto input{views::istream<int>(std::cin) | ranges::to<Ints>()};
-  if (input.size() % 3) {
+  const auto ints{views::istream<int>(input) | ranges::to<Ints>()};
+  if (ints.size() % 3) {
     throw std::runtime_error("input must be divisible by 3");
   }
 
-  const auto part1{count_triangles_row_order(input)};
-  const auto part2{count_triangles_col_order(input)};
+  const auto part1{count_triangles_row_order(ints)};
+  const auto part2{count_triangles_col_order(ints)};
 
   std::print("{} {}\n", part1, part2);
 

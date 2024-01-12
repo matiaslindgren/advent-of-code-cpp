@@ -159,10 +159,10 @@ auto find_part1(Graph graph) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Graph graph;
-  std::cin >> graph;
+  input >> graph;
 
   const auto part1{find_part1(graph)};
 

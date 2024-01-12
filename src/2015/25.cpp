@@ -32,9 +32,9 @@ UInt find(const int target_row, const int target_col) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto [row, col] = parse_input(std::cin);
+  const auto [row, col] = parse_input(input);
   const auto part1{find(row, col)};
   std::print("{}\n", part1);
 

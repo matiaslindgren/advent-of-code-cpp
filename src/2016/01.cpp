@@ -79,9 +79,9 @@ int find_part2(const Path& path) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto moves{views::istream<Move>(std::cin) | ranges::to<std::vector>()};
+  const auto moves{views::istream<Move>(input) | ranges::to<std::vector>()};
 
   const auto path{walk(moves)};
 

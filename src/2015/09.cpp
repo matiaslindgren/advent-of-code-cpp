@@ -121,10 +121,10 @@ class Graph {
 };
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
   constexpr auto max_node_count{8};
 
-  const auto edges{views::istream<Edge>(std::cin) | ranges::to<std::vector>()};
+  const auto edges{views::istream<Edge>(input) | ranges::to<std::vector>()};
 
   Graph g{edges};
   const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<max_node_count>()};

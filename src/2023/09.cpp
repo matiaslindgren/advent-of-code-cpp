@@ -33,9 +33,9 @@ Ints adjacent_diff(const auto& hist) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto histories{parse_input(std::cin)};
+  const auto histories{parse_input(input)};
 
   long part1{0}, part2{0};
   for (const auto& history : histories) {

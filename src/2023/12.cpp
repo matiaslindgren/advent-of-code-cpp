@@ -109,9 +109,9 @@ auto repeat_and_count_valid(std::ranges::range auto&& springs, const auto repeat
 constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto springs{views::istream<Springs>(std::cin) | ranges::to<std::vector>()};
+  const auto springs{views::istream<Springs>(input) | ranges::to<std::vector>()};
 
   const auto part1{sum(repeat_and_count_valid(springs, 1))};
   const auto part2{sum(repeat_and_count_valid(springs, 5))};

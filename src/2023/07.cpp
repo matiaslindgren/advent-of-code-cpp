@@ -129,9 +129,9 @@ constexpr auto total_winnings(ranges::random_access_range auto&& r) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto cards{views::istream<Card>(std::cin) | ranges::to<Cards>()};
+  const auto cards{views::istream<Card>(input) | ranges::to<Cards>()};
 
   const auto part1{total_winnings(cards)};
   const auto part2{total_winnings(views::transform(cards, [](auto c) -> Card {

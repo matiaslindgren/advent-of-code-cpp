@@ -27,9 +27,9 @@ std::istream& operator>>(std::istream& is, Reindeer& r) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto herd = views::istream<Reindeer>(std::cin) | ranges::to<std::vector>();
+  const auto herd = views::istream<Reindeer>(input) | ranges::to<std::vector>();
 
   struct ReindeerState {
     bool resting;

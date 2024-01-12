@@ -127,11 +127,11 @@ auto search(const Ranges& seeds, const auto& map_groups) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Seeds seeds;
   MapGroups map_groups;
-  std::cin >> seeds >> map_groups;
+  input >> seeds >> map_groups;
 
   const auto seed_ranges1{
       seeds | views::transform([](auto idx) {

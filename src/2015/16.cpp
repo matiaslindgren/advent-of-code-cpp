@@ -47,9 +47,9 @@ Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto aunts = views::istream<Aunt>(std::cin) | ranges::to<std::vector>();
+  const auto aunts = views::istream<Aunt>(input) | ranges::to<std::vector>();
 
   const Aunt target{
       .items

@@ -98,19 +98,19 @@ std::size_t count_shortest_path_to(
 auto parse_input(std::istream& is) {
   std::vector<Replacement> replacements;
   std::string medicine;
-  for (std::string line; std::getline(std::cin, line) && !line.empty();) {
-    std::istringstream is{line};
-    is >> replacements.emplace_back();
+  for (std::string line; std::getline(is, line) && !line.empty();) {
+    std::istringstream ls{line};
+    ls >> replacements.emplace_back();
   }
-  std::getline(std::cin, medicine);
+  std::getline(is, medicine);
   return std::make_pair(replacements, split_molecule(medicine));
 }
 
 int main() {
-  aoc::init_io();
   using std::operator""s;
 
-  const auto [replacements, medicine] = parse_input(std::cin);
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto [replacements, medicine] = parse_input(input);
 
   const auto part1{replace_all(medicine, replacements).size()};
 

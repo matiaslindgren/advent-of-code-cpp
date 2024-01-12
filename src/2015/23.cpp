@@ -115,10 +115,10 @@ void run(Memory& memory, const Program& program) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Memory memory = {0};
-  const auto program{views::istream<Instruction>(std::cin) | ranges::to<Program>()};
+  const auto program{views::istream<Instruction>(input) | ranges::to<Program>()};
 
   run(memory, program);
   const auto part1{memory[1]};

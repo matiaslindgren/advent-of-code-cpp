@@ -105,10 +105,10 @@ auto find_part2(const auto& steps) {
 }
 
 int main() {
-  aoc::init_io();
   using std::operator""s;
 
-  const auto steps{views::istream<Step>(std::cin) | ranges::to<std::vector>()};
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto steps{views::istream<Step>(input) | ranges::to<std::vector>()};
 
   const auto part1{find_part1(steps)};
   const auto part2{find_part2(steps)};

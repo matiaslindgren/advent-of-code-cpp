@@ -408,9 +408,9 @@ FloorState as_end_state(FloorState begin) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const FloorState init_state{parse_init_state(std::cin)};
+  const FloorState init_state{parse_init_state(input)};
 
   FloorState begin1{init_state};
   const auto part1{a_star_search(begin1, as_end_state(begin1))};

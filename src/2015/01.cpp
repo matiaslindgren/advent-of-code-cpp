@@ -2,7 +2,7 @@ import std;
 import aoc;
 
 int main() {
-  aoc::init_io();
+  std::ios::sync_with_stdio(false);
 
   int part1{0};
   int part2{0};

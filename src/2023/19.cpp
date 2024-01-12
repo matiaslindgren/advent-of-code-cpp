@@ -187,9 +187,9 @@ auto find_part2(const auto& bounds) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto [workflows, ratings] = parse_input(std::cin);
+  const auto [workflows, ratings] = parse_input(input);
 
   const auto bounds{find_bounds(workflows)};
 

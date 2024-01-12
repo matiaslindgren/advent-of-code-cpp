@@ -14,7 +14,7 @@ void print_typeinfo(const auto name) {
 }
 
 int main() {
-  aoc::init_io();
+  std::ios::sync_with_stdio(false);
 
   std::print("{} cpus\n", aoc::cpu_count());
   print_typeinfo<bool>("bool");

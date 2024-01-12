@@ -26,7 +26,7 @@ CharPairs minmax_char_freq_by_column(const auto& lines) {
 }
 
 int main() {
-  aoc::init_io();
+  std::ios::sync_with_stdio(false);
 
   const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 

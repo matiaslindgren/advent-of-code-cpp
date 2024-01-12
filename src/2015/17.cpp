@@ -35,9 +35,9 @@ find_all_combinations(const int init_target, const std::vector<int>& all_contain
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto containers{views::istream<int>(std::cin) | ranges::to<std::vector>()};
+  const auto containers{views::istream<int>(input) | ranges::to<std::vector>()};
   const auto combinations{find_all_combinations(150, containers)};
 
   const auto part1{combinations.size()};

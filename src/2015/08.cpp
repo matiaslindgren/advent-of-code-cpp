@@ -81,7 +81,7 @@ auto escape(const std::string& s) {
 constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 int main() {
-  aoc::init_io();
+  std::ios::sync_with_stdio(false);
 
   const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 

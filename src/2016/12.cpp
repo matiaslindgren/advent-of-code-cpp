@@ -111,11 +111,9 @@ int run(const auto& instructions, std::array<int, 4> memory) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto instructions{
-      std::views::istream<Instruction>(std::cin) | std::ranges::to<std::vector>()
-  };
+  const auto instructions{std::views::istream<Instruction>(input) | std::ranges::to<std::vector>()};
 
   const auto part1{run(instructions, {0, 0, 0, 0})};
   const auto part2{run(instructions, {0, 0, 1, 0})};

@@ -186,7 +186,7 @@ auto find_part2(const Grid2D& grid) {
 }
 
 int main() {
-  aoc::init_io();
+  std::ios::sync_with_stdio(false);
 
   Grid2D grid;
   std::cin >> grid;

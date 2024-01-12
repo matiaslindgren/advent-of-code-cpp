@@ -32,13 +32,13 @@ const int find_str_digit(const It begin, const It end) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   const auto isdigit{[](unsigned char ch) { return std::isdigit(ch); }};
 
   int part1{}, part2{};
 
-  for (std::string line; std::getline(std::cin, line);) {
+  for (std::string line; std::getline(input, line);) {
     const auto lhs1{ranges::find_if(line, isdigit)};
     if (lhs1 == line.end()) {
       continue;

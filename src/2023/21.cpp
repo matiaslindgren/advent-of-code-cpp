@@ -71,7 +71,7 @@ std::istream& operator>>(std::istream& is, Grid2D& grid) {
 
 Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
   std::vector<std::string> lines;
-  for (std::string line; std::getline(std::cin, line);) {
+  for (std::string line; std::getline(is, line);) {
     lines.push_back(line);
   }
   std::stringstream input;
@@ -128,9 +128,9 @@ auto lagrange_interpolation(const long x, const Input& xs, const Input& ys) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const Grid2D grid{parse_and_repeat(std::cin, 5)};
+  const Grid2D grid{parse_and_repeat(input, 5)};
 
   constexpr auto diamond_size{65};
   constexpr auto total_steps{26501365};

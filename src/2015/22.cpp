@@ -129,10 +129,10 @@ int find_min_win_mana(const Boss& boss, const int player_poison = 0) {
 }
 
 int main() {
-  aoc::init_io();
+  std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   Boss boss;
-  std::cin >> boss;
+  input >> boss;
 
   const auto part1{find_min_win_mana(boss)};
   const auto part2{find_min_win_mana(boss, 1)};
