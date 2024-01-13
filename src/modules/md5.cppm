@@ -113,14 +113,6 @@ Chunk sum32bit(ranges::range auto&& msg) {
   return std::byteswap(sum(msg)[0]);
 }
 
-int count_zeros(Chunk sum) {
-  int n{};
-  for (Chunk mask{0xf0000000}; mask && !(sum & mask); mask >>= 4) {
-    ++n;
-  }
-  return n;
-}
-
 std::string hexdigest(const State& state) {
   return std::accumulate(state.begin(), state.end(), std::string{}, [](auto&& res, auto&& chunk) {
     return res + std::format("{:08x}", std::byteswap(chunk));
