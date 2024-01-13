@@ -53,8 +53,6 @@ auto count_safe_tiles(const auto& tiles, const auto line_count) {
 }
 
 int main() {
-  std::ios::sync_with_stdio(false);
-
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
   const auto tiles{views::istream<Tile>(input) | ranges::to<std::vector>()};
 

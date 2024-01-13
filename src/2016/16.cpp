@@ -40,7 +40,7 @@ auto search_checksum(const std::string& input, const auto length) {
 }
 
 int main() {
-  std::ios_base::sync_with_stdio(false);
+  std::ios::sync_with_stdio(false);
 
   std::string input;
   std::cin >> input;
