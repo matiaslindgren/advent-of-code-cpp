@@ -40,6 +40,8 @@ std::istream& operator>>(std::istream& is, Item& item) {
 constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 int main() {
+  std::ios::sync_with_stdio(false);
+
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   auto items{views::istream<Item>(input) | ranges::to<std::vector>()};
