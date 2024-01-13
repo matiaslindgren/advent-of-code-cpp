@@ -46,6 +46,6 @@ jobs:
     - name: dump sysinfo
       run: make FAST=${{ matrix.fast }} run_tools/sysinfo
     - name: test md5
-      run: export FAST=${{ matrix.fast }} ./scripts/test_md5.bash
+      run: FAST=${{ matrix.fast }} ./scripts/test_md5.bash
     - name: test all solutions
       run: make FAST=${{ matrix.fast }} test_verbose
