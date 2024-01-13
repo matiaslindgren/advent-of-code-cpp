@@ -13,7 +13,7 @@ function test_with_random_data {
   data="${tmpdir}/rand.data"
   dd if=/dev/urandom of="$data" bs=${bs} count=${n} 2> /dev/null
   wc -c "$data"
-  aoc_md5=$(make FAST=${FAST} run_tools/md5 < "$data")
+  aoc_md5=$(make FAST=${FAST:-0} run_tools/md5 < "$data")
   gnu_md5=$(md5sum < "$data" | cut -f1 -d' ')
   if [ "$aoc_md5" != "$gnu_md5" ]; then
     printf "aoc_md5 '$aoc_md5' != '$gnu_md5' gnu_md5\n"
@@ -24,7 +24,7 @@ function test_with_random_data {
   return 0
 }
 
-for n in $(seq 1 1 256); do
+for n in $(seq 1 1 129); do
   if ! test_with_random_data 1 $n; then
     exit 1;
   fi

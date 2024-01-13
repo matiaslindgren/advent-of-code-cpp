@@ -98,6 +98,13 @@ State sum(ranges::range auto&& msg) {
 
   {
     append_input(msg_size % 64, 0x80);
+    for (auto tail{msg_size + 1}; tail % 64 != 56; ++tail) {
+      if (tail % 64 == 0) {
+        compute_chunk(input, state);
+        input.fill(0);
+      }
+      append_input(tail % 64, 0);
+    }
     auto n_bits{8 * msg_size};
     for (auto i{56u}; i < 64; ++i) {
       append_input(i, n_bits & 0xff);
