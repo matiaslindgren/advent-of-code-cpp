@@ -1,5 +1,4 @@
 import std;
-import aoc;
 
 int main() {
   std::ios::sync_with_stdio(false);
