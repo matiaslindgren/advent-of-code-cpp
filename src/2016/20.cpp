@@ -35,12 +35,11 @@ auto find_allowed(const auto& excluded) {
     for (const Range& allow : std::exchange(allowed, {})) {
       if (allow.end < exclude.begin || exclude.end < allow.begin) {
         allowed.push_back(allow);
-      } else if (allow.begin < exclude.begin && exclude.begin <= allow.end) {
+      }
+      if (allow.begin < exclude.begin && exclude.begin <= allow.end) {
         allowed.emplace_back(allow.begin, exclude.begin - 1);
-        if (exclude.end < allow.end) {
-          allowed.emplace_back(exclude.end + 1, allow.end);
-        }
-      } else if (allow.begin < exclude.end && exclude.end < allow.end) {
+      }
+      if (allow.begin < exclude.end && exclude.end < allow.end) {
         allowed.emplace_back(exclude.end + 1, allow.end);
       }
     }
