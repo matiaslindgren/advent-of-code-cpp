@@ -2,7 +2,6 @@ import std;
 import aoc;
 import my_std;
 
-using aoc::skip;
 using std::operator""s;
 
 namespace ranges = std::ranges;

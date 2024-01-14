@@ -51,12 +51,13 @@ std::istream& operator>>(std::istream& is, FloorItems& fi) {
   std::vector<Item> items;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (std::string fname; skip(ls, "The "s) && ls >> fname && floor_numbers.contains(fname)
-                           && skip(ls, " floor contains"s)) {
+    if (std::string fname; skip(ls, "The"s) && ls >> std::ws >> fname
+                           && floor_numbers.contains(fname) && ls >> std::ws
+                           && skip(ls, "floor contains"s)) {
       floor = floor_numbers.find(fname)->second;
       while (ls) {
         if (std::string s; ls >> s) {
-          if (s == "nothing" && skip(ls, " relevant"s)) {
+          if (s == "nothing" && ls >> std::ws && skip(ls, "relevant"s)) {
             // skip
           } else if (Item item; ((s == "and" && ls >> s && s == "a") || s == "a") && ls >> item) {
             items.push_back(item);
