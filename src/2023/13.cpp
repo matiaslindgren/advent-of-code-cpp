@@ -8,7 +8,7 @@ namespace views = std::views;
 constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
 struct Diffs {
-  std::size_t width;
+  std::size_t width{};
   std::vector<int> diff;
 
   std::size_t find_reflection(const int fix_count) const {

@@ -20,8 +20,8 @@ struct Grid {
   using Point = std::pair<std::size_t, std::size_t>;
   using Cell = unsigned char;
   std::vector<Cell> cells;
-  std::size_t width;
-  std::size_t height;
+  std::size_t width{};
+  std::size_t height{};
 
   // TODO llvm18? deducing this
   constexpr Cell& get(auto y, auto x) {
