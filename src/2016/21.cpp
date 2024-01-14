@@ -75,14 +75,6 @@ std::istream& operator>>(std::istream& is, Operation& op) {
   throw std::runtime_error("failed parsing Operation");
 }
 
-void rotate_left(std::string& s, const auto n) {
-  ranges::rotate(s, s.begin() + (n % s.size()));
-}
-
-void rotate_right(std::string& s, const auto n) {
-  ranges::rotate(s, s.end() - (n % s.size()));
-}
-
 std::string scramble(std::string input, ranges::forward_range auto&& operations) {
   return my_std::ranges::fold_left(operations, input, [](std::string s, auto op) {
     if (std::max(op.idx0, op.idx1) >= s.size()) {
@@ -106,15 +98,15 @@ std::string scramble(std::string input, ranges::forward_range auto&& operations)
         [[fallthrough]];
       }
       case Type::rotate_left:
-        rotate_left(s, op.idx0);
+        ranges::rotate(s, s.begin() + (op.idx0 % s.size()));
         break;
       case Type::rotate_index_of: {
         auto i{s.find(op.val0)};
-        op.idx0 = i + 1 + (i > 3);
+        op.idx0 = 1 + i + (i > 3);
         [[fallthrough]];
       }
       case Type::rotate_right:
-        rotate_right(s, op.idx0);
+        ranges::rotate(s, s.end() - (op.idx0 % s.size()));
         break;
       case Type::reverse:
         ranges::reverse(s.begin() + op.idx0, s.begin() + op.idx1 + 1);
