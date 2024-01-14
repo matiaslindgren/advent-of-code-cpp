@@ -22,12 +22,21 @@ auto cpu_count() {
   return std::max(1u, std::thread::hardware_concurrency());
 };
 
-std::istream& skip(std::istream& is, auto s) {
-  for (char rhs : s) {
-    if (char lhs; !(is.get(lhs) && lhs == rhs)) {
-      is.setstate(std::ios_base::failbit);
-      return is;
+std::istream& skip(std::istream& is, const auto& pattern) {
+  if (is) {
+    for (char rhs : pattern) {
+      if (char lhs; !(is.get(lhs) && lhs == rhs)) {
+        is.setstate(std::ios_base::failbit);
+        break;
+      }
     }
+  }
+  return is;
+}
+
+std::istream& skip(std::istream& is, const auto& pattern, const auto&... patterns) {
+  if (skip(is, pattern)) {
+    return (skip(is >> std::ws, patterns), ...);
   }
   return is;
 }
