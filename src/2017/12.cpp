@@ -8,19 +8,25 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Graph {
-  std::unordered_map<int, std::unordered_set<int>> edges;
+  std::unordered_map<int, std::vector<int>> edges;
 
   auto bfs(const auto& begin) const {
-    std::vector<bool> visited(edges.size(), false);
+    std::unordered_set<int> visited;
     for (std::deque q = {begin}; !q.empty(); q.pop_front()) {
-      if (const auto& src{q.front()}; !visited[src]) {
-        visited[src] = true;
+      if (const auto& src{q.front()}; !visited.contains(src)) {
+        visited.insert(src);
         q.append_range(edges.at(src));
       }
     }
     return visited;
   }
 };
+
+void dedup(auto& v) {
+  ranges::sort(v);
+  const auto rm{ranges::unique(v)};
+  v.erase(rm.begin(), rm.end());
+}
 
 std::istream& operator>>(std::istream& is, Graph& graph) {
   Graph g;
@@ -33,13 +39,16 @@ std::istream& operator>>(std::istream& is, Graph& graph) {
         is.setstate(std::ios_base::failbit);
       } else {
         for (const int dst : adjacent) {
-          g.edges[src].insert(dst);
-          g.edges[dst].insert(src);
+          g.edges[src].push_back(dst);
+          g.edges[dst].push_back(src);
         }
       }
     }
   }
   if (is || is.eof()) {
+    for (auto& adj : g.edges | views::values) {
+      dedup(adj);
+    }
     graph = g;
     return is;
   }
@@ -48,12 +57,12 @@ std::istream& operator>>(std::istream& is, Graph& graph) {
 
 auto find_group_sizes(const Graph& g) {
   auto visited{g.bfs(0)};
-  const auto group0_size{ranges::count_if(visited, std::identity{})};
+  const auto group0_size{visited.size()};
 
   int group_count{1};
   for (const auto& node : views::keys(g.edges)) {
-    if (!visited.at(node)) {
-      ranges::transform(g.bfs(node), visited, visited.begin(), std::logical_or{});
+    if (!visited.contains(node)) {
+      visited.insert_range(g.bfs(node));
       group_count += 1;
     }
   }
