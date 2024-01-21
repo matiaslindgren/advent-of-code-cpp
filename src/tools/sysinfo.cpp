@@ -4,13 +4,15 @@ import aoc;
 template <typename T>
 void print_typeinfo(const auto name) {
   const auto digits{std::numeric_limits<T>::digits};
+  const auto digits10{std::numeric_limits<T>::digits10};
   const auto min{std::numeric_limits<T>::min()};
   const auto max{std::numeric_limits<T>::max()};
   constexpr auto fmt{
-      std::is_floating_point<T>() ? "{:>20} size {} digits {:>2} min {:g} max {:g}\n"
-                                  : "{:>20} size {} digits {:>2} min {:d} max {:d}\n"
+      std::is_floating_point<T>()
+          ? "type {:18} size {:>3} digits {:>4} digits10 {:>4} min {:>22g} max {:>22g}\n"
+          : "type {:18} size {:>3} digits {:>4} digits10 {:>4} min {:>22d} max {:>22d}\n"
   };
-  std::print(fmt, name, sizeof(T), digits, min, max);
+  std::print(fmt, name, sizeof(T), digits, digits10, min, max);
 }
 
 int main() {
