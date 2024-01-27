@@ -27,11 +27,10 @@ std::istream& operator>>(std::istream& is, Item& item) {
     if (int id; ls >> id) {
       if (std::string str; ls >> str) {
         item = {id, str};
-        return is;
       }
     }
   }
-  if (is.eof()) {
+  if (is || is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Item");
@@ -39,24 +38,23 @@ std::istream& operator>>(std::istream& is, Item& item) {
 
 constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
 
+auto find_part1(const auto& items) {
+  return sum(views::transform(items, [](auto i) { return i.id; }));
+}
+
+auto find_part2(const auto& items) {
+  return 0;
+}
+
 int main() {
   std::ios::sync_with_stdio(false);
-
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto items{views::istream<Item>(input) | ranges::to<std::vector>()};
 
-  auto items{views::istream<Item>(input) | ranges::to<std::vector>()};
   ranges::copy(items, std::ostream_iterator<Item>(std::cout, "\n"));
 
-  std::cout << sum(views::transform(items, [](auto i) { return i.id; })) << "\n";
-
-  long part1{0};
-#if 0
-  for (std::string line; std::getline(line);) {
-    std::cout << line << '\n';
-  }
-#endif
-
-  long part2{0};
+  const auto part1{find_part1(items)};
+  const auto part2{find_part2(items)};
 
   std::print("{} {}\n", part1, part2);
 
