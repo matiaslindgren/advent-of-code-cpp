@@ -1,9 +1,6 @@
 import std;
 import aoc;
 
-using aoc::skip;
-using std::operator""s;
-
 namespace ranges = std::ranges;
 namespace views = std::views;
 
@@ -34,14 +31,14 @@ auto find_part1(const auto& lines) {
 }
 
 auto find_part2(const auto& lines) {
-  for (const auto& line1 : lines) {
-    for (const auto& line2 : lines) {
-      if (const auto& is{intersect(line1, line2)}; is.size() == line1.size() - 1) {
+  for (auto l1{lines.begin()}; l1 != lines.end(); ++l1) {
+    for (auto l2{l1 + 1}; l2 != lines.end(); ++l2) {
+      if (const auto& is{intersect(*l1, *l2)}; is.size() + 1 == l1->size()) {
         return is;
       }
     }
   }
-  return ""s;
+  return std::string{};
 }
 
 int main() {
