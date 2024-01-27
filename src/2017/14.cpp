@@ -42,7 +42,7 @@ auto knot_hash(std::string input) {
   return row;
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0u, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0u, std::plus{})};
 
 auto parse_rows(std::istream& is) {
   std::string input;

@@ -7,12 +7,8 @@ namespace views = std::views;
 
 using Ints = std::vector<int>;
 
-constexpr decltype(auto) make_fold(auto&& init, auto&& f) {
-  return std::bind(my_std::ranges::fold_left, std::placeholders::_1, init, f);
-}
-
-constexpr auto sum{make_fold(0L, std::plus{})};
-constexpr auto product{make_fold(1L, std::multiplies{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
+constexpr auto product{std::__bind_back(my_std::ranges::fold_left, 1L, std::multiplies{})};
 
 std::vector<Ints> combinations_with_sum(const Ints& ints, const int k, const long target) {
   std::vector<bool> selected(ints.size(), false);

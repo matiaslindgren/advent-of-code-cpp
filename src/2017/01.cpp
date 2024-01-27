@@ -11,7 +11,7 @@ auto parse_digits(std::istream& is) {
          | ranges::to<std::vector<int>>();
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 int solve(const auto& digits, const auto n) {
   return sum(my_std::views::enumerate(digits) | views::transform([&](const auto& p) {

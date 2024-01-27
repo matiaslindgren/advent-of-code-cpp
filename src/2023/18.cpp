@@ -73,7 +73,7 @@ struct Point2D {
   }
 };
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
 
 // TODO ranges::adjacent
 constexpr decltype(auto) window2(ranges::range auto&& r) {

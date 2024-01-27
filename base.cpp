@@ -36,7 +36,7 @@ std::istream& operator>>(std::istream& is, Item& item) {
   throw std::runtime_error("failed parsing Item");
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& items) {
   return sum(views::transform(items, [](auto i) { return i.id; }));

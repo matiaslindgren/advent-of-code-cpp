@@ -115,7 +115,7 @@ std::istream& operator>>(std::istream& is, Card& card) {
   throw std::runtime_error("failed parsing Card");
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0L, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
 
 using Cards = std::vector<Card>;
 

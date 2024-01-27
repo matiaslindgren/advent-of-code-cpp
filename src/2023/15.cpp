@@ -49,7 +49,7 @@ uint8_t hash(std::string_view s) {
   });
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0u, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0u, std::plus{})};
 
 auto find_part1(const auto& steps) {
   return sum(steps | views::transform([](auto step) { return hash(step.str); }));

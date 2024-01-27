@@ -74,7 +74,7 @@ class Graph {
   }
 };
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {

@@ -31,7 +31,7 @@ std::istream& operator>>(std::istream& is, Scanner& scanner) {
   throw std::runtime_error("failed parsing Scanner");
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& scanners) {
   return sum(views::transform(scanners, [](const auto& s) {

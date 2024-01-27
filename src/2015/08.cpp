@@ -78,11 +78,10 @@ auto escape(const std::string& s) {
   return out.str();
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 int main() {
   std::ios::sync_with_stdio(false);
-
   const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{sum(lines | views::transform(count_bytes))};

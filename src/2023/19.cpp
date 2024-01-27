@@ -168,7 +168,7 @@ auto find_bounds(const auto& workflows) {
   return bounds;
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0uz, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0uz, std::plus{})};
 
 auto find_part1(const auto& bounds, const auto& ratings) {
   return sum(

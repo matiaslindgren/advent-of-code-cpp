@@ -22,9 +22,7 @@ constexpr auto count_ways_to_win(auto time, auto dist) {
   });
 }
 
-constexpr auto product{
-    std::bind(my_std::ranges::fold_left, std::placeholders::_1, 1L, std::multiplies{})
-};
+constexpr auto product{std::__bind_back(my_std::ranges::fold_left, 1L, std::multiplies{})};
 
 constexpr auto find_part1(const Ints& times, const Ints& dists) {
   return product(views::zip(times, dists) | views::transform([](const auto& p) {

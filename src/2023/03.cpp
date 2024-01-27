@@ -97,7 +97,7 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
   throw std::runtime_error("failed parsing Grid");
 }
 
-constexpr auto sum{std::bind(my_std::ranges::fold_left, std::placeholders::_1, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 constexpr std::pair<int, int> search(const Grid& grid) {
   int part1{};
