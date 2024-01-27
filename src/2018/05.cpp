@@ -35,16 +35,17 @@ constexpr auto is_alive{[](const Unit& u) { return u.alive; }};
 constexpr auto is_dead{std::not_fn(is_alive)};
 
 std::size_t react(auto polymer) {
-  for (auto begin{polymer.begin()}, end{polymer.end()};;) {
-    for (auto lhs{begin}; lhs != end; ++lhs) {
-      if (const auto rhs{lhs + 1}; rhs != end && lhs->alive && lhs->destroys(*rhs)) {
-        lhs->alive = rhs->alive = false;
+  for (auto alive{ranges::subrange(polymer)};;) {
+    // TODO std adjacent
+    for (const auto [lhs, rhs] : views::zip(alive, views::drop(alive, 1))) {
+      if (lhs.alive && rhs.alive && lhs.destroys(rhs)) {
+        lhs.alive = rhs.alive = false;
       }
     }
-    if (const auto dead{ranges::remove_if(begin, end, is_dead)}; dead.empty()) {
-      return end - begin;
+    if (const auto dead{ranges::remove_if(alive, is_dead)}; dead.empty()) {
+      return alive.size();
     } else {
-      end = dead.begin();
+      alive = ranges::subrange(alive.begin(), dead.begin());
     }
   }
 }
@@ -54,12 +55,10 @@ auto find_part2(const auto& polymer) {
       views::iota(0, 'z' - 'a' + 1),
       polymer.size(),
       [&polymer](const auto best, const auto without) {
+        const auto is_included{[&without](const auto& u) { return u.type != without; }};
         return std::min(
             best,
-            react(
-                views::filter(polymer, [&without](const auto& u) { return u.type != without; })
-                | ranges::to<std::vector>()
-            )
+            react(polymer | views::filter(is_included) | ranges::to<std::vector>())
         );
       }
   );
