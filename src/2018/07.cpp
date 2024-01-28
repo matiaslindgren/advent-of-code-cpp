@@ -4,32 +4,32 @@ import aoc;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Dep {
+struct Step {
   char a{}, b{};
 };
 
-std::istream& operator>>(std::istream& is, Dep& dep) {
+std::istream& operator>>(std::istream& is, Step& step) {
   using aoc::skip;
   using std::operator""s;
   if (char a; is >> std::ws && skip(is, "Step"s) && is >> a) {
     if (char b; is >> std::ws && skip(is, "must be finished before step"s) && is >> b >> std::ws
                 && skip(is, "can begin."s)) {
-      dep = {a, b};
+      step = {a, b};
     }
   }
   if (is || is.eof()) {
     return is;
   }
-  throw std::runtime_error("failed parsing Dep");
+  throw std::runtime_error("failed parsing Step");
 }
 
-auto run_tasks(const auto& deps, const auto n_workers) {
+auto run_tasks(const auto& steps, const auto n_workers) {
   std::unordered_map<char, std::unordered_set<char>> before, after;
-  for (const auto& dep : deps) {
-    before[dep.a];
-    before[dep.b].insert(dep.a);
-    after[dep.b];
-    after[dep.a].insert(dep.b);
+  for (const auto& step : steps) {
+    before[step.a];
+    before[step.b].insert(step.a);
+    after[step.b];
+    after[step.a].insert(step.b);
   }
 
   std::vector<std::pair<int, int>> todo, doing;
@@ -82,10 +82,10 @@ auto run_tasks(const auto& deps, const auto n_workers) {
 
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto deps{views::istream<Dep>(input) | ranges::to<std::vector>()};
+  const auto steps{views::istream<Step>(input) | ranges::to<std::vector>()};
 
-  const auto part1{run_tasks(deps, 1).first};
-  const auto part2{run_tasks(deps, 5).second};
+  const auto part1{run_tasks(steps, 1).first};
+  const auto part2{run_tasks(steps, 5).second};
 
   std::print("{} {}\n", part1, part2);
 
