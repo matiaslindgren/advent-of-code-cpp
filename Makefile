@@ -49,11 +49,14 @@ OUT_PATHS := $(addprefix $(OUT_DIR)/,$(OUT_FILES))
 MODULES       := modules
 MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
 MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT_DIR)/,$(MOD_SRC_PATHS)))
+MODULE_CACHE  := $(OUT_DIR)/$(MODULES)/cache
+
+CXXFLAGS += -fmodules-cache-path=$(MODULE_CACHE) -fmodules-prune-interval=0
 
 .PHONY: all
 all: $(OUT_PATHS)
 
-$(addsuffix /,$(OUT_DIRS)):
+$(addsuffix /,$(OUT_DIRS) $(MODULE_CACHE)):
 	mkdir -p $@
 
 .PHONY: clean
@@ -65,7 +68,7 @@ fmt: $(SRC_PATHS) $(MOD_SRC_PATHS)
 	@clang-format --verbose -i $^
 
 
-$(MOD_OUT_PATHS): $(OUT_DIR)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT_DIR)/$(MODULES)/
+$(MOD_OUT_PATHS): $(OUT_DIR)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT_DIR)/$(MODULES)/ $(MODULE_CACHE)/
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
 
 
