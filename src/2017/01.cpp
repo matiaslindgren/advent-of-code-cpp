@@ -7,7 +7,7 @@ namespace views = std::views;
 
 auto parse_digits(std::istream& is) {
   return views::istream<char>(is)
-         | views::transform([](char ch) { return std::max('0', std::min('9', ch)) - '0'; })
+         | views::transform([](char ch) { return std::clamp(ch, '0', '9') - '0'; })
          | ranges::to<std::vector<int>>();
 }
 

@@ -50,9 +50,7 @@ auto find_max(const auto& all_naps, const auto& f) {
 }
 
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
-constexpr auto max{std::__bind_back(my_std::ranges::fold_left, 0, [](const auto& a, const auto& b) {
-  return std::max(a, b);
-})};
+constexpr auto max{std::__bind_back(my_std::ranges::fold_left, 0, ranges::max)};
 
 auto find_sleepy_guards(const auto& events) {
   std::unordered_map<int, std::array<int, 60>> naps;

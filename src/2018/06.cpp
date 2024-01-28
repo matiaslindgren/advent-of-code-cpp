@@ -43,12 +43,8 @@ std::istream& operator>>(std::istream& is, Vec2& vec) {
 constexpr auto intmin{std::numeric_limits<int>::min()};
 constexpr auto intmax{std::numeric_limits<int>::max()};
 
-constexpr auto max{std::__bind_back(my_std::ranges::fold_left, intmin, [](auto a, auto b) {
-  return std::max(a, b);
-})};
-constexpr auto min{std::__bind_back(my_std::ranges::fold_left, intmax, [](auto a, auto b) {
-  return std::min(a, b);
-})};
+constexpr auto max{std::__bind_back(my_std::ranges::fold_left, intmin, ranges::max)};
+constexpr auto min{std::__bind_back(my_std::ranges::fold_left, intmax, ranges::min)};
 
 auto find_grid_corners(const auto& points) {
   return my_std::ranges::fold_left(
