@@ -65,63 +65,40 @@ auto find_grid_corners(const auto& points) {
 }
 
 auto find_areas(const auto& points) {
-  const auto [top_left, bottom_right]{find_grid_corners(points)};
-
-  const auto centers{my_std::views::enumerate(points, 1uz) | ranges::to<std::vector>()};
-  std::unordered_map<Vec2, std::vector<std::size_t>> claims;
+  std::vector<std::vector<Vec2>> cells(points.size());
   std::unordered_map<Vec2, std::size_t> total_dist;
-
-  for (Vec2 p{.y = top_left.y - 1}; p.y < bottom_right.y + 1; ++p.y) {
-    for (p.x = top_left.x - 1; p.x < bottom_right.x + 1; ++p.x) {
-      const auto& min_dist{
-          min(views::transform(points, [&](const auto& center) { return center.distance(p); }))
-      };
-      for (auto [id, center] : centers) {
-        const auto d{center.distance(p)};
-        total_dist[p] += d;
-        if (d == min_dist) {
-          claims[p].push_back(id);
-        }
-      }
-    }
-  }
-
-  const auto is_finite{[&](const auto& p) {
-    const auto y_finite{top_left.y < p.y && p.y < bottom_right.y};
-    const auto x_finite{top_left.x < p.x && p.x < bottom_right.x};
-    return y_finite && x_finite;
-  }};
-
-  const auto count_area{[&](const auto& ic) {
-    auto [id, center] = ic;
-    const std::array adjacent{
-        Vec2{-1, 0},
-        Vec2{1, 0},
-        Vec2{0, -1},
-        Vec2{0, 1},
-    };
-    int area{};
-    std::unordered_set<Vec2> seen;
-    for (std::deque q{center}; !q.empty(); q.pop_front()) {
-      const auto& p{q.front()};
-      if (!is_finite(p)) {
-        area = 0;
-        break;
-      }
-      if (seen.insert(p).second && claims.contains(p)) {
-        if (const auto& ids{claims.at(p)}; ids.size() == 1 && ids.front() == id) {
-          area += 1;
-          for (const auto& d : adjacent) {
-            q.push_back(p + d);
+  const auto [top_left, bottom_right]{find_grid_corners(points)};
+  {
+    std::unordered_map<Vec2, std::vector<std::size_t>> claims;
+    for (Vec2 p{.y = top_left.y - 1}; p.y < bottom_right.y + 1; ++p.y) {
+      for (p.x = top_left.x - 1; p.x < bottom_right.x + 1; ++p.x) {
+        const auto& min_dist{
+            min(views::transform(points, [&](const auto& center) { return center.distance(p); }))
+        };
+        for (auto [id, center] : my_std::views::enumerate(points)) {
+          const auto d{center.distance(p)};
+          total_dist[p] += d;
+          if (d == min_dist) {
+            claims[p].push_back(id);
           }
         }
       }
     }
-    return area;
+    for (auto [p, ids] : claims) {
+      if (ids.size() == 1) {
+        cells[ids.front()].push_back(p);
+      }
+    }
+  }
+  const auto is_finite{[&](const auto& p) -> bool {
+    const auto y_finite{top_left.y < p.y && p.y < bottom_right.y};
+    const auto x_finite{top_left.x < p.x && p.x < bottom_right.x};
+    return y_finite && x_finite;
   }};
-
   return std::pair{
-      max(views::transform(centers, count_area)),
+      max(cells | views::transform([&](const auto& cell) {
+            return ranges::all_of(cell, is_finite) ? static_cast<int>(cell.size()) : 0;
+          })),
       ranges::count_if(total_dist | views::values, [](auto d) { return d < 10000; })
   };
 }
