@@ -62,7 +62,7 @@ auto compute_part1(const std::vector<Row>& rows) {
 
 auto bfs(const auto& rows, const auto y0, const auto x0) {
   std::unordered_set<int> visited;
-  for (std::deque q = {std::pair{y0, x0}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::pair{y0, x0}}; !q.empty(); q.pop_front()) {
     const auto& [y, x] = q.front();
     if (y >= rows.size() || x >= rows[y].size()) {
       continue;

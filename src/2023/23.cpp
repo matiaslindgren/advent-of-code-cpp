@@ -70,7 +70,7 @@ struct Grid2D {
 
   auto compress_edges() const {
     std::unordered_map<std::size_t, std::unordered_map<std::size_t, int>> edges;
-    for (std::vector q = {start_index()}; !q.empty();) {
+    for (std::vector q{start_index()}; !q.empty();) {
       const auto src{q.back()};
       q.pop_back();
       for (const auto& dst : adjacent(src)) {
@@ -161,7 +161,7 @@ auto find_longest_path(const Grid2D& grid) {
   const auto end{graph.nodes.at(grid.end_index())};
   int max_dist{0};
 
-  for (std::vector q = {State{.current = start}}; !q.empty();) {
+  for (std::vector q{State{.current = start}}; !q.empty();) {
     auto [curr, dist_total, visited] = q.back();
     q.pop_back();
     if (curr == end) {

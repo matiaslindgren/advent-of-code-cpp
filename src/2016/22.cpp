@@ -78,7 +78,7 @@ auto find_shortest_path(const auto& nodes) {
 
   std::vector<bool> visited(grid_size * grid_size, false);
 
-  for (std::deque q = {std::tuple{data_begin, free_node, 0u}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::tuple{data_begin, free_node, 0u}}; !q.empty(); q.pop_front()) {
     const auto& [data, f, steps] = q.front();
     if (data == target) {
       return steps;
@@ -87,7 +87,7 @@ auto find_shortest_path(const auto& nodes) {
       continue;
     }
     visited[data * grid_size + f] = true;
-    const std::array adjacent = {f + 1, f + width, f - 1, f - width};
+    const std::array adjacent{f + 1, f + width, f - 1, f - width};
     for (const auto adj : adjacent) {
       if (!size[adj]) {
         continue;

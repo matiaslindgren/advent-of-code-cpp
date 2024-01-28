@@ -38,7 +38,7 @@ struct Hand {
 
   using Counts = std::array<std::pair<int, int>, 15>;
   constexpr auto count() const {
-    Counts counts = {};
+    Counts counts{};
     for (auto v : values) {
       auto& p = counts[v];
       p = {p.first + 1, v};

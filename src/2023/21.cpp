@@ -96,7 +96,7 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
 auto visit_until_limit(const Grid2D& grid, const auto limit) {
   const auto n{grid.tiles.size()};
   std::vector<bool> visited((limit + 1) * n);
-  for (std::deque q = {std::pair{0, grid.start_index()}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::pair{0, grid.start_index()}}; !q.empty(); q.pop_front()) {
     const auto& [step, index] = q.front();
     if (step > limit or visited.at(step * n + index)) {
       continue;

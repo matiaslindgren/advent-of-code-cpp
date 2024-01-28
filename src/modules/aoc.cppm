@@ -46,7 +46,7 @@ std::istream& skip(std::istream& is, const auto& pattern, const auto&... pattern
 // Accessed 2023-11-20
 char as_ascii(std::string aoc_letter) {
   using std::operator""s;
-  static const std::unordered_map<std::string, char> charmap = {
+  static const std::unordered_map<std::string, char> charmap{
       {".##.#..##..######..##..#"s, 'A'},
       {"###.#..####.#..##..####."s, 'B'},
       {".##.#..##...#...#..#.##."s, 'C'},

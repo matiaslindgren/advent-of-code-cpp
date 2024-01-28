@@ -32,7 +32,7 @@ auto find_max_bridges(auto components) {
 
   int max_part1{}, max_part2{}, max_len{};
 
-  for (std::deque q = {std::tuple{0, 0, std::bitset<state_size>{}}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::tuple{0, 0, std::bitset<state_size>{}}}; !q.empty(); q.pop_front()) {
     const auto [port, strength, used] = q.front();
 
     max_part1 = std::max(max_part1, strength);

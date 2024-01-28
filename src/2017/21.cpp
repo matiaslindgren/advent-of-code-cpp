@@ -128,7 +128,7 @@ auto parse_rules(std::istream& is) {
 }
 
 auto expand(const auto& rules, const auto iterations) {
-  std::vector<Pattern> expanded = {Pattern{.size = 3, .str = ".#...####"s}};
+  std::vector<Pattern> expanded{Pattern{.size = 3, .str = ".#...####"s}};
   for (int iter{}; iter < iterations; ++iter) {
     const auto& pattern{expanded.back()};
     if (const auto n{pattern.str.size()}; n % 2 == 0) {

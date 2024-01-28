@@ -30,10 +30,9 @@ void compute_chunk(const Input& input, State& state) {
       t = static_cast<Chunk>((1LL << 32) * std::abs(std::sin(i)));
     }
 
-    constexpr std::array<Chunk, 16> base_rotations
-        = {7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
+    constexpr std::array<Chunk, 16> rot{7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
     for (auto&& [i, s] : views::zip(views::iota(0uz), rotations)) {
-      s = base_rotations[4 * (i / 16) + i % 4];
+      s = rot[4 * (i / 16) + i % 4];
     }
   }
 
@@ -74,7 +73,7 @@ void compute_chunk(const Input& input, State& state) {
 }
 
 State sum(ranges::range auto&& msg) {
-  State state = {
+  State state{
       std::byteswap(0x01234567),
       std::byteswap(0x89abcdef),
       std::byteswap(0xfedcba98),

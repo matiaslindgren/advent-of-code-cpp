@@ -14,7 +14,7 @@ std::pair<std::string, std::string> search(const std::string& passcode) {
 
   std::string part1{}, part2{};
 
-  for (std::deque q = {std::tuple{0, 0, ""s}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::tuple{0, 0, ""s}}; !q.empty(); q.pop_front()) {
     const auto& [x, y, path] = q.front();
     if (!(0 <= x && x <= 3 && 0 <= y && y <= 3)) {
       continue;

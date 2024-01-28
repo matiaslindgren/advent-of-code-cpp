@@ -62,7 +62,7 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
 std::vector<Distance> Grid::bfs(const auto begin) const {
   std::vector<Distance> dist2target;
   std::vector<bool> visited(tiles.size(), false);
-  for (std::deque q = {std::pair{begin, 0}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::pair{begin, 0}}; !q.empty(); q.pop_front()) {
     const auto& [i, len] = q.front();
     if (visited[i] || tiles.at(i) == '#') {
       continue;

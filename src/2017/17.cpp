@@ -1,7 +1,7 @@
 import std;
 
 int find_part1(const auto steps) {
-  std::vector<int> buf = {0};
+  std::vector<int> buf{0};
   auto i{0uz};
   while (buf.size() < 2018) {
     i = 1 + (i + steps) % buf.size();

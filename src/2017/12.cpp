@@ -12,7 +12,7 @@ struct Graph {
 
   auto bfs(const auto& begin) const {
     std::unordered_set<int> visited;
-    for (std::deque q = {begin}; !q.empty(); q.pop_front()) {
+    for (std::deque q{begin}; !q.empty(); q.pop_front()) {
       if (const auto& src{q.front()}; !visited.contains(src)) {
         visited.insert(src);
         q.append_range(edges.at(src));

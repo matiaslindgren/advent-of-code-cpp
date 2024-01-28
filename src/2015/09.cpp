@@ -98,8 +98,7 @@ class Graph {
       std::size_t path_length;
     };
     for (auto start : views::iota(0uz, node_count())) {
-      std::vector<State> q = {{{}, start, {}}};
-      while (!q.empty()) {
+      for (std::vector q{State{{}, start, {}}}; !q.empty();) {
         auto current{q.back()};
         q.pop_back();
         if (current.visited[current.node]) {

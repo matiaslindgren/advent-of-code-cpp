@@ -41,7 +41,7 @@ struct FloorItems {
 std::istream& operator>>(std::istream& is, FloorItems& fi) {
   using std::operator""s;
   using aoc::skip;
-  static const std::unordered_map<std::string, int> floor_numbers = {
+  static const std::unordered_map<std::string, int> floor_numbers{
       {"first", 1},
       {"second", 2},
       {"third", 3},

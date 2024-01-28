@@ -47,8 +47,8 @@ using Path = std::vector<Vec2D>;
 using Moves = std::vector<Move>;
 
 Path walk(const Moves& moves) {
-  std::vector<Vec2D> path = {{}};
-  Vec2D facing = {1, 0};
+  std::vector path{Vec2D{}};
+  Vec2D facing{1, 0};
   for (const auto& move : moves) {
     switch (move.direction) {
       case Move::Left: {

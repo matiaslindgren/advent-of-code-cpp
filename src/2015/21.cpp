@@ -88,7 +88,7 @@ std::pair<int, int> minmax_gold(const Boss& boss) {
           if (r1 == r2 && !r1.cost) {
             continue;
           }
-          const Player player = {w, a, r1, r2};
+          const Player player{w, a, r1, r2};
           if (player.wins(boss)) {
             min_win_gold = std::min(min_win_gold, player.total_cost());
           } else {

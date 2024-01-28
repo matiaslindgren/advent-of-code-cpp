@@ -98,7 +98,7 @@ auto find_part2(const SupportGraph& sg) {
     int n{};
     std::vector<bool> falling(sg.bricks.size());
     falling.at(b.index) = true;
-    for (std::deque q = {b.index}; !q.empty(); q.pop_front()) {
+    for (std::deque q{b.index}; !q.empty(); q.pop_front()) {
       for (const auto above : sg.supporting.at(q.front())) {
         const auto support_count{ranges::count_if(
             sg.supported_by.at(above),

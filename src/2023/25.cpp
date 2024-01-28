@@ -117,7 +117,7 @@ auto find_part1(Graph graph) {
       push_max_cut_weight_heap(q, n, graph.edges[s][n]);
     }
 
-    std::unordered_set A = {s};
+    std::unordered_set A{s};
     for (auto i{phase + 1}; i < graph_size - 1; ++i) {
       s = pop_max_cut_weight_heap(q);
       A.insert(s);

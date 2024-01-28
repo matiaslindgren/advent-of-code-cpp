@@ -39,7 +39,7 @@ std::istream& operator>>(std::istream& is, Seeds& ss) {
 }
 
 std::istream& operator>>(std::istream& is, MapGroups& mg) {
-  const std::array names = {
+  const std::array names{
       "seed-to-soil"s,
       "soil-to-fertilizer"s,
       "fertilizer-to-water"s,

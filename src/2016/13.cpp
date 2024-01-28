@@ -127,7 +127,7 @@ Distances find_shortest_paths(
 }
 
 auto find_part1(const int designer_num) {
-  const Point2D end = {31, 39};
+  const Point2D end{31, 39};
   const auto distances{find_shortest_paths({1, 1}, {end}, designer_num)};
   return distances.at(end);
 }

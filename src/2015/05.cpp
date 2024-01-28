@@ -51,7 +51,8 @@ auto contains_sandwich_letter(const std::string& s) {
 
 auto contains_letter_pair_twice(const std::string& s) {
   constexpr static auto n{alphabet_size * alphabet_size};
-  std::array<int, n> pair_counts = {0};
+  std::array<int, n> pair_counts;
+  pair_counts.fill(0);
   char ch0{0};
   // TODO(llvm18)
   // for (const auto [ch1, ch2] : views::pairwise(s)) {

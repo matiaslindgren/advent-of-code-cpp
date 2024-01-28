@@ -30,7 +30,7 @@ std::istream& operator>>(std::istream& is, Range& range) {
 }
 
 auto find_allowed(const auto& excluded) {
-  std::vector<Range> allowed = {Range{0u, std::numeric_limits<UInt>::max()}};
+  std::vector allowed{Range{0u, std::numeric_limits<UInt>::max()}};
   for (const Range& exclude : excluded) {
     for (const Range& allow : std::exchange(allowed, {})) {
       if (allow.end < exclude.begin || exclude.end < allow.begin) {

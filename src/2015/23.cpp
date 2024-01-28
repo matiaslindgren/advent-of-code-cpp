@@ -117,7 +117,8 @@ void run(Memory& memory, const Program& program) {
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  Memory memory = {0};
+  Memory memory;
+  memory.fill(0);
   const auto program{views::istream<Instruction>(input) | ranges::to<Program>()};
 
   run(memory, program);

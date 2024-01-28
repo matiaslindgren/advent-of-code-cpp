@@ -71,15 +71,15 @@ int main() {
       views::istream<char>(input) | views::transform(char2digit) | ranges::to<std::vector>()
   };
 
-  std::string results[2] = {};
-  for (auto& result : results) {
+  std::string parts[2];
+  for (auto& part : parts) {
     do {
       password = increment<alphabet_size>(password);
     } while (!valid(password));
-    result = to_string(password);
+    part = to_string(password);
   }
 
-  std::print("{} {}\n", results[0], results[1]);
+  std::print("{} {}\n", parts[0], parts[1]);
 
   return 0;
 }
