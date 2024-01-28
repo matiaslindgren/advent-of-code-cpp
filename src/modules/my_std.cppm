@@ -209,8 +209,11 @@ inline constexpr auto stride = _stride_fn{};
 
 // TODO P2164R9 properly (or wait for libc++...)
 struct _enumerate_fn : public std::__range_adaptor_closure<_enumerate_fn> {
+  constexpr decltype(auto) operator()(std::ranges::range auto&& r, const auto start) const {
+    return std::views::zip(std::views::iota(start), r);
+  }
   constexpr decltype(auto) operator()(std::ranges::range auto&& r) const {
-    return std::views::zip(std::views::iota(0uz), r);
+    return this->operator()(std::forward<decltype(r)>(r), 0uz);
   }
 };
 

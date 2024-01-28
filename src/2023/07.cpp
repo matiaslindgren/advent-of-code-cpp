@@ -122,9 +122,9 @@ using Cards = std::vector<Card>;
 constexpr auto total_winnings(ranges::random_access_range auto&& r) {
   Cards cards{r | ranges::to<Cards>()};
   std::sort(cards.begin(), cards.end());
-  return sum(my_std::views::enumerate(cards) | views::transform([=](const auto& p) {
-               const auto& [i, c] = p;
-               return (i + 1) * c.bid;
+  return sum(my_std::views::enumerate(cards, 1uz) | views::transform([=](const auto& ic) {
+               const auto& [i, c] = ic;
+               return i * c.bid;
              }));
 }
 
