@@ -1,9 +1,6 @@
 import std;
 import aoc;
 
-namespace ranges = std::ranges;
-namespace views = std::views;
-
 void left_rotate(auto& q, const auto n) {
   for (int i{}; i < n; ++i) {
     q.push_back(q.front());
@@ -33,7 +30,7 @@ auto find_winning_score(const auto n_players, const auto max_marble) {
     }
   }
 
-  return *ranges::max_element(scores);
+  return *std::ranges::max_element(scores);
 }
 
 auto parse_input(std::string path) {
