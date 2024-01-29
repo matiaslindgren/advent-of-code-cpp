@@ -81,7 +81,7 @@ auto extract_chunks(const auto& lights, const auto tl, const auto br) {
 }
 
 auto wait_for_message(auto lights) {
-  for (int t{};; ++t) {
+  for (int t{}; t < 1'000'000; ++t) {
     const auto [tl, br]{find_grid_corners(lights)};
     if (br.y - tl.y + 1 == 10 && br.x - tl.x < 200) {
       const auto msg{
@@ -94,6 +94,7 @@ auto wait_for_message(auto lights) {
     }
     ranges::for_each(lights, [](auto& l) { l.p += l.v; });
   }
+  throw std::runtime_error("search space exhausted");
 }
 
 int main() {
