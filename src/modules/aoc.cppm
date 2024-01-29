@@ -1,5 +1,4 @@
 module;
-// Various helpers, independent of each AoC year
 import std;
 
 export module aoc;
@@ -41,12 +40,14 @@ std::istream& skip(std::istream& is, const auto& pattern, const auto&... pattern
   return is;
 }
 
-// Character map adapted from
-// https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
-// Accessed 2023-11-20
 char as_ascii(std::string aoc_letter) {
+  // given an advent of code ascii art letter in row-major order,
+  // return the corresponding character
   using std::operator""s;
   static const std::unordered_map<std::string, char> charmap{
+      // 6-pixel character map adapted from
+      // https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
+      // Accessed 2023-11-20
       {".##.#..##..######..##..#"s, 'A'},
       {"###.#..####.#..##..####."s, 'B'},
       {".##.#..##...#...#..#.##."s, 'C'},
@@ -65,6 +66,24 @@ char as_ascii(std::string aoc_letter) {
       {"#..##..##..##..##..#.##."s, 'U'},
       {"#...#....#.#..#...#...#."s, 'Y'},
       {"####...#..#..#..#...####"s, 'Z'},
+      // 10-pixel character map adapted from
+      // https://gist.github.com/usbpc/5fa0be48ad7b4b0594b3b8b029bc47b4
+      // Accessed 2024-01-29
+      {"..##...#..#.#....##....##....########....##....##....##....#"s, 'A'},
+      {"#####.#....##....##....######.#....##....##....##....######."s, 'B'},
+      {".####.#....##.....#.....#.....#.....#.....#.....#....#.####."s, 'C'},
+      {"#######.....#.....#.....#####.#.....#.....#.....#.....######"s, 'E'},
+      {"#######.....#.....#.....#####.#.....#.....#.....#.....#....."s, 'F'},
+      {".####.#....##.....#.....#.....#..####....##....##...##.###.#"s, 'G'},
+      {"#....##....##....##....########....##....##....##....##....#"s, 'H'},
+      {"...###....#.....#.....#.....#.....#.....#.#...#.#...#..###.."s, 'J'},
+      {"#....##...#.#..#..#.#...##....##....#.#...#..#..#...#.#....#"s, 'K'},
+      {"#.....#.....#.....#.....#.....#.....#.....#.....#.....######"s, 'L'},
+      {"#....###...###...##.#..##.#..##..#.##..#.##...###...###....#"s, 'N'},
+      {"#####.#....##....##....######.#.....#.....#.....#.....#....."s, 'P'},
+      {"#####.#....##....##....######.#..#..#...#.#...#.#....##....#"s, 'R'},
+      {"#....##....#.#..#..#..#...##....##...#..#..#..#.#....##....#"s, 'X'},
+      {"######.....#.....#....#....#....#....#....#.....#.....######"s, 'Z'},
   };
   if (const auto it{charmap.find(aoc_letter)}; it != charmap.end()) {
     return it->second;
