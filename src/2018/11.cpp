@@ -24,7 +24,7 @@ auto search(const int serial) {
   std::mdspan grid(sums.data(), size, size);
   for (auto y{1uz}; y < size; ++y) {
     for (auto x{1uz}; x < size; ++x) {
-      const auto power{get_digit((x + 11) * ((x + 11) * (y + 1) + serial), 3) - 5};
+      const auto power{get_digit((x + 10) * ((x + 10) * y + serial), 3) - 5};
       grid[x, y] = power + grid[x, y - 1] + grid[x - 1, y] - grid[x - 1, y - 1];
     }
   }
@@ -33,14 +33,12 @@ auto search(const int serial) {
     auto& r{results.emplace_back(std::numeric_limits<long>::min(), 0, 0, n)};
     for (auto y{1uz}; y < size - n; ++y) {
       for (auto x{1uz}; x < size - n; ++x) {
-        const auto a{grid[x + 0, y + 0]};
-        const auto b{grid[x + n, y + 0]};
-        const auto c{grid[x + 0, y + n]};
-        const auto d{grid[x + n, y + n]};
-        if (const auto power{d - c - b + a}; power > r.power) {
+        const auto ad{grid[x, y] + grid[x + n, y + n]};
+        const auto bc{grid[x + n, y] + grid[x, y + n]};
+        if (const auto power{ad - bc}; power > r.power) {
           r.power = power;
-          r.x = x + 2;
-          r.y = y + 2;
+          r.x = x + 1;
+          r.y = y + 1;
         }
       }
     }
