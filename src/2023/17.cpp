@@ -5,7 +5,7 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum class Direction : std::size_t {
+enum class Direction : long {
   east = 0,
   south = 1,
   west = 2,

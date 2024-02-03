@@ -35,8 +35,8 @@ auto count_safe_tiles(const auto& tiles, const auto line_count) {
     throw std::runtime_error("too many tiles, cannot use std::bitset");
   }
   safe.set();
-  for (const auto& [i, t] : my_std::views::enumerate(tiles, 1uz)) {
-    safe[i] = t == Tile::safe;
+  for (const auto& [i, t] : my_std::views::enumerate(tiles, 1)) {
+    safe[i] = (t == Tile::safe);
   }
   int n{};
   for (int l{}; l < line_count; ++l) {
