@@ -27,7 +27,8 @@ struct Grid2D {
 
   auto start_state() const {
     const auto i{ranges::find(tiles, Tile::pipe_vertical) - tiles.begin()};
-    return std::tuple{i / width, i % width, 1, 0};
+    const auto [y, x]{std::lldiv(i, width)};
+    return std::tuple{y, x, 1, 0};
   }
 
   auto index(const auto y, const auto x) const {

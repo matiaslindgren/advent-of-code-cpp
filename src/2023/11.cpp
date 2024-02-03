@@ -37,7 +37,7 @@ struct Space {
     const auto n{galaxies.size()};
     return my_std::ranges::fold_left(
         views::iota(0uz, n * n) | views::transform([=, this](const auto& i) -> long {
-          if (const auto i1{i / n}, i2{i % n}; i1 < i2) {
+          if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
             const auto p1{this->galaxies[i1]};
             const auto p2{this->galaxies[i2]};
             return l1_norm(p1, p2) + (expansion - 1) * count_expansions(p1, p2);

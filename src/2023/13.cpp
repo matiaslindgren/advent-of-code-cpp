@@ -53,8 +53,7 @@ auto pairwise_diff(
 ) {
   return (
       views::iota(0uz, n * n) | views::transform([&](auto i) -> int {
-        const auto i1{i / n};
-        const auto i2{i % n};
+        const auto [i1, i2]{std::lldiv(i, n)};
         return ranges::count_if(views::iota(0uz, m), [&](auto j) {
           const auto x1{v[i1 * stride1 + j * stride2]};
           const auto x2{v[i2 * stride1 + j * stride2]};

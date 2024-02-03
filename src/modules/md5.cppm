@@ -83,7 +83,10 @@ State sum(ranges::range auto&& msg) {
   Input input;
   input.fill(0);
 
-  const auto append_input{[&input](auto i, Byte b) { input[i / 4] |= b << (8 * (i % 4)); }};
+  const auto append_input{[&input](auto i, Byte b) {
+    const auto [i_inp, i_out]{std::div(i, 4)};
+    input[i_inp] |= b << (8 * i_out);
+  }};
 
   auto msg_size{0uz};
 

@@ -6,8 +6,9 @@ namespace views = std::views;
 int get_digit(auto a, const auto k) {
   int d{};
   for (int i{}; i < k; ++i) {
-    d = a % 10;
-    a /= 10;
+    const auto [q, r]{std::div(a, 10)};
+    d = r;
+    a = q;
   }
   return d;
 }
