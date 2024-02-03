@@ -58,7 +58,7 @@ int main() {
     throw std::runtime_error("entire range is excluded");
   }
 
-  const auto part1{ranges::min_element(allowed, {}, [](const auto& r) { return r.begin; })->begin};
+  const auto part1{ranges::min_element(allowed, {}, &Range::begin)->begin};
   const auto part2{sum(views::transform(allowed, [](const auto& r) { return r.end - r.begin + 1; }))
   };
 

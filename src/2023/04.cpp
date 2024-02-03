@@ -68,7 +68,7 @@ int main() {
 
   const auto wins{
     views::istream<Wins>(input)
-      | views::transform([](const auto w) { return w.count; })
+      | views::transform(&Wins::count)
       | ranges::to<std::vector>()
   };
 

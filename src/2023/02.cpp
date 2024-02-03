@@ -53,7 +53,7 @@ int main() {
   auto possible_ids{
       max_counts
       | views::filter([](auto gm) { return gm.red <= 12 && gm.green <= 13 && gm.blue <= 14; })
-      | views::transform([](auto gm) { return gm.id; })
+      | views::transform(&GameMax::id)
   };
   auto powers{max_counts | views::transform([](auto gm) { return gm.red * gm.green * gm.blue; })};
 

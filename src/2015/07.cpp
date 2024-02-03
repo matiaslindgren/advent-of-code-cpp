@@ -109,8 +109,9 @@ int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   const auto circuit{
-      views::istream<Statement>(input)
-      | views::transform([](const auto& stmt) { return std::make_tuple(stmt.dst, stmt); })
+      views::istream<Statement>(input) | views::transform([](const auto& stmt) {
+        return std::tuple{stmt.dst, stmt};
+      })
       | ranges::to<std::unordered_map<std::string, Statement>>()
   };
 

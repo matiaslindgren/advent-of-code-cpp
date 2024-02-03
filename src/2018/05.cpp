@@ -31,9 +31,6 @@ std::istream& operator>>(std::istream& is, Unit& unit) {
   throw std::runtime_error("failed parsing Unit");
 }
 
-constexpr auto is_alive{[](const Unit& u) { return u.alive; }};
-constexpr auto is_dead{std::not_fn(is_alive)};
-
 std::size_t react(auto polymer) {
   for (auto alive{ranges::subrange(polymer)};;) {
     // TODO std adjacent
@@ -42,7 +39,7 @@ std::size_t react(auto polymer) {
         lhs.alive = rhs.alive = false;
       }
     }
-    if (const auto dead{ranges::remove_if(alive, is_dead)}; dead.empty()) {
+    if (const auto dead{ranges::remove_if(alive, std::not_fn(&Unit::alive))}; dead.empty()) {
       return alive.size();
     } else {
       alive = ranges::subrange(alive.begin(), dead.begin());

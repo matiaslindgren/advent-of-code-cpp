@@ -1,4 +1,5 @@
 import std;
+import my_std;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -35,18 +36,14 @@ bool is_forbidden_pair(char ch0, char ch1) {
 bool is_nice_part1(const std::string& s) {
   const auto has_3_vowels{ranges::count_if(s, is_vowel) >= 3};
   const auto has_letter_pair{ranges::adjacent_find(s) != s.end()};
-  const auto has_forbidden_pair{ranges::any_of(views::zip(s, views::drop(s, 1)), [](const auto& t) {
-    const auto& [ch0, ch1] = t;
-    return is_forbidden_pair(ch0, ch1);
-  })};
+  const auto has_forbidden_pair{
+      ranges::any_of(views::zip(s, views::drop(s, 1)), my_std::apply_fn(is_forbidden_pair))
+  };
   return has_3_vowels && has_letter_pair && !has_forbidden_pair;
 }
 
 auto contains_sandwich_letter(const std::string& s) {
-  return ranges::any_of(views::zip(s, views::drop(s, 2)), [](const auto& t) {
-    const auto& [ch0, ch1] = t;
-    return ch0 == ch1;
-  });
+  return ranges::any_of(views::zip(s, views::drop(s, 2)), my_std::apply_fn(std::equal_to{}));
 }
 
 auto contains_letter_pair_twice(const std::string& s) {
@@ -76,7 +73,6 @@ bool is_nice_part2(const std::string& s) {
 
 int main() {
   std::ios::sync_with_stdio(false);
-
   const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
 
   const auto part1{ranges::count_if(lines, is_nice_part1)};

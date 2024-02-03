@@ -61,14 +61,14 @@ int main() {
         }
       }
     }
-    const auto leader_state{find_leader([](const auto& s) { return s.distance; })};
+    const auto leader_state{find_leader(&ReindeerState::distance)};
     for (auto& s : race_state) {
       s.points += (s.distance == leader_state.distance);
     }
   }
 
-  const auto part1{find_leader([](const auto& s) { return s.distance; }).distance};
-  const auto part2{find_leader([](const auto& s) { return s.points; }).points};
+  const auto part1{find_leader(&ReindeerState::distance).distance};
+  const auto part2{find_leader(&ReindeerState::points).points};
 
   std::print("{} {}\n", part1, part2);
 

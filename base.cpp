@@ -39,7 +39,7 @@ std::istream& operator>>(std::istream& is, Item& item) {
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& items) {
-  return sum(views::transform(items, [](auto i) { return i.id; }));
+  return sum(views::transform(items, &Item::id));
 }
 
 auto find_part2(const auto& items) {

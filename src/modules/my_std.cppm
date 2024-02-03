@@ -221,4 +221,14 @@ inline constexpr auto enumerate = _enumerate_fn{};
 
 }  // namespace views
 
+struct _apply_fn {
+  constexpr auto operator()(auto&& f) const {
+    return [&f](auto&& args) {
+      return std::apply(std::forward<decltype(f)>(f), std::forward<decltype(args)>(args));
+    };
+  }
+};
+
+inline constexpr auto apply_fn = _apply_fn{};
+
 }  // namespace my_std

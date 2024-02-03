@@ -82,10 +82,10 @@ auto generate_plants(auto state, const auto& rules, const auto n_iter) {
       }
     }
     const auto prev_plants{plants};
-    plants = sum(my_std::views::enumerate(state, zero) | views::transform([](const auto& s) {
-                   const auto& [i, p] = s;
-                   return p * i;
-                 }));
+    plants = sum(
+        my_std::views::enumerate(state, zero)
+        | views::transform(my_std::apply_fn(std::multiplies{}))
+    );
     if (delta == plants - prev_plants) {
       plants += (n_iter - iter - 1) * delta;
       break;

@@ -29,10 +29,11 @@ auto search_checksum(const std::string& input, const auto length) {
   }
 
   for (n = length; n % 2 == 0; n /= 2) {
-    ranges::transform(chunks2(bits | views::take(n)), bits.begin(), [](const auto& b1b2) {
-      const auto [b1, b2] = b1b2;
-      return b1 == b2;
-    });
+    ranges::transform(
+        chunks2(bits | views::take(n)),
+        bits.begin(),
+        my_std::apply_fn(std::equal_to{})
+    );
   }
 
   return views::transform(bits | views::take(n), [](const bool b) { return b ? '1' : '0'; })

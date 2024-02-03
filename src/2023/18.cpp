@@ -102,11 +102,11 @@ auto dig(ranges::view auto&& steps) {
     trench.push_back(trench.back() + delta);
     trench_len += step.len;
   }
-  auto&& trapezoid_areas{views::transform(window2(trench), [](auto p1p2) {
-    const auto& [p1, p2] = p1p2;
+  const auto trapezoid_area{[](const auto& p1, const auto& p2) {
     return (p1.y + p2.y) * (p1.x - p2.x);
-  })};
-  const auto trench_area{std::abs(sum(trapezoid_areas)) / 2};
+  }};
+  const auto areas{views::transform(window2(trench), my_std::apply_fn(trapezoid_area))};
+  const auto trench_area{std::abs(sum(areas)) / 2};
   return trench_len / 2 + trench_area + 1;
 }
 

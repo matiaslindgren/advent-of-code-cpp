@@ -60,8 +60,9 @@ int main() {
   }
 
   const auto steps{
-      views::istream<Step>(input)
-      | views::transform([](const auto& step) { return std::make_pair(step.src, step); })
+      views::istream<Step>(input) | views::transform([](const auto& step) {
+        return std::pair{step.src, step};
+      })
       | ranges::to<Steps>()
   };
 

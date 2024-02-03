@@ -19,16 +19,8 @@ std::vector<Ints> parse_input(std::istream& is) {
   throw std::runtime_error("failed parsing Ints");
 }
 
-// TODO ranges::adjacent
-constexpr decltype(auto) window2(ranges::range auto&& r) {
-  return views::zip(r, views::drop(r, 1));
-}
-
 Ints adjacent_diff(const auto& hist) {
-  return window2(hist) | views::transform([](const auto& w) {
-           const auto [x1, x2] = w;
-           return x2 - x1;
-         })
+  return views::zip(views::drop(hist, 1), hist) | views::transform(my_std::apply_fn(std::minus{}))
          | ranges::to<Ints>();
 }
 

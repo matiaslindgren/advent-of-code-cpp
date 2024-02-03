@@ -58,9 +58,7 @@ int main() {
   const auto sq_3{results[2]};
   const auto part1{std::format("{},{}", sq_3.x, sq_3.y)};
 
-  const auto sq_max{ranges::max_element(results, ranges::less{}, [](const auto& r) {
-    return r.power;
-  })};
+  const auto sq_max{ranges::max_element(results, ranges::less{}, &Result::power)};
   const auto part2{std::format("{},{},{}", sq_max->x, sq_max->y, sq_max->size)};
 
   std::print("{} {}\n", part1, part2);

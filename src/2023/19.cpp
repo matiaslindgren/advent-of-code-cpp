@@ -26,10 +26,7 @@ struct RatingBound {
   Rating upper{{4001, 4001, 4001, 4001}};
 
   constexpr bool contains(const Rating& r) const {
-    const auto less{[](const auto& pair) {
-      const auto& [lhs, rhs] = pair;
-      return lhs < rhs;
-    }};
+    const auto less{my_std::apply_fn(ranges::less{})};
     return ranges::all_of(views::zip(lower, r), less) && ranges::all_of(views::zip(r, upper), less);
   }
 

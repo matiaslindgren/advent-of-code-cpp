@@ -52,7 +52,7 @@ long count_decompressed(const Markers& markers, const bool simple) {
 
   const auto get_current_total_repeat{[&] {
     return my_std::ranges::fold_left(
-        repeating | views::transform([](const auto& m) { return m.repeat; }),
+        repeating | views::transform(&Marker::repeat),
         1L,
         std::multiplies{}
     );

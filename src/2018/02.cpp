@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import aoc;
 
 namespace ranges = std::ranges;
@@ -19,8 +20,8 @@ auto intersect(std::string_view s1, std::string_view s2) {
   // clang-format off
   return (
       views::zip(s1, s2)
-      | views::filter([](const auto& p) { return p.first == p.second; })
-      | views::transform([](const auto& p) { return p.first; })
+      | views::filter(my_std::apply_fn(std::equal_to{}))
+      | views::elements<0>
       | ranges::to<std::string>()
   );
   // clang-format on

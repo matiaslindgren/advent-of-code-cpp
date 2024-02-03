@@ -55,8 +55,8 @@ auto count_viable_pairs(const auto& nodes) {
 }
 
 auto find_shortest_path(const auto& nodes) {
-  const auto x_max{ranges::max_element(nodes, {}, [](const auto& n) { return n.x; })->x};
-  const auto y_max{ranges::max_element(nodes, {}, [](const auto& n) { return n.y; })->y};
+  const auto x_max{ranges::max_element(nodes, {}, &Node::x)->x};
+  const auto y_max{ranges::max_element(nodes, {}, &Node::y)->y};
 
   const auto width{3u + x_max};
   const auto height{3u + y_max};

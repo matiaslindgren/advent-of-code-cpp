@@ -27,13 +27,7 @@ struct Room {
       const auto& [ch2, n2] = p2;
       return n1 > n2 || (n1 == n2 && ch1 < ch2);
     });
-    // clang-format off
-    return (
-      views::take(cc, 5)
-      | views::transform([](const auto& p) { return p.first; })
-      | ranges::to<std::string>()
-    );
-    // clang-format on
+    return views::take(cc, 5) | views::elements<0> | ranges::to<std::string>();
   }
 
   std::string decrypt_name() const {
@@ -80,7 +74,7 @@ int find_part1(const auto& rooms) {
   return my_std::ranges::fold_left(
     rooms
       | views::filter([](const auto& r) { return r.check_name() == r.checksum; })
-      | views::transform([](const auto& r) { return r.id; }),
+      | views::transform(&Room::id),
     0L,
     std::plus{}
   );

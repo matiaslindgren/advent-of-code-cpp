@@ -16,22 +16,22 @@ Ints parse_input(std::istream& is, std::string_view prefix) {
   return {};
 }
 
-constexpr auto count_ways_to_win(auto time, auto dist) {
-  return ranges::count_if(views::iota(0, time), [=](auto t_press) {
-    return t_press * (time - t_press) > dist;
-  });
-}
+struct count_ways_to_win_fn {
+  auto operator()(auto time, auto dist) const {
+    return ranges::count_if(views::iota(0, time), [=](auto t_press) {
+      return t_press * (time - t_press) > dist;
+    });
+  }
+};
+inline auto count_ways_to_win = count_ways_to_win_fn{};
 
 constexpr auto product{std::__bind_back(my_std::ranges::fold_left, 1L, std::multiplies{})};
 
-constexpr auto find_part1(const Ints& times, const Ints& dists) {
-  return product(views::zip(times, dists) | views::transform([](const auto& p) {
-                   auto [t, d] = p;
-                   return count_ways_to_win(t, d);
-                 }));
+auto find_part1(const Ints& times, const Ints& dists) {
+  return product(views::zip(times, dists) | views::transform(my_std::apply_fn(count_ways_to_win)));
 }
 
-constexpr long pow10_ceil(long x) {
+long pow10_ceil(long x) {
   long p{10};
   for (; x >= 10; x /= 10) {
     p *= 10;
@@ -39,11 +39,11 @@ constexpr long pow10_ceil(long x) {
   return p;
 }
 
-constexpr auto concat_digits(const Ints& v) {
+auto concat_digits(const Ints& v) {
   return my_std::ranges::fold_left(v, 0L, [](auto res, auto x) { return res * pow10_ceil(x) + x; });
 }
 
-constexpr auto find_part2(const Ints& times, const Ints& dists) {
+auto find_part2(const Ints& times, const Ints& dists) {
   const auto t{concat_digits(times)};
   const auto d{concat_digits(dists)};
   return count_ways_to_win(t, d);

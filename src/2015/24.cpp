@@ -21,7 +21,7 @@ std::vector<Ints> combinations_with_sum(const Ints& ints, const int k, const lon
     const Ints candidate{
       views::zip(selected, ints)
       | views::filter([](const auto& p) { return p.first; })
-      | views::transform([](const auto& p) { return p.second; })
+      | views::elements<1>
       | ranges::to<Ints>()
     };
     // clang-format on
