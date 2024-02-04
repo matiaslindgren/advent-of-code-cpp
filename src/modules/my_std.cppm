@@ -229,9 +229,11 @@ inline constexpr auto enumerate = _enumerate_fn{};
 }  // namespace views
 
 struct _apply_fn {
-  constexpr auto operator()(auto&& f) const {
-    return [&f](auto&& args) {
-      return std::apply(std::forward<decltype(f)>(f), std::forward<decltype(args)>(args));
+  template <class Fn>
+  constexpr auto operator()(Fn&& f) const {
+    // TODO why not std::bind_front(std::apply, f) ?
+    return [&f]<class Tuple>(Tuple&& t) {
+      return std::apply(std::forward<Fn>(f), std::forward<Tuple>(t));
     };
   }
 };
