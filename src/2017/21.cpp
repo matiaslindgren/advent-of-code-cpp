@@ -8,6 +8,11 @@ using std::operator""s;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+constexpr auto square_indices(const auto n) {
+  auto&& side{views::iota(0, n)};
+  return my_std::views::cartesian_product(side, side);
+}
+
 struct Pattern {
   int size{};
   std::string str{};
@@ -50,19 +55,15 @@ std::istream& operator>>(std::istream& is, Rule& rule) {
 
 Pattern Pattern::get_slice(const auto y0, const auto x0, const auto n) const {
   std::string res(n * n, 0);
-  for (auto y{0uz}; y < n; ++y) {
-    for (auto x{0uz}; x < n; ++x) {
-      res[y * n + x] = str[(y0 + y) * size + (x0 + x)];
-    }
+  for (auto&& [y, x] : square_indices(n)) {
+    res[y * n + x] = str[(y0 + y) * size + (x0 + x)];
   }
   return {n, res};
 }
 
 void Pattern::set_slice(const auto y0, const auto x0, const Pattern& s) {
-  for (auto y{0uz}; y < s.size; ++y) {
-    for (auto x{0uz}; x < s.size; ++x) {
-      str[(y0 + y) * size + (x0 + x)] = s.str[y * s.size + x];
-    }
+  for (auto&& [y, x] : square_indices(s.size)) {
+    str[(y0 + y) * size + (x0 + x)] = s.str[y * s.size + x];
   }
 }
 
@@ -81,34 +82,28 @@ Pattern Pattern::expand(const auto step, const auto& rules) const {
       .size = (step + 1) * int_sqrt(slice_count),
       .str = std::string(str.size() + slice_count * (2 * step + 1), 0),
   };
-  for (auto y{0uz}; y * step < size; ++y) {
-    for (auto x{0uz}; x * step < size; ++x) {
-      const auto y0{y * step};
-      const auto x0{x * step};
-      const auto y1{y * (step + 1)};
-      const auto x1{x * (step + 1)};
-      res.set_slice(y1, x1, rules.at(get_slice(y0, x0, step).str));
-    }
+  for (auto&& [y, x] : square_indices(size / step)) {
+    const auto y0{y * step};
+    const auto x0{x * step};
+    const auto y1{y * (step + 1)};
+    const auto x1{x * (step + 1)};
+    res.set_slice(y1, x1, rules.at(get_slice(y0, x0, step).str));
   }
   return res;
 }
 
 Pattern Pattern::transpose() const {
   std::string res(str.size(), 0);
-  for (auto y{0uz}; y < size; ++y) {
-    for (auto x{0uz}; x < size; ++x) {
-      res[x * size + y] = str[y * size + x];
-    }
+  for (auto&& [y, x] : square_indices(size)) {
+    res[x * size + y] = str[y * size + x];
   }
   return {size, res};
 }
 
 Pattern Pattern::flip() const {
   std::string res(str.size(), 0);
-  for (auto y{0uz}; y < size; ++y) {
-    for (auto x{0uz}; x < size; ++x) {
-      res[(size - (y + 1)) * size + x] = str[y * size + x];
-    }
+  for (auto&& [y, x] : square_indices(size)) {
+    res[(size - (y + 1)) * size + x] = str[y * size + x];
   }
   return {size, res};
 }

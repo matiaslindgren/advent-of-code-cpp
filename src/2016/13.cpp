@@ -133,7 +133,6 @@ auto find_part1(const int designer_num) {
 }
 
 auto find_part2(const int designer_num, const int step_limit) {
-  // TODO cartesian prod view
   Points targets;
   for (std::size_t x{0}; x <= step_limit + 1; ++x) {
     for (std::size_t y{0}; x + y <= step_limit + 1; ++y) {

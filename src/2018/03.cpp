@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import aoc;
 
 namespace ranges = std::ranges;
@@ -6,6 +7,10 @@ namespace views = std::views;
 
 struct Claim {
   int id{}, left{}, top{}, width{}, height{};
+
+  auto iter_yx() const {
+    return my_std::views::cartesian_product(views::iota(0, height), views::iota(0, width));
+  }
 };
 
 std::istream& operator>>(std::istream& is, Claim& claim) {
@@ -42,21 +47,17 @@ auto count_squares(const auto& claims) {
   std::vector<int> claim_counts(width * height, 0);
 
   for (const auto& c : claims) {
-    for (int y{0}; y < c.height; ++y) {
-      for (int x{0}; x < c.width; ++x) {
-        claim_counts[(y + c.top) * width + x + c.left] += 1;
-      }
+    for (const auto& [y, x] : c.iter_yx()) {
+      claim_counts[(y + c.top) * width + x + c.left] += 1;
     }
   }
 
   const auto overlapping_count{ranges::count_if(claim_counts, [](auto n) { return n > 1; })};
 
   const auto intact_claim{ranges::find_if(claims, [&](const auto& c) {
-    for (int y{0}; y < c.height; ++y) {
-      for (int x{0}; x < c.width; ++x) {
-        if (claim_counts[(y + c.top) * width + x + c.left] != 1) {
-          return false;
-        }
+    for (const auto& [y, x] : c.iter_yx()) {
+      if (claim_counts[(y + c.top) * width + x + c.left] != 1) {
+        return false;
       }
     }
     return true;

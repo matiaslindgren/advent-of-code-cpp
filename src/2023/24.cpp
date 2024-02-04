@@ -89,7 +89,6 @@ std::optional<Vec3> intersectXY(const Stone& lhs, const Stone& rhs) {
 }
 
 auto find_part1(const auto& stones) {
-  // TODO cartesian prod view
   auto n{0uz};
   for (const auto& [i, stone1] : my_std::views::enumerate(stones, 1uz)) {
     n += ranges::count_if(stones | views::drop(i), [&stone1](const auto& stone2) {

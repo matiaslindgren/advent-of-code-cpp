@@ -45,13 +45,12 @@ auto parse_nodes(std::istream& is) {
 }
 
 auto count_viable_pairs(const auto& nodes) {
-  int n_viable{};
-  for (const auto& na : nodes) {
-    for (const auto& nb : nodes) {
-      n_viable += (na != nb) && (na.used > 0) && (na.used + nb.used <= nb.size);
-    }
-  }
-  return n_viable;
+  return ranges::count_if(
+      my_std::views::cartesian_product(nodes, nodes),
+      my_std::apply_fn([](const auto& na, const auto& nb) {
+        return (na != nb) && (na.used > 0) && (na.used + nb.used <= nb.size);
+      })
+  );
 }
 
 auto find_shortest_path(const auto& nodes) {

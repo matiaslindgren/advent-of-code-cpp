@@ -88,6 +88,7 @@ auto count_energized(const Grid2D& grid, const Beam entry) {
     const Beam s_beam{Beam::Direction::S, y + 1, x + 0};
     const Beam w_beam{Beam::Direction::W, y + 0, x - 1};
 
+    // TODO vec2 arithmetic
     switch (dir) {
       case Beam::Direction::N: {
         switch (tile) {

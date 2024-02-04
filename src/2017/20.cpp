@@ -96,23 +96,21 @@ auto find_part1(const auto& particles) {
 auto find_part2(const auto& particles) {
   std::unordered_map<int, std::vector<std::pair<int, int>>> collisions;
 
-  for (const auto& p1 : particles) {
-    for (const auto& p2 : particles) {
-      if (p1.id == p2.id) {
-        continue;
-      }
-      const auto a{p1.a - p2.a};
-      const auto b{(p1.v - p2.v) * 2 + a};
-      const auto c{(p1.p - p2.p) * 2};
-      const auto [tx0, tx1] = solve_quadratic(a.x, b.x, c.x);
-      const auto [ty0, ty1] = solve_quadratic(a.y, b.y, c.y);
-      const auto [tz0, tz1] = solve_quadratic(a.z, b.z, c.z);
-      if (tx0 >= 0 && tx0 == ty0 && ty0 == tz0) {
-        collisions[tx0].emplace_back(p1.id, p2.id);
-      }
-      if (tx1 >= 0 && tx1 == ty1 && ty1 == tz1) {
-        collisions[tx1].emplace_back(p1.id, p2.id);
-      }
+  for (const auto& [p1, p2] : my_std::views::cartesian_product(particles, particles)) {
+    if (p1.id == p2.id) {
+      continue;
+    }
+    const auto a{p1.a - p2.a};
+    const auto b{(p1.v - p2.v) * 2 + a};
+    const auto c{(p1.p - p2.p) * 2};
+    const auto [tx0, tx1] = solve_quadratic(a.x, b.x, c.x);
+    const auto [ty0, ty1] = solve_quadratic(a.y, b.y, c.y);
+    const auto [tz0, tz1] = solve_quadratic(a.z, b.z, c.z);
+    if (tx0 >= 0 && tx0 == ty0 && ty0 == tz0) {
+      collisions[tx0].emplace_back(p1.id, p2.id);
+    }
+    if (tx1 >= 0 && tx1 == ty1 && ty1 == tz1) {
+      collisions[tx1].emplace_back(p1.id, p2.id);
     }
   }
 

@@ -1,4 +1,5 @@
 import std;
+import my_std;
 import aoc;
 
 namespace ranges = std::ranges;
@@ -45,11 +46,10 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
 using Keypad = std::vector<std::string>;
 
 std::pair<unsigned, unsigned> find(const Keypad& keypad, char key) {
-  for (unsigned y{}; y < keypad.size(); ++y) {
-    for (unsigned x{}; x < keypad.size(); ++x) {
-      if (keypad[y][x] == key) {
-        return {y, x};
-      }
+  const auto axis{views::iota(0uz, keypad.size())};
+  for (auto&& [y, x] : my_std::views::cartesian_product(axis, axis)) {
+    if (keypad[y][x] == key) {
+      return {y, x};
     }
   }
   throw std::runtime_error(std::format("keypad has no {}", key));

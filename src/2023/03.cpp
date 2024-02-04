@@ -5,15 +5,8 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr decltype(auto) yx_range(auto y0, auto y1, auto x0, auto x1) {
-  const auto ny{y1 - y0};
-  const auto nx{x1 - x0};
-  return views::zip(
-      views::iota(decltype(y0){}, nx * ny)
-          | views::transform([=](const auto& y) { return y0 + (y / ny); }),
-      views::iota(decltype(x0){}, nx * ny)
-          | views::transform([=](const auto& x) { return x0 + (x % nx); })
-  );
+constexpr auto yx_range(auto y0, auto y1, auto x0, auto x1) {
+  return my_std::views::cartesian_product(views::iota(y0, y1), views::iota(x0, x1));
 }
 
 struct Grid {
