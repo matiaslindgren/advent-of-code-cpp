@@ -69,54 +69,9 @@ void test_ranges_enumerate() {
   }
 }
 
-void test_ranges_cartesian_product() {
-#if 0
-  const auto ints{std::views::iota(0)};
-  const auto take2{std::views::take(2)};
-  const auto to_vec{std::ranges::to<std::vector>()};
-
-  auto v1{ints | std::views::drop(1) | take2 | to_vec};
-  auto v2{ints | std::views::drop(10) | take2 | to_vec};
-  auto v3{ints | std::views::drop(100) | take2 | to_vec};
-
-  std::vector<std::tuple<int, int, int>> expect;
-  for (int a{1}; a <= 2; ++a) {
-    for (int b{10}; b <= 12; ++b) {
-      for (int c{100}; c <= 102; ++c) {
-        expect.emplace_back(a, b, c);
-      }
-    }
-  }
-
-  auto it{expect.begin()};
-
-  for (auto&& [a, b, c] : my_std::views::cartesian_product(v1, v2, v3)) {
-    if (it == expect.end()) {
-      throw std::runtime_error("cartesian product produced too many values");
-    }
-    const auto [a1, b1, c1] = *it;
-    if (a != a1) {
-      throw std::runtime_error(std::format("a: {} != {}", a, a1));
-    }
-    if (b != b1) {
-      throw std::runtime_error(std::format("b: {} != {}", b, b1));
-    }
-    if (c != c1) {
-      throw std::runtime_error(std::format("c: {} != {}", c, c1));
-    }
-    ++it;
-  }
-
-  if (it != expect.end()) {
-    throw std::runtime_error("cartesian product produced too few values");
-  }
-#endif
-}
-
 int main() {
   test_ranges_fold();
   test_ranges_stride();
   test_ranges_enumerate();
-  test_ranges_cartesian_product();
   return 0;
 }
