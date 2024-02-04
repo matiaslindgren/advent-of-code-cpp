@@ -45,6 +45,8 @@ jobs:
       run: make FAST=${{ matrix.fast }} --jobs $(getconf _NPROCESSORS_ONLN)
     - name: dump sysinfo
       run: make FAST=${{ matrix.fast }} run_tools/sysinfo
+    - name: test utils
+      run: make FAST=${{ matrix.fast }} test_utils
     - name: test md5
       run: FAST=${{ matrix.fast }} ./scripts/test_md5.bash
     - name: test all solutions

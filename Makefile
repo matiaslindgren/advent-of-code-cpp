@@ -46,6 +46,12 @@ SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
 OUT_FILES := $(basename $(SRC_PATHS:$(SRC)/%=%))
 OUT_PATHS := $(addprefix $(OUT_DIR)/,$(OUT_FILES))
 
+TESTS      := tests
+TEST_SRC   := $(wildcard $(TESTS)/*.cpp)
+TEST_FILES := $(addprefix $(OUT_DIR)/,$(basename $(TEST_SRC)))
+
+TEST_OUT_DIR := $(OUT_DIR)/$(TESTS)
+
 MODULES       := modules
 MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
 MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT_DIR)/,$(MOD_SRC_PATHS)))
@@ -56,7 +62,7 @@ CXXFLAGS += -fmodules-cache-path=$(MODULE_CACHE) -fmodules-prune-interval=0
 .PHONY: all
 all: $(OUT_PATHS)
 
-$(addsuffix /,$(OUT_DIRS) $(MODULE_CACHE)):
+$(addsuffix /,$(OUT_DIRS) $(MODULE_CACHE) $(TEST_OUT_DIR)):
 	mkdir -p $@
 
 .PHONY: clean
@@ -102,6 +108,13 @@ RUN_TOOLS := $(addprefix run_,$(filter tools%,$(OUT_FILES)))
 $(RUN_TOOLS): run_% : $(OUT_DIR)/%
 	@$(OUT_DIR)/$*
 
+
+$(TEST_FILES): $(TEST_OUT_DIR)/%: $(TESTS)/%.cpp | $(TEST_OUT_DIR)/
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT_DIR)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
+
+.PHONY: test_utils
+test_utils: $(TEST_FILES)
+	$<
 
 .SECONDEXPANSION:
 
