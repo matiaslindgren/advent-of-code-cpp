@@ -194,6 +194,154 @@ class stride_view<V>::iterator_ {
   }
 };
 
+// TODO P2374R4 (llvm18?)
+// https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2374r4.html
+
+// TODO
+template <class... Ts>
+// if sizeof...(Ts) == 2
+//   using cartesian_product_tuple_or_pair = std::pair<Ts...>;
+// else
+//   using cartesian_product_tuple_or_pair = std::tuple<Ts...>;
+using cartesian_product_tuple_or_pair = std::tuple<Ts...>;
+
+template <class F, class Tuple>
+constexpr auto cartesian_product_tuple_transform(F&& f, Tuple&& tuple) {
+  return std::apply(
+      [&]<class... Ts>(Ts&&... elements) {
+        return cartesian_product_tuple_or_pair<std::invoke_result_t<F&, Ts>...>(
+            std::invoke(f, std::forward<Ts>(elements))...
+        );
+      },
+      std::forward<Tuple>(tuple)
+  );
+}
+
+template <std::ranges::input_range First, std::ranges::forward_range... Vs>
+  requires(std::ranges::view<First> && ... && std::ranges::view<Vs>)
+class cartesian_product_view
+    : public std::ranges::view_interface<cartesian_product_view<First, Vs...>> {
+ private:
+  std::tuple<First, Vs...> bases_;
+  class iterator;
+
+ public:
+  constexpr cartesian_product_view() = default;
+
+  constexpr explicit cartesian_product_view(First first_base, Vs... bases)
+      : bases_(std::move(first_base), std::move(bases)...) {
+  }
+
+  constexpr iterator begin() {
+    return iterator(this, cartesian_product_tuple_transform(std::ranges::begin, bases_));
+  }
+
+  constexpr iterator end() {
+    return iterator(
+        this,
+        std::apply(
+            [](auto&& base0, auto&&... bases) {
+              return std::tuple{
+                  std::ranges::end(base0),
+                  std::ranges::begin(bases)...,
+              };
+            },
+            bases_
+        )
+    );
+  }
+
+  constexpr std::default_sentinel_t end() const noexcept {
+    return {};
+  }
+};
+
+template <class... Vs>
+cartesian_product_view(Vs&&...) -> cartesian_product_view<std::views::all_t<Vs>...>;
+
+template <std::ranges::input_range First, std::ranges::forward_range... Vs>
+  requires(std::ranges::view<First> && ... && std::ranges::view<Vs>)
+class cartesian_product_view<First, Vs...>::iterator {
+ public:
+  using value_type = cartesian_product_tuple_or_pair<
+      std::ranges::range_value_t<First>,
+      std::ranges::range_value_t<Vs>...>;
+  using difference_type = std::ranges::range_difference_t<First>;
+
+ private:
+  cartesian_product_view* parent_ = nullptr;
+  cartesian_product_tuple_or_pair<std::ranges::iterator_t<First>, std::ranges::iterator_t<Vs>...>
+      current_;
+
+  template <std::size_t N = sizeof...(Vs)>
+  constexpr void next() {
+    auto& it = std::get<N>(current_);
+    ++it;
+    if constexpr (N) {
+      if (it == std::ranges::end(get<N>(parent_->bases_))) {
+        it = std::ranges::begin(std::get<N>(parent_->bases_));
+        next<N - 1>();
+      }
+    }
+  }
+
+  template <std::size_t N = sizeof...(Vs)>
+  constexpr bool equal(const iterator& lhs, const iterator& rhs) const {
+    if (std::get<N>(lhs.current_) != std::get<N>(rhs.current_)) {
+      return false;
+    }
+    if constexpr (N) {
+      return equal<N - 1>(lhs, rhs);
+    }
+    return true;
+  }
+
+  constexpr bool is_end() const {
+    auto&& first_base{std::get<0>(parent_->bases)};
+    return std::ranges::end(first_base) == std::get<0>(current_);
+  }
+
+ public:
+  iterator()
+    requires std::ranges::forward_range<First>
+  = default;
+
+  constexpr explicit iterator(
+      cartesian_product_view* parent,
+      cartesian_product_tuple_or_pair<
+          std::ranges::iterator_t<First>,
+          std::ranges::iterator_t<Vs>...> current
+  )
+      : parent_(parent), current_(std::move(current)) {
+  }
+
+  // constexpr iterator(iterator i) : current_(std::move(i.current_)) { }
+
+  constexpr auto operator*() const {
+    return cartesian_product_tuple_transform(
+        [](auto& i) -> decltype(auto) { return *i; },
+        current_
+    );
+  }
+
+  constexpr iterator& operator++() {
+    next();
+    return *this;
+  }
+
+  constexpr void operator++(int) {
+    ++(*this);
+  }
+
+  constexpr bool operator==(const iterator& x) const {
+    return equal(*this, x);
+  }
+
+  friend constexpr bool operator==(const iterator& x, std::default_sentinel_t) {
+    return x.is_end();
+  }
+};
+
 // TODO(llvm18) P2442R1
 // chunk
 
@@ -233,6 +381,15 @@ struct _enumerate_fn : public std::__range_adaptor_closure<_enumerate_fn> {
 };
 
 inline constexpr auto enumerate = _enumerate_fn{};
+
+struct _cartesian_product_fn {
+  template <std::ranges::range... Rs>
+  constexpr auto operator()(Rs&&... rs) const {
+    return my_std::ranges::cartesian_product_view(std::forward<Rs>(rs)...);
+  }
+};
+
+inline constexpr auto cartesian_product = _cartesian_product_fn{};
 
 }  // namespace views
 
