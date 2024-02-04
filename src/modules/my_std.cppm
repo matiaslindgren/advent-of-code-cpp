@@ -1,5 +1,5 @@
 module;
-// simplified replacements for stuff currently missing from libc++
+// oversimplified C++23 stuff until libc++ implements these
 
 import std;
 
@@ -14,9 +14,13 @@ struct fold_left_fn {
   template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
   constexpr auto operator()(I first, S last, T init, F f) const {
     using U = std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
-    if (first == last) return U(std::move(init));
+    if (first == last) {
+      return U(std::move(init));
+    }
     U accum = std::invoke(f, std::move(init), *first);
-    for (++first; first != last; ++first) accum = std::invoke(f, std::move(accum), *first);
+    for (++first; first != last; ++first) {
+      accum = std::invoke(f, std::move(accum), *first);
+    }
     return std::move(accum);
   }
 
@@ -35,10 +39,14 @@ struct fold_right_fn {
   template <std::bidirectional_iterator I, std::sentinel_for<I> S, class T, class F>
   constexpr auto operator()(I first, S last, T init, F f) const {
     using U = std::decay_t<std::invoke_result_t<F&, std::iter_reference_t<I>, T>>;
-    if (first == last) return U(std::move(init));
+    if (first == last) {
+      return U(std::move(init));
+    }
     I tail = std::ranges::next(first, last);
     U accum = std::invoke(f, *--tail, std::move(init));
-    while (first != tail) accum = std::invoke(f, *--tail, std::move(accum));
+    while (first != tail) {
+      accum = std::invoke(f, *--tail, std::move(accum));
+    }
     return accum;
   }
 
@@ -231,10 +239,11 @@ inline constexpr auto enumerate = _enumerate_fn{};
 struct _apply_fn {
   template <class Fn>
   constexpr auto operator()(Fn&& f) const {
-    // TODO why not std::bind_front(std::apply, f) ?
     return [&f]<class Tuple>(Tuple&& t) {
       return std::apply(std::forward<Fn>(f), std::forward<Tuple>(t));
     };
+    // TODO why not this:
+    // return std::bind_front(std::apply, std::forward<Fn>(f));
   }
 };
 
