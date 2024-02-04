@@ -52,38 +52,16 @@ auto pairwise_diff(
     const auto stride2
 ) {
   return (
-      views::iota(0uz, n * n) | views::transform([&](auto i) -> int {
-        const auto [i1, i2]{std::lldiv(i, n)};
-        return ranges::count_if(views::iota(0uz, m), [&](auto j) {
-          const auto x1{v[i1 * stride1 + j * stride2]};
-          const auto x2{v[i2 * stride1 + j * stride2]};
-          return x1 != x2;
-        });
-      })
+      my_std::views::cartesian_product(views::iota(0uz, n), views::iota(0uz, n))
+      | views::transform(my_std::apply_fn([&](auto&& i1, auto&& i2) -> int {
+          return ranges::count_if(views::iota(0uz, m), [&](auto j) {
+            const auto x1{v[i1 * stride1 + j * stride2]};
+            const auto x2{v[i2 * stride1 + j * stride2]};
+            return x1 != x2;
+          });
+        }))
       | ranges::to<std::vector>()
   );
-}
-
-std::istream& operator>>(std::istream& is, Mirrors& m) {
-  std::vector<char> chars;
-  auto width{0uz};
-  for (std::string line; std::getline(is, line) && !line.empty();) {
-    if (chars.empty() || line.size() == width) {
-      width = line.size();
-      chars.append_range(line);
-    }
-  }
-  if (!chars.empty()) {
-    const auto height{chars.size() / width};
-    const auto& row_diff{pairwise_diff(chars, height, width, width, 1)};
-    const auto& col_diff{pairwise_diff(chars, width, height, 1, width)};
-    m = {.rows = {height, row_diff}, .cols = {width, col_diff}};
-    return is;
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Mirrors");
 }
 
 auto summarize(const auto& mirrors, const auto fix_count) {
@@ -94,13 +72,33 @@ auto summarize(const auto& mirrors, const auto fix_count) {
   });
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+using std::operator""s;
 
-  // TODO views::istream<Mirrors> drops last element ???
-  std::vector<Mirrors> mirrors;
-  while (input >> mirrors.emplace_back()) {
+struct parse_section {
+  Mirrors operator()(std::ranges::range auto&& section) const {
+    std::vector<char> chars;
+    auto width{0uz};
+    for (auto&& line : views::split(section, "\n"s)) {
+      if (!line.empty()) {
+        width = line.size();
+        chars.append_range(line);
+      }
+    }
+    const auto height{chars.size() / width};
+    const auto& row_diff{pairwise_diff(chars, height, width, width, 1)};
+    const auto& col_diff{pairwise_diff(chars, width, height, 1, width)};
+    return {
+        .rows = {height, row_diff},
+        .cols = {width, col_diff},
+    };
   }
+};
+
+int main() {
+  const auto input{aoc::slurp_file("/dev/stdin")};
+  const auto mirrors{
+      views::split(input, "\n\n"s) | views::transform(parse_section{}) | ranges::to<std::vector>()
+  };
 
   const auto part1{sum(summarize(mirrors, 0))};
   const auto part2{sum(summarize(mirrors, 1))};
