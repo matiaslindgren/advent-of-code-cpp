@@ -60,7 +60,7 @@ MODULE_CACHE  := $(OUT_DIR)/$(MODULES)/cache
 CXXFLAGS += -fmodules-cache-path=$(MODULE_CACHE) -fmodules-prune-interval=0
 
 .PHONY: all
-all: $(OUT_PATHS)
+all: $(OUT_PATHS) $(TEST_FILES)
 
 $(addsuffix /,$(OUT_DIRS) $(MODULE_CACHE) $(TEST_OUT_DIR)):
 	mkdir -p $@
