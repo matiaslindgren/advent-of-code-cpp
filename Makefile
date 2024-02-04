@@ -109,7 +109,7 @@ $(RUN_TOOLS): run_% : $(OUT_DIR)/%
 	@$(OUT_DIR)/$*
 
 
-$(TEST_FILES): $(TEST_OUT_DIR)/%: $(TESTS)/%.cpp | $(TEST_OUT_DIR)/
+$(TEST_FILES): $(TEST_OUT_DIR)/%: $(TESTS)/%.cpp $(MOD_OUT_PATHS) | $(TEST_OUT_DIR)/
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT_DIR)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
 
 .PHONY: test_utils
