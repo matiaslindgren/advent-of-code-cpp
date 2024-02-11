@@ -115,13 +115,12 @@ auto count_water(const auto& areas) {
     }
   }
 
-  const auto n_flowing{ranges::count_if(flowing, [&](auto&& i) {
+  const auto flowing_size{ranges::count_if(flowing, [&](auto&& i) {
     const auto [y, x]{std::div(i, max_x)};
     return min_y <= y && y <= max_y && !still.contains(i);
   })};
-  const auto n_still{still.size()};
 
-  return std::pair{n_flowing + n_still, n_still};
+  return std::pair{flowing_size + still.size(), still.size()};
 }
 
 int main() {
