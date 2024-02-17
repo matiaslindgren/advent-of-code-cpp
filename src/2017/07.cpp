@@ -23,8 +23,8 @@ std::istream& operator>>(std::istream& is, Node& node) {
     ranges::replace(line, ',', ' ');
     std::stringstream ls{line};
     if (std::string id; ls >> id) {
-      if (int weight; ls >> std::ws && skip(ls, "("s) && ls >> weight && skip(ls, ")"s)) {
-        if (ls >> std::ws && skip(ls, "->"s)) {
+      if (int weight; ls >> std::ws and skip(ls, "("s) and ls >> weight and skip(ls, ")"s)) {
+        if (ls >> std::ws and skip(ls, "->"s)) {
           node = {id, weight, views::istream<std::string>(ls) | ranges::to<std::vector>()};
         } else {
           node = {id, weight};
@@ -84,7 +84,7 @@ auto find_balance_weight(const auto& nodes) {
 
   for (const auto& leaf :
        nodes | views::values | views::filter([](const auto& n) { return n.is_leaf(); })) {
-    for (auto id{parent.at(leaf.id)}; !id.empty(); id = parent.at(id)) {
+    for (auto id{parent.at(leaf.id)}; not id.empty(); id = parent.at(id)) {
       const auto& n{nodes.at(id)};
       std::unordered_map<int, int> wfreq;
       for (const auto& ch : n.children) {
@@ -95,7 +95,7 @@ auto find_balance_weight(const auto& nodes) {
       }
       const auto unbalanced{ranges::find_if(wfreq, [](const auto& p) { return p.second == 1; })};
       const auto balanced{ranges::find_if(wfreq, [](const auto& p) { return p.second > 1; })};
-      if (unbalanced == wfreq.end() || balanced == wfreq.end()) {
+      if (unbalanced == wfreq.end() or balanced == wfreq.end()) {
         continue;
       }
       const auto w_ub{unbalanced->first};

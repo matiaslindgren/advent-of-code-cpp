@@ -75,16 +75,16 @@ struct Card {
     if (n0 == 4) {
       return 6;
     }
-    if (n0 == 3 && n1 == 2) {
+    if (n0 == 3 and n1 == 2) {
       return 5;
     }
-    if (n0 == 3 && n1 == 1) {
+    if (n0 == 3 and n1 == 1) {
       return 4;
     }
-    if (n0 == 2 && n1 == 2) {
+    if (n0 == 2 and n1 == 2) {
       return 3;
     }
-    if (n0 == 2 && n1 == 1) {
+    if (n0 == 2 and n1 == 1) {
       return 2;
     }
     return 1;
@@ -93,14 +93,14 @@ struct Card {
   constexpr bool operator<(const Card& other) const {
     const auto r1{rank()};
     const auto r2{other.rank()};
-    return r1 < r2 || (r1 == r2 && hand < other.hand);
+    return r1 < r2 or (r1 == r2 and hand < other.hand);
   }
 };
 
 std::istream& operator>>(std::istream& is, Card& card) {
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (std::string str_hand; ls >> str_hand && str_hand.size() == 5) {
+    if (std::string str_hand; ls >> str_hand and str_hand.size() == 5) {
       Hand hand;
       ranges::transform(str_hand, hand.values.begin(), char2card);
       if (int bid; ls >> bid) {

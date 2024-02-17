@@ -9,8 +9,8 @@ struct Boss {
 std::istream& operator>>(std::istream& is, Boss& boss) {
   std::string tmp;
   int hp, damage;
-  if (is >> tmp && tmp == "Hit" && is >> tmp && tmp == "Points:" && is >> hp >> tmp
-      && tmp == "Damage:" && is >> damage) {
+  if (is >> tmp and tmp == "Hit" and is >> tmp and tmp == "Points:" and is >> hp >> tmp
+      and tmp == "Damage:" and is >> damage) {
     boss = {hp, damage};
     return is;
   }
@@ -44,7 +44,7 @@ struct State {
 int find_min_win_mana(const Boss& boss, const int player_poison = 0) {
   int min_win_mana{std::numeric_limits<int>::max()};
 
-  for (std::vector q{State{{50, 500}, boss, true}}; !q.empty();) {
+  for (std::vector q{State{{50, 500}, boss, true}}; not q.empty();) {
     State state = q.back();
     q.pop_back();
 
@@ -81,7 +81,7 @@ int find_min_win_mana(const Boss& boss, const int player_poison = 0) {
       continue;
     }
 
-    if (!state.player_turn) {
+    if (not state.player_turn) {
       Player p2 = p;
       Boss b2 = b;
       p2.hp += std::min(-1, p2.armor - b2.damage);
@@ -89,19 +89,19 @@ int find_min_win_mana(const Boss& boss, const int player_poison = 0) {
       continue;
     }
 
-    if (p.mana >= 229 && !p.recharge_left) {
+    if (p.mana >= 229 and not p.recharge_left) {
       Player p2 = p;
       p2.use_mana(229);
       p2.recharge_left = 5;
       q.push_back({p2, b});
     }
-    if (p.mana >= 173 && !p.poison_left) {
+    if (p.mana >= 173 and not p.poison_left) {
       Player p2 = p;
       p2.use_mana(173);
       p2.poison_left = 6;
       q.push_back({p2, b});
     }
-    if (p.mana >= 113 && !p.shield_left) {
+    if (p.mana >= 113 and not p.shield_left) {
       Player p2 = p;
       p2.use_mana(113);
       p2.shield_left = 6;

@@ -22,10 +22,11 @@ struct Scanner {
 std::istream& operator>>(std::istream& is, Scanner& scanner) {
   using aoc::skip;
   using std::operator""s;
-  if (int depth, range; is >> depth && depth >= 0 && skip(is, ":"s) && is >> range && range > 1) {
+  if (int depth, range;
+      is >> depth and depth >= 0 and skip(is, ":"s) and is >> range and range > 1) {
     scanner = {depth, range};
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Scanner");
@@ -41,7 +42,7 @@ auto find_part1(const auto& scanners) {
 
 auto find_part2(const auto& scanners) {
   for (int t{};; ++t) {
-    if (!ranges::any_of(scanners, [&t](const auto& s) { return s.is_at_top(t + s.depth); })) {
+    if (not ranges::any_of(scanners, [&t](const auto& s) { return s.is_at_top(t + s.depth); })) {
       return t;
     }
   }

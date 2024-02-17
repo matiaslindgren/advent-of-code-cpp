@@ -57,8 +57,8 @@ std::istream& operator>>(std::istream& is, Module& m) {
     ranges::replace(line, ',', ' ');
     std::stringstream ls{line};
     if (Module::Type type; ls >> type) {
-      if (std::string id; ls >> id && !id.empty()) {
-        if (ls >> std::ws && skip(ls, "->"s)) {
+      if (std::string id; ls >> id and not id.empty()) {
+        if (ls >> std::ws and skip(ls, "->"s)) {
           const auto outputs{views::istream<std::string>(ls) | ranges::to<Strings>()};
           m = {.type = type, .id = id, .outputs = outputs};
           return is;
@@ -87,7 +87,7 @@ auto update_module_connections(auto modules) {
     }
   }
   for (const auto& [id, inputs] : all_inputs) {
-    if (!modules.contains(id)) {
+    if (not modules.contains(id)) {
       modules[id] = Module{.type = Module::Type::Output, .id = id};
     }
     auto& m{modules[id]};
@@ -110,17 +110,17 @@ auto update_module_connections(auto modules) {
 
 auto search(auto modules) {
   const auto all_conjunctions{[&modules](const auto& ms) {
-    return !ms.empty() && ranges::all_of(ms, [&modules](const auto& m) {
+    return not ms.empty() and ranges::all_of(ms, [&modules](const auto& m) {
       return modules.at(m).type == Module::Type::Conjunction;
     });
   }};
   Strings rx_inputs{modules.at("rx"s).inputs};
-  if (rx_inputs.size() != 1 || !all_conjunctions(rx_inputs)) {
+  if (rx_inputs.size() != 1 or not all_conjunctions(rx_inputs)) {
     throw std::runtime_error("inputs to rx should be 1 conjunction");
   }
   auto& rx_input = modules.at(rx_inputs.front());
   rx_inputs = rx_input.inputs;
-  if (rx_inputs.size() != 4 || !all_conjunctions(rx_inputs)) {
+  if (rx_inputs.size() != 4 or not all_conjunctions(rx_inputs)) {
     throw std::runtime_error("inputs to the input of rx should be 4 conjunctions");
   }
 
@@ -141,16 +141,16 @@ auto search(auto modules) {
         .dst = "broadcaster"s,
         .high = false,
     };
-    for (std::deque<Signal> q{{init_signal}}; !q.empty(); q.pop_front()) {
+    for (std::deque<Signal> q{{init_signal}}; not q.empty(); q.pop_front()) {
       for (auto&& [cycle_len, high] : views::zip(cycle_lengths, rx_input.high | views::values)) {
-        if (high && cycle_len < 2) {
+        if (high and cycle_len < 2) {
           cycle_len = press;
         }
       }
 
       const auto [src, dst, hi] = q.front();
       if (press <= 1000) {
-        lo_count += !hi;
+        lo_count += not hi;
         hi_count += hi;
       }
 
@@ -159,9 +159,9 @@ auto search(auto modules) {
 
       switch (m.type) {
         case Module::Type::FlipFlop: {
-          if (!hi) {
+          if (not hi) {
             send_out = true;
-            m.high[m.id] = !m.high[m.id];
+            m.high[m.id] = not m.high[m.id];
             high_out = m.high[m.id];
           }
         } break;
@@ -172,7 +172,7 @@ auto search(auto modules) {
         case Module::Type::Conjunction: {
           send_out = true;
           m.high[src] = hi;
-          high_out = !ranges::all_of(m.high | views::values, std::identity{});
+          high_out = not ranges::all_of(m.high | views::values, std::identity{});
         } break;
         case Module::Type::Output: {
         } break;

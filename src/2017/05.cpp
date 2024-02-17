@@ -6,7 +6,7 @@ namespace views = std::views;
 
 auto find_exit(auto jumps, int limit = std::numeric_limits<int>::max()) {
   int jump_count{};
-  for (auto j{0uz}; 0 <= j && j < jumps.size(); ++jump_count) {
+  for (auto j{0uz}; 0 <= j and j < jumps.size(); ++jump_count) {
     const auto n{jumps[j]};
     jumps[j] += 1 - 2 * (n >= limit);
     j += n;

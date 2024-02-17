@@ -46,7 +46,7 @@ std::istream& operator>>(std::istream& is, Op& op) {
       is.setstate(std::ios_base::failbit);
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Op");
@@ -56,7 +56,7 @@ std::istream& operator>>(std::istream& is, Instruction& instruction) {
   if (Instruction ins; is >> ins.op >> ins.a >> ins.b >> ins.c) {
     instruction = ins;
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Instruction");
@@ -64,9 +64,9 @@ std::istream& operator>>(std::istream& is, Instruction& instruction) {
 
 auto parse_input(std::string path) {
   std::istringstream is{aoc::slurp_file(path)};
-  if (int ip; skip(is, "#ip"s) && is >> ip) {
+  if (int ip; skip(is, "#ip"s) and is >> ip) {
     const auto instructions{views::istream<Instruction>(is) | ranges::to<std::vector>()};
-    if (is || is.eof()) {
+    if (is or is.eof()) {
       return std::pair{ip, instructions};
     }
   }
@@ -105,8 +105,8 @@ void compute(Memory& mem, const Instruction& ins) {
 }
 
 auto run(Memory mem, const int ipr, const auto& instructions) {
-  for (int& ip{mem[ipr]}; 0 <= ip && ip < instructions.size(); ip += 1) {
-    if (ip == 2 && mem[4]) {
+  for (int& ip{mem[ipr]}; 0 <= ip and ip < instructions.size(); ip += 1) {
+    if (ip == 2 and mem[4]) {
       // https://www.reddit.com/r/adventofcode/comments/a7j9zc/comment/ecgtijr
       // (2024-02-11)
       for (; mem[4] <= mem[2]; ++mem[4]) {

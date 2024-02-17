@@ -44,8 +44,8 @@ struct Boss {
 std::istream& operator>>(std::istream& is, Boss& boss) {
   std::string tmp;
   int hp, damage, armor;
-  if (is >> tmp && tmp == "Hit" && is >> tmp && tmp == "Points:" && is >> hp >> tmp
-      && tmp == "Damage:" && is >> damage >> tmp && tmp == "Armor:" && is >> armor) {
+  if (is >> tmp and tmp == "Hit" and is >> tmp and tmp == "Points:" and is >> hp >> tmp
+      and tmp == "Damage:" and is >> damage >> tmp and tmp == "Armor:" and is >> armor) {
     boss = {hp, damage, armor};
     return is;
   }
@@ -85,7 +85,7 @@ std::pair<int, int> minmax_gold(const Boss& boss) {
     for (const auto& a : armor) {
       for (const auto& r1 : rings) {
         for (const auto& r2 : rings) {
-          if (r1 == r2 && !r1.cost) {
+          if (r1 == r2 and not r1.cost) {
             continue;
           }
           const Player player{w, a, r1, r2};

@@ -26,7 +26,7 @@ struct Present {
 std::istream& operator>>(std::istream& is, Present& p) {
   char ch;
   int l, w, h;
-  if (is >> l >> ch && ch == 'x' && is >> w >> ch && ch == 'x' && is >> h) {
+  if (is >> l >> ch and ch == 'x' and is >> w >> ch and ch == 'x' and is >> h) {
     p = {l, w, h};
     return is;
   }

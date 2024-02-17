@@ -17,7 +17,7 @@ struct Grid2D {
   std::size_t height{};
 
   bool is_inside(const auto y, const auto x) const {
-    return y < height && x < width;
+    return y < height and x < width;
   }
   auto index(const auto y, const auto x) const {
     return y * width + x;
@@ -28,14 +28,14 @@ struct Grid2D {
 };
 
 std::istream& operator>>(std::istream& is, Grid2D& g) {
-  for (std::string line; std::getline(is, line) && !line.empty(); ++g.height) {
-    if (!g.width) {
+  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
+    if (not g.width) {
       g.width = line.size();
     } else if (line.size() != g.width) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    for (std::stringstream ls{line}; is && ls;) {
+    for (std::stringstream ls{line}; is and ls;) {
       if (std::underlying_type_t<Tile> ch; ls >> ch) {
         switch (ch) {
           case std::to_underlying(Tile::split_NS):
@@ -66,9 +66,9 @@ struct Beam {
 
 auto count_energized(const Grid2D& grid, const Beam entry) {
   std::unordered_map<std::size_t, Beam::Direction> energized;
-  for (std::deque<Beam> q{{entry}}; !q.empty(); q.pop_front()) {
+  for (std::deque<Beam> q{{entry}}; not q.empty(); q.pop_front()) {
     const auto [dir, y, x] = q.front();
-    if (!grid.is_inside(y, x)) {
+    if (not grid.is_inside(y, x)) {
       continue;
     }
     {

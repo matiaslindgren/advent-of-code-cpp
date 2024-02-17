@@ -37,9 +37,9 @@ auto parse_input(std::string path) {
   using aoc::skip;
   using std::operator""s;
   std::istringstream is{aoc::slurp_file(path)};
-  if (int n_players; is >> n_players >> std::ws && skip(is, "players;"s)) {
-    if (int max_marble; is >> std::ws && skip(is, "last marble is worth"s)
-                        && is >> max_marble >> std::ws && skip(is, "points"s)) {
+  if (int n_players; is >> n_players >> std::ws and skip(is, "players;"s)) {
+    if (int max_marble; is >> std::ws and skip(is, "last marble is worth"s)
+                        and is >> max_marble >> std::ws and skip(is, "points"s)) {
       return std::pair{n_players, max_marble};
     }
   }

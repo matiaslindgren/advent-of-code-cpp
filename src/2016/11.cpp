@@ -17,12 +17,12 @@ std::istream& operator>>(std::istream& is, Item& item) {
   using std::operator""s;
   using aoc::skip;
   if (std::string elem; is >> elem) {
-    if (elem.ends_with("-compatible") && skip(is, " microchip"s)) {
+    if (elem.ends_with("-compatible") and skip(is, " microchip"s)) {
       elem = {elem.begin(), ranges::find(elem, '-')};
       item = {Item::Microchip, elem};
       return is;
     }
-    if (!elem.empty() && skip(is, " generator"s)) {
+    if (not elem.empty() and skip(is, " generator"s)) {
       item = {Item::Generator, elem};
       return is;
     }
@@ -51,15 +51,16 @@ std::istream& operator>>(std::istream& is, FloorItems& fi) {
   std::vector<Item> items;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (std::string fname; skip(ls, "The"s) && ls >> std::ws >> fname
-                           && floor_numbers.contains(fname) && ls >> std::ws
-                           && skip(ls, "floor contains"s)) {
+    if (std::string fname; skip(ls, "The"s) and ls >> std::ws >> fname
+                           and floor_numbers.contains(fname) and ls >> std::ws
+                           and skip(ls, "floor contains"s)) {
       floor = floor_numbers.find(fname)->second;
       while (ls) {
         if (std::string s; ls >> s) {
-          if (s == "nothing" && ls >> std::ws && skip(ls, "relevant"s)) {
+          if (s == "nothing" and ls >> std::ws and skip(ls, "relevant"s)) {
             // skip
-          } else if (Item item; ((s == "and" && ls >> s && s == "a") || s == "a") && ls >> item) {
+          } else if (Item item;
+                     ((s == "and" and ls >> s and s == "a") or s == "a") and ls >> item) {
             items.push_back(item);
           } else {
             is.setstate(std::ios_base::failbit);
@@ -67,13 +68,13 @@ std::istream& operator>>(std::istream& is, FloorItems& fi) {
           }
         }
         if (ls) {
-          if (auto ch{ls.peek()}; ch == ',' || ch == '.') {
+          if (auto ch{ls.peek()}; ch == ',' or ch == '.') {
             ls.get();
           }
         }
       }
     }
-    if (ls.eof() && is) {
+    if (ls.eof() and is) {
       fi = {floor, items};
       return is;
     }
@@ -91,7 +92,7 @@ auto encode_element_names(const auto& floor_items) {
     std::size_t id{};
     for (const auto& fi : floor_items) {
       for (const auto& item : fi.items) {
-        if (!encoding.contains(item.element)) {
+        if (not encoding.contains(item.element)) {
           encoding[item.element] = id++;
         }
       }
@@ -161,8 +162,8 @@ struct std::hash<FloorState> {
     for (const auto f : floor_indexes()) {
       for (const auto [g, c] : powering_pair_indexes(fs, f)) {
         item_counts[f][Type::generator] += fs[g];
-        item_counts[f][Type::unpowered_chip] += !fs[g] && fs[c];
-        item_counts[f][Type::powered_chip] += fs[g] && fs[c];
+        item_counts[f][Type::unpowered_chip] += not fs[g] and fs[c];
+        item_counts[f][Type::powered_chip] += fs[g] and fs[c];
       }
     }
     std::size_t h{elevator_floor(fs)};
@@ -202,8 +203,8 @@ constexpr bool is_frying_chips(const FloorState& fs) {
     int unpowered_chips{};
     for (const auto [g, c] : powering_pair_indexes(fs, f)) {
       generators += fs[g];
-      unpowered_chips += !fs[g] && fs[c];
-      if (generators && unpowered_chips) {
+      unpowered_chips += not fs[g] and fs[c];
+      if (generators and unpowered_chips) {
         return true;
       }
     }
@@ -252,7 +253,7 @@ class AStar {
   }
 
   constexpr explicit operator bool() const noexcept {
-    return !m_frontier.empty();
+    return not m_frontier.empty();
   }
 
   constexpr int h(const FloorState& fs) const noexcept {
@@ -353,7 +354,7 @@ bool a_star_step(auto& a_star) {
   const bool can_go_up{elevator < N_FLOORS - 1};
   const bool can_go_down{elevator > 0};
   for (const auto i : item_indexes(state, elevator)) {
-    if (!state[i]) {
+    if (not state[i]) {
       continue;
     }
     if (can_go_up) {
@@ -363,7 +364,7 @@ bool a_star_step(auto& a_star) {
       adjacent_states.push_back(move_down(state, elevator, i));
     }
     for (const auto j : item_indexes(state, elevator)) {
-      if (j < i || !state[j]) {
+      if (j < i or not state[j]) {
         continue;
       }
       if (can_go_up) {

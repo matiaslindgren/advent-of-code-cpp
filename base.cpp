@@ -30,7 +30,7 @@ std::istream& operator>>(std::istream& is, Item& item) {
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Item");

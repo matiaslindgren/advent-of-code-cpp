@@ -6,7 +6,7 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 bool is_open(auto h) {
-  return 0xb <= h && h <= 0xf;
+  return 0xb <= h and h <= 0xf;
 }
 
 std::pair<std::string, std::string> search(const std::string& passcode) {
@@ -14,13 +14,13 @@ std::pair<std::string, std::string> search(const std::string& passcode) {
 
   std::string part1{}, part2{};
 
-  for (std::deque q{std::tuple{0, 0, ""s}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::tuple{0, 0, ""s}}; not q.empty(); q.pop_front()) {
     const auto& [x, y, path] = q.front();
-    if (!(0 <= x && x <= 3 && 0 <= y && y <= 3)) {
+    if (not(0 <= x and x <= 3 and 0 <= y and y <= 3)) {
       continue;
     }
-    if (x == 3 && y == 3) {
-      if (part1.empty() || path.size() < part1.size()) {
+    if (x == 3 and y == 3) {
+      if (part1.empty() or path.size() < part1.size()) {
         part1 = path;
       }
       if (path.size() > part2.size()) {

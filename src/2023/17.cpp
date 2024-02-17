@@ -35,15 +35,15 @@ struct Blocks {
 std::istream& operator>>(std::istream& is, Blocks& blocks) {
   std::vector<int> loss;
   std::size_t width{};
-  for (std::string line; std::getline(is, line) && !line.empty();) {
+  for (std::string line; std::getline(is, line) and not line.empty();) {
     line = "#" + line + "#";
-    if (!width) {
+    if (not width) {
       width = line.size();
     } else if (line.size() != width) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    for (std::stringstream ls{line}; is && ls;) {
+    for (std::stringstream ls{line}; is and ls;) {
       if (char ch; ls >> ch) {
         switch (ch) {
           case '1':
@@ -67,7 +67,7 @@ std::istream& operator>>(std::istream& is, Blocks& blocks) {
       }
     }
   }
-  if (!loss.empty()) {
+  if (not loss.empty()) {
     loss.insert_range(loss.begin(), views::repeat(Blocks::max_loss, width));
     loss.insert_range(loss.end(), views::repeat(Blocks::max_loss, width));
     blocks = {.loss = loss, .w = width};
@@ -123,9 +123,9 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
   };
   loss(q[0]) = loss(q[1]) = 0;
 
-  while (!q.empty()) {
+  while (not q.empty()) {
     const State src{pop_min_loss_heap(q)};
-    if (src.block == end && min_moves <= src.moves && src.moves <= max_moves) {
+    if (src.block == end and min_moves <= src.moves and src.moves <= max_moves) {
       return loss(src);
     }
     const auto adjacent{blocks.adjacent(src.block)};
@@ -137,10 +137,10 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
           .block = adj_block,
           .direction = Direction{dir},
       };
-      if (dst.direction != src.direction && src.moves < min_moves) {
+      if (dst.direction != src.direction and src.moves < min_moves) {
         continue;
       }
-      if (dst.direction == src.direction && src.moves >= max_moves) {
+      if (dst.direction == src.direction and src.moves >= max_moves) {
         continue;
       }
       dst.moves = (dst.direction == src.direction ? src.moves + 1 : 1);

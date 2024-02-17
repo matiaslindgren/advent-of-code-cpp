@@ -16,7 +16,7 @@ Units split_molecule(const std::string& molecule) {
   Units units;
   std::string unit;
   for (auto ch : molecule) {
-    if (!islower(ch) && !unit.empty()) {
+    if (not islower(ch) and not unit.empty()) {
       units.push_back(unit);
       unit.clear();
     }
@@ -31,8 +31,8 @@ std::istream& operator>>(std::istream& is, Replacement& r) {
   std::string src;
   std::string dst;
   const auto isalpha{[](unsigned char ch) { return std::isalpha(ch); }};
-  if (is >> src && ranges::all_of(src, isalpha) && is >> tmp && tmp == "=>" && is >> dst
-      && ranges::all_of(dst, isalpha)) {
+  if (is >> src and ranges::all_of(src, isalpha) and is >> tmp and tmp == "=>" and is >> dst
+      and ranges::all_of(dst, isalpha)) {
     r = {split_molecule(src), split_molecule(dst)};
     return is;
   }
@@ -87,7 +87,7 @@ std::size_t count_shortest_path_to(
   Units new_molecule;
   for (const auto& r : replacements) {
     for (const auto& m : replace(molecule, r)) {
-      if (new_molecule.empty() || m.size() < new_molecule.size()) {
+      if (new_molecule.empty() or m.size() < new_molecule.size()) {
         new_molecule = m;
       }
     }
@@ -98,7 +98,7 @@ std::size_t count_shortest_path_to(
 auto parse_input(std::istream& is) {
   std::vector<Replacement> replacements;
   std::string medicine;
-  for (std::string line; std::getline(is, line) && !line.empty();) {
+  for (std::string line; std::getline(is, line) and not line.empty();) {
     std::istringstream ls{line};
     ls >> replacements.emplace_back();
   }

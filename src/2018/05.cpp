@@ -11,21 +11,21 @@ struct Unit {
   bool alive{true};
 
   bool destroys(const Unit& rhs) const {
-    return type == rhs.type && polarity != rhs.polarity;
+    return type == rhs.type and polarity != rhs.polarity;
   }
 };
 
 std::istream& operator>>(std::istream& is, Unit& unit) {
   if (char ch; is >> ch) {
-    if ('a' <= ch && ch <= 'z') {
+    if ('a' <= ch and ch <= 'z') {
       unit = {ch - 'a', false};
-    } else if ('A' <= ch && ch <= 'Z') {
+    } else if ('A' <= ch and ch <= 'Z') {
       unit = {ch - 'A', true};
     } else {
       is.setstate(std::ios_base::failbit);
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Unit");
@@ -35,7 +35,7 @@ std::size_t react(auto polymer) {
   for (auto alive{ranges::subrange(polymer)};;) {
     // TODO std adjacent
     for (const auto [lhs, rhs] : views::zip(alive, views::drop(alive, 1))) {
-      if (lhs.alive && rhs.alive && lhs.destroys(rhs)) {
+      if (lhs.alive and rhs.alive and lhs.destroys(rhs)) {
         lhs.alive = rhs.alive = false;
       }
     }

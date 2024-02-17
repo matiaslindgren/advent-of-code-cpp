@@ -15,10 +15,10 @@ struct Step {
 };
 
 std::istream& operator>>(std::istream& is, Step& step) {
-  if (std::string src; is >> src && skip(is, " = "s)) {
-    if (std::string lhs; skip(is, "("s) && is >> lhs && lhs.ends_with(","s)) {
+  if (std::string src; is >> src and skip(is, " = "s)) {
+    if (std::string lhs; skip(is, "("s) and is >> lhs and lhs.ends_with(","s)) {
       lhs.pop_back();
-      if (std::string rhs; is >> rhs && rhs.ends_with(")"s)) {
+      if (std::string rhs; is >> rhs and rhs.ends_with(")"s)) {
         rhs.pop_back();
         step = {src, lhs, rhs};
         return is;
@@ -41,7 +41,7 @@ constexpr auto count_length(
 ) {
   long n{};
   std::string current{start};
-  for (auto i{0uz}; !is_end(current); i = (i + 1) % loop.size()) {
+  for (auto i{0uz}; not is_end(current); i = (i + 1) % loop.size()) {
     const auto step{steps.at(current)};
     current = (loop[i] == 'L' ? step.lhs : step.rhs);
     ++n;
@@ -55,7 +55,7 @@ int main() {
   std::string loop;
   input >> loop;
 
-  if (!ranges::all_of(loop, [](auto ch) { return ch == 'L' || ch == 'R'; })) {
+  if (not ranges::all_of(loop, [](auto ch) { return ch == 'L' or ch == 'R'; })) {
     throw std::runtime_error("loop must consist of only L or R");
   }
 

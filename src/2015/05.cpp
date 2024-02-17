@@ -39,7 +39,7 @@ bool is_nice_part1(const std::string& s) {
   const auto has_forbidden_pair{
       ranges::any_of(views::zip(s, views::drop(s, 1)), my_std::apply_fn(is_forbidden_pair))
   };
-  return has_3_vowels && has_letter_pair && !has_forbidden_pair;
+  return has_3_vowels and has_letter_pair and not has_forbidden_pair;
 }
 
 auto contains_sandwich_letter(const std::string& s) {
@@ -54,7 +54,7 @@ auto contains_letter_pair_twice(const std::string& s) {
   // TODO(llvm18)
   // for (const auto [ch1, ch2] : views::pairwise(s)) {
   for (const auto [ch1, ch2] : views::zip(s, views::drop(s, 1))) {
-    if (ch0 == ch1 && ch1 == ch2) {
+    if (ch0 == ch1 and ch1 == ch2) {
       ch0 = 0;
       continue;
     } else {
@@ -68,7 +68,7 @@ auto contains_letter_pair_twice(const std::string& s) {
 }
 
 bool is_nice_part2(const std::string& s) {
-  return contains_sandwich_letter(s) && contains_letter_pair_twice(s);
+  return contains_sandwich_letter(s) and contains_letter_pair_twice(s);
 }
 
 int main() {

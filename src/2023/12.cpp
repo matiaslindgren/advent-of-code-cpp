@@ -34,7 +34,7 @@ struct Springs {
 };
 
 std::istream& operator>>(std::istream& is, Springs& springs) {
-  if (std::string lhs, rhs; is >> lhs && !lhs.empty() && is >> rhs && !rhs.empty()) {
+  if (std::string lhs, rhs; is >> lhs and not lhs.empty() and is >> rhs and not rhs.empty()) {
     ranges::replace(rhs, ',', ' ');
     std::stringstream lhs_s{lhs}, rhs_s{rhs};
     springs = {
@@ -55,7 +55,7 @@ auto count_valid(const auto& springs, const auto& cache, const auto i, const aut
   const auto i_end{cache.extent(0) - 1};
   const auto c_end{cache.extent(1) - 1};
   const auto n_end{cache.extent(2) - 1};
-  if (!(i <= i_end && c <= c_end && n <= n_end)) {
+  if (not(i <= i_end and c <= c_end and n <= n_end)) {
     return 0uz;
   }
   if (const auto res{cache[i, c, n]}; res != no_value) {
@@ -63,19 +63,19 @@ auto count_valid(const auto& springs, const auto& cache, const auto i, const aut
   }
   auto res{0uz};
   if (i == i_end) {
-    if (c == c_end && n == 0) {
+    if (c == c_end and n == 0) {
       res = 1;
     }
   } else {
     const auto s{springs.status[i]};
-    if (s == Spring::normal || s == Spring::unknown) {
+    if (s == Spring::normal or s == Spring::unknown) {
       if (n == 0) {
         res = count_valid(springs, cache, i + 1, c, 0);
-      } else if (c < c_end && springs.counts[c] == n) {
+      } else if (c < c_end and springs.counts[c] == n) {
         res = count_valid(springs, cache, i + 1, c + 1, 0);
       }
     }
-    if (s == Spring::damaged || s == Spring::unknown) {
+    if (s == Spring::damaged or s == Spring::unknown) {
       res += count_valid(springs, cache, i + 1, c, n + 1);
     }
   }

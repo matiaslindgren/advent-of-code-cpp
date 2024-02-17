@@ -30,7 +30,7 @@ struct Map {
 using MapGroups = std::vector<std::vector<Map>>;
 
 std::istream& operator>>(std::istream& is, Seeds& ss) {
-  if (std::string line; skip(is, "seeds:"s) && std::getline(is, line)) {
+  if (std::string line; skip(is, "seeds:"s) and std::getline(is, line)) {
     std::stringstream ls{line};
     ss = views::istream<long>(ls) | ranges::to<std::vector>();
     return is;
@@ -50,8 +50,8 @@ std::istream& operator>>(std::istream& is, MapGroups& mg) {
   };
   for (const auto& map_name : names) {
     mg.emplace_back();
-    if (std::string tmp; is >> tmp && tmp == map_name && skip(is, " map:\n"s)) {
-      for (std::string line; std::getline(is, line) && !line.empty();) {
+    if (std::string tmp; is >> tmp and tmp == map_name and skip(is, " map:\n"s)) {
+      for (std::string line; std::getline(is, line) and not line.empty();) {
         std::stringstream ls{line};
         if (long dst, src, len; ls >> dst >> src >> len) {
           mg.back().push_back({.dst = {dst, len}, .src = {src, len}});
@@ -89,7 +89,7 @@ Ranges split_subranges(const Range& input, const auto& map_groups) {
         for (const auto& r : std::exchange(unmapped, Ranges{})) {
           const auto src{map.src};
 
-          if (r.rhs() < src.lhs() || src.rhs() < r.lhs()) {
+          if (r.rhs() < src.lhs() or src.rhs() < r.lhs()) {
             unmapped.push_back(r);
             continue;
           }

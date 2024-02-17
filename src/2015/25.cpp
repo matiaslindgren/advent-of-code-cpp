@@ -12,7 +12,7 @@ std::pair<int, int> parse_input(std::istream& is) {
                         "To continue, please consult the code grid in the manual."s,
                         "Enter the code at row"s
                     )
-                    && is >> row && skip(is, ", column"s) && is >> col) {
+                    and is >> row and skip(is, ", column"s) and is >> col) {
     return {row, col};
   }
   throw std::runtime_error("failed parsing input");
@@ -25,7 +25,7 @@ UInt find(const int target_row, const int target_col) {
   const UInt rem{33554393u};
   for (UInt value{20151125u}, diag{1u};; ++diag) {
     for (UInt y{diag}, x{1u}; y > 0; --y, ++x) {
-      if (y == target_row && x == target_col) {
+      if (y == target_row and x == target_col) {
         return value;
       }
       value = (factor * value) % rem;

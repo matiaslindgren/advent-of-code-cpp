@@ -24,7 +24,7 @@ std::istream& operator>>(std::istream& is, Tile& tile) {
       } break;
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Tile");
@@ -58,7 +58,7 @@ struct Grid2D {
     for (auto [y, x] : square_points(1uz, width - 1)) {
       int trees{}, yards{};
       for (auto [dy, dx] : square_points(-1, 2)) {
-        if (dy == 0 && dx == 0) {
+        if (dy == 0 and dx == 0) {
           continue;
         }
         const auto tile{get(y + dy, x + dx)};
@@ -77,7 +77,7 @@ struct Grid2D {
           }
         } break;
         case Tile::yard: {
-          if (yards > 0 && trees > 0) {
+          if (yards > 0 and trees > 0) {
             g.get(y, x) = Tile::yard;
           } else {
             g.get(y, x) = Tile::open;
@@ -91,10 +91,10 @@ struct Grid2D {
 
 Grid2D parse_grid(std::istream& is) {
   Grid2D g;
-  for (std::string line; std::getline(is, line) && !line.empty(); ++g.height) {
+  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
     line.insert(line.begin(), std::to_underlying(Tile::open));
     line.insert(line.end(), std::to_underlying(Tile::open));
-    if (!g.width) {
+    if (not g.width) {
       g.width = line.size();
       g.append_padding();
     } else if (line.size() != g.width) {
@@ -104,7 +104,7 @@ Grid2D parse_grid(std::istream& is) {
     std::stringstream ls{line};
     g.tiles.append_range(views::istream<Tile>(ls));
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     g.append_padding();
     return g;
   }

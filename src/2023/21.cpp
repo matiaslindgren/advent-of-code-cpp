@@ -46,10 +46,10 @@ std::istream& operator>>(std::istream& is, Tile& tile) {
 
 std::istream& operator>>(std::istream& is, Grid2D& grid) {
   Grid2D g;
-  for (std::string line; std::getline(is, line) && !line.empty();) {
+  for (std::string line; std::getline(is, line) and not line.empty();) {
     line.insert(line.begin(), std::to_underlying(Tile::rock));
     line.insert(line.end(), std::to_underlying(Tile::rock));
-    if (!g.width) {
+    if (not g.width) {
       g.width = line.size();
       g.append_padding();
     } else if (line.size() != g.width) {
@@ -59,7 +59,7 @@ std::istream& operator>>(std::istream& is, Grid2D& grid) {
     std::stringstream ls{line};
     g.tiles.append_range(views::istream<Tile>(ls));
   }
-  if (g.width && !g.tiles.empty()) {
+  if (g.width and not g.tiles.empty()) {
     g.append_padding();
     grid = g;
   }
@@ -80,7 +80,7 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
     for (const auto& original_line : lines) {
       for (int r2{0}; r2 < repeat_count; ++r2) {
         auto line{original_line};
-        if (!(r1 == center && r2 == center)) {
+        if (not(r1 == center and r2 == center)) {
           ranges::replace(line, std::to_underlying(Tile::start), std::to_underlying(Tile::garden));
         }
         input << line;
@@ -96,7 +96,7 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
 auto visit_until_limit(const Grid2D& grid, const auto limit) {
   const auto n{grid.tiles.size()};
   std::vector<bool> visited((limit + 1) * n);
-  for (std::deque q{std::pair{0, grid.start_index()}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::pair{0, grid.start_index()}}; not q.empty(); q.pop_front()) {
     const auto& [step, index] = q.front();
     if (step > limit or visited.at(step * n + index)) {
       continue;

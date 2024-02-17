@@ -9,7 +9,7 @@ using Ints = std::vector<int>;
 
 Ints parse_input(std::istream& is, std::string_view prefix) {
   using aoc::skip;
-  if (std::string line; skip(is, prefix) && std::getline(is, line)) {
+  if (std::string line; skip(is, prefix) and std::getline(is, line)) {
     std::stringstream ls{line};
     return views::istream<int>(ls) | ranges::to<Ints>();
   }

@@ -18,7 +18,7 @@ std::istream& operator>>(std::istream& is, Range& range) {
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (UInt begin, end; ls >> begin && skip(ls, "-"s) && ls >> end && begin < end) {
+    if (UInt begin, end; ls >> begin and skip(ls, "-"s) and ls >> end and begin < end) {
       range = {begin, end};
       return is;
     }
@@ -33,13 +33,13 @@ auto find_allowed(const auto& excluded) {
   std::vector allowed{Range{0u, std::numeric_limits<UInt>::max()}};
   for (const Range& exclude : excluded) {
     for (const Range& allow : std::exchange(allowed, {})) {
-      if (allow.end < exclude.begin || exclude.end < allow.begin) {
+      if (allow.end < exclude.begin or exclude.end < allow.begin) {
         allowed.push_back(allow);
       }
-      if (allow.begin < exclude.begin && exclude.begin <= allow.end) {
+      if (allow.begin < exclude.begin and exclude.begin <= allow.end) {
         allowed.emplace_back(allow.begin, exclude.begin - 1);
       }
-      if (allow.begin < exclude.end && exclude.end < allow.end) {
+      if (allow.begin < exclude.end and exclude.end < allow.end) {
         allowed.emplace_back(exclude.end + 1, allow.end);
       }
     }

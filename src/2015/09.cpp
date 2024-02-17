@@ -23,8 +23,8 @@ std::istream& operator>>(std::istream& is, Edge& edge) {
 
   std::string src, dst;
   std::size_t dist;
-  if (is >> src >> std::ws && skip(is, "to"s) && is >> dst >> std::ws && skip(is, "="s)
-      && is >> dist) {
+  if (is >> src >> std::ws and skip(is, "to"s) and is >> dst >> std::ws and skip(is, "="s)
+      and is >> dist) {
     edge = {src, dst, dist};
     return is;
   }
@@ -98,7 +98,7 @@ class Graph {
       std::size_t path_length;
     };
     for (auto start : views::iota(0uz, node_count())) {
-      for (std::vector q{State{{}, start, {}}}; !q.empty();) {
+      for (std::vector q{State{{}, start, {}}}; not q.empty();) {
         auto current{q.back()};
         q.pop_back();
         if (current.visited[current.node]) {

@@ -75,7 +75,7 @@ struct Grid2D {
 
  private:
   std::size_t roll(auto i1, const auto delta) const {
-    for (auto i2{i1 + delta}; i2 < tiles.size() && tiles[i2] == Tile::ground; i2 += delta) {
+    for (auto i2{i1 + delta}; i2 < tiles.size() and tiles[i2] == Tile::ground; i2 += delta) {
       i1 = i2;
     }
     return i1;
@@ -96,16 +96,16 @@ struct Grid2D {
 };
 
 std::istream& operator>>(std::istream& is, Grid2D& g) {
-  for (std::string line; std::getline(is, line) && !line.empty(); ++g.height) {
+  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
     line = "#" + line + "#";
-    if (!g.width) {
+    if (not g.width) {
       g.width = line.size();
       g.append_padding();
     } else if (line.size() != g.width) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    for (std::stringstream ls{line}; is && ls;) {
+    for (std::stringstream ls{line}; is and ls;) {
       if (std::underlying_type_t<Tile> ch; ls >> ch) {
         switch (ch) {
           case std::to_underlying(Tile::round):
@@ -120,7 +120,7 @@ std::istream& operator>>(std::istream& is, Grid2D& g) {
       }
     }
   }
-  if (g.width && g.height) {
+  if (g.width and g.height) {
     g.append_padding();
   }
   if (is.eof()) {
@@ -137,13 +137,13 @@ auto find_part1(Grid2D grid) {
 auto find_part2(Grid2D grid) {
   std::set<Grid2D> seen;
   auto grid2{grid};
-  while (!seen.contains(grid2)) {
+  while (not seen.contains(grid2)) {
     seen.insert(grid2);
     grid2.cycle();
   }
 
   std::vector<Grid2D> repeating;
-  for (grid = grid2; repeating.empty() || grid2 != grid;) {
+  for (grid = grid2; repeating.empty() or grid2 != grid;) {
     seen.erase(grid);
     repeating.push_back(grid);
     grid.cycle();

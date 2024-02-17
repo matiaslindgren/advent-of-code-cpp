@@ -16,7 +16,7 @@ enum class Direction : char {
 
 std::istream& operator>>(std::istream& is, Direction& dir) {
   if (std::underlying_type_t<Direction> ch; is >> ch) {
-    if ('0' <= ch && ch <= '3') {
+    if ('0' <= ch and ch <= '3') {
       ch = "RDLU"s[ch - '0'];
     }
     switch (ch) {
@@ -49,10 +49,10 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
     std::stringstream ls{colour};
     int len2{0};
     if (skip(ls, "(#"s)) {
-      for (char i{}, ch; i < 5 && ls >> ch; ++i) {
+      for (char i{}, ch; i < 5 and ls >> ch; ++i) {
         len2 = 16 * len2 + std::stoi(""s + ch, nullptr, 16);
       }
-      if (Direction dir2; ls >> dir2 && skip(ls, ")"s)) {
+      if (Direction dir2; ls >> dir2 and skip(ls, ")"s)) {
         steps = {{dir1, len1}, {dir2, len2}};
         return is;
       }

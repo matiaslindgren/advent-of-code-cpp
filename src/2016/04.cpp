@@ -16,7 +16,7 @@ struct Room {
     using CharCounts = std::array<std::pair<char, int>, alphabet_size>;
     CharCounts cc;
     for (char ch : name) {
-      if ('a' <= ch && ch <= 'z') {
+      if ('a' <= ch and ch <= 'z') {
         auto& p{cc[ch - 'a']};
         p.first = ch;
         p.second += 1;
@@ -25,7 +25,7 @@ struct Room {
     ranges::sort(cc, [](const auto& p1, const auto& p2) {
       const auto& [ch1, n1] = p1;
       const auto& [ch2, n2] = p2;
-      return n1 > n2 || (n1 == n2 && ch1 < ch2);
+      return n1 > n2 or (n1 == n2 and ch1 < ch2);
     });
     return views::take(cc, 5) | views::elements<0> | ranges::to<std::string>();
   }
@@ -35,7 +35,7 @@ struct Room {
         views::transform(
             name,
             [=, this](const char& ch) -> char {
-              if ('a' <= ch && ch <= 'z') {
+              if ('a' <= ch and ch <= 'z') {
                 return 'a' + ((ch - 'a') + id) % alphabet_size;
               }
               return ' ';
@@ -53,11 +53,11 @@ bool isdigit(unsigned char ch) {
 std::istream& operator>>(std::istream& is, Room& room) {
   {
     Room r;
-    for (char ch; !isdigit(is.peek()) && is.get(ch);) {
+    for (char ch; not isdigit(is.peek()) and is.get(ch);) {
       r.name.push_back(ch);
     }
     if (is >> r.id) {
-      if (is.ignore(1, '[') && std::getline(is, r.checksum, ']')) {
+      if (is.ignore(1, '[') and std::getline(is, r.checksum, ']')) {
         room = r;
         return is.ignore(1);
       }

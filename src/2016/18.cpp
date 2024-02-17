@@ -26,7 +26,8 @@ std::istream& operator>>(std::istream& is, Tile& tile) {
 }
 
 bool is_trap(const auto a, const auto b, const auto c) {
-  return (!a && !b && c) || (a && !b && !c) || (!a && b && c) || (a && b && !c);
+  return (not a and not b and c) or (a and not b and not c) or (not a and b and c)
+         or (a and b and not c);
 }
 
 auto count_safe_tiles(const auto& tiles, const auto line_count) {
@@ -43,7 +44,7 @@ auto count_safe_tiles(const auto& tiles, const auto line_count) {
     n += safe.count() - (safe.size() - tiles.size());
     const auto prev{safe};
     for (auto i{0uz}; i < tiles.size(); ++i) {
-      safe[i + 1] = !is_trap(prev[i], prev[i + 1], prev[i + 2]);
+      safe[i + 1] = not is_trap(prev[i], prev[i + 1], prev[i + 2]);
     }
   }
   return n;

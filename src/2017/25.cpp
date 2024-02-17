@@ -17,47 +17,48 @@ struct State {
 };
 
 std::istream& operator>>(std::istream& is, Test& test) {
-  if (int read; is >> std::ws && skip(is, "If the current value is "s) && is >> read
-                && (read == 0 || read == 1) && skip(is, ":"s)) {
-    if (int write; is >> std::ws && skip(is, "- Write the value "s) && is >> write
-                   && (write == 0 || write == 1) && skip(is, "."s)) {
+  if (int read; is >> std::ws and skip(is, "If the current value is "s) and is >> read
+                and (read == 0 or read == 1) and skip(is, ":"s)) {
+    if (int write; is >> std::ws and skip(is, "- Write the value "s) and is >> write
+                   and (write == 0 or write == 1) and skip(is, "."s)) {
       if (std::string move_str;
-          is >> std::ws && skip(is, "- Move one slot to the "s) && is >> move_str) {
+          is >> std::ws and skip(is, "- Move one slot to the "s) and is >> move_str) {
         if (const int move{
                 move_str.starts_with("left")    ? -1
                 : move_str.starts_with("right") ? 1
                                                 : 0
             }) {
-          if (char next_id; is >> std::ws && skip(is, "- Continue with state "s) && is >> next_id
-                            && 'A' <= next_id && skip(is, "."s)) {
+          if (char next_id; is >> std::ws and skip(is, "- Continue with state "s) and is >> next_id
+                            and 'A' <= next_id and skip(is, "."s)) {
             test = {read, write, move, next_id - 'A'};
           }
         }
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Test");
 }
 
 std::istream& operator>>(std::istream& is, State& state) {
-  if (char id; is >> std::ws && skip(is, "In state "s) && is >> id && 'A' <= id && skip(is, ":"s)) {
+  if (char id;
+      is >> std::ws and skip(is, "In state "s) and is >> id and 'A' <= id and skip(is, ":"s)) {
     if (Test a, b; is >> a >> b) {
       state = {id - 'A', a, b};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing State");
 }
 
 auto parse_start_state(std::istream& is) {
-  if (char ch; skip(is, "Begin in state "s) && is >> ch && skip(is, "."s)) {
-    if (int steps; is >> std::ws && skip(is, "Perform a diagnostic checksum after "s) && is >> steps
-                   && skip(is, " steps."s)) {
+  if (char ch; skip(is, "Begin in state "s) and is >> ch and skip(is, "."s)) {
+    if (int steps; is >> std::ws and skip(is, "Perform a diagnostic checksum after "s)
+                   and is >> steps and skip(is, " steps."s)) {
       return std::pair{ch - 'A', steps};
     }
   }

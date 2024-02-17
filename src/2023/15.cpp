@@ -16,18 +16,18 @@ struct Step {
 };
 
 std::istream& operator>>(std::istream& is, Step& step) {
-  if (Step s{}; std::getline(is, s.str, ',') && !s.str.empty()) {
+  if (Step s{}; std::getline(is, s.str, ',') and not s.str.empty()) {
     if (s.str.back() == '\n') {
       s.str.pop_back();
     }
     std::stringstream ls{s.str};
     char ch;
-    while (ls.get(ch) && ch != '=' && ch != '-') {
+    while (ls.get(ch) and ch != '=' and ch != '-') {
       s.label.push_back(ch);
     }
     if (ch == '=') {
       s.command = Step::add;
-      if (ls >> s.lens && s.lens > 0) {
+      if (ls >> s.lens and s.lens > 0) {
         step = s;
         return is;
       }

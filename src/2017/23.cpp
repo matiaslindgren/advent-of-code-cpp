@@ -25,14 +25,14 @@ struct Instruction {
 };
 
 std::istream& operator>>(std::istream& is, Operand& op) {
-  if (std::string s; is >> s && !s.empty()) {
-    if (const char reg_ch{s.front()}; 'a' <= reg_ch && reg_ch <= 'h') {
+  if (std::string s; is >> s and not s.empty()) {
+    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'h') {
       op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
     } else {
       op = {.type = Operand::literal, .value = std::stoi(s)};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Operand");
@@ -53,7 +53,7 @@ std::istream& operator>>(std::istream& is, Instruction::Type& type) {
       is.setstate(std::ios_base::failbit);
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Instruction::Type");
@@ -65,7 +65,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
       ins = {type, idx, val};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Instruction");
@@ -88,8 +88,8 @@ int find_part2(const auto& instructions) {
   const auto i30{instructions[30]};
 
   using Type = Instruction::Type;
-  if (!(i0.type == Type::set && i4.type == Type::mul && i5.type == Type::sub && i7.type == Type::sub
-        && i30.type == Type::sub)) {
+  if (not(i0.type == Type::set and i4.type == Type::mul and i5.type == Type::sub
+          and i7.type == Type::sub and i30.type == Type::sub)) {
     throw std::runtime_error("unexpected program, cannot compute part2");
   }
 
@@ -101,10 +101,10 @@ int find_part2(const auto& instructions) {
 
   for (int x{b}; x <= c; x += step) {
     bool is_prime{true};
-    for (int d{2}; is_prime && d * d < x; ++d) {
+    for (int d{2}; is_prime and d * d < x; ++d) {
       is_prime = (x % d != 0);
     }
-    not_prime_count += !is_prime;
+    not_prime_count += not is_prime;
   }
 
   return not_prime_count;

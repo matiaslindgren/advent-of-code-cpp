@@ -13,7 +13,7 @@ struct Move {
 };
 
 std::istream& operator>>(std::istream& is, Move& move) {
-  if (char dir; is >> dir && (dir == 'L' || dir == 'R')) {
+  if (char dir; is >> dir and (dir == 'L' or dir == 'R')) {
     if (int steps; is >> steps) {
       move = {(dir == 'L' ? Move::Left : Move::Right), steps};
       return is.ignore(1, ',');

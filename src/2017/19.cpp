@@ -54,14 +54,14 @@ struct Grid2D {
 auto parse_lines(std::istream& is) {
   using std::operator""s;
   std::vector<std::string> lines;
-  for (std::string line; std::getline(is, line) && !line.empty();) {
+  for (std::string line; std::getline(is, line) and not line.empty();) {
     line = " "s + line + " "s;
     if (lines.empty()) {
       lines.emplace_back(line.size(), ' ');
     }
     lines.push_back(line);
   }
-  if (!lines.empty() && (is || is.eof())) {
+  if (not lines.empty() and (is or is.eof())) {
     lines.emplace_back(lines.front().size(), ' ');
     return lines;
   }
@@ -75,16 +75,16 @@ Tile parse_tile(const auto& lines, const auto y, const auto x) {
     const char e{lines[y][x + 1]};
     const char s{lines[y + 1][x]};
     const char w{lines[y][x - 1]};
-    if (n != ' ' && e != ' ' && n != '-' && e != '|') {
+    if (n != ' ' and e != ' ' and n != '-' and e != '|') {
       return Tile::bend_north_east;
     }
-    if (e != ' ' && s != ' ' && e != '|' && s != '-') {
+    if (e != ' ' and s != ' ' and e != '|' and s != '-') {
       return Tile::bend_east_south;
     }
-    if (s != ' ' && w != ' ' && s != '-' && w != '|') {
+    if (s != ' ' and w != ' ' and s != '-' and w != '|') {
       return Tile::bend_south_west;
     }
-    if (w != ' ' && n != ' ' && w != '|' && n != '-') {
+    if (w != ' ' and n != ' ' and w != '|' and n != '-') {
       return Tile::bend_west_north;
     }
   } else if (t == '|') {
@@ -116,9 +116,9 @@ auto traverse_diagram(const Grid2D& grid) {
   int steps{};
   for (auto [y, x, dy, dx] = grid.start_state(); grid.get(y, x) != Tile::empty; ++steps) {
     const auto tile{grid.get(y, x)};
-    if (tile == Tile::bend_north_east || tile == Tile::bend_south_west) {
+    if (tile == Tile::bend_north_east or tile == Tile::bend_south_west) {
       dy = std::exchange(dx, dy);
-    } else if (tile == Tile::bend_west_north || tile == Tile::bend_east_south) {
+    } else if (tile == Tile::bend_west_north or tile == Tile::bend_east_south) {
       dy = -std::exchange(dx, -dy);
     } else if (tile == Tile::letter) {
       seen.push_back(grid.get_letter(y, x));

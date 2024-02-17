@@ -9,7 +9,7 @@ auto search_for_recipes(const int target, const auto& digits) {
   {
     std::vector<int> r{3, 7};
     auto i1{0uz}, i2{1uz};
-    while (part1.empty() || part2 == 0) {
+    while (part1.empty() or part2 == 0) {
       const auto x1{r[i1]};
       const auto x2{r[i2]};
       const auto [d1, d2]{std::div(x1 + x2, 10)};
@@ -33,7 +33,7 @@ auto search_for_recipes(const int target, const auto& digits) {
       }
       if (part2 == 0) {
         const auto tail{views::drop(r, r.size() - digits.size() - 1)};
-        if (const auto match{ranges::search(tail, digits)}; !match.empty()) {
+        if (const auto match{ranges::search(tail, digits)}; not match.empty()) {
           part2 = match.begin() - r.begin();
         }
       }

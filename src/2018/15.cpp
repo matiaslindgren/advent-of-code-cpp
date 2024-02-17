@@ -26,7 +26,7 @@ std::istream& operator>>(std::istream& is, Tile& tile) {
       } break;
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Tile");
@@ -115,8 +115,8 @@ struct Cave {
     for (const Unit& opp : find_opponents(unit)) {
       const auto pos{get_pos(opp)};
       for (Vec2 target : pos.adjacent()) {
-        if (!is_wall(target)) {
-          if (const auto idx{index(target)}; !blocked.contains(idx)) {
+        if (not is_wall(target)) {
+          if (const auto idx{index(target)}; not blocked.contains(idx)) {
             targets.insert(idx);
           }
         }
@@ -130,7 +130,7 @@ struct Cave {
                get_pos(unit).adjacent() | views::transform([](auto&& p) { return std::vector{p}; })
                | ranges::to<std::deque>()
            };
-           !q.empty();
+           not q.empty();
            q.pop_front()) {
         const auto& path{q.front()};
         const auto pos{path.back()};
@@ -167,8 +167,8 @@ Cave parse_cave(std::string path) {
   {
     Vec2 p{};
     int unit_id{};
-    for (std::string line; std::getline(is, line) && !line.empty(); ++p.y) {
-      if (!g.width) {
+    for (std::string line; std::getline(is, line) and not line.empty(); ++p.y) {
+      if (not g.width) {
         g.width = line.size();
       } else if (line.size() != g.width) {
         is.setstate(std::ios_base::failbit);
@@ -179,7 +179,7 @@ Cave parse_cave(std::string path) {
       p.x = 0;
       for (Tile t : views::istream<Tile>(ls)) {
         g.walls.push_back(t == Tile::wall);
-        if (t == Tile::goblin || t == Tile::elf) {
+        if (t == Tile::goblin or t == Tile::elf) {
           g.units.push_back(Unit{
               .type = t,
               .id = unit_id++,
@@ -191,7 +191,7 @@ Cave parse_cave(std::string path) {
         ++p.x;
       }
 
-      if (!ls.eof()) {
+      if (not ls.eof()) {
         is.setstate(std::ios_base::failbit);
       }
     }
@@ -235,17 +235,17 @@ std::optional<int> simulate(Cave cave, const bool is_part2 = false) {
       auto targets{cave.find_adjacent_opponents(unit)};
 
       if (targets.empty()) {
-        if (auto paths{cave.find_target_paths(unit)}; !paths.empty()) {
+        if (auto paths{cave.find_target_paths(unit)}; not paths.empty()) {
           const auto min_path{*ranges::min_element(paths, {}, path_priority)};
           cave.get_pos(unit) = min_path.front();
           targets = cave.find_adjacent_opponents(unit);
         }
       }
 
-      if (!targets.empty()) {
+      if (not targets.empty()) {
         auto& target{*ranges::min_element(targets, {}, target_priority)};
         target.hp -= unit.power;
-        if (target.hp < 0 && target.type == Tile::elf && is_part2) {
+        if (target.hp < 0 and target.type == Tile::elf and is_part2) {
           return {};
         }
       }

@@ -16,11 +16,11 @@ struct Node {
 std::istream& operator>>(std::istream& is, Node& node) {
   if (std::string line; std::getline(is, line)) {
     std::istringstream ls{line};
-    if (int x, y; skip(ls, "/dev/grid/node-x"s) && ls >> x && skip(ls, "-y"s) && ls >> y) {
-      if (int size; ls >> std::ws >> size && skip(ls, "T"s)) {
-        if (int used; ls >> std::ws >> used && skip(ls, "T"s)) {
-          if (int avail; ls >> std::ws >> avail && skip(ls, "T"s)) {
-            if (size > 0 && used <= size && avail + used == size) {
+    if (int x, y; skip(ls, "/dev/grid/node-x"s) and ls >> x and skip(ls, "-y"s) and ls >> y) {
+      if (int size; ls >> std::ws >> size and skip(ls, "T"s)) {
+        if (int used; ls >> std::ws >> used and skip(ls, "T"s)) {
+          if (int avail; ls >> std::ws >> avail and skip(ls, "T"s)) {
+            if (size > 0 and used <= size and avail + used == size) {
               node = {.x = x, .y = y, .size = size, .used = used};
               return is;
             }
@@ -36,8 +36,8 @@ std::istream& operator>>(std::istream& is, Node& node) {
 }
 
 auto parse_nodes(std::istream& is) {
-  if (skip(is, "root@ebhq-gridcenter#"s, "df"s, "-h"s) && is >> std::ws) {
-    if (skip(is, "Filesystem"s, "Size"s, "Used"s, "Avail"s, "Use%"s) && is >> std::ws) {
+  if (skip(is, "root@ebhq-gridcenter#"s, "df"s, "-h"s) and is >> std::ws) {
+    if (skip(is, "Filesystem"s, "Size"s, "Used"s, "Avail"s, "Use%"s) and is >> std::ws) {
       return views::istream<Node>(is) | ranges::to<std::vector>();
     }
   }
@@ -48,7 +48,7 @@ auto count_viable_pairs(const auto& nodes) {
   return ranges::count_if(
       my_std::views::cartesian_product(nodes, nodes),
       my_std::apply_fn([](const auto& na, const auto& nb) {
-        return (na != nb) && (na.used > 0) && (na.used + nb.used <= nb.size);
+        return (na != nb) and (na.used > 0) and (na.used + nb.used <= nb.size);
       })
   );
 }
@@ -77,7 +77,7 @@ auto find_shortest_path(const auto& nodes) {
 
   std::vector<bool> visited(grid_size * grid_size, false);
 
-  for (std::deque q{std::tuple{data_begin, free_node, 0u}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::tuple{data_begin, free_node, 0u}}; not q.empty(); q.pop_front()) {
     const auto& [data, f, steps] = q.front();
     if (data == target) {
       return steps;
@@ -88,7 +88,7 @@ auto find_shortest_path(const auto& nodes) {
     visited[data * grid_size + f] = true;
     const std::array adjacent{f + 1, f + width, f - 1, f - width};
     for (const auto adj : adjacent) {
-      if (!size[adj]) {
+      if (not size[adj]) {
         continue;
       }
       if (used[adj] <= size[f]) {

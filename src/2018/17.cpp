@@ -19,20 +19,20 @@ struct Area {
 std::istream& operator>>(std::istream& is, Area& area) {
   if (char ch; is >> ch) {
     if (ch == 'x') {
-      if (int x; skip(is, "="s) && is >> x) {
-        if (int y0, y1; skip(is, ","s, "y="s) && is >> y0 && skip(is, ".."s) && is >> y1) {
+      if (int x; skip(is, "="s) and is >> x) {
+        if (int y0, y1; skip(is, ","s, "y="s) and is >> y0 and skip(is, ".."s) and is >> y1) {
           area = {.x = {x, x + 1}, .y = {y0, y1 + 1}};
         }
       }
     } else if (ch == 'y') {
-      if (int y; skip(is, "="s) && is >> y) {
-        if (int x0, x1; skip(is, ","s, "x="s) && is >> x0 && skip(is, ".."s) && is >> x1) {
+      if (int y; skip(is, "="s) and is >> y) {
+        if (int x0, x1; skip(is, ","s, "x="s) and is >> x0 and skip(is, ".."s) and is >> x1) {
           area = {.x = {x0, x1 + 1}, .y = {y, y + 1}};
         }
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Area");
@@ -74,7 +74,7 @@ auto count_water(const auto& areas) {
 
   Vec2 lhs, rhs;
 
-  for (std::vector q{std::pair{Vec2{.y = 1}, Vec2{.y = 0, .x = 500}}}; !q.empty();) {
+  for (std::vector q{std::pair{Vec2{.y = 1}, Vec2{.y = 0, .x = 500}}}; not q.empty();) {
     const auto [dir, pos]{q.back()};
     q.pop_back();
 
@@ -84,7 +84,7 @@ auto count_water(const auto& areas) {
       } else if (dir.x > 0) {
         rhs = pos;
       }
-      if (lhs.y > 0 && lhs.y == rhs.y) {
+      if (lhs.y > 0 and lhs.y == rhs.y) {
         while (++lhs.x < rhs.x) {
           still.insert(index(lhs));
         }
@@ -93,12 +93,12 @@ auto count_water(const auto& areas) {
       continue;
     }
 
-    if (contains(still, pos) || pos.y >= max_y) {
+    if (contains(still, pos) or pos.y >= max_y) {
       continue;
     }
 
     if (dir.y) {
-      if (!contains(flowing, pos)) {
+      if (not contains(flowing, pos)) {
         q.emplace_back(Vec2{.x = -1}, pos);
         q.emplace_back(Vec2{.x = 1}, pos);
         q.emplace_back(dir, pos + dir);
@@ -106,7 +106,7 @@ auto count_water(const auto& areas) {
       }
     } else {
       const auto below{pos + Vec2{.y = 1}};
-      if (contains(clay, below) || contains(still, below)) {
+      if (contains(clay, below) or contains(still, below)) {
         q.emplace_back(dir, pos + dir);
         flowing.insert(index(pos));
       } else {
@@ -117,7 +117,7 @@ auto count_water(const auto& areas) {
 
   const auto flowing_size{ranges::count_if(flowing, [&](auto&& i) {
     const auto [y, x]{std::div(i, max_x)};
-    return min_y <= y && y <= max_y && !still.contains(i);
+    return min_y <= y and y <= max_y and not still.contains(i);
   })};
 
   return std::pair{flowing_size + still.size(), still.size()};

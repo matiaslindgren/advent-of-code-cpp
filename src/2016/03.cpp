@@ -5,7 +5,7 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 bool is_triangle(const int a, const int b, const int c) {
-  return a + b > c && b + c > a && c + a > b;
+  return a + b > c and b + c > a and c + a > b;
 }
 
 using Ints = std::vector<int>;

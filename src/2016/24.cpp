@@ -19,15 +19,15 @@ struct Grid {
 
 std::istream& operator>>(std::istream& is, Grid& grid) {
   Grid g;
-  for (std::string line; std::getline(is, line) && !line.empty();) {
-    if (!g.width) {
+  for (std::string line; std::getline(is, line) and not line.empty();) {
+    if (not g.width) {
       g.width = line.size();
     } else if (line.size() != g.width) {
       is.setstate(std::ios_base::failbit);
       break;
     }
     std::istringstream ls{line};
-    for (char ch; is && ls >> ch;) {
+    for (char ch; is and ls >> ch;) {
       switch (ch) {
         case '0':
         case '1':
@@ -50,7 +50,7 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
       }
     }
   }
-  if (!g.tiles.empty()) {
+  if (not g.tiles.empty()) {
     grid = g;
   }
   if (is.eof()) {
@@ -62,9 +62,9 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
 std::vector<Distance> Grid::bfs(const auto begin) const {
   std::vector<Distance> dist2target;
   std::vector<bool> visited(tiles.size(), false);
-  for (std::deque q{std::pair{begin, 0}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::pair{begin, 0}}; not q.empty(); q.pop_front()) {
     const auto& [i, len] = q.front();
-    if (visited[i] || tiles.at(i) == '#') {
+    if (visited[i] or tiles.at(i) == '#') {
       continue;
     }
     visited[i] = true;

@@ -26,8 +26,8 @@ struct Instruction {
 };
 
 std::istream& operator>>(std::istream& is, Operand& op) {
-  if (std::string s; is >> s && !s.empty()) {
-    if (const char reg_ch{s.front()}; 'a' <= reg_ch && reg_ch <= 'd') {
+  if (std::string s; is >> s and not s.empty()) {
+    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'd') {
       op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
     } else {
       op = {.type = Operand::literal, .value = std::stoi(s)};
@@ -56,7 +56,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
           return is;
         }
       }
-      if (type == "inc" || type == "dec") {
+      if (type == "inc" or type == "dec") {
         if (Operand dst; ls >> dst) {
           ins = {type == "inc" ? Instruction::inc : Instruction::dec, dst};
           return is;
@@ -91,24 +91,24 @@ void write(auto& memory, const Operand& op, auto value) {
 }
 
 auto multiply(auto& memory, const auto& instructions, const auto pos) {
-  if (0 <= pos && pos + 6 < instructions.size()) {
+  if (0 <= pos and pos + 6 < instructions.size()) {
     auto&& is{instructions | views::drop(pos) | views::take(6)};
     using I = Instruction;
     using O = Operand;
-    if (is[0].type == I::copy && is[1].type == I::inc && is[2].type == I::dec
-        && is[3].type == I::jump_if_not_zero && is[4].type == I::dec
-        && is[5].type == I::jump_if_not_zero) {
-      if (is[0].lhs.type == O::address && is[0].rhs.type == O::address
-          && is[1].lhs.type == O::address && is[2].rhs.type == O::address
-          && is[3].lhs.type == O::address && is[3].rhs.type == O::literal
-          && is[4].lhs.type == O::address && is[5].lhs.type == O::address
-          && is[5].rhs.type == O::literal) {
+    if (is[0].type == I::copy and is[1].type == I::inc and is[2].type == I::dec
+        and is[3].type == I::jump_if_not_zero and is[4].type == I::dec
+        and is[5].type == I::jump_if_not_zero) {
+      if (is[0].lhs.type == O::address and is[0].rhs.type == O::address
+          and is[1].lhs.type == O::address and is[2].rhs.type == O::address
+          and is[3].lhs.type == O::address and is[3].rhs.type == O::literal
+          and is[4].lhs.type == O::address and is[5].lhs.type == O::address
+          and is[5].rhs.type == O::literal) {
         const auto& a{is[1].lhs};
         const auto& b{is[0].lhs};
         const auto& c{is[0].rhs};
         const auto& d{is[4].lhs};
-        if (is[2].lhs.index == c.index && is[3].lhs.index == c.index && is[3].rhs.value == -2
-            && is[5].lhs.index == d.index && is[5].rhs.value == -5) {
+        if (is[2].lhs.index == c.index and is[3].lhs.index == c.index and is[3].rhs.value == -2
+            and is[5].lhs.index == d.index and is[5].rhs.value == -5) {
           write(memory, a, read(memory, a) + read(memory, d) * read(memory, b));
           return 6;
         }
@@ -140,7 +140,7 @@ auto execute(auto& memory, auto& instructions, const auto pos) {
     } break;
     case Instruction::toggle: {
       const auto tgl_pos{pos + read(memory, ins.lhs)};
-      if (0 <= tgl_pos && tgl_pos < instructions.size()) {
+      if (0 <= tgl_pos and tgl_pos < instructions.size()) {
         auto& ins2{instructions[tgl_pos]};
         switch (ins2.type) {
           case Instruction::copy: {
@@ -163,7 +163,7 @@ auto execute(auto& memory, auto& instructions, const auto pos) {
 }
 
 int run(auto instructions, std::array<int, 4> memory) {
-  for (std::ptrdiff_t pos{}; 0 <= pos && pos < instructions.size();) {
+  for (std::ptrdiff_t pos{}; 0 <= pos and pos < instructions.size();) {
     const auto jump{execute(memory, instructions, pos)};
     pos += jump;
   }

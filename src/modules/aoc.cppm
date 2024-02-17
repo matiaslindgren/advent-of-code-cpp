@@ -24,7 +24,7 @@ auto cpu_count() {
 std::istream& skip(std::istream& is, const auto& pattern) {
   if (is) {
     for (char rhs : pattern) {
-      if (char lhs; !(is.get(lhs) && lhs == rhs)) {
+      if (char lhs; not(is.get(lhs) and lhs == rhs)) {
         is.setstate(std::ios_base::failbit);
         break;
       }

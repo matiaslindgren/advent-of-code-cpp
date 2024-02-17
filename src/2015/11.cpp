@@ -42,7 +42,7 @@ bool valid(const auto& password) {
       views::zip(password, views::drop(password, 1), views::drop(password, 2)),
       [](const auto& t) {
         const auto& [x0, x1, x2] = t;
-        return x0 + 1 == x1 && x1 + 1 == x2;
+        return x0 + 1 == x1 and x1 + 1 == x2;
       }
   );
 }
@@ -75,7 +75,7 @@ int main() {
   for (auto& part : parts) {
     do {
       password = increment<alphabet_size>(password);
-    } while (!valid(password));
+    } while (not valid(password));
     part = to_string(password);
   }
 

@@ -17,14 +17,14 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (int id; skip(ls, "Game"s) && ls >> id && skip(ls, ":"s)) {
+    if (int id; skip(ls, "Game"s) and ls >> id and skip(ls, ":"s)) {
       std::unordered_map<std::string, int> counts;
-      while (ls && is) {
+      while (ls and is) {
         if (auto [count, cube] = std::pair(int{}, ""s); ls >> count >> cube) {
-          if (cube.ends_with(",") || cube.ends_with(";")) {
+          if (cube.ends_with(",") or cube.ends_with(";")) {
             cube.pop_back();
           }
-          if (cube == "red" || cube == "green" || cube == "blue") {
+          if (cube == "red" or cube == "green" or cube == "blue") {
             counts[cube] = std::max(counts[cube], count);
           } else {
             is.setstate(std::ios_base::failbit);
@@ -52,7 +52,7 @@ int main() {
 
   auto possible_ids{
       max_counts
-      | views::filter([](auto gm) { return gm.red <= 12 && gm.green <= 13 && gm.blue <= 14; })
+      | views::filter([](auto gm) { return gm.red <= 12 and gm.green <= 13 and gm.blue <= 14; })
       | views::transform(&GameMax::id)
   };
   auto powers{max_counts | views::transform([](auto gm) { return gm.red * gm.green * gm.blue; })};

@@ -39,7 +39,7 @@ struct Grid {
   }
 
   constexpr bool is_symbol(const Cell c) const {
-    return c != '.' && !std::isdigit(c);
+    return c != '.' and not std::isdigit(c);
   }
 
   constexpr bool is_gear(const Cell c) const {
@@ -83,7 +83,7 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     grid = g.pad();
     return is;
   }
@@ -98,9 +98,9 @@ constexpr std::pair<int, int> search(const Grid& grid) {
   for (const auto& p : grid.iter_yx_with_padding(1uz)) {
     const auto& [y, x] = p;
     if (const auto cell{grid.get(y, x)}; grid.is_symbol(cell)) {
-      if (const auto adj{grid.adjacent_numbers(p)}; !adj.empty()) {
+      if (const auto adj{grid.adjacent_numbers(p)}; not adj.empty()) {
         part1 += sum(adj);
-        if (grid.is_gear(cell) && adj.size() == 2) {
+        if (grid.is_gear(cell) and adj.size() == 2) {
           part2 += adj[0] * adj[1];
         }
       }

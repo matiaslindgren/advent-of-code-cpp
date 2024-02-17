@@ -30,24 +30,24 @@ struct Rule {
 
 std::istream& operator>>(std::istream& is, Pattern& pattern) {
   if (std::string s; is >> s) {
-    if (const auto w{1 + ranges::count(s, '/')}; 2 <= w && w <= 4) {
+    if (const auto w{1 + ranges::count(s, '/')}; 2 <= w and w <= 4) {
       std::erase(s, '/');
       if (s.size() == w * w) {
         pattern = {.size = static_cast<int>(w), .str = s};
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Pattern");
 }
 
 std::istream& operator>>(std::istream& is, Rule& rule) {
-  if (Pattern src, dst; is >> src >> std::ws && skip(is, "=>"s) && is >> dst) {
+  if (Pattern src, dst; is >> src >> std::ws and skip(is, "=>"s) and is >> dst) {
     rule = {src, dst};
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Rule");

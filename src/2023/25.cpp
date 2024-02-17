@@ -22,7 +22,7 @@ struct Graph {
     std::unordered_map<std::string, Node> node_ids;
     for (const auto& adjacent : edge_map | views::values) {
       for (const auto& node : adjacent | views::keys) {
-        if (!node_ids.contains(node)) {
+        if (not node_ids.contains(node)) {
           node_ids[node] = node_ids.size();
         }
       }
@@ -57,9 +57,9 @@ struct Graph {
 
 std::istream& operator>>(std::istream& is, Graph& graph) {
   Graph::EdgeMap edges;
-  for (std::string line; std::getline(is, line) && !line.empty();) {
+  for (std::string line; std::getline(is, line) and not line.empty();) {
     std::stringstream ls{line};
-    if (std::string lhs; ls >> lhs && lhs.ends_with(":"s)) {
+    if (std::string lhs; ls >> lhs and lhs.ends_with(":"s)) {
       lhs.pop_back();
       for (auto rhs : views::istream<std::string>(ls)) {
         edges[lhs][rhs] = edges[rhs][lhs] = Graph::Weight{1};
@@ -69,7 +69,7 @@ std::istream& operator>>(std::istream& is, Graph& graph) {
       break;
     }
   }
-  if (is.eof() && !edges.empty()) {
+  if (is.eof() and not edges.empty()) {
     graph = Graph{edges};
     return is;
   }
@@ -123,7 +123,7 @@ auto find_part1(Graph graph) {
       A.insert(s);
       cut_weights.erase(s);
       for (const auto& n : graph.adjacent.at(s)) {
-        if (!A.contains(n)) {
+        if (not A.contains(n)) {
           if (cut_weights.contains(n)) {
             cut_weights[n] += graph.edges[s][n];
           } else {

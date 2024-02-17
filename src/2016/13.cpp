@@ -41,7 +41,7 @@ class Dijkstra {
   }
 
   explicit operator bool() const {
-    return !q.empty() && !has_visited(end);
+    return not q.empty() and not has_visited(end);
   }
 
   bool has_visited(const Point2D& p) const {
@@ -116,8 +116,8 @@ Distances find_shortest_paths(
     while (search) {
       Point2D src{search.pop_next()};
       for (const auto& [dx, dy] : adj_deltas) {
-        if (Point2D dst{src.x + dx, src.y + dy};
-            dst.x && dst.y && !search.has_visited(dst) && !is_wall(dst - 1, designer_num)) {
+        if (Point2D dst{src.x + dx, src.y + dy}; dst.x and dst.y and not search.has_visited(dst)
+                                                 and not is_wall(dst - 1, designer_num)) {
           search.visit(src, dst);
         }
       }

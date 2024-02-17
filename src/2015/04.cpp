@@ -21,7 +21,7 @@ struct md5sum_32bit {
 
 int count_zeros(md5::Chunk sum) {
   int n{};
-  for (md5::Chunk mask{0xf0000000}; mask && !(sum & mask); mask >>= 4) {
+  for (md5::Chunk mask{0xf0000000}; mask and not(sum & mask); mask >>= 4) {
     ++n;
   }
   return n;

@@ -24,7 +24,7 @@ std::istream& operator>>(std::istream& is, Pots& pots) {
   Pots p;
   if (std::string s; is >> s) {
     for (char c : s) {
-      if (c == '#' || c == '.') {
+      if (c == '#' or c == '.') {
         p.push_back(c == '#');
       } else {
         is.setstate(std::ios_base::failbit);
@@ -32,7 +32,7 @@ std::istream& operator>>(std::istream& is, Pots& pots) {
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     pots = p;
     return is;
   }
@@ -40,12 +40,12 @@ std::istream& operator>>(std::istream& is, Pots& pots) {
 }
 
 std::istream& operator>>(std::istream& is, Rule& rule) {
-  if (Pots src; is >> src >> std::ws && skip(is, "=>"s)) {
-    if (Pots dst; is >> std::ws >> dst && dst.size() == 1) {
+  if (Pots src; is >> src >> std::ws and skip(is, "=>"s)) {
+    if (Pots dst; is >> std::ws >> dst and dst.size() == 1) {
       rule = {bools2int(src), dst.front()};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Rule");
@@ -53,7 +53,7 @@ std::istream& operator>>(std::istream& is, Rule& rule) {
 
 auto parse_input(std::string path) {
   std::istringstream is{aoc::slurp_file(path)};
-  if (Pots state; skip(is, "initial state:"s) && is >> state) {
+  if (Pots state; skip(is, "initial state:"s) and is >> state) {
     std::vector<int> rules(0b11111 + 1, 0);
     for (Rule r : views::istream<Rule>(is)) {
       if (r.dst) {

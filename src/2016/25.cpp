@@ -25,8 +25,8 @@ struct Instruction {
 };
 
 std::istream& operator>>(std::istream& is, Operand& op) {
-  if (std::string s; is >> s && !s.empty()) {
-    if (const char reg_ch{s.front()}; 'a' <= reg_ch && reg_ch <= 'd') {
+  if (std::string s; is >> s and not s.empty()) {
+    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'd') {
       op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
     } else {
       op = {.type = Operand::literal, .value = std::stoi(s)};
@@ -55,7 +55,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
           return is;
         }
       }
-      if (type == "inc" || type == "dec") {
+      if (type == "inc" or type == "dec") {
         if (Operand dst; ls >> dst) {
           ins = {
               Instruction::add,
@@ -119,14 +119,14 @@ int run(const auto& instructions) {
   for (int a{0};; ++a) {
     std::array<int, 4> memory{a, 0, 0, 0};
     std::vector<int> out;
-    for (std::ptrdiff_t pos{}; 0 <= pos && pos < instructions.size();) {
+    for (std::ptrdiff_t pos{}; 0 <= pos and pos < instructions.size();) {
       const auto jump{execute(memory, instructions[pos], out)};
-      if (!out.empty()) {
+      if (not out.empty()) {
         const auto back{out.end() - 1};
-        if (!(*back == 0 || *back == 1)) {
+        if (not(*back == 0 or *back == 1)) {
           break;
         }
-        if (out.size() > 1 && *(back - 1) == *back) {
+        if (out.size() > 1 and *(back - 1) == *back) {
           break;
         }
         if (out.size() > 1000) {

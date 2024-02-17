@@ -28,7 +28,7 @@ std::istream& operator>>(std::istream& is, Object& o) {
     invalid,
   };
   auto state{State::init};
-  for (char ch; is && state != State::end && state != State::invalid;) {
+  for (char ch; is and state != State::end and state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -62,7 +62,7 @@ std::istream& operator>>(std::istream& is, Object& o) {
           case '"': {
             Key k;
             Value v;
-            if (is >> k && is >> ch && ch == ':' && is >> v) {
+            if (is >> k and is >> ch and ch == ':' and is >> v) {
               o.values[k] = v;
               state = State::items;
             }
@@ -89,7 +89,7 @@ std::istream& operator>>(std::istream& is, Array& array) {
     invalid,
   };
   auto state{State::init};
-  for (char ch; is && state != State::end && state != State::invalid;) {
+  for (char ch; is and state != State::end and state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -133,9 +133,9 @@ std::istream& operator>>(std::istream& is, Array& array) {
 
 std::istream& operator>>(std::istream& is, Key& key) {
   char ch;
-  if (is >> ch && ch == '"') {
+  if (is >> ch and ch == '"') {
     std::string k;
-    while (is >> ch && ch != '"') {
+    while (is >> ch and ch != '"') {
       k.push_back(ch);
     }
     key = k;
@@ -151,7 +151,7 @@ std::istream& operator>>(std::istream& is, Value& value) {
     invalid,
   };
   auto state{State::init};
-  for (char ch; is && state != State::end && state != State::invalid;) {
+  for (char ch; is and state != State::end and state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -229,7 +229,7 @@ Number sum(const Array& a, std::optional<Key> sentinel) {
 Number sum(const Object& o, std::optional<Key> sentinel = {}) {
   Number result{};
   for (const auto& [key, value] : o.values) {
-    if (sentinel && std::holds_alternative<Key>(value) && std::get<Key>(value) == *sentinel) {
+    if (sentinel and std::holds_alternative<Key>(value) and std::get<Key>(value) == *sentinel) {
       return {};
     }
     result += sum(value, sentinel);

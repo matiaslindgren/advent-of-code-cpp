@@ -15,9 +15,9 @@ struct Reindeer {
 std::istream& operator>>(std::istream& is, Reindeer& r) {
   using std::operator""s;
   using aoc::skip;
-  if (is >> r.name && skip(is, " can fly"s) && is >> r.speed && skip(is, " km/s for"s)
-      && is >> r.stamina && skip(is, " seconds, but then must rest for"s) && is >> r.rest_need
-      && skip(is, " seconds."s)) {
+  if (is >> r.name and skip(is, " can fly"s) and is >> r.speed and skip(is, " km/s for"s)
+      and is >> r.stamina and skip(is, " seconds, but then must rest for"s) and is >> r.rest_need
+      and skip(is, " seconds."s)) {
     return is;
   }
   if (is.eof()) {

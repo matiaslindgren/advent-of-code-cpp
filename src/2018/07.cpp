@@ -11,13 +11,13 @@ struct Step {
 std::istream& operator>>(std::istream& is, Step& step) {
   using aoc::skip;
   using std::operator""s;
-  if (char a; is >> std::ws && skip(is, "Step"s) && is >> a) {
-    if (char b; is >> std::ws && skip(is, "must be finished before step"s) && is >> b >> std::ws
-                && skip(is, "can begin."s)) {
+  if (char a; is >> std::ws and skip(is, "Step"s) and is >> a) {
+    if (char b; is >> std::ws and skip(is, "must be finished before step"s) and is >> b >> std::ws
+                and skip(is, "can begin."s)) {
       step = {a, b};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Step");
@@ -55,9 +55,9 @@ auto run_tasks(const auto& steps, const auto n_workers) {
   std::string completed;
   int t{};
 
-  for (; !(todo.empty() && doing.empty());
+  for (; not(todo.empty() and doing.empty());
        ++t, ranges::for_each(doing, [](auto& w) { w.first -= 1; })) {
-    while (!doing.empty() && doing.front().first == 0) {
+    while (not doing.empty() and doing.front().first == 0) {
       const auto done{pop_min_heap(doing).second};
       completed.push_back(done);
       for (const char next : after[done]) {
@@ -68,13 +68,13 @@ auto run_tasks(const auto& steps, const auto n_workers) {
       }
       after.erase(done);
     }
-    while (!todo.empty() && doing.size() < n_workers) {
+    while (not todo.empty() and doing.size() < n_workers) {
       const auto work{pop_min_heap(todo).first};
       push_min_heap(doing, 61 + (work - 'A'), work);
     }
   }
 
-  if (!after.empty()) {
+  if (not after.empty()) {
     throw std::runtime_error("graph is not a DAG");
   }
   return std::pair{completed, t - 1};

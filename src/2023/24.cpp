@@ -45,12 +45,12 @@ struct Stone {
   }
 
   auto is_past_point(const Vec3& pp) const {
-    return v.x * (pp.x - p.x) < 0 || v.y * (pp.y - p.y) < 0;
+    return v.x * (pp.x - p.x) < 0 or v.y * (pp.y - p.y) < 0;
   }
 };
 
 std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (long double x, y, z; is >> x && skip(is, ","s) && is >> y && skip(is, ","s) && is >> z) {
+  if (long double x, y, z; is >> x and skip(is, ","s) and is >> y and skip(is, ","s) and is >> z) {
     v = {x, y, z};
     return is;
   }
@@ -61,7 +61,7 @@ std::istream& operator>>(std::istream& is, Vec3& v) {
 }
 
 std::istream& operator>>(std::istream& is, Stone& stone) {
-  if (Vec3 p, v; is >> p >> std::ws && skip(is, "@"s) && is >> v) {
+  if (Vec3 p, v; is >> p >> std::ws and skip(is, "@"s) and is >> v) {
     stone = {p, v};
     return is;
   }
@@ -72,7 +72,7 @@ std::istream& operator>>(std::istream& is, Stone& stone) {
 }
 
 bool is_inside_square(const Vec3& v, const auto lo, const auto hi) {
-  return lo <= std::min(v.x, v.y) && std::max(v.x, v.y) <= hi;
+  return lo <= std::min(v.x, v.y) and std::max(v.x, v.y) <= hi;
 }
 
 std::optional<Vec3> intersectXY(const Stone& lhs, const Stone& rhs) {
@@ -82,7 +82,7 @@ std::optional<Vec3> intersectXY(const Stone& lhs, const Stone& rhs) {
   const auto d{rhs.intersect()};
   const auto x{(d - c) / (a - b)};
   const auto y{a * x + c};
-  if (const Vec3 res{x, y}; !lhs.is_past_point(res) && !rhs.is_past_point(res)) {
+  if (const Vec3 res{x, y}; not lhs.is_past_point(res) and not rhs.is_past_point(res)) {
     return res;
   }
   return {};
@@ -93,7 +93,7 @@ auto find_part1(const auto& stones) {
   for (const auto& [i, stone1] : my_std::views::enumerate(stones, 1uz)) {
     n += ranges::count_if(stones | views::drop(i), [&stone1](const auto& stone2) {
       const auto is{intersectXY(stone1, stone2)};
-      return is && is_inside_square(*is, min_coord, max_coord);
+      return is and is_inside_square(*is, min_coord, max_coord);
     });
   }
   return n;
@@ -112,7 +112,7 @@ auto find_part2(const auto& stones) {
     const auto hi{radius};
     for (v.y = lo; v.y <= hi; ++v.y) {
       for (v.x = lo; v.x <= hi; ++v.x) {
-        if (radius > 0 && is_inside_square(v, lo + 1, hi - 1)) {
+        if (radius > 0 and is_inside_square(v, lo + 1, hi - 1)) {
           continue;
         }
         v.z = 0;
@@ -122,7 +122,7 @@ auto find_part2(const auto& stones) {
           if (ranges::all_of(stones | views::drop(2), [&v, &s1, &is1](Stone s3) {
                 s3.v = s3.v - v;
                 const auto is2{intersectXY(s1, s3)};
-                return is2 && is1->l1_distance(*is2) < distance_epsilon;
+                return is2 and is1->l1_distance(*is2) < distance_epsilon;
               })) {
             const auto t1{infer_collision_time(*is1, s1)};
             const auto t2{infer_collision_time(*is1, s2)};

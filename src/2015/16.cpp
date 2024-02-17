@@ -13,15 +13,15 @@ struct Aunt {
 std::istream& operator>>(std::istream& is, Aunt& aunt) {
   std::string tmp;
   std::size_t id;
-  if (is >> tmp && tmp == "Sue" && is >> id >> tmp && tmp == ":") {
+  if (is >> tmp and tmp == "Sue" and is >> id >> tmp and tmp == ":") {
     Aunt::Items items;
     {
       std::string key;
       int value;
-      while (is >> key && key.ends_with(":") && is >> value) {
+      while (is >> key and key.ends_with(":") and is >> value) {
         key.pop_back();
         items[key] = value;
-        if (!(is.peek() == ',' && is.get())) {
+        if (not(is.peek() == ',' and is.get())) {
           break;
         }
       }
@@ -38,7 +38,7 @@ std::istream& operator>>(std::istream& is, Aunt& aunt) {
 Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
   for (const auto& [k, v] : target.items) {
     const auto is_mismatch{[&](const auto& aunt) {
-      return aunt.items.contains(k) && !comp(k, aunt.items.at(k), v);
+      return aunt.items.contains(k) and not comp(k, aunt.items.at(k), v);
     }};
     const auto [rm_begin, rm_end] = ranges::remove_if(aunts, is_mismatch);
     aunts.erase(rm_begin, rm_end);
@@ -68,10 +68,10 @@ int main() {
   const auto equal_compare{[](const auto&, int lhs, int rhs) { return lhs == rhs; }};
 
   const auto fancy_compare{[](const auto& key, int lhs, int rhs) {
-    if (key == "cats" || key == "trees") {
+    if (key == "cats" or key == "trees") {
       return lhs > rhs;
     }
-    if (key == "pomerians" || key == "goldfish") {
+    if (key == "pomerians" or key == "goldfish") {
       return lhs < rhs;
     }
     return lhs == rhs;

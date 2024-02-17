@@ -7,7 +7,7 @@ namespace views = std::views;
 int search_divide(const auto& row) {
   for (const auto& a : row) {
     for (const auto& b : row) {
-      if (a != b && b && a % b == 0) {
+      if (a != b and b and a % b == 0) {
         return a / b;
       }
     }

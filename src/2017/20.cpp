@@ -41,11 +41,11 @@ using aoc::skip;
 using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (long x, y, z; skip(is, "<"s) && is >> x && skip(is, ","s) && is >> y && skip(is, ","s)
-                    && is >> z && skip(is, ">"s)) {
+  if (long x, y, z; skip(is, "<"s) and is >> x and skip(is, ","s) and is >> y and skip(is, ","s)
+                    and is >> z and skip(is, ">"s)) {
     v = {x, y, z};
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Vec3");
@@ -54,13 +54,13 @@ std::istream& operator>>(std::istream& is, Vec3& v) {
 std::istream& operator>>(std::istream& is, Particle& particle) {
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (Vec3 p, v, a; ls >> std::ws && skip(ls, "p="s) && ls >> p && skip(ls, ","s) && ls >> std::ws
-                      && skip(ls, "v="s) && ls >> v && skip(ls, ","s) && ls >> std::ws
-                      && skip(ls, "a="s) && ls >> a) {
+    if (Vec3 p, v, a; ls >> std::ws and skip(ls, "p="s) and ls >> p and skip(ls, ","s)
+                      and ls >> std::ws and skip(ls, "v="s) and ls >> v and skip(ls, ","s)
+                      and ls >> std::ws and skip(ls, "a="s) and ls >> a) {
       particle = {p, v, a};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Particle");
@@ -106,10 +106,10 @@ auto find_part2(const auto& particles) {
     const auto [tx0, tx1] = solve_quadratic(a.x, b.x, c.x);
     const auto [ty0, ty1] = solve_quadratic(a.y, b.y, c.y);
     const auto [tz0, tz1] = solve_quadratic(a.z, b.z, c.z);
-    if (tx0 >= 0 && tx0 == ty0 && ty0 == tz0) {
+    if (tx0 >= 0 and tx0 == ty0 and ty0 == tz0) {
       collisions[tx0].emplace_back(p1.id, p2.id);
     }
-    if (tx1 >= 0 && tx1 == ty1 && ty1 == tz1) {
+    if (tx1 >= 0 and tx1 == ty1 and ty1 == tz1) {
       collisions[tx1].emplace_back(p1.id, p2.id);
     }
   }
@@ -122,7 +122,7 @@ auto find_part2(const auto& particles) {
   for (const auto& t : collision_times) {
     std::vector<int> d;
     for (const auto& [p1, p2] : collisions.at(t)) {
-      if (!destroyed.contains(p1) && !destroyed.contains(p2)) {
+      if (not destroyed.contains(p1) and not destroyed.contains(p2)) {
         d.push_back(p1);
         d.push_back(p2);
       }

@@ -15,7 +15,7 @@ void _find_all_combinations(
     results.push_back(used);
     return;
   }
-  if (target < 0 || pos == available.size()) {
+  if (target < 0 or pos == available.size()) {
     return;
   }
   _find_all_combinations(results, target, used, available, pos + 1);

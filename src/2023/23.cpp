@@ -53,16 +53,16 @@ struct Grid2D {
   auto adjacent(const auto i) const {
     std::vector<std::size_t> adj;
     const auto t{tiles.at(i)};
-    if (t == Tile::ground || t == Tile::up) {
+    if (t == Tile::ground or t == Tile::up) {
       adj.push_back(i - width);
     }
-    if (t == Tile::ground || t == Tile::right) {
+    if (t == Tile::ground or t == Tile::right) {
       adj.push_back(i + 1);
     }
-    if (t == Tile::ground || t == Tile::down) {
+    if (t == Tile::ground or t == Tile::down) {
       adj.push_back(i + width);
     }
-    if (t == Tile::ground || t == Tile::left) {
+    if (t == Tile::ground or t == Tile::left) {
       adj.push_back(i - 1);
     }
     return adj;
@@ -70,14 +70,14 @@ struct Grid2D {
 
   auto compress_edges() const {
     std::unordered_map<std::size_t, std::unordered_map<std::size_t, int>> edges;
-    for (std::vector q{start_index()}; !q.empty();) {
+    for (std::vector q{start_index()}; not q.empty();) {
       const auto src{q.back()};
       q.pop_back();
       for (const auto& dst : adjacent(src)) {
         if (tiles.at(dst) == Tile::forest) {
           continue;
         }
-        if (!edges[src].contains(dst)) {
+        if (not edges[src].contains(dst)) {
           edges[src][dst] = 1;
           q.push_back(dst);
         }
@@ -103,10 +103,10 @@ struct Grid2D {
 
 std::istream& operator>>(std::istream& is, Grid2D& grid) {
   Grid2D g;
-  for (std::string line; std::getline(is, line) && !line.empty(); ++g.height) {
+  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
     line.insert(line.begin(), std::to_underlying(Tile::forest));
     line.insert(line.end(), std::to_underlying(Tile::forest));
-    if (!g.width) {
+    if (not g.width) {
       g.width = line.size();
       g.append_padding();
     } else if (line.size() != g.width) {
@@ -116,7 +116,7 @@ std::istream& operator>>(std::istream& is, Grid2D& grid) {
     std::stringstream ls{line};
     g.tiles.append_range(views::istream<Tile>(ls));
   }
-  if (g.width && g.height) {
+  if (g.width and g.height) {
     g.append_padding();
     grid = g;
   }
@@ -161,7 +161,7 @@ auto find_longest_path(const Grid2D& grid) {
   const auto end{graph.nodes.at(grid.end_index())};
   int max_dist{0};
 
-  for (std::vector q{State{.current = start}}; !q.empty();) {
+  for (std::vector q{State{.current = start}}; not q.empty();) {
     auto [curr, dist_total, visited] = q.back();
     q.pop_back();
     if (curr == end) {

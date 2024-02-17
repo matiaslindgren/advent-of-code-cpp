@@ -26,7 +26,7 @@ struct Statement {
 };
 
 std::istream& operator>>(std::istream& is, Instruction& ins) {
-  if (std::string key, type; is >> key >> type && !key.empty()) {
+  if (std::string key, type; is >> key >> type and not key.empty()) {
     if (int value; is >> value) {
       decltype(Instruction::op) op{};
       if (type == "dec"s) {
@@ -41,14 +41,14 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Instruction");
 }
 
 std::istream& operator>>(std::istream& is, Condition& cond) {
-  if (std::string key; is >> std::ws && skip(is, "if"s) && is >> key && !key.empty()) {
+  if (std::string key; is >> std::ws and skip(is, "if"s) and is >> key and not key.empty()) {
     if (std::string type; is >> type) {
       if (int value; is >> value) {
         decltype(Condition::comp) comp{};
@@ -73,7 +73,7 @@ std::istream& operator>>(std::istream& is, Condition& cond) {
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Condition");
@@ -85,7 +85,7 @@ std::istream& operator>>(std::istream& is, Statement& stmt) {
       stmt = {ins, cond};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Statement");

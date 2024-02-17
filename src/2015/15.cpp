@@ -21,10 +21,10 @@ struct Ingredient {
 std::istream& operator>>(std::istream& is, Ingredient& ingredient) {
   using std::operator""s;
   using aoc::skip;
-  if (Ingredient ing; is >> ing.name && ing.name.ends_with(":") && skip(is, " capacity"s)
-                      && is >> ing.capacity && skip(is, ", durability"s) && is >> ing.durability
-                      && skip(is, ", flavor"s) && is >> ing.flavor && skip(is, ", texture"s)
-                      && is >> ing.texture && skip(is, ", calories"s) && is >> ing.calories) {
+  if (Ingredient ing; is >> ing.name and ing.name.ends_with(":") and skip(is, " capacity"s)
+                      and is >> ing.capacity and skip(is, ", durability"s) and is >> ing.durability
+                      and skip(is, ", flavor"s) and is >> ing.flavor and skip(is, ", texture"s)
+                      and is >> ing.texture and skip(is, ", calories"s) and is >> ing.calories) {
     ing.name.pop_back();
     ingredient = ing;
     return is;
@@ -58,7 +58,7 @@ long find_optimal_cookie(
 ) {
   const auto scores{compute_scores(weights, spoons)};
   auto best_score{0L};
-  if (!calorie_target || scores.back() == *calorie_target) {
+  if (not calorie_target or scores.back() == *calorie_target) {
     best_score = product(scores.begin(), scores.begin() + (weights.size() - 1));
   }
   for (auto i{begin}; i < spoons.size(); ++i) {

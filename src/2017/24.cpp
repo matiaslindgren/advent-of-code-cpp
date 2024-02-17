@@ -15,10 +15,10 @@ struct Component {
 std::istream& operator>>(std::istream& is, Component& comp) {
   using aoc::skip;
   using std::operator""s;
-  if (int a, b; is >> a && skip(is, "/"s) && is >> b) {
+  if (int a, b; is >> a and skip(is, "/"s) and is >> b) {
     comp = {a, b};
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Component");
@@ -32,7 +32,7 @@ auto find_max_bridges(auto components) {
 
   int max_part1{}, max_part2{}, max_len{};
 
-  for (std::deque q{std::tuple{0, 0, std::bitset<state_size>{}}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::tuple{0, 0, std::bitset<state_size>{}}}; not q.empty(); q.pop_front()) {
     const auto [port, strength, used] = q.front();
 
     max_part1 = std::max(max_part1, strength);
@@ -45,7 +45,7 @@ auto find_max_bridges(auto components) {
     }
 
     for (const auto [i, comp] : my_std::views::enumerate(components)) {
-      if (!used[i] && (port == comp.a || port == comp.b)) {
+      if (not used[i] and (port == comp.a or port == comp.b)) {
         auto used_next{used};
         used_next[i] = true;
         if (port == comp.a) {

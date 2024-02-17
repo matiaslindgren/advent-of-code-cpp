@@ -23,21 +23,21 @@ using aoc::skip;
 using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Vec2& v) {
-  if (int x, y; skip(is, "<"s) && is >> x && skip(is, ","s) && is >> y && skip(is, ">"s)) {
+  if (int x, y; skip(is, "<"s) and is >> x and skip(is, ","s) and is >> y and skip(is, ">"s)) {
     v = {x, y};
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Vec2");
 }
 
 std::istream& operator>>(std::istream& is, Light& light) {
-  if (Vec2 p, v; is >> std::ws && skip(is, "position="s) && is >> p >> std::ws
-                 && skip(is, "velocity="s) && is >> v) {
+  if (Vec2 p, v; is >> std::ws and skip(is, "position="s) and is >> p >> std::ws
+                 and skip(is, "velocity="s) and is >> v) {
     light = {p, v};
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Light");
@@ -83,7 +83,7 @@ auto extract_chunks(const auto& lights, const auto tl, const auto br) {
 auto wait_for_message(auto lights) {
   for (int t{}; t < 1'000'000; ++t) {
     const auto [tl, br]{find_grid_corners(lights)};
-    if (br.y - tl.y + 1 == 10 && br.x - tl.x < 200) {
+    if (br.y - tl.y + 1 == 10 and br.x - tl.x < 200) {
       const auto msg{
           extract_chunks(lights, tl, br) | views::transform(aoc::as_ascii)
           | ranges::to<std::string>()

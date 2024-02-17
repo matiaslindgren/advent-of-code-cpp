@@ -18,10 +18,10 @@ struct Brick {
   std::size_t index{};
 
   bool intersects(const Brick& rhs) const {
-    const auto x{begin.x < rhs.end.x && rhs.begin.x < end.x};
-    const auto y{begin.y < rhs.end.y && rhs.begin.y < end.y};
-    const auto z{begin.z < rhs.end.z && rhs.begin.z < end.z};
-    return x && y && z;
+    const auto x{begin.x < rhs.end.x and rhs.begin.x < end.x};
+    const auto y{begin.y < rhs.end.y and rhs.begin.y < end.y};
+    const auto z{begin.z < rhs.end.z and rhs.begin.z < end.z};
+    return x and y and z;
   }
 };
 
@@ -44,7 +44,7 @@ struct SupportGraph {
       auto b1{*curr};
       const auto intersects_b1{[&b1](const auto& b2) { return b1.intersects(b2); }};
 
-      while (b1.begin.z > 0 && !ranges::any_of(bricks.begin(), curr, intersects_b1)) {
+      while (b1.begin.z > 0 and not ranges::any_of(bricks.begin(), curr, intersects_b1)) {
         *curr = b1;
         b1.begin.z -= 1;
         b1.end.z -= 1;
@@ -62,7 +62,7 @@ using aoc::skip;
 using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (int x, y, z; is >> x && skip(is, ","s) && is >> y && skip(is, ","s) && is >> z) {
+  if (int x, y, z; is >> x and skip(is, ","s) and is >> y and skip(is, ","s) and is >> z) {
     v = {x, y, z};
     return is;
   }
@@ -72,7 +72,7 @@ std::istream& operator>>(std::istream& is, Vec3& v) {
 std::istream& operator>>(std::istream& is, Brick& brick) {
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (Vec3 begin, end; ls >> begin && skip(ls, "~"s) && ls >> end) {
+    if (Vec3 begin, end; ls >> begin and skip(ls, "~"s) and ls >> end) {
       brick = {begin, end + 1};
       return is;
     }
@@ -98,13 +98,13 @@ auto find_part2(const SupportGraph& sg) {
     int n{};
     std::vector<bool> falling(sg.bricks.size());
     falling.at(b.index) = true;
-    for (std::deque q{b.index}; !q.empty(); q.pop_front()) {
+    for (std::deque q{b.index}; not q.empty(); q.pop_front()) {
       for (const auto above : sg.supporting.at(q.front())) {
         const auto support_count{ranges::count_if(
             sg.supported_by.at(above),
-            [&falling](const auto& below) { return !falling.at(below); }
+            [&falling](const auto& below) { return not falling.at(below); }
         )};
-        if (!falling.at(above) && support_count == 0) {
+        if (not falling.at(above) and support_count == 0) {
           n += 1;
           falling.at(above) = true;
           q.push_back(above);

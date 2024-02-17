@@ -72,7 +72,7 @@ std::pair<int, int> parse_garbage(std::string_view s) {
     }
   }
 
-  if (depth != 0 || state != State::group) {
+  if (depth != 0 or state != State::group) {
     throw std::runtime_error("invalid final state");
   }
 

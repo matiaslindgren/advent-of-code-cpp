@@ -28,7 +28,7 @@ struct Instruction {
 };
 
 std::istream& operator>>(std::istream& is, Instruction::Type& t) {
-  if (std::string type; is >> type && !type.empty()) {
+  if (std::string type; is >> type and not type.empty()) {
     using Type = Instruction::Type;
     if (type == "add") {
       t = Type::add;
@@ -48,21 +48,21 @@ std::istream& operator>>(std::istream& is, Instruction::Type& t) {
       is.setstate(std::ios_base::failbit);
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing instruction type");
 }
 
 std::istream& operator>>(std::istream& is, Operand& op) {
-  if (std::string s; is >> s && !s.empty()) {
-    if (const char reg_ch{s.front()}; 'a' <= reg_ch && reg_ch <= 'z') {
+  if (std::string s; is >> s and not s.empty()) {
+    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'z') {
       op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
     } else {
       op = {.type = Operand::literal, .value = std::stoi(s)};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Operand");
@@ -73,7 +73,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
     std::stringstream ls{line};
     using Type = Instruction::Type;
     if (Type type; ls >> type) {
-      if (type == Type::send || type == Type::receive) {
+      if (type == Type::send or type == Type::receive) {
         if (Operand idx; ls >> idx) {
           ins = {type, idx};
         }
@@ -84,7 +84,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Instruction");
@@ -122,7 +122,7 @@ struct Program {
   }
 
   void execute(const Instruction& ins, auto& out) {
-    if (blocked && pipe.empty()) {
+    if (blocked and pipe.empty()) {
       return;
     }
 
@@ -166,7 +166,7 @@ struct Program {
 
 int run_part1(const auto& instructions) {
   Program p0(0), p1(1);
-  while (!p0.blocked) {
+  while (not p0.blocked) {
     p0.execute(instructions[p0.loc], p1.pipe);
   }
   return p1.pipe.back();
@@ -174,7 +174,7 @@ int run_part1(const auto& instructions) {
 
 int run_part2(const auto& instructions) {
   Program p0(0), p1(1);
-  while (!(p0.blocked && p1.blocked)) {
+  while (not(p0.blocked and p1.blocked)) {
     p0.execute(instructions[p0.loc], p1.pipe);
     p1.execute(instructions[p1.loc], p0.pipe);
   }

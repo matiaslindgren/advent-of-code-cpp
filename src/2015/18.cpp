@@ -44,7 +44,7 @@ struct Grid2D {
   }
 
   bool is_on(const Light l) const {
-    return l == Light::on || l == Light::stuck;
+    return l == Light::on or l == Light::stuck;
   }
   bool is_on(const std::size_t row, const std::size_t col) const {
     return is_on(get(row, col));
@@ -54,7 +54,7 @@ struct Grid2D {
     int n{0};
     for (auto r{row - 1}; r <= row + 1; ++r) {
       for (auto c{col - 1}; c <= col + 1; ++c) {
-        if (!(r == row && c == col) && is_on(r, c)) {
+        if (not(r == row and c == col) and is_on(r, c)) {
           ++n;
         }
       }
@@ -80,10 +80,10 @@ struct Grid2D {
           continue;
         }
         const auto on_count{count_adjacent_on(row, col)};
-        if (is_on(row, col) && !(on_count == 2 || on_count == 3)) {
+        if (is_on(row, col) and not(on_count == 2 or on_count == 3)) {
           next_grid.get(row, col) = Light::off;
         }
-        if (!is_on(row, col) && on_count == 3) {
+        if (not is_on(row, col) and on_count == 3) {
           next_grid.get(row, col) = Light::on;
         }
       }

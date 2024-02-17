@@ -79,7 +79,7 @@ struct parse_section {
     std::vector<char> chars;
     auto width{0uz};
     for (auto&& line : views::split(section, "\n"s)) {
-      if (!line.empty()) {
+      if (not line.empty()) {
         width = line.size();
         chars.append_range(line);
       }

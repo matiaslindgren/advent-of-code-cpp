@@ -22,7 +22,7 @@ struct std::hash<Bank> {
 auto find_loop(Bank bank) {
   int cycle{};
   std::unordered_map<Bank, int> seen;
-  for (; !seen.contains(bank); ++cycle) {
+  for (; not seen.contains(bank); ++cycle) {
     seen[bank] = cycle;
 
     const auto begin{ranges::max_element(bank.v)};
@@ -40,7 +40,7 @@ auto find_loop(Bank bank) {
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
   const auto bank{views::istream<int>(input) | ranges::to<std::vector<int>>()};
-  if (bank.size() > 16 || !ranges::all_of(bank, [](auto x) { return 0 <= x && x <= 15; })) {
+  if (bank.size() > 16 or not ranges::all_of(bank, [](auto x) { return 0 <= x and x <= 15; })) {
     throw std::runtime_error(
         "invalid input, input size must be at most 16 and every element must fit into 4 bits"
     );

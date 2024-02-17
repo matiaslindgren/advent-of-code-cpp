@@ -24,20 +24,20 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
 
   if (auto [cmd, num] = std::tuple(std::string{}, int{}); is >> cmd >> num) {
     if (cmd == "value") {
-      if (int bot; skip(is, " goes to bot"s) && is >> bot) {
+      if (int bot; skip(is, " goes to bot"s) and is >> bot) {
         ins = {Type::set_value, num, bot};
         return is;
       }
     }
-    if (cmd == "bot" && skip(is, " gives low to"s) && is >> cmd) {
+    if (cmd == "bot" and skip(is, " gives low to"s) and is >> cmd) {
       if (cmd == "bot") {
-        if (int out1, out2; is >> out1 && skip(is, " and high to bot"s) && is >> out2) {
+        if (int out1, out2; is >> out1 and skip(is, " and high to bot"s) and is >> out2) {
           ins = {Type::lo_bot_hi_bot, num, out1, out2};
           return is;
         }
       }
       if (cmd == "output") {
-        if (int out1, out2; is >> out1 && skip(is, " and high to"s) && is >> cmd >> out2) {
+        if (int out1, out2; is >> out1 and skip(is, " and high to"s) and is >> cmd >> out2) {
           if (cmd == "bot") {
             ins = {Type::lo_out_hi_bot, num, out1, out2};
             return is;
@@ -72,7 +72,7 @@ struct Gate {
     return {std::min(input1, input2), std::max(input1, input2)};
   }
   constexpr bool is_full() const {
-    return !(out_lo < 0 || out_hi < 0 || input1 < 0 || input2 < 0);
+    return not(out_lo < 0 or out_hi < 0 or input1 < 0 or input2 < 0);
   }
 };
 
@@ -112,7 +112,7 @@ int main() {
            views::filter(bots, [](const auto& b) { return b.is_full(); })
            | ranges::to<std::vector>()
        };
-       !full_bots.empty();) {
+       not full_bots.empty();) {
     const auto bot{full_bots.back()};
     full_bots.pop_back();
 
@@ -131,7 +131,7 @@ int main() {
 
   const auto part1{ranges::distance(bots.begin(), ranges::find_if(bots, [](const auto& b) {
                                       const auto [lo, hi] = b.value();
-                                      return lo == 17 && hi == 61;
+                                      return lo == 17 and hi == 61;
                                     }))};
   const auto part2{my_std::ranges::fold_left(
       ranges::subrange(outputs.begin(), outputs.begin() + 3)

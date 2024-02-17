@@ -17,7 +17,7 @@ std::istream& operator>>(std::istream& is, IP& ip) {
     for (auto lhs{line.begin()}; lhs != line.end();) {
       const auto next_delim{*lhs == '[' ? ']' : '['};
       const auto rhs{ranges::find(lhs, line.end(), next_delim)};
-      if (*lhs == '[' || *lhs == ']') {
+      if (*lhs == '[' or *lhs == ']') {
         ++lhs;
       }
       if (lhs != line.end()) {
@@ -45,26 +45,26 @@ constexpr decltype(auto) window4(ranges::range auto&& r) {
 bool contains_abba(std::string_view s) {
   return ranges::any_of(window4(s), [](const auto& window) {
     const auto& [ch1, ch2, ch3, ch4] = window;
-    return ch1 != ch2 && ch1 == ch4 && ch2 == ch3;
+    return ch1 != ch2 and ch1 == ch4 and ch2 == ch3;
   });
 }
 
 bool supports_tls(const IP& ip) {
   const auto has_super_abba{ranges::any_of(ip.supernets, contains_abba)};
   const auto has_hyper_abba{ranges::any_of(ip.hypernets, contains_abba)};
-  return has_super_abba && !has_hyper_abba;
+  return has_super_abba and not has_hyper_abba;
 }
 
 bool supports_ssl(const IP& ip) {
   std::vector<std::pair<char, char>> super_abas;
   for (const auto& s : ip.supernets) {
     for (const auto& [ch1, ch2, ch3] : window3(s)) {
-      if (ch1 != ch2 && ch1 == ch3) {
+      if (ch1 != ch2 and ch1 == ch3) {
         super_abas.push_back({ch1, ch2});
       }
     }
   }
-  const auto has_super_aba{!super_abas.empty()};
+  const auto has_super_aba{not super_abas.empty()};
   // clang-format off
   const auto has_hyper_bab{
     ranges::any_of(ip.hypernets, [&](const auto& s) {
@@ -72,16 +72,16 @@ bool supports_ssl(const IP& ip) {
         const auto& [ch1, ch2, ch3] = window;
         return (
           ch1 == ch3
-          && ranges::any_of(super_abas, [&](const auto& ab) {
+          and ranges::any_of(super_abas, [&](const auto& ab) {
             const auto& [a, b] = ab;
-            return a == ch2 && b == ch1;
+            return a == ch2 and b == ch1;
           })
         );
       });
     })
   };
   // clang-format on
-  return has_super_aba && has_hyper_bab;
+  return has_super_aba and has_hyper_bab;
 }
 
 int main() {

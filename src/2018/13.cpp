@@ -72,14 +72,14 @@ struct Grid2D {
 auto parse_lines(std::istream& is) {
   using std::operator""s;
   std::vector<std::string> lines;
-  for (std::string line; std::getline(is, line) && !line.empty();) {
+  for (std::string line; std::getline(is, line) and not line.empty();) {
     line = " "s + line + " "s;
     if (lines.empty()) {
       lines.emplace_back(line.size(), ' ');
     }
     lines.push_back(line);
   }
-  if (!lines.empty() && (is || is.eof())) {
+  if (not lines.empty() and (is or is.eof())) {
     lines.emplace_back(lines.front().size(), ' ');
     return lines;
   }
@@ -98,18 +98,18 @@ Tile parse_tile(const auto& lines, const auto y, const auto x) {
       const bool s{lines[y + 1][x] != ' '};
       const bool w{lines[y][x - 1] != ' '};
       if (t == '\\') {
-        if (n && e) {
+        if (n and e) {
           return Tile::turn_north_east;
         }
-        if (s && w) {
+        if (s and w) {
           return Tile::turn_south_west;
         }
       }
       if (t == '/') {
-        if (w && n) {
+        if (w and n) {
           return Tile::turn_west_north;
         }
-        if (e && s) {
+        if (e and s) {
           return Tile::turn_east_south;
         }
       }

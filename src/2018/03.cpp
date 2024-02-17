@@ -16,18 +16,18 @@ struct Claim {
 std::istream& operator>>(std::istream& is, Claim& claim) {
   using aoc::skip;
   using std::operator""s;
-  if (int id; is >> std::ws && skip(is, "#"s) && is >> id) {
-    if (int left; is >> std::ws && skip(is, "@"s) && is >> left) {
-      if (int top; skip(is, ","s) && is >> top) {
-        if (int width; skip(is, ":"s) && is >> width) {
-          if (int height; skip(is, "x"s) && is >> height) {
+  if (int id; is >> std::ws and skip(is, "#"s) and is >> id) {
+    if (int left; is >> std::ws and skip(is, "@"s) and is >> left) {
+      if (int top; skip(is, ","s) and is >> top) {
+        if (int width; skip(is, ":"s) and is >> width) {
+          if (int height; skip(is, "x"s) and is >> height) {
             claim = {id, left, top, width, height};
           }
         }
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Claim");

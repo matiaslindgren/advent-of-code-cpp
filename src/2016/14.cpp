@@ -49,30 +49,30 @@ auto stretch_search(std::string_view msg, const int stretch_count = 0) {
     }
     bool found_r3{false};
     for (const auto& [a, b, c, d, e] : window5(checksums.at(i % checksums.size()))) {
-      if (!found_r3) {
-        if (a == b && b == c) {
+      if (not found_r3) {
+        if (a == b and b == c) {
           repeat3[a].insert(i);
           found_r3 = true;
-        } else if (b == c && c == d) {
+        } else if (b == c and c == d) {
           repeat3[b].insert(i);
           found_r3 = true;
-        } else if (c == d && d == e) {
+        } else if (c == d and d == e) {
           repeat3[c].insert(i);
           found_r3 = true;
         }
       }
-      if (found_r3 && keys.size() < 64) {
+      if (found_r3 and keys.size() < 64) {
         latest_r3 = i;
       }
-      if (a == b && b == c && c == d && d == e) {
+      if (a == b and b == c and c == d and d == e) {
         for (const auto& i_prev : repeat3[a]) {
-          if (const auto dist{i - i_prev}; 0 < dist && dist <= 1000) {
+          if (const auto dist{i - i_prev}; 0 < dist and dist <= 1000) {
             keys.insert(i_prev);
           }
         }
       }
     }
-    if (keys.size() > 63 && i - latest_r3 > 1000) {
+    if (keys.size() > 63 and i - latest_r3 > 1000) {
       break;
     }
   }

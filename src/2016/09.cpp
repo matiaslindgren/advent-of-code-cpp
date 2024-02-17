@@ -20,7 +20,7 @@ std::istream& operator>>(std::istream& is, Marker& marker) {
     if (ch == '(') {
       if (std::string m_str; std::getline(is, m_str, ')')) {
         std::stringstream ms{m_str};
-        if (int length, repeat; ms >> length && ms.ignore(1, 'x') && ms >> repeat) {
+        if (int length, repeat; ms >> length and ms.ignore(1, 'x') and ms >> repeat) {
           const int width{static_cast<int>(m_str.size())};
           marker = {length, repeat, width + 2};
           return is;
@@ -62,7 +62,7 @@ long count_decompressed(const Markers& markers, const bool simple) {
   for (const auto& m : markers) {
     drop_nonrepeating();
     str_pos += m.width;
-    if (m.is_letter() || (simple && !repeating.empty())) {
+    if (m.is_letter() or (simple and not repeating.empty())) {
       n += m.width * get_current_total_repeat();
     } else {
       Marker r = m;

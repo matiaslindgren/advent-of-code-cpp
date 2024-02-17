@@ -29,12 +29,13 @@ std::istream& operator>>(std::istream& is, Operation& op) {
     if (type == "swap") {
       if (is >> type) {
         if (type == "position") {
-          if (unsigned lhs, rhs; is >> lhs >> std::ws && skip(is, "with position"s) && is >> rhs) {
+          if (unsigned lhs, rhs;
+              is >> lhs >> std::ws and skip(is, "with position"s) and is >> rhs) {
             op = {.type = Type::swap_index, .idx0 = lhs, .idx1 = rhs};
             return is;
           }
         } else if (type == "letter") {
-          if (char a, b; is >> a >> std::ws && skip(is, "with letter"s) && is >> b) {
+          if (char a, b; is >> a >> std::ws and skip(is, "with letter"s) and is >> b) {
             op = {.type = Type::swap_value, .val0 = a, .val1 = b};
             return is;
           }
@@ -43,27 +44,27 @@ std::istream& operator>>(std::istream& is, Operation& op) {
     } else if (type == "rotate") {
       if (is >> type) {
         if (type == "based") {
-          if (char letter; is >> std::ws && skip(is, "on position of letter"s) && is >> letter) {
+          if (char letter; is >> std::ws and skip(is, "on position of letter"s) and is >> letter) {
             op = {.type = Type::rotate_index_of, .val0 = letter};
             return is;
           }
-        } else if (type == "left" || type == "right") {
+        } else if (type == "left" or type == "right") {
           if (unsigned steps;
-              is >> steps >> std::ws && skip(is, "step"s) && (steps == 1 || skip(is, "s"s))) {
+              is >> steps >> std::ws and skip(is, "step"s) and (steps == 1 or skip(is, "s"s))) {
             op = {.type = type == "left" ? Type::rotate_left : Type::rotate_right, .idx0 = steps};
             return is;
           }
         }
       }
     } else if (type == "reverse") {
-      if (unsigned lhs, rhs; is >> std::ws && skip(is, "positions"s) && is >> lhs >> std::ws
-                             && skip(is, "through"s) && is >> rhs && lhs < rhs) {
+      if (unsigned lhs, rhs; is >> std::ws and skip(is, "positions"s) and is >> lhs >> std::ws
+                             and skip(is, "through"s) and is >> rhs and lhs < rhs) {
         op = {.type = Type::reverse, .idx0 = lhs, .idx1 = rhs};
         return is;
       }
     } else if (type == "move") {
-      if (unsigned src, dst; is >> std::ws && skip(is, "position"s) && is >> src >> std::ws
-                             && skip(is, "to position"s) && is >> dst) {
+      if (unsigned src, dst; is >> std::ws and skip(is, "position"s) and is >> src >> std::ws
+                             and skip(is, "to position"s) and is >> dst) {
         op = {.type = Type::move, .idx0 = src, .idx1 = dst};
         return is;
       }

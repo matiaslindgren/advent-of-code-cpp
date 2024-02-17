@@ -10,7 +10,7 @@ int deliver_presents(
 ) {
   std::vector<int> presents(target);
   for (int elf{1}; delivery_count * elf < target; ++elf) {
-    for (int house{1}; house <= house_count && delivery_count * house * elf < target; ++house) {
+    for (int house{1}; house <= house_count and delivery_count * house * elf < target; ++house) {
       presents[house * elf] += delivery_count * elf;
     }
   }

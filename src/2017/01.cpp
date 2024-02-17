@@ -24,7 +24,7 @@ int solve(const auto& digits, const auto n) {
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
   const auto digits{parse_digits(input)};
-  if (digits.empty() || digits.size() % 2 != 0) {
+  if (digits.empty() or digits.size() % 2 != 0) {
     throw std::runtime_error("input needs to contain an even amount of digits");
   }
 

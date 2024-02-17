@@ -22,7 +22,7 @@ std::istream& operator>>(std::istream& is, Instruction::Type& ins_type) {
       ins_type = Type::rect;
       return is;
     }
-    if (type == "rotate" && is >> type) {
+    if (type == "rotate" and is >> type) {
       if (type == "row") {
         ins_type = Type::rotate_row;
         return is;
@@ -44,7 +44,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
   if (Type type; is >> type) {
     switch (type) {
       case Type::rect: {
-        if (int a, b; is >> a && is.ignore(1, 'x') && is >> b) {
+        if (int a, b; is >> a and is.ignore(1, 'x') and is >> b) {
           ins = {type, a, b};
           return is;
         }
@@ -52,7 +52,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
       case Type::rotate_row:
       case Type::rotate_col: {
         if (is.ignore(3, '=')) {
-          if (int a, b; is >> a && is.ignore(3, 'y') && is >> b) {
+          if (int a, b; is >> a and is.ignore(3, 'y') and is >> b) {
             ins = {type, a, b};
             return is;
           }

@@ -8,7 +8,7 @@ int main() {
   int i{1};
   for (char ch : std::views::istream<char>(std::cin)) {
     part1 += (ch == '(') - (ch == ')');
-    if (part1 < 0 && part2 == 0) {
+    if (part1 < 0 and part2 == 0) {
       part2 = i;
     }
     ++i;

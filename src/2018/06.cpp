@@ -31,10 +31,10 @@ struct std::hash<Vec2> {
 std::istream& operator>>(std::istream& is, Vec2& vec) {
   using aoc::skip;
   using std::operator""s;
-  if (Vec2 v; is >> std::ws && is >> v.x && skip(is, ","s) && is >> v.y) {
+  if (Vec2 v; is >> std::ws and is >> v.x and skip(is, ","s) and is >> v.y) {
     vec = v;
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Vec2");
@@ -87,9 +87,9 @@ auto find_areas(const auto& points) {
     }
   }
   const auto is_finite{[&](const auto& p) -> bool {
-    const auto y_finite{top_left.y < p.y && p.y < bottom_right.y};
-    const auto x_finite{top_left.x < p.x && p.x < bottom_right.x};
-    return y_finite && x_finite;
+    const auto y_finite{top_left.y < p.y and p.y < bottom_right.y};
+    const auto x_finite{top_left.x < p.x and p.x < bottom_right.x};
+    return y_finite and x_finite;
   }};
   return std::pair{
       max(cells | views::transform([&](const auto& cell) {

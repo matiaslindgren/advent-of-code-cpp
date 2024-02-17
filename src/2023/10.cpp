@@ -63,11 +63,11 @@ struct Grid2D {
     const auto t1{tiles.at(src)};
     const auto t2{tiles.at(dst)};
     if (dst - src == 1) {
-      return (t1 == Tile::EW || t1 == Tile::NE || t1 == Tile::SE || t1 == Tile::start)
-             && (t2 == Tile::EW || t2 == Tile::NW || t2 == Tile::SW || t2 == Tile::start);
+      return (t1 == Tile::EW or t1 == Tile::NE or t1 == Tile::SE or t1 == Tile::start)
+             and (t2 == Tile::EW or t2 == Tile::NW or t2 == Tile::SW or t2 == Tile::start);
     } else if (dst - src == size) {
-      return (t1 == Tile::NS || t1 == Tile::SW || t1 == Tile::SE || t1 == Tile::start)
-             && (t2 == Tile::NS || t2 == Tile::NE || t2 == Tile::NW || t2 == Tile::start);
+      return (t1 == Tile::NS or t1 == Tile::SW or t1 == Tile::SE or t1 == Tile::start)
+             and (t2 == Tile::NS or t2 == Tile::NE or t2 == Tile::NW or t2 == Tile::start);
     }
     return false;
   }
@@ -81,7 +81,7 @@ struct Grid2D {
     for (auto src{start_index};;) {
       auto prev{src};
       for (const auto dst : adjacent(src)) {
-        if (!path.contains(dst) && is_connected(src, dst)) {
+        if (not path.contains(dst) and is_connected(src, dst)) {
           src = dst;
           break;
         }
@@ -111,7 +111,7 @@ struct Grid2D {
 auto count_inner(Grid2D grid, const auto& path) {
   grid.infer_tile(grid.index_of(Tile::start));
   for (auto i{0uz}; i < grid.tiles.size(); ++i) {
-    if (!path.contains(i)) {
+    if (not path.contains(i)) {
       grid.tiles.at(i) = Tile::ground;
     }
   }
@@ -127,12 +127,12 @@ auto count_inner(Grid2D grid, const auto& path) {
           return is_in;
         }
         const bool should_flip{
-            t == Tile::NS || (t == Tile::NW && prev_angle == Tile::SE)
-            || (t == Tile::SW && prev_angle == Tile::NE)
+            t == Tile::NS or (t == Tile::NW and prev_angle == Tile::SE)
+            or (t == Tile::SW and prev_angle == Tile::NE)
         };
         if (should_flip) {
-          is_in = !is_in;
-        } else if (t == Tile::NE || t == Tile::SE) {
+          is_in = not is_in;
+        } else if (t == Tile::NE or t == Tile::SE) {
           prev_angle = t;
         }
         return false;

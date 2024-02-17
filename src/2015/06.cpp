@@ -21,9 +21,9 @@ std::istream& operator>>(std::istream& is, Region& r) {
   std::string turn;
   std::string tmp;
   char ch;
-  if (((is >> turn && turn == "toggle") || (is >> turn && (turn == "on" || turn == "off")))
-      && is >> r.top >> ch && ch == ',' && is >> r.left >> tmp && tmp == "through"
-      && is >> r.bottom >> ch && ch == ',' && is >> r.right) {
+  if (((is >> turn and turn == "toggle") or (is >> turn and (turn == "on" or turn == "off")))
+      and is >> r.top >> ch and ch == ',' and is >> r.left >> tmp and tmp == "through"
+      and is >> r.bottom >> ch and ch == ',' and is >> r.right) {
     if (turn == "toggle") {
       r.command = Region::toggle;
     } else if (turn == "on") {
@@ -60,7 +60,7 @@ int main() {
             part2_lights[y * 1000 + x] = std::max(0LL, current_brightness - 1);
           } break;
           case Region::toggle: {
-            part1_lights[y * 1000 + x] = !part1_lights[y * 1000 + x];
+            part1_lights[y * 1000 + x] = not part1_lights[y * 1000 + x];
             part2_lights[y * 1000 + x] = current_brightness + 2;
           } break;
         }

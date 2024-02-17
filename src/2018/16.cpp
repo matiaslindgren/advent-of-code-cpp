@@ -20,14 +20,14 @@ struct Sample {
 };
 
 std::istream& operator>>(std::istream& is, Memory& memory) {
-  if (Memory m{}; is >> std::ws && skip(is, "["s)) {
-    for (auto i{0uz}; i < m.size() - 1 && is >> m[i] && skip(is, ","s); ++i) {
+  if (Memory m{}; is >> std::ws and skip(is, "["s)) {
+    for (auto i{0uz}; i < m.size() - 1 and is >> m[i] and skip(is, ","s); ++i) {
     }
-    if (is >> m.back() && skip(is, "]"s)) {
+    if (is >> m.back() and skip(is, "]"s)) {
       memory = m;
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Memory");
@@ -37,21 +37,21 @@ std::istream& operator>>(std::istream& is, Instruction& instruction) {
   if (Instruction ins; is >> ins.op_id >> ins.a >> ins.b >> ins.c) {
     instruction = ins;
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Instruction");
 }
 
 std::istream& operator>>(std::istream& is, Sample& sample) {
-  if (Memory before; is >> std::ws && skip(is, "Before:"s) && is >> before) {
+  if (Memory before; is >> std::ws and skip(is, "Before:"s) and is >> before) {
     if (Instruction ins; is >> ins) {
-      if (Memory after; is >> std::ws && skip(is, "After:"s) && is >> after) {
+      if (Memory after; is >> std::ws and skip(is, "After:"s) and is >> after) {
         sample = {before, after, ins};
       }
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Sample");
@@ -135,7 +135,7 @@ auto resolve_samples(const auto& samples) {
   }
 
   std::vector<std::string> confirmed(opcodes.size());
-  while (!ranges::all_of(possible, is_empty)) {
+  while (not ranges::all_of(possible, is_empty)) {
     const auto it{ranges::find_if(possible, [](auto&& p) { return p.size() == 1; })};
     if (it == possible.end()) {
       throw std::runtime_error("there must be at least 1 unambiguous opcode at all times");

@@ -49,11 +49,11 @@ int main() {
     part1 += lhs_val1 + rhs_val1;
 
     int lhs_val2{};
-    for (auto lhs2{line.begin()}; lhs2 < lhs1 && !lhs_val2; ++lhs2) {
+    for (auto lhs2{line.begin()}; lhs2 < lhs1 and not lhs_val2; ++lhs2) {
       lhs_val2 = find_str_digit(lhs2, lhs1) * 10;
     }
     int rhs_val2{};
-    for (auto rhs2{ranges::prev(line.end(), 1, rhs1)}; rhs1 < rhs2 && !rhs_val2; --rhs2) {
+    for (auto rhs2{ranges::prev(line.end(), 1, rhs1)}; rhs1 < rhs2 and not rhs_val2; --rhs2) {
       rhs_val2 = find_str_digit(rhs2, line.end());
     }
     part2 += (lhs_val2 ? lhs_val2 : lhs_val1) + (rhs_val2 ? rhs_val2 : rhs_val1);

@@ -22,9 +22,9 @@ std::pair<int, int> find_tree_value(const auto& tree, const bool part1, const in
   }
   for (int j{}; j < n_metadata; ++j) {
     const auto m{tree[j + i + size]};
-    if (part1 || sub_values.empty()) {
+    if (part1 or sub_values.empty()) {
       total += m;
-    } else if (0 < m && m <= n_children) {
+    } else if (0 < m and m <= n_children) {
       total += sub_values[m - 1];
     }
   }

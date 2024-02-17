@@ -21,8 +21,8 @@ struct Instruction {
 };
 
 std::istream& operator>>(std::istream& is, Operand& op) {
-  if (std::string s; is >> s && !s.empty()) {
-    if (const char reg_ch{s.front()}; 'a' <= reg_ch && reg_ch <= 'd') {
+  if (std::string s; is >> s and not s.empty()) {
+    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'd') {
       op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
     } else {
       op = {.type = Operand::literal, .value = std::stoi(s)};
@@ -51,7 +51,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
           return is;
         }
       }
-      if (type == "inc" || type == "dec") {
+      if (type == "inc" or type == "dec") {
         if (Operand dst; ls >> dst) {
           ins = {
               Instruction::add,
@@ -103,7 +103,7 @@ auto execute(auto& memory, const Instruction& ins) {
 }
 
 int run(const auto& instructions, std::array<int, 4> memory) {
-  for (std::ptrdiff_t pos{}; 0 <= pos && pos < instructions.size();) {
+  for (std::ptrdiff_t pos{}; 0 <= pos and pos < instructions.size();) {
     const auto jump{execute(memory, instructions[pos])};
     pos += jump;
   }

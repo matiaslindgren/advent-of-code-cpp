@@ -12,7 +12,7 @@ int main() {
     auto sum{0uz};
     for (int dx{-1}; dx <= 1; ++dx) {
       for (int dy{-1}; dy <= 1; ++dy) {
-        if (!(dx == 0 && dy == 0)) {
+        if (not(dx == 0 and dy == 0)) {
           sum += grid[x + dx][y + dy];
         }
       }
@@ -24,11 +24,11 @@ int main() {
 
   int i{1}, x{}, y{}, len{1}, dy{}, dx{1};
 
-  while (!part1 || !part2) {
+  while (not part1 or not part2) {
     for (int k{}; k < 2; ++k) {
       for (int j{}; j < len; ++j) {
         const auto sum{adjacent_sum(x, y)};
-        if (!part2 && sum > n) {
+        if (not part2 and sum > n) {
           part2 = sum;
         }
         grid[x][y] = std::max(1uz, sum);

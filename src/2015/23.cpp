@@ -62,13 +62,13 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
   Code code;
   if (is >> code) {
     int jmp{0};
-    if (code == Code::jump && is >> jmp) {
+    if (code == Code::jump and is >> jmp) {
       ins = {code, -1, jmp};
       return is;
     }
     std::string addr;
-    if (is >> addr && !addr.empty() && isalpha(addr.front())
-        && (!(code == Code::jump_if_one || code == Code::jump_if_even) || is >> jmp)) {
+    if (is >> addr and not addr.empty() and isalpha(addr.front())
+        and (not(code == Code::jump_if_one or code == Code::jump_if_even) or is >> jmp)) {
       ins = {code, addr.front() - 'a', jmp};
       return is;
     }
@@ -83,7 +83,7 @@ using Memory = std::array<int, 8>;
 using Program = std::vector<Instruction>;
 
 void run(Memory& memory, const Program& program) {
-  for (int i{0}; 0 <= i && i < program.size();) {
+  for (int i{0}; 0 <= i and i < program.size();) {
     const Instruction ins = program[i];
     int jump{1};
     switch (ins.code) {

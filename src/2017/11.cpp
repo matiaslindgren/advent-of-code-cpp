@@ -20,15 +20,15 @@ struct Hex {
 };
 
 std::istream& operator>>(std::istream& is, Hex& h) {
-  if (char c1; is >> c1 && (c1 == 'n' || c1 == 's')) {
-    if (char c2; (is.peek() == 'w' || is.peek() == 'e') && is >> c2) {
-      if (c1 == 'n' && c2 == 'w') {
+  if (char c1; is >> c1 and (c1 == 'n' or c1 == 's')) {
+    if (char c2; (is.peek() == 'w' or is.peek() == 'e') and is >> c2) {
+      if (c1 == 'n' and c2 == 'w') {
         h = {.q = -1, .r = 0};
-      } else if (c1 == 'n' && c2 == 'e') {
+      } else if (c1 == 'n' and c2 == 'e') {
         h = {.q = 1, .r = -1};
-      } else if (c1 == 's' && c2 == 'w') {
+      } else if (c1 == 's' and c2 == 'w') {
         h = {.q = -1, .r = 1};
-      } else if (c1 == 's' && c2 == 'e') {
+      } else if (c1 == 's' and c2 == 'e') {
         h = {.q = 1, .r = 0};
       } else {
         is.setstate(std::ios_base::failbit);
@@ -37,7 +37,7 @@ std::istream& operator>>(std::istream& is, Hex& h) {
       h = {.q = 0, .r = c1 == 'n' ? -1 : 1};
     }
   }
-  if (is || is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Hex");

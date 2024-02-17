@@ -62,14 +62,14 @@ auto compute_part1(const std::vector<Row>& rows) {
 
 auto bfs(const auto& rows, const auto y0, const auto x0) {
   std::unordered_set<int> visited;
-  for (std::deque q{std::pair{y0, x0}}; !q.empty(); q.pop_front()) {
+  for (std::deque q{std::pair{y0, x0}}; not q.empty(); q.pop_front()) {
     const auto& [y, x] = q.front();
-    if (y >= rows.size() || x >= rows[y].size()) {
+    if (y >= rows.size() or x >= rows[y].size()) {
       continue;
     }
     const auto& row{rows.at(y)};
     const auto idx{y * row.size() + x};
-    if (row[x] && !visited.contains(idx)) {
+    if (row[x] and not visited.contains(idx)) {
       visited.insert(idx);
       q.emplace_back(y, x - 1);
       q.emplace_back(y - 1, x);
@@ -85,7 +85,7 @@ auto compute_part2(const auto& rows) {
   int regions{};
   for (const auto& [y, row] : my_std::views::enumerate(rows)) {
     for (auto x{0uz}; x < row.size(); ++x) {
-      if (row[x] && !visited.contains(y * row.size() + x)) {
+      if (row[x] and not visited.contains(y * row.size() + x)) {
         visited.insert_range(bfs(rows, y, x));
         regions += 1;
       }

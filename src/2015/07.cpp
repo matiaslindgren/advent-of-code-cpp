@@ -22,10 +22,10 @@ struct Statement {
 std::istream& operator>>(std::istream& is, Statement& s) {
   std::string str;
   std::vector<std::string> lhs;
-  while (is >> str && str != "->") {
+  while (is >> str and str != "->") {
     lhs.push_back(str);
   }
-  if (0 < lhs.size() && lhs.size() < 4 && str == "->" && is >> str) {
+  if (0 < lhs.size() and lhs.size() < 4 and str == "->" and is >> str) {
     auto gate{Statement::Unknown};
     switch (lhs.size()) {
       case 1: {
@@ -65,7 +65,7 @@ std::istream& operator>>(std::istream& is, Statement& s) {
 }
 
 bool is_literal(const std::string& s) {
-  return !s.empty() && std::isdigit(static_cast<unsigned char>(s.front()));
+  return not s.empty() and std::isdigit(static_cast<unsigned char>(s.front()));
 }
 
 uint16_t parse_literal(const std::string& s) {

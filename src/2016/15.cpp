@@ -17,10 +17,10 @@ std::istream& operator>>(std::istream& is, Disc& disc) {
     std::stringstream ls{line};
     // clang-format off
     if (int id, mod, time, pos;
-        skip(ls, "Disc #"s) && ls >> id && id > 0
-        && skip(ls, " has"s) && ls >> mod && skip(ls, " positions;"s)
-        && skip(ls, " at time="s) && ls >> time && time == 0
-        && skip(ls, ", it is at position"s) && ls >> pos && skip(ls, "."s)) {
+        skip(ls, "Disc #"s) and ls >> id and id > 0
+        and skip(ls, " has"s) and ls >> mod and skip(ls, " positions;"s)
+        and skip(ls, " at time="s) and ls >> time and time == 0
+        and skip(ls, ", it is at position"s) and ls >> pos and skip(ls, "."s)) {
       disc = {pos, mod};
       return is;
     }

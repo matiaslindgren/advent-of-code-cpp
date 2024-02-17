@@ -58,7 +58,7 @@ struct Space {
   long count_expansions(const auto src, const auto dst, const auto& has_galaxy) const {
     return ranges::count_if(
         views::iota(std::min(src, dst), std::max(src, dst) + 1),
-        [&](const auto& i) { return !has_galaxy.contains(i); }
+        [&](const auto& i) { return not has_galaxy.contains(i); }
     );
   }
 };
