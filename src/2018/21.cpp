@@ -1,121 +1,115 @@
 import std;
+import aoc;
+import my_std;
 
-auto run() {
-  long r5_0{-1};
-  long r5_1{-1};
-  std::array<long, 6> r;
-  r.fill(0);
-  for (std::unordered_set<long> seen;; r[1] += 1) {
-    switch (r[1]) {
-      case 0: {
-        r[5] = 123;
-      } break;
-      case 1: {
-        r[5] = r[5] & 456;
-      } break;
-      case 2: {
-        r[5] = r[5] == 72;
-      } break;
-      case 3: {
-        r[1] = r[5] + r[1];
-      } break;
-      case 4: {
-        r[1] = 0;
-      } break;
-      case 5: {
-        r[5] = 0;
-      } break;
-      case 6: {
-        r[4] = r[5] | 65536;
-      } break;
-      case 7: {
-        r[5] = 13159625;
-      } break;
-      case 8: {
-        r[3] = r[4] & 255;
-      } break;
-      case 9: {
-        r[5] = r[5] + r[3];
-      } break;
-      case 10: {
-        r[5] = r[5] & 16777215;
-      } break;
-      case 11: {
-        r[5] = r[5] * 65899;
-      } break;
-      case 12: {
-        r[5] = r[5] & 16777215;
-      } break;
-      case 13: {
-        r[3] = 256 > r[4];
-      } break;
-      case 14: {
-        r[1] = r[3] + r[1];
-      } break;
-      case 15: {
-        r[1] = r[1] + 1;
-      } break;
-      case 16: {
-        r[1] = 27;
-      } break;
-      case 17: {
-        r[3] = 0;
-      } break;
-      case 18: {
-        r[2] = r[3] + 1;
-      } break;
-      case 19: {
-        r[2] = r[2] * 256;
-      } break;
-      case 20: {
-        r[2] = r[2] > r[4];
-      } break;
-      case 21: {
-        r[1] = r[2] + r[1];
-      } break;
-      case 22: {
-        r[1] = r[1] + 1;
-      } break;
-      case 23: {
-        r[1] = 25;
-      } break;
-      case 24: {
-        r[3] = r[3] + 1;
-      } break;
-      case 25: {
-        r[1] = 17;
-      } break;
-      case 26: {
-        r[4] = r[3];
-      } break;
-      case 27: {
-        r[1] = 7;
-      } break;
-      case 28: {
-        r[3] = r[5] == r[0];
-        if (seen.contains(r[5])) {
-          return std::pair{r5_0, r5_1};
+using std::operator""s;
+
+namespace ranges = std::ranges;
+namespace views = std::views;
+
+enum class Op : int {
+  addi = 0,
+  addr,
+  bani,
+  banr,
+  bori,
+  borr,
+  eqir,
+  eqri,
+  eqrr,
+  gtir,
+  gtri,
+  gtrr,
+  muli,
+  mulr,
+  seti,
+  setr,
+};
+const std::unordered_map<std::string, Op> str2op{
+    {"addi"s, Op::addi},
+    {"addr"s, Op::addr},
+    {"bani"s, Op::bani},
+    {"banr"s, Op::banr},
+    {"bori"s, Op::bori},
+    {"borr"s, Op::borr},
+    {"eqir"s, Op::eqir},
+    {"eqri"s, Op::eqri},
+    {"eqrr"s, Op::eqrr},
+    {"gtir"s, Op::gtir},
+    {"gtri"s, Op::gtri},
+    {"gtrr"s, Op::gtrr},
+    {"muli"s, Op::muli},
+    {"mulr"s, Op::mulr},
+    {"seti"s, Op::seti},
+    {"setr"s, Op::setr},
+};
+
+struct Instruction {
+  Op op;
+  long a{}, b{}, c{};
+};
+
+std::istream& operator>>(std::istream& is, Op& op) {
+  if (std::string s; is >> s) {
+    if (str2op.contains(s)) {
+      op = str2op.at(s);
+    } else {
+      is.setstate(std::ios_base::failbit);
+    }
+  }
+  if (is or is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing elf code opcode");
+}
+
+std::istream& operator>>(std::istream& is, Instruction& instruction) {
+  if (Instruction ins; is >> ins.op >> ins.a >> ins.b >> ins.c) {
+    instruction = ins;
+  }
+  if (is or is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing elf code instruction");
+}
+
+auto parse_input(std::string path) {
+  using aoc::skip;
+  std::istringstream is{aoc::slurp_file(path)};
+  if (int ip; skip(is, "#ip"s) and is >> ip) {
+    const auto instructions{views::istream<Instruction>(is) | ranges::to<std::vector>()};
+    if (is or is.eof()) {
+      return std::pair{ip, instructions};
+    }
+  }
+  throw std::runtime_error("input is not elf code (aoc year 2018)");
+}
+
+auto run(const auto& instructions) {
+  // https://www.reddit.com/r/adventofcode/comments/a86jgt/comment/ec8lyck
+  // (2024-02-17)
+  long part1{-1}, part2{-1}, c{};
+  for (std::unordered_set<long> seen;;) {
+    auto a{c | 65536};
+    c = instructions[7].a;
+    for (; part2 != c;) {
+      c = (((c + (a & 255)) & 16777215) * 65899) & 16777215;
+      if (a < 256) {
+        if (auto&& [_, unseen]{seen.insert(c)}; not unseen) {
+          return std::pair{part1, part2};
         }
-        seen.insert(r[5]);
-        if (r5_0 < 0) {
-          r5_0 = r[5];
-        }
-        r5_1 = r[5];
-      } break;
-      case 29: {
-        r[1] = r[3] + r[1];
-      } break;
-      case 30: {
-        r[1] = 5;
-      } break;
-      default:
-        break;
+        part1 = part1 < 0 ? c : part1;
+        part2 = c;
+      } else {
+        a /= 256;
+      }
     }
   }
 }
 
 int main() {
-  const auto [part1, part2]{run()};
+  const auto [_, instructions]{parse_input("/dev/stdin")};
+  const auto [part1, part2]{run(instructions)};
   std::cout << part1 << " " << part2 << "\n";
   return 0;
 }
