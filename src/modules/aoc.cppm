@@ -7,8 +7,10 @@ export namespace aoc {
 
 std::string slurp_file(std::string_view path) {
   std::ios::sync_with_stdio(false);
+
   std::ifstream is{path, std::ios::in | std::ios::binary};
   is.exceptions(std::ifstream::badbit);
+
   std::string data;
   for (std::array<char, 1024> buffer; is;) {
     is.read(buffer.data(), buffer.size());

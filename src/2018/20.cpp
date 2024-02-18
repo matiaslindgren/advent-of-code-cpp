@@ -130,7 +130,7 @@ auto search_paths(const auto& tokens) {
   const auto lengths{views::values(dist)};
   return std::pair{
       my_std::ranges::fold_left(lengths, 0, ranges::max),
-      ranges::count_if(lengths, [](auto&& len) { return len >= 1000; }),
+      ranges::count_if(lengths, [](auto&& len) { return len >= 1'000; }),
   };
 }
 

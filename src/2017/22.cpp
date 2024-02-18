@@ -79,8 +79,8 @@ int main() {
   const auto lines{views::istream<std::string>(input) | ranges::to<std::vector>()};
   const auto [grid, begin] = parse_grid(lines);
 
-  const auto part1{count_part1(grid, begin, 10000)};
-  const auto part2{count_part2(grid, begin, 10000000)};
+  const auto part1{count_part1(grid, begin, 10'000)};
+  const auto part2{count_part2(grid, begin, 10'000'000)};
   std::print("{} {}\n", part1, part2);
 
   return 0;
