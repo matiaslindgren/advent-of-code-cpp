@@ -21,10 +21,11 @@ struct Ingredient {
 std::istream& operator>>(std::istream& is, Ingredient& ingredient) {
   using std::operator""s;
   using aoc::skip;
-  if (Ingredient ing; is >> ing.name and ing.name.ends_with(":") and skip(is, " capacity"s)
-                      and is >> ing.capacity and skip(is, ", durability"s) and is >> ing.durability
-                      and skip(is, ", flavor"s) and is >> ing.flavor and skip(is, ", texture"s)
-                      and is >> ing.texture and skip(is, ", calories"s) and is >> ing.calories) {
+  if (Ingredient ing; is >> ing.name and ing.name.ends_with(":")
+                      and is >> skip(" capacity"s) >> ing.capacity >> skip(", durability"s)
+                              >> ing.durability >> skip(", flavor"s) >> ing.flavor
+                              >> skip(", texture"s) >> ing.texture >> skip(", calories"s)
+                              >> ing.calories) {
     ing.name.pop_back();
     ingredient = ing;
     return is;

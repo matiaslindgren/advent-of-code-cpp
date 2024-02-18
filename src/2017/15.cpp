@@ -4,8 +4,8 @@ import aoc;
 auto parse_input(std::istream& is) {
   using aoc::skip;
   using std::operator""s;
-  if (int a; skip(is, "Generator"s, "A"s, "starts"s, "with"s) and is >> a) {
-    if (int b; is >> std::ws and skip(is, "Generator"s, "B"s, "starts"s, "with"s) and is >> b) {
+  if (int a; is >> skip("Generator"s, "A"s, "starts"s, "with"s) >> a) {
+    if (int b; is >> std::ws >> skip("Generator"s, "B"s, "starts"s, "with"s) >> b) {
       return std::pair{a, b};
     }
   }

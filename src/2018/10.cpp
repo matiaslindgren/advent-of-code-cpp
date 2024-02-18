@@ -15,8 +15,8 @@ using aoc::skip;
 using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Light& light) {
-  if (Vec2 p, v; is >> std::ws and skip(is, "position=<"s) >> p and skip(is, ">"s) >> std::ws
-                 and skip(is, "velocity=<"s) >> v and skip(is, ">"s)) {
+  if (Vec2 p, v; is >> std::ws >> skip("position=<"s) >> p >> skip(">"s) >> std::ws
+                 >> skip("velocity=<"s) >> v >> skip(">"s)) {
     light = {p, v};
   }
   if (is or is.eof()) {

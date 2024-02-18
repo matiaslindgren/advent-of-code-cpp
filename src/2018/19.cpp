@@ -64,7 +64,7 @@ std::istream& operator>>(std::istream& is, Instruction& instruction) {
 
 auto parse_input(std::string path) {
   std::istringstream is{aoc::slurp_file(path)};
-  if (int ip; skip(is, "#ip"s) and is >> ip) {
+  if (int ip; is >> skip("#ip"s) >> ip) {
     const auto instructions{views::istream<Instruction>(is) | ranges::to<std::vector>()};
     if (is or is.eof()) {
       return std::pair{ip, instructions};

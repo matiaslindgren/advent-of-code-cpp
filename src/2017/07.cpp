@@ -23,8 +23,8 @@ std::istream& operator>>(std::istream& is, Node& node) {
     ranges::replace(line, ',', ' ');
     std::stringstream ls{line};
     if (std::string id; ls >> id) {
-      if (int weight; ls >> std::ws and skip(ls, "("s) and ls >> weight and skip(ls, ")"s)) {
-        if (ls >> std::ws and skip(ls, "->"s)) {
+      if (int weight; ls >> std::ws >> skip("("s) >> weight >> skip(")"s)) {
+        if (ls >> std::ws >> skip("->"s)) {
           node = {id, weight, views::istream<std::string>(ls) | ranges::to<std::vector>()};
         } else {
           node = {id, weight};

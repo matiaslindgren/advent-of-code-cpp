@@ -17,7 +17,7 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (int id; skip(ls, "Game"s) and ls >> id and skip(ls, ":"s)) {
+    if (int id; ls >> skip("Game"s) >> id >> skip(":"s)) {
       std::unordered_map<std::string, int> counts;
       while (ls and is) {
         if (auto [count, cube] = std::pair(int{}, ""s); ls >> count >> cube) {

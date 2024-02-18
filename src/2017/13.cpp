@@ -22,8 +22,7 @@ struct Scanner {
 std::istream& operator>>(std::istream& is, Scanner& scanner) {
   using aoc::skip;
   using std::operator""s;
-  if (int depth, range;
-      is >> depth and depth >= 0 and skip(is, ":"s) and is >> range and range > 1) {
+  if (int depth, range; is >> depth and depth >= 0 and is >> skip(":"s) >> range and range > 1) {
     scanner = {depth, range};
   }
   if (is or is.eof()) {

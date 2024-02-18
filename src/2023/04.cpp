@@ -14,7 +14,7 @@ std::istream& operator>>(std::istream& is, Wins& w) {
   using aoc::skip;
   using std::operator""s;
 
-  if (unsigned id; skip(is, "Card"s) and is >> id and skip(is, ":"s)) {
+  if (unsigned id; is >> skip("Card"s) >> id >> skip(":"s)) {
     if (std::string tmp; std::getline(is, tmp, '|') and not tmp.empty()) {
       std::stringstream win_str{tmp};
       const auto win{views::istream<int>(win_str) | ranges::to<std::unordered_set>()};

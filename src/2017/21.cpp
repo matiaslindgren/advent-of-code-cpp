@@ -44,7 +44,7 @@ std::istream& operator>>(std::istream& is, Pattern& pattern) {
 }
 
 std::istream& operator>>(std::istream& is, Rule& rule) {
-  if (Pattern src, dst; is >> src >> std::ws and skip(is, "=>"s) and is >> dst) {
+  if (Pattern src, dst; is >> src >> std::ws >> skip("=>"s) >> dst) {
     rule = {src, dst};
   }
   if (is or is.eof()) {

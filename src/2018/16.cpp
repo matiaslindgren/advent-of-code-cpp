@@ -20,10 +20,10 @@ struct Sample {
 };
 
 std::istream& operator>>(std::istream& is, Memory& memory) {
-  if (Memory m{}; is >> std::ws and skip(is, "["s)) {
-    for (auto i{0uz}; i < m.size() - 1 and is >> m[i] and skip(is, ","s); ++i) {
+  if (Memory m{}; is >> std::ws >> skip("["s)) {
+    for (auto i{0uz}; i < m.size() - 1 and is >> m[i] >> skip(","s); ++i) {
     }
-    if (is >> m.back() and skip(is, "]"s)) {
+    if (is >> m.back() >> skip("]"s)) {
       memory = m;
     }
   }
@@ -44,9 +44,9 @@ std::istream& operator>>(std::istream& is, Instruction& instruction) {
 }
 
 std::istream& operator>>(std::istream& is, Sample& sample) {
-  if (Memory before; is >> std::ws and skip(is, "Before:"s) and is >> before) {
+  if (Memory before; is >> std::ws >> skip("Before:"s) >> before) {
     if (Instruction ins; is >> ins) {
-      if (Memory after; is >> std::ws and skip(is, "After:"s) and is >> after) {
+      if (Memory after; is >> std::ws >> skip("After:"s) >> after) {
         sample = {before, after, ins};
       }
     }

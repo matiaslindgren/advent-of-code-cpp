@@ -50,7 +50,7 @@ struct Stone {
 };
 
 std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (long double x, y, z; is >> x and skip(is, ","s) and is >> y and skip(is, ","s) and is >> z) {
+  if (long double x, y, z; is >> x >> skip(","s) >> y >> skip(","s) >> z) {
     v = {x, y, z};
     return is;
   }
@@ -61,7 +61,7 @@ std::istream& operator>>(std::istream& is, Vec3& v) {
 }
 
 std::istream& operator>>(std::istream& is, Stone& stone) {
-  if (Vec3 p, v; is >> p >> std::ws and skip(is, "@"s) and is >> v) {
+  if (Vec3 p, v; is >> p >> std::ws >> skip("@"s) >> v) {
     stone = {p, v};
     return is;
   }

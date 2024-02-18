@@ -33,7 +33,7 @@ std::istream& operator>>(std::istream& is, Graph& graph) {
   for (std::string line; std::getline(is, line);) {
     ranges::replace(line, ',', ' ');
     std::stringstream ls{line};
-    if (int src; ls >> src >> std::ws and skip(ls, "<->"s)) {
+    if (int src; ls >> src >> std::ws >> skip("<->"s)) {
       const auto adjacent{views::istream<int>(ls) | ranges::to<std::vector>()};
       if (adjacent.empty()) {
         is.setstate(std::ios_base::failbit);

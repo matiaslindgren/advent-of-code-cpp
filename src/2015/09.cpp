@@ -16,8 +16,7 @@ std::istream& operator>>(std::istream& is, Edge& edge) {
 
   std::string src, dst;
   std::size_t dist;
-  if (is >> src >> std::ws and skip(is, "to"s) and is >> dst >> std::ws and skip(is, "="s)
-      and is >> dist) {
+  if (is >> src >> std::ws >> skip("to"s) >> dst >> std::ws >> skip("="s) >> dist) {
     edge = {src, dst, dist};
     return is;
   }

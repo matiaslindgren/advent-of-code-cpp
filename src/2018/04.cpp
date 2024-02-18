@@ -18,21 +18,19 @@ struct Event {
 std::istream& operator>>(std::istream& is, Event& event) {
   using aoc::skip;
   using std::operator""s;
-  if (int m, d, h, minute; is >> std::ws and skip(is, "[1518-"s) and is >> m and skip(is, "-"s)
-                           and is >> d >> h and skip(is, ":"s) and is >> minute
-                           and skip(is, "]"s)) {
+  if (int m, d, h, minute; is >> std::ws >> skip("[1518-"s) >> m >> skip("-"s) >> d >> h
+                           >> skip(":"s) >> minute >> skip("]"s)) {
     if (std::string type; is >> type) {
       if (type == "Guard") {
-        if (int guard; is >> std::ws and skip(is, "#"s) and is >> guard >> std::ws
-                       and skip(is, "begins shift"s)) {
+        if (int guard; is >> std::ws >> skip("#"s) >> guard >> std::ws >> skip("begins shift"s)) {
           event = {Event::shift_begin, minute, guard};
         }
       } else if (type == "falls") {
-        if (is >> std::ws and skip(is, "asleep"s)) {
+        if (is >> std::ws >> skip("asleep"s)) {
           event = {Event::fall_asleep, minute};
         }
       } else if (type == "wakes") {
-        if (is >> std::ws and skip(is, "up"s)) {
+        if (is >> std::ws >> skip("up"s)) {
           event = {Event::wake_up, minute};
         }
       } else {

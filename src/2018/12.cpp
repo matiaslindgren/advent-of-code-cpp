@@ -40,7 +40,7 @@ std::istream& operator>>(std::istream& is, Pots& pots) {
 }
 
 std::istream& operator>>(std::istream& is, Rule& rule) {
-  if (Pots src; is >> src >> std::ws and skip(is, "=>"s)) {
+  if (Pots src; is >> src >> std::ws >> skip("=>"s)) {
     if (Pots dst; is >> std::ws >> dst and dst.size() == 1) {
       rule = {bools2int(src), dst.front()};
     }
@@ -53,7 +53,7 @@ std::istream& operator>>(std::istream& is, Rule& rule) {
 
 auto parse_input(std::string path) {
   std::istringstream is{aoc::slurp_file(path)};
-  if (Pots state; skip(is, "initial state:"s) and is >> state) {
+  if (Pots state; is >> skip("initial state:"s) >> state) {
     std::vector<int> rules(0b11111 + 1, 0);
     for (Rule r : views::istream<Rule>(is)) {
       if (r.dst) {

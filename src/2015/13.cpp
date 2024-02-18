@@ -15,8 +15,8 @@ std::istream& operator>>(std::istream& is, Pair& p) {
   using std::operator""s;
   using aoc::skip;
   std::string sign;
-  if (is >> p.src and skip(is, " would"s) and is >> sign and (sign == "gain" or sign == "lose")
-      and is >> p.happiness and skip(is, " happiness units by sitting next to"s) and is >> p.dst
+  if (is >> p.src >> skip(" would"s) >> sign and (sign == "gain" or sign == "lose")
+      and is >> p.happiness >> skip(" happiness units by sitting next to"s) >> p.dst
       and not p.dst.empty() and p.dst.back() == '.') {
     if (sign == "lose") {
       p.happiness = -p.happiness;

@@ -48,7 +48,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
 }
 
 std::istream& operator>>(std::istream& is, Condition& cond) {
-  if (std::string key; is >> std::ws and skip(is, "if"s) and is >> key and not key.empty()) {
+  if (std::string key; is >> std::ws >> skip("if"s) >> key and not key.empty()) {
     if (std::string type; is >> type) {
       if (int value; is >> value) {
         decltype(Condition::comp) comp{};

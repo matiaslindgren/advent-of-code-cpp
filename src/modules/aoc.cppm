@@ -23,23 +23,42 @@ auto cpu_count() {
   return std::max(1u, std::thread::hardware_concurrency());
 };
 
-std::istream& skip(std::istream& is, const auto& pattern) {
-  if (is) {
-    for (char rhs : pattern) {
-      if (char lhs; not(is.get(lhs) and lhs == rhs)) {
-        is.setstate(std::ios_base::failbit);
-        break;
+template <typename... Patterns>
+class skip {
+  std::tuple<Patterns...> patterns;
+
+  constexpr std::istream& skip_pattern(std::istream& is, auto&& p) const {
+    if (is) {
+      for (char rhs : p) {
+        if (char lhs; not(is.get(lhs) and lhs == rhs)) {
+          is.setstate(std::ios_base::failbit);
+          break;
+        }
       }
     }
+    return is;
   }
-  return is;
-}
 
-std::istream& skip(std::istream& is, const auto& pattern, const auto&... patterns) {
-  if (skip(is, pattern)) {
-    return (skip(is >> std::ws, patterns), ...);
+  constexpr std::istream& skip_pattern(std::istream& is, auto&& p, auto&&... ps) const {
+    if (skip_pattern(is, p)) {
+      return (skip_pattern(is >> std::ws, ps), ...);
+    }
+    return is;
   }
-  return is;
+
+ public:
+  constexpr skip(Patterns&&... ps) : patterns(std::move(ps)...) {
+  }
+
+  constexpr std::istream& consume(std::istream& is) const {
+    std::apply([&](auto&&... ps) { skip_pattern(is, ps...); }, patterns);
+    return is;
+  }
+};
+
+template <typename... Patterns>
+std::istream& operator>>(std::istream& is, skip<Patterns...>&& s) {
+  return s.consume(is);
 }
 
 template <typename Int>
@@ -141,7 +160,7 @@ struct Vec2 {
 
 std::istream& operator>>(std::istream& is, Vec2& vec) {
   using std::operator""s;
-  if (Vec2 v; is >> v.x >> std::ws and skip(is, ","s) >> v.y) {
+  if (Vec2 v; is >> v.x >> std::ws and is >> skip(","s) >> v.y) {
     vec = v;
   }
   return is;

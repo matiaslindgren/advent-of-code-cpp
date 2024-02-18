@@ -15,8 +15,8 @@ struct Step {
 };
 
 std::istream& operator>>(std::istream& is, Step& step) {
-  if (std::string src; is >> src and skip(is, " = "s)) {
-    if (std::string lhs; skip(is, "("s) and is >> lhs and lhs.ends_with(","s)) {
+  if (std::string src; is >> src >> skip(" = "s)) {
+    if (std::string lhs; is >> skip("("s) >> lhs and lhs.ends_with(","s)) {
       lhs.pop_back();
       if (std::string rhs; is >> rhs and rhs.ends_with(")"s)) {
         rhs.pop_back();

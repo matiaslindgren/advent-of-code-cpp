@@ -17,19 +17,18 @@ struct State {
 };
 
 std::istream& operator>>(std::istream& is, Test& test) {
-  if (int read; is >> std::ws and skip(is, "If the current value is "s) and is >> read
-                and (read == 0 or read == 1) and skip(is, ":"s)) {
-    if (int write; is >> std::ws and skip(is, "- Write the value "s) and is >> write
-                   and (write == 0 or write == 1) and skip(is, "."s)) {
-      if (std::string move_str;
-          is >> std::ws and skip(is, "- Move one slot to the "s) and is >> move_str) {
+  if (int read; is >> std::ws >> skip("If the current value is "s) >> read
+                and (read == 0 or read == 1) and is >> skip(":"s)) {
+    if (int write; is >> std::ws >> skip("- Write the value "s) >> write
+                   and (write == 0 or write == 1) and is >> skip("."s)) {
+      if (std::string move_str; is >> std::ws >> skip("- Move one slot to the "s) >> move_str) {
         if (const int move{
                 move_str.starts_with("left")    ? -1
                 : move_str.starts_with("right") ? 1
                                                 : 0
             }) {
-          if (char next_id; is >> std::ws and skip(is, "- Continue with state "s) and is >> next_id
-                            and 'A' <= next_id and skip(is, "."s)) {
+          if (char next_id; is >> std::ws >> skip("- Continue with state "s) >> next_id
+                            and 'A' <= next_id and is >> skip("."s)) {
             test = {read, write, move, next_id - 'A'};
           }
         }
@@ -43,8 +42,7 @@ std::istream& operator>>(std::istream& is, Test& test) {
 }
 
 std::istream& operator>>(std::istream& is, State& state) {
-  if (char id;
-      is >> std::ws and skip(is, "In state "s) and is >> id and 'A' <= id and skip(is, ":"s)) {
+  if (char id; is >> std::ws >> skip("In state "s) >> id and 'A' <= id and is >> skip(":"s)) {
     if (Test a, b; is >> a >> b) {
       state = {id - 'A', a, b};
     }
@@ -56,9 +54,9 @@ std::istream& operator>>(std::istream& is, State& state) {
 }
 
 auto parse_start_state(std::istream& is) {
-  if (char ch; skip(is, "Begin in state "s) and is >> ch and skip(is, "."s)) {
-    if (int steps; is >> std::ws and skip(is, "Perform a diagnostic checksum after "s)
-                   and is >> steps and skip(is, " steps."s)) {
+  if (char ch; is >> skip("Begin in state "s) >> ch >> skip("."s)) {
+    if (int steps; is >> std::ws >> skip("Perform a diagnostic checksum after "s) >> steps
+                   >> skip(" steps."s)) {
       return std::pair{ch - 'A', steps};
     }
   }

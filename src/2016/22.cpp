@@ -16,10 +16,10 @@ struct Node {
 std::istream& operator>>(std::istream& is, Node& node) {
   if (std::string line; std::getline(is, line)) {
     std::istringstream ls{line};
-    if (int x, y; skip(ls, "/dev/grid/node-x"s) and ls >> x and skip(ls, "-y"s) and ls >> y) {
-      if (int size; ls >> std::ws >> size and skip(ls, "T"s)) {
-        if (int used; ls >> std::ws >> used and skip(ls, "T"s)) {
-          if (int avail; ls >> std::ws >> avail and skip(ls, "T"s)) {
+    if (int x, y; ls >> skip("/dev/grid/node-x"s) >> x >> skip("-y"s) >> y) {
+      if (int size; ls >> std::ws >> size >> skip("T"s)) {
+        if (int used; ls >> std::ws >> used >> skip("T"s)) {
+          if (int avail; ls >> std::ws >> avail >> skip("T"s)) {
             if (size > 0 and used <= size and avail + used == size) {
               node = {.x = x, .y = y, .size = size, .used = used};
               return is;
@@ -36,8 +36,8 @@ std::istream& operator>>(std::istream& is, Node& node) {
 }
 
 auto parse_nodes(std::istream& is) {
-  if (skip(is, "root@ebhq-gridcenter#"s, "df"s, "-h"s) and is >> std::ws) {
-    if (skip(is, "Filesystem"s, "Size"s, "Used"s, "Avail"s, "Use%"s) and is >> std::ws) {
+  if (is >> skip("root@ebhq-gridcenter#"s, "df"s, "-h"s)) {
+    if (is >> std::ws >> skip("Filesystem"s, "Size"s, "Used"s, "Avail"s, "Use%"s) >> std::ws) {
       return views::istream<Node>(is) | ranges::to<std::vector>();
     }
   }

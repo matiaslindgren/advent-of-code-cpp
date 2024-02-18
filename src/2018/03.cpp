@@ -16,11 +16,11 @@ struct Claim {
 std::istream& operator>>(std::istream& is, Claim& claim) {
   using aoc::skip;
   using std::operator""s;
-  if (int id; is >> std::ws and skip(is, "#"s) and is >> id) {
-    if (int left; is >> std::ws and skip(is, "@"s) and is >> left) {
-      if (int top; skip(is, ","s) and is >> top) {
-        if (int width; skip(is, ":"s) and is >> width) {
-          if (int height; skip(is, "x"s) and is >> height) {
+  if (int id; is >> std::ws >> skip("#"s) >> id) {
+    if (int left; is >> std::ws >> skip("@"s) >> left) {
+      if (int top; is >> skip(","s) >> top) {
+        if (int width; is >> skip(":"s) >> width) {
+          if (int height; is >> skip("x"s) >> height) {
             claim = {id, left, top, width, height};
           }
         }

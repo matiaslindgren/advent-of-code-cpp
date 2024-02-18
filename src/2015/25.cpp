@@ -7,12 +7,10 @@ namespace views = std::views;
 std::pair<int, int> parse_input(std::istream& is) {
   using std::operator""s;
   using aoc::skip;
-  if (int row, col; skip(
-                        is,
-                        "To continue, please consult the code grid in the manual."s,
-                        "Enter the code at row"s
-                    )
-                    and is >> row and skip(is, ", column"s) and is >> col) {
+  if (int row, col;
+      is
+      >> skip("To continue, please consult the code grid in the manual."s, "Enter the code at row"s)
+      >> row >> skip(", column"s) >> col) {
     return {row, col};
   }
   throw std::runtime_error("failed parsing input");

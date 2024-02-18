@@ -41,8 +41,7 @@ using aoc::skip;
 using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (long x, y, z; skip(is, "<"s) and is >> x and skip(is, ","s) and is >> y and skip(is, ","s)
-                    and is >> z and skip(is, ">"s)) {
+  if (long x, y, z; is >> skip("<"s) >> x >> skip(","s) >> y >> skip(","s) >> z >> skip(">"s)) {
     v = {x, y, z};
   }
   if (is or is.eof()) {
@@ -54,9 +53,8 @@ std::istream& operator>>(std::istream& is, Vec3& v) {
 std::istream& operator>>(std::istream& is, Particle& particle) {
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (Vec3 p, v, a; ls >> std::ws and skip(ls, "p="s) and ls >> p and skip(ls, ","s)
-                      and ls >> std::ws and skip(ls, "v="s) and ls >> v and skip(ls, ","s)
-                      and ls >> std::ws and skip(ls, "a="s) and ls >> a) {
+    if (Vec3 p, v, a; ls >> std::ws >> skip("p="s) >> p >> skip(","s) >> std::ws >> skip("v="s) >> v
+                      >> skip(","s) >> std::ws >> skip("a="s) >> a) {
       particle = {p, v, a};
     }
   }

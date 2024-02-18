@@ -21,9 +21,9 @@ std::istream& operator>>(std::istream& is, Move& move) {
   if (char type; is >> type) {
     if (int s; type == 's' and is >> s) {
       move = {Move::spin, s};
-    } else if (int a, b; type == 'x' and is >> a and skip(is, "/"s) and is >> b) {
+    } else if (int a, b; type == 'x' and is >> a >> skip("/"s) >> b) {
       move = {Move::exchange, a, b};
-    } else if (char a, b; type == 'p' and is >> a and skip(is, "/"s) and is >> b) {
+    } else if (char a, b; type == 'p' and is >> a >> skip("/"s) >> b) {
       move = {Move::partner, a, b};
     } else {
       is.setstate(std::ios_base::failbit);

@@ -58,7 +58,7 @@ std::istream& operator>>(std::istream& is, Module& m) {
     std::stringstream ls{line};
     if (Module::Type type; ls >> type) {
       if (std::string id; ls >> id and not id.empty()) {
-        if (ls >> std::ws and skip(ls, "->"s)) {
+        if (ls >> std::ws >> skip("->"s)) {
           const auto outputs{views::istream<std::string>(ls) | ranges::to<Strings>()};
           m = {.type = type, .id = id, .outputs = outputs};
           return is;

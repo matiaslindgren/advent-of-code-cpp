@@ -12,8 +12,8 @@ auto parse_input(std::string path) {
   using std::operator""s;
 
   std::istringstream is{aoc::slurp_file(path)};
-  if (int depth; skip(is, "depth:"s) and is >> depth) {
-    if (int x, y; is >> std::ws && skip(is, "target:"s) and is >> x && skip(is, ","s) && is >> y) {
+  if (int depth; is >> skip("depth:"s) >> depth) {
+    if (int x, y; is >> std::ws >> skip("target:"s) >> x >> skip(","s) >> y) {
       if (is or is.eof()) {
         return std::pair{depth, Vec2{.y = y, .x = x}};
       }

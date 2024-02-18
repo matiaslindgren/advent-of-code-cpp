@@ -11,9 +11,9 @@ struct Step {
 std::istream& operator>>(std::istream& is, Step& step) {
   using aoc::skip;
   using std::operator""s;
-  if (char a; is >> std::ws and skip(is, "Step"s) and is >> a) {
-    if (char b; is >> std::ws and skip(is, "must be finished before step"s) and is >> b >> std::ws
-                and skip(is, "can begin."s)) {
+  if (char a; is >> std::ws >> skip("Step"s) >> a) {
+    if (char b; is >> std::ws >> skip("must be finished before step"s) >> b >> std::ws
+                >> skip("can begin."s)) {
       step = {a, b};
     }
   }

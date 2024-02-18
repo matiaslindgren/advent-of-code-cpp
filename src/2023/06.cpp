@@ -7,24 +7,20 @@ namespace views = std::views;
 
 using Ints = std::vector<int>;
 
-Ints parse_input(std::istream& is, std::string_view prefix) {
+Ints parse_input(std::istream& is, std::string&& prefix) {
   using aoc::skip;
-  if (std::string line; skip(is, prefix) and std::getline(is, line)) {
+  if (std::string line; is >> skip(std::move(prefix)) and std::getline(is, line)) {
     std::stringstream ls{line};
     return views::istream<int>(ls) | ranges::to<Ints>();
   }
   return {};
 }
 
-struct count_ways_to_win_fn {
-  auto operator()(auto time, auto dist) const {
-    return ranges::count_if(views::iota(0, time), [=](auto t_press) {
-      return t_press * (time - t_press) > dist;
-    });
-  }
-};
-inline auto count_ways_to_win = count_ways_to_win_fn{};
-
+inline auto count_ways_to_win{[](auto time, auto dist) {
+  return ranges::count_if(views::iota(0, time), [=](auto t_press) {
+    return t_press * (time - t_press) > dist;
+  });
+}};
 constexpr auto product{std::__bind_back(my_std::ranges::fold_left, 1L, std::multiplies{})};
 
 auto find_part1(const Ints& times, const Ints& dists) {
@@ -51,10 +47,10 @@ auto find_part2(const Ints& times, const Ints& dists) {
 
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  using std::operator""sv;
+  using std::operator""s;
 
-  const auto times{parse_input(input, "Time:"sv)};
-  const auto dists{parse_input(input, "Distance:"sv)};
+  const auto times{parse_input(input, "Time:"s)};
+  const auto dists{parse_input(input, "Distance:"s)};
 
   const auto part1{find_part1(times, dists)};
   const auto part2{find_part2(times, dists)};

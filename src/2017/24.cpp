@@ -15,7 +15,7 @@ struct Component {
 std::istream& operator>>(std::istream& is, Component& comp) {
   using aoc::skip;
   using std::operator""s;
-  if (int a, b; is >> a and skip(is, "/"s) and is >> b) {
+  if (int a, b; is >> a >> skip("/"s) >> b) {
     comp = {a, b};
   }
   if (is or is.eof()) {

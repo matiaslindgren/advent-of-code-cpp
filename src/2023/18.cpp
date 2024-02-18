@@ -48,11 +48,11 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
       is >> dir1 >> len1 >> colour) {
     std::stringstream ls{colour};
     int len2{0};
-    if (skip(ls, "(#"s)) {
+    if (ls >> skip("(#"s)) {
       for (char i{}, ch; i < 5 and ls >> ch; ++i) {
         len2 = 16 * len2 + std::stoi(""s + ch, nullptr, 16);
       }
-      if (Direction dir2; ls >> dir2 and skip(ls, ")"s)) {
+      if (Direction dir2; ls >> dir2 >> skip(")"s)) {
         steps = {{dir1, len1}, {dir2, len2}};
         return is;
       }

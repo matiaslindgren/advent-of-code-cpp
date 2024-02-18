@@ -20,14 +20,14 @@ struct Area {
 std::istream& operator>>(std::istream& is, Area& area) {
   if (char ch; is >> ch) {
     if (ch == 'x') {
-      if (int x; skip(is, "="s) and is >> x) {
-        if (int y0, y1; skip(is, ","s, "y="s) and is >> y0 and skip(is, ".."s) and is >> y1) {
+      if (int x; is >> skip("="s) >> x) {
+        if (int y0, y1; is >> skip(","s, "y="s) >> y0 >> skip(".."s) >> y1) {
           area = {.x = {x, x + 1}, .y = {y0, y1 + 1}};
         }
       }
     } else if (ch == 'y') {
-      if (int y; skip(is, "="s) and is >> y) {
-        if (int x0, x1; skip(is, ","s, "x="s) and is >> x0 and skip(is, ".."s) and is >> x1) {
+      if (int y; is >> skip("="s) >> y) {
+        if (int x0, x1; is >> skip(","s, "x="s) >> x0 >> skip(".."s) >> x1) {
           area = {.x = {x0, x1 + 1}, .y = {y, y + 1}};
         }
       }

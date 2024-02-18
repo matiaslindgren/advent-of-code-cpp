@@ -24,20 +24,20 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
 
   if (auto [cmd, num] = std::tuple(std::string{}, int{}); is >> cmd >> num) {
     if (cmd == "value") {
-      if (int bot; skip(is, " goes to bot"s) and is >> bot) {
+      if (int bot; is >> skip(" goes to bot"s) >> bot) {
         ins = {Type::set_value, num, bot};
         return is;
       }
     }
-    if (cmd == "bot" and skip(is, " gives low to"s) and is >> cmd) {
+    if (cmd == "bot" and is >> skip(" gives low to"s) >> cmd) {
       if (cmd == "bot") {
-        if (int out1, out2; is >> out1 and skip(is, " and high to bot"s) and is >> out2) {
+        if (int out1, out2; is >> out1 >> skip(" and high to bot"s) >> out2) {
           ins = {Type::lo_bot_hi_bot, num, out1, out2};
           return is;
         }
       }
       if (cmd == "output") {
-        if (int out1, out2; is >> out1 and skip(is, " and high to"s) and is >> cmd >> out2) {
+        if (int out1, out2; is >> out1 >> skip(" and high to"s) >> cmd >> out2) {
           if (cmd == "bot") {
             ins = {Type::lo_out_hi_bot, num, out1, out2};
             return is;

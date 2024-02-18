@@ -62,7 +62,7 @@ using aoc::skip;
 using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (int x, y, z; is >> x and skip(is, ","s) and is >> y and skip(is, ","s) and is >> z) {
+  if (int x, y, z; is >> x >> skip(","s) >> y >> skip(","s) >> z) {
     v = {x, y, z};
     return is;
   }
@@ -72,7 +72,7 @@ std::istream& operator>>(std::istream& is, Vec3& v) {
 std::istream& operator>>(std::istream& is, Brick& brick) {
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (Vec3 begin, end; ls >> begin and skip(ls, "~"s) and ls >> end) {
+    if (Vec3 begin, end; ls >> begin >> skip("~"s) >> end) {
       brick = {begin, end + 1};
       return is;
     }

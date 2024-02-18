@@ -106,10 +106,10 @@ auto parse_ratings(std::istream& is) {
   std::vector<Rating> ratings;
   for (std::string line; std::getline(is, line) and not line.empty();) {
     std::stringstream ls{line};
-    if (skip(ls, "{"s)) {
-      if (unsigned x, m, a, s; skip(ls, "x="s) and ls >> x and skip(ls, ",m="s) and ls >> m
-                               and skip(ls, ",a="s) and ls >> a and skip(ls, ",s="s) and ls >> s) {
-        if (skip(ls, "}"s)) {
+    if (ls >> skip("{"s)) {
+      if (unsigned x, m, a, s;
+          ls >> skip("x="s) >> x >> skip(",m="s) >> m >> skip(",a="s) >> a >> skip(",s="s) >> s) {
+        if (ls >> skip("}"s)) {
           ratings.push_back({x, m, a, s});
         }
       }

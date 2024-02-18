@@ -17,12 +17,12 @@ std::istream& operator>>(std::istream& is, Item& item) {
   using std::operator""s;
   using aoc::skip;
   if (std::string elem; is >> elem) {
-    if (elem.ends_with("-compatible") and skip(is, " microchip"s)) {
+    if (elem.ends_with("-compatible") and is >> skip(" microchip"s)) {
       elem = {elem.begin(), ranges::find(elem, '-')};
       item = {Item::Microchip, elem};
       return is;
     }
-    if (not elem.empty() and skip(is, " generator"s)) {
+    if (not elem.empty() and is >> skip(" generator"s)) {
       item = {Item::Generator, elem};
       return is;
     }
@@ -51,14 +51,12 @@ std::istream& operator>>(std::istream& is, FloorItems& fi) {
   std::vector<Item> items;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (std::string fname; skip(ls, "The"s) and ls >> std::ws >> fname
-                           and floor_numbers.contains(fname) and ls >> std::ws
-                           and skip(ls, "floor contains"s)) {
+    if (std::string fname; ls >> skip("The"s) >> std::ws >> fname and floor_numbers.contains(fname)
+                           and ls >> std::ws >> skip("floor contains"s)) {
       floor = floor_numbers.find(fname)->second;
       while (ls) {
         if (std::string s; ls >> s) {
-          if (s == "nothing" and ls >> std::ws and skip(ls, "relevant"s)) {
-            // skip
+          if (s == "nothing" and ls >> std::ws >> skip("relevant"s)) {
           } else if (Item item;
                      ((s == "and" and ls >> s and s == "a") or s == "a") and ls >> item) {
             items.push_back(item);
