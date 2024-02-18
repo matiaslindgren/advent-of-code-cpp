@@ -5,15 +5,7 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Vec2 {
-  int x{}, y{};
-
-  Vec2& operator+=(const Vec2& rhs) {
-    x += rhs.x;
-    y += rhs.y;
-    return *this;
-  }
-};
+using aoc::Vec2;
 
 struct Light {
   Vec2 p, v;
@@ -22,19 +14,9 @@ struct Light {
 using aoc::skip;
 using std::operator""s;
 
-std::istream& operator>>(std::istream& is, Vec2& v) {
-  if (int x, y; skip(is, "<"s) and is >> x and skip(is, ","s) and is >> y and skip(is, ">"s)) {
-    v = {x, y};
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Vec2");
-}
-
 std::istream& operator>>(std::istream& is, Light& light) {
-  if (Vec2 p, v; is >> std::ws and skip(is, "position="s) and is >> p >> std::ws
-                 and skip(is, "velocity="s) and is >> v) {
+  if (Vec2 p, v; is >> std::ws and skip(is, "position=<"s) >> p and skip(is, ">"s) >> std::ws
+                 and skip(is, "velocity=<"s) >> v and skip(is, ">"s)) {
     light = {p, v};
   }
   if (is or is.eof()) {
@@ -53,8 +35,8 @@ auto find_grid_corners(const auto& lights) {
       [](const auto& corners, const auto& l) {
         auto [tl, br] = corners;
         return std::pair{
-            Vec2{std::min(tl.x, l.p.x), std::min(tl.y, l.p.y)},
-            Vec2{std::max(br.x, l.p.x), std::max(br.y, l.p.y)}
+            Vec2{std::min(tl.y, l.p.y), std::min(tl.x, l.p.x)},
+            Vec2{std::max(br.y, l.p.y), std::max(br.x, l.p.x)}
         };
       }
   );

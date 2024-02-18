@@ -5,40 +5,7 @@ import aoc;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Vec2 {
-  int x{}, y{};
-
-  Vec2 operator+(const Vec2& rhs) const {
-    return {x + rhs.x, y + rhs.y};
-  }
-  auto distance(const Vec2& rhs) const {
-    return std::abs(x - rhs.x) + std::abs(y - rhs.y);
-  }
-  auto operator<=>(const Vec2&) const = default;
-};
-
-template <>
-struct std::hash<Vec2> {
-  auto to_unsigned(const int a) const noexcept {
-    return static_cast<std::size_t>(a + std::numeric_limits<int>::max() / 2);
-  }
-  std::size_t operator()(const Vec2& v) const noexcept {
-    constexpr auto slot{std::numeric_limits<std::size_t>::digits / 2};
-    return (to_unsigned(v.x) << slot) | to_unsigned(v.y);
-  }
-};
-
-std::istream& operator>>(std::istream& is, Vec2& vec) {
-  using aoc::skip;
-  using std::operator""s;
-  if (Vec2 v; is >> std::ws and is >> v.x and skip(is, ","s) and is >> v.y) {
-    vec = v;
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Vec2");
-}
+using aoc::Vec2;
 
 constexpr auto intmin{std::numeric_limits<int>::min()};
 constexpr auto intmax{std::numeric_limits<int>::max()};

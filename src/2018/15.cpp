@@ -32,31 +32,13 @@ std::istream& operator>>(std::istream& is, Tile& tile) {
   throw std::runtime_error("failed parsing Tile");
 }
 
-struct Vec2 {
-  int y{}, x{};
-
-  auto operator<=>(const Vec2&) const = default;
-
-  int distance(const Vec2& rhs) const {
-    return std::abs(rhs.y - y) + std::abs(rhs.x - x);
-  }
-
-  auto adjacent() const {
-    return std::array{
-        Vec2{y - 1, x},
-        Vec2{y, x - 1},
-        Vec2{y, x + 1},
-        Vec2{y + 1, x},
-    };
-  }
-};
-
 struct Unit {
   Tile type;
   int id{}, power{}, hp{};
 };
 
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
+using aoc::Vec2;
 
 struct Cave {
   int width{};

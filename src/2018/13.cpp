@@ -22,28 +22,11 @@ enum class Turn : int {
   right = 2,
 };
 
-struct Vec2 {
-  int y{};
-  int x{};
-
-  void rotate_left() {
-    y = -std::exchange(x, y);
-  }
-  void rotate_right() {
-    y = std::exchange(x, -y);
-  }
-  Vec2& operator+=(const Vec2& rhs) {
-    y += rhs.y;
-    x += rhs.x;
-    return *this;
-  }
-  auto operator<=>(const Vec2&) const = default;
-};
+using aoc::Vec2;
 
 struct Cart {
-  Vec2 pos;
-  Vec2 dir;
-  Turn turn;
+  Vec2 pos{}, dir{};
+  Turn turn{};
 
   std::string pos2str() const {
     return std::format("{},{}", pos.x - 1, pos.y - 1);

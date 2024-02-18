@@ -42,39 +42,7 @@ std::istream& operator>>(std::istream& is, Token& token) {
   throw std::runtime_error("failed parsing Token");
 }
 
-struct Vec2 {
-  int y{}, x{};
-
-  auto operator<=>(const Vec2&) const = default;
-
-  Vec2 operator+(const Vec2& rhs) const {
-    return {y + rhs.y, x + rhs.x};
-  }
-
-  auto adjacent() const {
-    return std::array{
-        Vec2{y - 1, x},
-        Vec2{y, x - 1},
-        Vec2{y, x + 1},
-        Vec2{y + 1, x},
-    };
-  }
-};
-
-template <>
-struct std::hash<Vec2> {
-  static constexpr auto int_half{std::numeric_limits<int>::max() / 2};
-  static constexpr auto int_width{std::numeric_limits<int>::digits};
-
-  constexpr std::size_t to_unsigned(const int a) const noexcept {
-    return a + int_half;
-  }
-
-  constexpr auto operator()(const Vec2& v) const noexcept {
-    return (to_unsigned(v.y) << int_width) | to_unsigned(v.x);
-  }
-};
-
+using aoc::Vec2;
 using Steps = std::vector<std::pair<Vec2, Vec2>>;
 
 auto find_shortest_paths(const Steps& steps) {

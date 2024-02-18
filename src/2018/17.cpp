@@ -3,6 +3,7 @@ import aoc;
 import my_std;
 
 using aoc::skip;
+using aoc::Vec2;
 using std::operator""s;
 
 namespace ranges = std::ranges;
@@ -38,14 +39,6 @@ std::istream& operator>>(std::istream& is, Area& area) {
   throw std::runtime_error("failed parsing Area");
 }
 
-struct Vec2 {
-  int y{}, x{};
-
-  Vec2 operator+(const Vec2& rhs) const {
-    return {y + rhs.y, x + rhs.x};
-  }
-};
-
 constexpr auto min{
     std::__bind_back(my_std::ranges::fold_left, std::numeric_limits<int>::max(), ranges::min)
 };
@@ -74,7 +67,7 @@ auto count_water(const auto& areas) {
 
   Vec2 lhs, rhs;
 
-  for (std::vector q{std::pair{Vec2{.y = 1}, Vec2{.y = 0, .x = 500}}}; not q.empty();) {
+  for (std::vector q{std::pair{Vec2{.y = 1}, Vec2{.x = 500}}}; not q.empty();) {
     const auto [dir, pos]{q.back()};
     q.pop_back();
 

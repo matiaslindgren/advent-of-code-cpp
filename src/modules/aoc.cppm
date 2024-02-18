@@ -40,6 +40,13 @@ std::istream& skip(std::istream& is, const auto& pattern, const auto&... pattern
   return is;
 }
 
+template <typename Int>
+  requires std::integral<Int>
+constexpr auto saturating_add(const Int a, const Int b) {
+  constexpr auto limit{std::numeric_limits<Int>::max()};
+  return (a > limit - b) ? limit : a + b;
+}
+
 char as_ascii(std::string aoc_letter) {
   // given an advent of code ascii art letter in row-major order,
   // return the corresponding character
@@ -90,4 +97,62 @@ char as_ascii(std::string aoc_letter) {
   }
   return ' ';
 }
+
+struct Vec2 {
+  int y{}, x{};
+
+  [[nodiscard]] constexpr auto operator<=>(const Vec2&) const = default;
+
+  [[nodiscard]] constexpr Vec2 operator+(const Vec2& rhs) const noexcept {
+    return {y + rhs.y, x + rhs.x};
+  }
+  [[nodiscard]] constexpr Vec2 operator-(const Vec2& rhs) const noexcept {
+    return {y - rhs.y, x - rhs.x};
+  }
+
+  constexpr Vec2& operator+=(const Vec2& rhs) noexcept {
+    y += rhs.y;
+    x += rhs.x;
+    return *this;
+  }
+
+  constexpr void rotate_left() noexcept {
+    x = std::exchange(y, -x);
+  }
+  constexpr void rotate_right() noexcept {
+    x = -std::exchange(y, x);
+  }
+
+  [[nodiscard]] constexpr auto distance(const Vec2& rhs) const noexcept {
+    return std::abs(y - rhs.y) + std::abs(x - rhs.x);
+  }
+
+  [[nodiscard]] constexpr auto adjacent() const noexcept {
+    return std::array{
+        Vec2{y - 1, x},
+        Vec2{y, x - 1},
+        Vec2{y, x + 1},
+        Vec2{y + 1, x},
+    };
+  }
+};
+
+std::istream& operator>>(std::istream& is, Vec2& vec) {
+  using std::operator""s;
+  if (Vec2 v; is >> v.x >> std::ws and skip(is, ","s) >> v.y) {
+    vec = v;
+  }
+  return is;
+}
+
 }  // namespace aoc
+
+template <>
+struct std::hash<aoc::Vec2> {
+  constexpr std::size_t to_unsigned(const int i) const noexcept {
+    return aoc::saturating_add(i, std::numeric_limits<int>::max() / 2);
+  }
+  constexpr auto operator()(const aoc::Vec2& v) const noexcept {
+    return (to_unsigned(v.y) << std::numeric_limits<int>::digits) | to_unsigned(v.x);
+  }
+};

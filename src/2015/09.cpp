@@ -4,13 +4,6 @@ import aoc;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-template <typename UInt>
-  requires std::unsigned_integral<UInt>
-constexpr auto saturating_add(UInt a, UInt b) {
-  constexpr auto limit{std::numeric_limits<UInt>::max()};
-  return (a > limit - b) ? limit : a + b;
-}
-
 struct Edge {
   std::string src;
   std::string dst;
@@ -111,7 +104,11 @@ class Graph {
         }
         for (auto node : views::iota(0uz, node_count())) {
           const auto edge_length{distance(current.node, node)};
-          q.emplace_back(current.visited, node, saturating_add(current.path_length, edge_length));
+          q.emplace_back(
+              current.visited,
+              node,
+              aoc::saturating_add(current.path_length, edge_length)
+          );
         }
       }
     }

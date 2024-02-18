@@ -14,48 +14,31 @@ struct Move {
 
 std::istream& operator>>(std::istream& is, Move& move) {
   if (char dir; is >> dir and (dir == 'L' or dir == 'R')) {
-    if (int steps; is >> steps) {
+    if (int steps; is >> steps && is.ignore(1, ',')) {
       move = {(dir == 'L' ? Move::Left : Move::Right), steps};
-      return is.ignore(1, ',');
     }
   }
-  if (is.eof()) {
+  if (is or is.eof()) {
     return is;
   }
   throw std::runtime_error("failed parsing Move");
 }
 
-struct Vec2D {
-  int y;
-  int x;
-  constexpr auto operator<=>(const Vec2D&) const = default;
-  constexpr int distance() const {
-    return std::abs(y) + std::abs(x);
-  }
-  constexpr Vec2D rotate_left() const {
-    return {-x, y};
-  }
-  constexpr Vec2D rotate_right() const {
-    return {x, -y};
-  }
-  constexpr Vec2D operator+(const Vec2D& rhs) const {
-    return {y + rhs.y, x + rhs.x};
-  }
-};
+using aoc::Vec2;
 
-using Path = std::vector<Vec2D>;
+using Path = std::vector<Vec2>;
 using Moves = std::vector<Move>;
 
 Path walk(const Moves& moves) {
-  std::vector path{Vec2D{}};
-  Vec2D facing{1, 0};
+  std::vector path{Vec2{}};
+  Vec2 facing{.x = 1};
   for (const auto& move : moves) {
     switch (move.direction) {
       case Move::Left: {
-        facing = facing.rotate_left();
+        facing.rotate_left();
       } break;
       case Move::Right: {
-        facing = facing.rotate_right();
+        facing.rotate_right();
       } break;
     }
     for (int n{}; n < move.steps; ++n) {
@@ -66,13 +49,13 @@ Path walk(const Moves& moves) {
 }
 
 int find_part1(const Path& path) {
-  return path.back().distance();
+  return path.back().distance(Vec2{});
 }
 
 int find_part2(const Path& path) {
   for (auto it{path.begin()}; it != path.end(); ++it) {
     if (ranges::find(it + 1, path.end(), *it) != path.end()) {
-      return it->distance();
+      return it->distance(Vec2{});
     }
   }
   throw std::runtime_error("oh no");
