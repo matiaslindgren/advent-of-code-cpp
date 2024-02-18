@@ -143,8 +143,8 @@ int main() {
   const auto visited{visit_until_limit(grid, diamond_size + 2 * cycle_length)};
 
   const auto count_reachable{[n = grid.tiles.size(), &visited](const auto steps) {
-    const auto include_start{steps % 2 == 0};
-    const auto reachable{visited | views::drop(steps * n) | views::take(n)};
+    auto include_start{steps % 2 == 0};
+    auto reachable{visited | views::drop(steps * n) | views::take(n)};
     return include_start + ranges::count_if(reachable, std::identity{});
   }};
 

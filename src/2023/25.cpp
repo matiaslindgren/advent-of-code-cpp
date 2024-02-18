@@ -108,7 +108,7 @@ auto find_part1(Graph graph) {
 
     const auto pop_max_cut_weight_heap{[&](auto& q) {
       ranges::pop_heap(q, ranges::less{}, get_cut_weight);
-      const auto n{q.back()};
+      auto n{q.back()};
       q.pop_back();
       return n;
     }};

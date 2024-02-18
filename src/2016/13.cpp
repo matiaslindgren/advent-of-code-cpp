@@ -88,7 +88,7 @@ class Dijkstra {
 
   Point2D pop_min_dist_heap() {
     ranges::pop_heap(q, ranges::greater{}, [=, this](const auto& p) { return distance(p); });
-    const Point2D p{q.back()};
+    Point2D p{q.back()};
     q.pop_back();
     return p;
   }

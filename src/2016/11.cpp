@@ -320,7 +320,7 @@ class AStar {
 
   FloorState pop_min_f_score_heap() {
     ranges::pop_heap(m_q, ranges::greater{}, [=, this](const auto& fs) { return f_score(fs); });
-    const FloorState fs{m_q.back()};
+    FloorState fs{m_q.back()};
     m_q.pop_back();
     return fs;
   }

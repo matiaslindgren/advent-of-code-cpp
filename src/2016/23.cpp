@@ -172,7 +172,6 @@ int run(auto instructions, std::array<int, 4> memory) {
 
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
   const auto instructions{std::views::istream<Instruction>(input) | std::ranges::to<std::vector>()};
 
   const auto part1{run(instructions, {7, 0, 0, 0})};

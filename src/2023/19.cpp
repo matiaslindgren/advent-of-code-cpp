@@ -26,17 +26,15 @@ struct RatingBound {
   Rating upper{{4001, 4001, 4001, 4001}};
 
   constexpr bool contains(const Rating& r) const {
-    const auto less{my_std::apply_fn(ranges::less{})};
+    auto less{my_std::apply_fn(ranges::less{})};
     return ranges::all_of(views::zip(lower, r), less)
            and ranges::all_of(views::zip(r, upper), less);
   }
 
   constexpr auto combination_count() const {
     return my_std::ranges::fold_left(
-        views::zip(lower, upper) | views::transform([](const auto& lo_up) {
-          const auto& [lo, up] = lo_up;
-          return up - lo - 1;
-        }),
+        views::zip(lower, upper)
+            | views::transform(my_std::apply_fn([](auto&& lo, auto&& up) { return up - lo - 1; })),
         1uz,
         std::multiplies{}
     );
@@ -127,8 +125,8 @@ auto parse_ratings(std::istream& is) {
 }
 
 auto parse_input(std::istream& is) {
-  const auto workflows{parse_workflows(is)};
-  const auto ratings{parse_ratings(is)};
+  auto workflows{parse_workflows(is)};
+  auto ratings{parse_ratings(is)};
   if (is.eof()) {
     return std::pair(workflows, ratings);
   }
@@ -138,7 +136,7 @@ auto parse_input(std::istream& is) {
 auto find_bounds(const auto& workflows) {
   std::vector<RatingBound> bounds;
   for (std::deque q{{std::tuple{RatingBound{}, "in"s, 0uz}}}; not q.empty(); q.pop_front()) {
-    const auto [bound, workflow, i_rule] = q.front();
+    const auto [bound, workflow, i_rule]{q.front()};
     if (workflow == "A"s) {
       bounds.push_back(bound);
       continue;
@@ -186,8 +184,7 @@ auto find_part2(const auto& bounds) {
 
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto [workflows, ratings] = parse_input(input);
+  const auto [workflows, ratings]{parse_input(input)};
 
   const auto bounds{find_bounds(workflows)};
 

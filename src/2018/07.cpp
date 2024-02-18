@@ -41,7 +41,7 @@ auto run_tasks(const auto& steps, const auto n_workers) {
 
   const auto pop_min_heap{[](auto& q) {
     ranges::pop_heap(q, ranges::greater{});
-    const auto item{q.back()};
+    auto item{q.back()};
     q.pop_back();
     return item;
   }};

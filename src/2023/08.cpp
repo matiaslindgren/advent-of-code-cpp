@@ -73,7 +73,7 @@ int main() {
 
   const auto part1{count_length(loop, steps, "AAA"s, [](auto s) { return s == "ZZZ"s; })};
   const auto part2{my_std::ranges::fold_left(starts, 1L, [&](auto lcm, auto start) {
-    const auto n{count_length(loop, steps, start, [](auto s) { return s.back() == 'Z'; })};
+    auto n{count_length(loop, steps, start, [](auto s) { return s.back() == 'Z'; })};
     return std::lcm(lcm, n);
   })};
 

@@ -148,7 +148,7 @@ auto search(auto modules) {
         }
       }
 
-      const auto [src, dst, hi] = q.front();
+      const auto [src, dst, hi]{q.front()};
       if (press <= 1000) {
         lo_count += not hi;
         hi_count += hi;
@@ -190,12 +190,10 @@ auto search(auto modules) {
     }
   }
 
-  const auto part1{lo_count * hi_count};
-  const auto part2{my_std::ranges::fold_left(
-      cycle_lengths,
-      1uz,
-      [](const auto lcm, const auto len) { return std::lcm(lcm, len); }
-  )};
+  auto part1{lo_count * hi_count};
+  auto part2{my_std::ranges::fold_left(cycle_lengths, 1uz, [](auto lcm, auto len) {
+    return std::lcm(lcm, len);
+  })};
 
   return std::pair{part1, part2};
 }

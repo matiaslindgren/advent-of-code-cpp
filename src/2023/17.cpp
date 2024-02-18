@@ -109,7 +109,7 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
   }};
   const auto pop_min_loss_heap{[&](auto& q) {
     ranges::pop_heap(q, ranges::greater{}, loss);
-    const auto s{q.back()};
+    auto s{q.back()};
     q.pop_back();
     return s;
   }};
@@ -144,7 +144,7 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
         continue;
       }
       dst.moves = (dst.direction == src.direction ? src.moves + 1 : 1);
-      if (const auto new_loss{saturating_add(loss(src), blocks.loss.at(dst.block))};
+      if (auto new_loss{saturating_add(loss(src), blocks.loss.at(dst.block))};
           new_loss < loss(dst)) {
         loss(dst) = new_loss;
         push_min_loss_heap(q, dst);

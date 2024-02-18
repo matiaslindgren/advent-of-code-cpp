@@ -82,7 +82,7 @@ std::optional<Vec3> intersectXY(const Stone& lhs, const Stone& rhs) {
   const auto d{rhs.intersect()};
   const auto x{(d - c) / (a - b)};
   const auto y{a * x + c};
-  if (const Vec3 res{x, y}; not lhs.is_past_point(res) and not rhs.is_past_point(res)) {
+  if (Vec3 res{x, y}; not lhs.is_past_point(res) and not rhs.is_past_point(res)) {
     return res;
   }
   return {};
@@ -92,7 +92,7 @@ auto find_part1(const auto& stones) {
   auto n{0uz};
   for (const auto& [i, stone1] : my_std::views::enumerate(stones, 1uz)) {
     n += ranges::count_if(stones | views::drop(i), [&stone1](const auto& stone2) {
-      const auto is{intersectXY(stone1, stone2)};
+      auto is{intersectXY(stone1, stone2)};
       return is and is_inside_square(*is, min_coord, max_coord);
     });
   }
@@ -118,14 +118,14 @@ auto find_part2(const auto& stones) {
         v.z = 0;
         const Stone s1{.p = stones[0].p, .v = stones[0].v - v};
         const Stone s2{.p = stones[1].p, .v = stones[1].v - v};
-        if (const auto is1{intersectXY(s1, s2)}) {
+        if (auto is1{intersectXY(s1, s2)}) {
           if (ranges::all_of(stones | views::drop(2), [&v, &s1, &is1](Stone s3) {
                 s3.v = s3.v - v;
-                const auto is2{intersectXY(s1, s3)};
+                auto is2{intersectXY(s1, s3)};
                 return is2 and is1->l1_distance(*is2) < distance_epsilon;
               })) {
-            const auto t1{infer_collision_time(*is1, s1)};
-            const auto t2{infer_collision_time(*is1, s2)};
+            auto t1{infer_collision_time(*is1, s1)};
+            auto t2{infer_collision_time(*is1, s2)};
             v.z = (s1.p.z - s2.p.z + t1 * s1.v.z - t2 * s2.v.z) / (t1 - t2);
             const Vec3 p_throw{
                 .x = is1->x,

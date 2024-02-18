@@ -58,7 +58,7 @@ auto count_valid(const auto& springs, const auto& cache, const auto i, const aut
   if (not(i <= i_end and c <= c_end and n <= n_end)) {
     return 0uz;
   }
-  if (const auto res{cache[i, c, n]}; res != no_value) {
+  if (auto res{cache[i, c, n]}; res != no_value) {
     return res;
   }
   auto res{0uz};
@@ -110,7 +110,6 @@ constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
   const auto springs{views::istream<Springs>(input) | ranges::to<std::vector>()};
 
   const auto part1{sum(repeat_and_count_valid(springs, 1))};
