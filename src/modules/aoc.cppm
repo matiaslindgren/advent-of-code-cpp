@@ -51,8 +51,10 @@ class skip {
   }
 
   constexpr std::istream& consume(std::istream& is) const {
-    std::apply([&](auto&&... ps) { skip_pattern(is, ps...); }, patterns);
-    return is;
+    return std::apply(
+        [&](auto&&... ps) -> std::istream& { return skip_pattern(is, ps...); },
+        patterns
+    );
   }
 };
 
