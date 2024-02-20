@@ -18,4 +18,3 @@ popd
 
 git add src/${sol}.cpp
 git commit -m "solve ${sol}"
-git push
