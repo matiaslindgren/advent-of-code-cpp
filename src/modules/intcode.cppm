@@ -120,6 +120,11 @@ struct IntCode {
     }
     return true;
   }
+
+  void run() {
+    while (do_step()) {
+    }
+  }
 };
 
 std::vector<IntCode::Int> parse_input(std::string input) {
