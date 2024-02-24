@@ -36,7 +36,7 @@ std::istream& operator>>(std::istream& is, Item& item) {
   throw std::runtime_error("failed parsing Item");
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+inline constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& items) {
   return sum(views::transform(items, &Item::id));
@@ -46,10 +46,17 @@ auto find_part2(const auto& items) {
   return 0;
 }
 
+auto parse_input(const std::string path) {
+  std::istringstream input{aoc::slurp_file(path)};
+  auto items{views::istream<Item>(input) | ranges::to<std::vector>()};
+  if (input.eof()) {
+    return items;
+  }
+  throw std::runtime_error("invalid input, parsing failed");
+}
+
 int main() {
-  std::ios::sync_with_stdio(false);
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto items{views::istream<Item>(input) | ranges::to<std::vector>()};
+  const auto items{parse_input("/dev/stdin")};
 
   ranges::copy(items, std::ostream_iterator<Item>(std::cout, "\n"));
 
