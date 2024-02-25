@@ -7,9 +7,7 @@ using intcode::IntCode;
 auto run(const auto& inputs, const int test_id) {
   IntCode ic(inputs);
   ic.push_input(test_id);
-  while (not ic.is_done()) {
-    ic.run();
-  }
+  ic.run_to_end();
   return ic.pop_output().value();
 }
 

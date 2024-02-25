@@ -174,7 +174,13 @@ class IntCode {
     return ip < 0;
   }
 
-  void run() {
+  void run_to_end() {
+    while (not is_done()) {
+      do_step();
+    }
+  }
+
+  void run_until_output() {
     while (not(is_done() or output)) {
       do_step();
     }

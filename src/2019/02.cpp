@@ -9,7 +9,7 @@ auto run(const auto& inputs, const int noun, const int verb) {
   IntCode ic(inputs);
   ic.store(1, noun, Mode::address);
   ic.store(2, verb, Mode::address);
-  ic.run();
+  ic.run_to_end();
   return ic.load(0, Mode::address);
 }
 
