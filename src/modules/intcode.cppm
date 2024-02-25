@@ -102,8 +102,8 @@ class IntCode {
     }
   }
 
-  void push_input(Int value) {
-    input.push_back(value);
+  void push_input(auto&&... values) {
+    (input.push_back(values), ...);
   }
 
   Int pop_input() {
@@ -115,11 +115,8 @@ class IntCode {
     throw std::runtime_error("cannot pop from empty input queue");
   }
 
-  Int pop_output() {
-    if (output) {
-      return *output;
-    }
-    throw std::runtime_error("cannot pop from empty output queue");
+  auto pop_output() {
+    return std::exchange(output, std::nullopt);
   }
 
   [[nodiscard]] Int compute(const Op op, const Int lhs, const Int rhs) const {
@@ -139,7 +136,7 @@ class IntCode {
     }
   }
 
-  [[nodiscard]] bool do_step() {
+  void do_step() {
     auto&& [op, mode1, mode2, mode3]{parse_instruction(next())};
     switch (op) {
       case Op::add:
@@ -168,20 +165,23 @@ class IntCode {
       case Op::update_rel_base: {
       } break;
       case Op::end: {
-        return false;
+        ip = std::numeric_limits<std::ptrdiff_t>::min();
       } break;
     }
-    return true;
+  }
+
+  [[nodiscard]] bool is_done() const noexcept {
+    return ip < 0;
   }
 
   void run() {
-    while (do_step()) {
+    while (not(is_done() or output)) {
+      do_step();
     }
   }
 
   void dump_memory(std::ostream& os) const {
     std::ranges::copy(memory, std::ostream_iterator<Int>(os, " "));
-    os << "\n";
   }
 };
 

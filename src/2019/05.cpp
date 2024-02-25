@@ -2,14 +2,15 @@ import std;
 import aoc;
 import intcode;
 
-auto run(const auto& inputs, const int test_id) {
-  using intcode::IntCode;
-  using intcode::Mode;
+using intcode::IntCode;
 
+auto run(const auto& inputs, const int test_id) {
   IntCode ic(inputs);
   ic.push_input(test_id);
-  ic.run();
-  return ic.pop_output();
+  while (not ic.is_done()) {
+    ic.run();
+  }
+  return ic.pop_output().value();
 }
 
 int main() {
