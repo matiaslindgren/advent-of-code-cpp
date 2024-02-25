@@ -191,14 +191,14 @@ class IntCode {
   }
 };
 
-std::vector<IntCode::Int> parse_input(std::string input) {
+std::vector<IntCode::Int> parse_program(std::string input) {
   std::ranges::replace(input, ',', ' ');
   std::istringstream is{input};
-  auto inputs{std::views::istream<IntCode::Int>(is) | std::ranges::to<std::vector>()};
+  auto program{std::views::istream<IntCode::Int>(is) | std::ranges::to<std::vector>()};
   if (is.eof()) {
-    return inputs;
+    return program;
   }
-  throw std::runtime_error("invalid IntCode input, parsing failed");
+  throw std::runtime_error("invalid IntCode program, parsing failed");
 }
 
 }  // namespace intcode

@@ -2,25 +2,25 @@ import std;
 import aoc;
 import intcode;
 
-auto run(const auto& inputs, const int noun, const int verb) {
+auto run(const auto& program, const int noun, const int verb) {
   using intcode::IntCode;
   using intcode::Mode;
 
-  IntCode ic(inputs);
+  IntCode ic(program);
   ic.store(1, noun, Mode::address);
   ic.store(2, verb, Mode::address);
   ic.run_to_end();
   return ic.load(0, Mode::address);
 }
 
-auto find_part1(const auto& inputs) {
-  return run(inputs, 12, 2);
+auto find_part1(const auto& program) {
+  return run(program, 12, 2);
 }
 
-auto find_part2(const auto& inputs) {
+auto find_part2(const auto& program) {
   for (int noun{}; noun < 100; ++noun) {
     for (int verb{}; verb < 100; ++verb) {
-      if (run(inputs, noun, verb) == 1969'07'20) {
+      if (run(program, noun, verb) == 1969'07'20) {
         return 100 * noun + verb;
       }
     }
@@ -29,10 +29,10 @@ auto find_part2(const auto& inputs) {
 }
 
 int main() {
-  const auto inputs{intcode::parse_input(aoc::slurp_file("/dev/stdin"))};
+  const auto program{intcode::parse_program(aoc::slurp_file("/dev/stdin"))};
 
-  const auto part1{find_part1(inputs)};
-  const auto part2{find_part2(inputs)};
+  const auto part1{find_part1(program)};
+  const auto part2{find_part2(program)};
 
   std::print("{} {}\n", part1, part2);
 
