@@ -6,10 +6,10 @@ auto run(const auto& inputs, const int test_id) {
   using intcode::IntCode;
   using intcode::Mode;
 
-  IntCode ic{.memory = inputs};
-  ic.input.push_back(test_id);
+  IntCode ic(inputs);
+  ic.push_input(test_id);
   ic.run();
-  return ic.output.back();
+  return ic.pop_output();
 }
 
 int main() {

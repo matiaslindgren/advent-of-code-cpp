@@ -6,7 +6,7 @@ auto run(const auto& inputs, const int noun, const int verb) {
   using intcode::IntCode;
   using intcode::Mode;
 
-  IntCode ic{.memory = inputs};
+  IntCode ic(inputs);
   ic.store(1, noun, Mode::address);
   ic.store(2, verb, Mode::address);
   ic.run();

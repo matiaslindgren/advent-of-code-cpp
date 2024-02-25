@@ -42,68 +42,18 @@ enum class Mode : int {
   relative_address = 2,
 };
 
-struct IntCode {
+class IntCode {
+ public:
   using Int = long;
 
+ private:
   std::vector<Int> memory;
-  std::deque<Int> input, output;
+  std::deque<Int> input;
+  std::optional<Int> output;
 
   std::ptrdiff_t ip{}, relbase{};
 
-  Int load(const auto i, Mode mode) {
-    switch (mode) {
-      case Mode::immediate: {
-        return i;
-      } break;
-      case Mode::address: {
-        return memory.at(i);
-      } break;
-      case Mode::relative_address: {
-        return memory.at(i + relbase);
-      } break;
-    }
-  }
-
-  void store(const auto i, Int value, Mode mode) {
-    switch (mode) {
-      case Mode::immediate: {
-        throw std::runtime_error("cannot store in immediate mode");
-      } break;
-      case Mode::address: {
-        memory.at(i) = value;
-      } break;
-      case Mode::relative_address: {
-        memory.at(i + relbase) = value;
-      } break;
-    }
-  }
-
-  Int pop_input() {
-    if (not input.empty()) {
-      auto res{input.front()};
-      input.pop_front();
-      return res;
-    }
-    throw std::runtime_error("cannot pop from empty input");
-  }
-
-  Int compute(Op op, Int lhs, Int rhs) const {
-    switch (op) {
-      case Op::add:
-        return lhs + rhs;
-      case Op::multiply:
-        return lhs * rhs;
-      case Op::less:
-        return lhs < rhs;
-      case Op::equal:
-        return lhs == rhs;
-      default:
-        break;
-    }
-    throw std::runtime_error(std::format("Op {} is not a binary operator", std::to_underlying(op)));
-  }
-
-  auto parse_instruction(auto ins) const {
+  [[nodiscard]] auto parse_instruction(auto ins) const noexcept {
     std::array<int, 5> d;
     for (int& x : d) {
       auto&& [q, r]{std::ldiv(ins, 10)};
@@ -118,14 +68,78 @@ struct IntCode {
     };
   }
 
-  Int next() {
+  [[nodiscard]] Int next() {
     if (0 <= ip and ip < memory.size()) {
       return load(ip++, Mode::address);
     }
     throw std::runtime_error("instruction pointer is out of bounds");
   }
 
-  bool do_step() {
+ public:
+  IntCode() = default;
+  IntCode(std::ranges::input_range auto&& r) : memory(r) {
+  }
+
+  [[nodiscard]] Int load(const auto i, const Mode mode) const {
+    switch (mode) {
+      case Mode::immediate:
+        return i;
+      case Mode::address:
+        return memory.at(i);
+      case Mode::relative_address:
+        return memory.at(i + relbase);
+    }
+  }
+
+  Int& store(const auto i, Int value, const Mode mode) {
+    switch (mode) {
+      case Mode::immediate:
+        throw std::runtime_error("cannot store in immediate mode");
+      case Mode::address:
+        return (memory.at(i) = value);
+      case Mode::relative_address:
+        return (memory.at(i + relbase) = value);
+    }
+  }
+
+  void push_input(Int value) {
+    input.push_back(value);
+  }
+
+  Int pop_input() {
+    if (not input.empty()) {
+      auto res{input.front()};
+      input.pop_front();
+      return res;
+    }
+    throw std::runtime_error("cannot pop from empty input queue");
+  }
+
+  Int pop_output() {
+    if (output) {
+      return *output;
+    }
+    throw std::runtime_error("cannot pop from empty output queue");
+  }
+
+  [[nodiscard]] Int compute(const Op op, const Int lhs, const Int rhs) const {
+    switch (op) {
+      case Op::add:
+        return lhs + rhs;
+      case Op::multiply:
+        return lhs * rhs;
+      case Op::less:
+        return lhs < rhs;
+      case Op::equal:
+        return lhs == rhs;
+      default:
+        throw std::runtime_error(
+            std::format("Op {} is not a binary operator", std::to_underlying(op))
+        );
+    }
+  }
+
+  [[nodiscard]] bool do_step() {
     auto&& [op, mode1, mode2, mode3]{parse_instruction(next())};
     switch (op) {
       case Op::add:
@@ -141,15 +155,14 @@ struct IntCode {
         store(next(), pop_input(), mode1);
       } break;
       case Op::output: {
-        output.push_back(load(next(), mode1));
+        output = load(next(), mode1);
       } break;
       case Op::jump_if_nonzero:
       case Op::jump_if_zero: {
         const Int flag{load(next(), mode1)};
+        const Int jump{load(next(), mode2)};
         if ((flag != 0) == (op == Op::jump_if_nonzero)) {
-          ip = load(next(), mode2);
-        } else {
-          ip += 1;
+          ip = jump;
         }
       } break;
       case Op::update_rel_base: {
