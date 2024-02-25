@@ -118,29 +118,36 @@ struct IntCode {
     };
   }
 
+  Int next() {
+    if (0 <= ip and ip < memory.size()) {
+      return load(ip++, Mode::address);
+    }
+    throw std::runtime_error("instruction pointer is out of bounds");
+  }
+
   bool do_step() {
-    auto&& [op, mode1, mode2, mode3]{parse_instruction(memory[ip++])};
+    auto&& [op, mode1, mode2, mode3]{parse_instruction(next())};
     switch (op) {
       case Op::add:
       case Op::multiply:
       case Op::less:
       case Op::equal: {
-        const Int lhs{load(memory[ip++], mode1)};
-        const Int rhs{load(memory[ip++], mode2)};
+        const Int lhs{load(next(), mode1)};
+        const Int rhs{load(next(), mode2)};
         const Int out{compute(op, lhs, rhs)};
-        store(memory[ip++], out, mode3);
+        store(next(), out, mode3);
       } break;
       case Op::input: {
-        store(memory[ip++], pop_input(), mode1);
+        store(next(), pop_input(), mode1);
       } break;
       case Op::output: {
-        output.push_back(load(memory[ip++], mode1));
+        output.push_back(load(next(), mode1));
       } break;
       case Op::jump_if_nonzero:
       case Op::jump_if_zero: {
-        const Int flag{load(memory[ip++], mode1)};
+        const Int flag{load(next(), mode1)};
         if ((flag != 0) == (op == Op::jump_if_nonzero)) {
-          ip = load(memory[ip], mode2);
+          ip = load(next(), mode2);
         } else {
           ip += 1;
         }
