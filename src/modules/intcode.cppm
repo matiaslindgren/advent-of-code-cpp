@@ -47,11 +47,11 @@ class IntCode {
   using Int = long;
 
  private:
-  std::vector<Int> memory;
+  std::unordered_map<Int, Int> memory;
   std::deque<Int> input;
   std::optional<Int> output;
 
-  std::ptrdiff_t ip{}, relbase{};
+  Int ip{}, relbase{};
 
   [[nodiscard]] auto parse_instruction(auto ins) const noexcept {
     std::array<int, 5> d;
@@ -69,7 +69,7 @@ class IntCode {
   }
 
   [[nodiscard]] Int next() {
-    if (0 <= ip and ip < memory.size()) {
+    if (0 <= ip) {
       return load(ip++, Mode::address);
     }
     throw std::runtime_error("instruction pointer is out of bounds");
@@ -77,7 +77,10 @@ class IntCode {
 
  public:
   IntCode() = default;
-  IntCode(std::ranges::input_range auto&& r) : memory(r) {
+  IntCode(std::ranges::input_range auto&& program) {
+    for (auto&& [i, value] : std::views::zip(std::views::iota(0uz), program)) {
+      memory[i] = value;
+    }
   }
 
   [[nodiscard]] Int load(const auto i, const Mode mode) const {
@@ -85,9 +88,9 @@ class IntCode {
       case Mode::immediate:
         return i;
       case Mode::address:
-        return memory.at(i);
+        return memory.contains(i) ? memory.at(i) : 0;
       case Mode::relative_address:
-        return memory.at(i + relbase);
+        return load(i + relbase, Mode::address);
     }
   }
 
@@ -96,9 +99,9 @@ class IntCode {
       case Mode::immediate:
         throw std::runtime_error("cannot store in immediate mode");
       case Mode::address:
-        return (memory.at(i) = value);
+        return (memory[i] = value);
       case Mode::relative_address:
-        return (memory.at(i + relbase) = value);
+        return store(i + relbase, value, Mode::address);
     }
   }
 
@@ -163,9 +166,10 @@ class IntCode {
         }
       } break;
       case Op::update_rel_base: {
+        relbase += load(next(), mode1);
       } break;
       case Op::end: {
-        ip = std::numeric_limits<std::ptrdiff_t>::min();
+        ip = std::numeric_limits<Int>::min();
       } break;
     }
   }
@@ -184,10 +188,6 @@ class IntCode {
     while (not(is_done() or output)) {
       do_step();
     }
-  }
-
-  void dump_memory(std::ostream& os) const {
-    std::ranges::copy(memory, std::ostream_iterator<Int>(os, " "));
   }
 };
 
