@@ -132,6 +132,9 @@ struct Vec2 {
   [[nodiscard]] constexpr Vec2 operator-(const Vec2& rhs) const noexcept {
     return {y - rhs.y, x - rhs.x};
   }
+  [[nodiscard]] constexpr Vec2 operator/(auto d) const noexcept {
+    return {y / d, x / d};
+  }
 
   constexpr Vec2& operator+=(const Vec2& rhs) noexcept {
     y += rhs.y;
@@ -144,6 +147,10 @@ struct Vec2 {
   }
   constexpr void rotate_right() noexcept {
     x = -std::exchange(y, x);
+  }
+
+  [[nodiscard]] constexpr Vec2 abs() const noexcept {
+    return {std::abs(y), std::abs(x)};
   }
 
   [[nodiscard]] constexpr auto distance(const Vec2& rhs) const noexcept {
