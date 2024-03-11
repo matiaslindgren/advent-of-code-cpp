@@ -69,22 +69,16 @@ auto search(Points asteroids) {
     return std::tuple{angle(laser, target), laser.distance(target)};
   });
 
-  std::unordered_set<Vec2> destroyed;
+  int destroyed{};
   double prev_angle{-1};
 
   for (const Vec2& target : asteroids) {
-    if (destroyed.contains(target)) {
-      continue;
-    }
-
     if (auto a{angle(laser, target)}; a == prev_angle) {
       continue;
     } else {
       prev_angle = a;
     }
-
-    destroyed.insert(target);
-    if (destroyed.size() == 200) {
+    if (++destroyed == 200) {
       return std::pair{max_seen, target.x * 100 + target.y};
     }
   }
