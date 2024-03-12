@@ -118,7 +118,7 @@ constexpr Int saturating_add(Int a, Int b) {
     if (b > intmax - a) {
       return intmax;
     }
-  } else if (b < intmax - a) {
+  } else if (b < intmin - a) {
     return intmin;
   }
   return a + b;
