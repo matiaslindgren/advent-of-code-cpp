@@ -294,19 +294,21 @@ using Vec4 = Vec<T, T, T, T>;
 
 }  // namespace aoc
 
-export template <typename T, typename... Ts>
-  requires(std::integral<T> and ... and std::same_as<T, Ts>)
-struct std::hash<aoc::Vec<T, Ts...>> {
-  static constexpr T slot_width{std::numeric_limits<T>::digits / (sizeof...(Ts) + 1)};
-
-  template <std::size_t I = sizeof...(Ts)>
-  constexpr auto operator()(const aoc::Vec<T, Ts...>& v) const noexcept {
-    // TODO remove recur with index_sequence
-    if constexpr (auto x{std::hash<T>{}(std::get<I>(v.elements))}; I == 0) {
-      return x;
-    } else {
-      return (x << (slot_width * I)) | this->operator()<I - 1>(v);
-    }
+export template <typename... Ts>
+  requires(... and std::integral<Ts>)
+struct std::hash<aoc::Vec<Ts...>> {
+  using Vec = aoc::Vec<Ts...>;
+  constexpr auto operator()(const Vec& v) const noexcept {
+    auto slot_width{std::numeric_limits<typename Vec::value_type>::digits / Vec::ndim};
+    return std::invoke(
+        [&]<std::size_t... i>(std::index_sequence<i...>) {
+          return (
+              ...
+              | (std::hash<typename Vec::value_type>{}(std::get<i>(v.elements)) << (slot_width * i))
+          );
+        },
+        std::make_index_sequence<Vec::ndim>{}
+    );
   }
 };
 
