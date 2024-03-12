@@ -124,9 +124,7 @@ constexpr Int saturating_add(Int a, Int b) {
   return a + b;
 }
 
-char as_ascii(std::string aoc_letter) {
-  // given an advent of code ascii art letter in row-major order,
-  // return the corresponding character
+char as_ascii(const std::string& aoc_letter) {
   if (const auto it{aoc_letter_to_ascii.find(aoc_letter)}; it != aoc_letter_to_ascii.end()) {
     return it->second;
   }
