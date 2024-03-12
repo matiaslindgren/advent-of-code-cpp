@@ -258,14 +258,14 @@ struct Vec {
   constexpr Vec& rotate_left() noexcept
     requires(sizeof...(Ts) == 1)
   {
-    y() = std::exchange(x(), -y());
+    x() = std::exchange(y(), -x());
     return *this;
   }
 
   constexpr Vec& rotate_right() noexcept
     requires(sizeof...(Ts) == 1)
   {
-    y() = -std::exchange(x(), y());
+    x() = -std::exchange(y(), x());
     return *this;
   }
 
