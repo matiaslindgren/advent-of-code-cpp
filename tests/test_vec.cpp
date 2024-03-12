@@ -291,26 +291,16 @@ void test_vec4() {
   }
 }
 
+template <typename... Ts>
+void test_vec() {
+  (test_vec1<Ts>(), ...);
+  (test_vec2<Ts>(), ...);
+  (test_vec3<Ts>(), ...);
+  (test_vec4<Ts>(), ...);
+}
+
 int main() {
-  test_vec1<int>();
-  test_vec2<int>();
-  test_vec3<int>();
-  test_vec4<int>();
-
-  test_vec1<float>();
-  test_vec2<float>();
-  test_vec3<float>();
-  test_vec4<float>();
-
-  test_vec1<std::ptrdiff_t>();
-  test_vec2<std::ptrdiff_t>();
-  test_vec3<std::ptrdiff_t>();
-  test_vec4<std::ptrdiff_t>();
-
-  test_vec1<double>();
-  test_vec2<double>();
-  test_vec3<double>();
-  test_vec4<double>();
+  test_vec<int, float, std::ptrdiff_t, double>();
 
   return 0;
 }
