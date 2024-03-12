@@ -136,6 +136,8 @@ template <typename T, typename... Ts>
 struct Vec {
   using value_type = T;
   using container_type = std::tuple<value_type, Ts...>;
+  // TODO
+  // using ndim = (sizeof...(Ts) + 1);
 
   container_type elements;
 
