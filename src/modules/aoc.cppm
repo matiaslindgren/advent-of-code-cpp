@@ -185,23 +185,21 @@ struct Vec {
 
   [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
 
-  template <std::size_t I = ndim - 1, typename BinaryFn>
+  template <typename BinaryFn>
     requires(std::regular_invocable<BinaryFn, value_type, value_type>)
-  constexpr Vec& apply(const Vec& rhs, BinaryFn&& fn) {
-    get<I>() = fn(get<I>(), rhs.get<I>());
-    if constexpr (I) {
-      apply<I - 1, BinaryFn>(rhs, std::forward<BinaryFn>(fn));
-    }
+  constexpr Vec& apply(const Vec& rhs, BinaryFn&& fn) noexcept {
+    [&]<std::size_t... i>(std::index_sequence<i...>) {
+      ((get<i>() = fn(get<i>(), rhs.get<i>())), ...);
+    }(std::make_index_sequence<Vec::ndim>{});
     return *this;
   }
 
-  template <std::size_t I = ndim - 1, typename UnaryFn>
+  template <typename UnaryFn>
     requires(std::regular_invocable<UnaryFn, value_type>)
-  constexpr Vec& apply(UnaryFn&& fn) {
-    get<I>() = fn(get<I>());
-    if constexpr (I) {
-      apply<I - 1, UnaryFn>(std::forward<UnaryFn>(fn));
-    }
+  constexpr Vec& apply(UnaryFn&& fn) noexcept {
+    [&]<std::size_t... i>(std::index_sequence<i...>) {
+      ((get<i>() = fn(get<i>())), ...);
+    }(std::make_index_sequence<Vec::ndim>{});
     return *this;
   }
 
@@ -298,30 +296,28 @@ export template <typename... Ts>
   requires(... and std::integral<Ts>)
 struct std::hash<aoc::Vec<Ts...>> {
   using Vec = aoc::Vec<Ts...>;
+  using T = Vec::value_type;
+  static constexpr auto slot_width{std::numeric_limits<T>::digits / Vec::ndim};
+
   constexpr auto operator()(const Vec& v) const noexcept {
-    auto slot_width{std::numeric_limits<typename Vec::value_type>::digits / Vec::ndim};
-    return std::invoke(
-        [&]<std::size_t... i>(std::index_sequence<i...>) {
-          return (
-              ...
-              | (std::hash<typename Vec::value_type>{}(std::get<i>(v.elements)) << (slot_width * i))
-          );
-        },
-        std::make_index_sequence<Vec::ndim>{}
-    );
+    return [&]<std::size_t... i>(std::index_sequence<i...>) {
+      return (... | (std::hash<T>{}(std::get<i>(v.elements)) << (slot_width * i)));
+    }(std::make_index_sequence<Vec::ndim>{});
   }
 };
 
 export template <std::formattable<char>... Ts>
 struct std::formatter<aoc::Vec<Ts...>, char> {
+  using Vec = aoc::Vec<Ts...>;
+
   template <typename ParseContext>
   constexpr auto parse(ParseContext& ctx) {
     return ctx.begin();
   }
 
   template <typename FormatContext>
-  auto format(const aoc::Vec<Ts...>& v, FormatContext& ctx) const {
-    return std::format_to(ctx.out(), "Vec{}{}", sizeof...(Ts), v.elements);
+  auto format(const Vec& v, FormatContext& ctx) const {
+    return std::format_to(ctx.out(), "Vec{}{}", Vec::ndim, v.elements);
   }
 };
 
@@ -332,16 +328,16 @@ std::ostream& operator<<(std::ostream& os, const aoc::Vec<Ts...>& v) {
 
 export template <typename... Ts>
 std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
-  if (aoc::Vec<Ts...> res; is >> std::get<0>(res.elements)) {
-    std::invoke(
-        [&is, &res]<std::size_t... i>(std::index_sequence<i...>) {
-          ((is >> aoc::skip(","s) >> std::get<i + 1>(res.elements)), ...);
-        },
-        std::make_index_sequence<sizeof...(Ts) - 1>{}
-    );
+  using Vec = aoc::Vec<Ts...>;
+
+  if (Vec res; is >> std::get<0>(res.elements)) {
+    [&]<std::size_t... i>(std::index_sequence<i...>) {
+      ((is >> aoc::skip(","s) >> std::get<i + 1>(res.elements)), ...);
+    }(std::make_index_sequence<Vec::ndim - 1>{});
     if (is) {
       v = res;
     }
   }
+
   return is;
 }
