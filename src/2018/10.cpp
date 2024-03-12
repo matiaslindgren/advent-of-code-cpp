@@ -67,8 +67,7 @@ auto wait_for_message(auto lights) {
     const auto [tl, br]{find_grid_corners(lights)};
     if (br.y() - tl.y() + 1 == 10 and br.x() - tl.x() < 200) {
       const auto msg{
-          extract_chunks(lights, tl, br) | views::transform(aoc::as_ascii)
-          | ranges::to<std::string>()
+          extract_chunks(lights, tl, br) | views::transform(aoc::ocr) | ranges::to<std::string>()
       };
       if (ranges::all_of(msg, [](auto ch) { return ch != ' '; })) {
         return std::pair{msg, t};

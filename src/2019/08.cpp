@@ -27,7 +27,7 @@ auto find_part2(const auto& layers) {
         chunk.push_back(px != px_stack.end() and *px == '1' ? '#' : '.');
       }
     }
-    res.push_back(aoc::as_ascii(chunk));
+    res.push_back(aoc::ocr(chunk));
   }
   return res;
 }

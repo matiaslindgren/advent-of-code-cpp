@@ -126,7 +126,7 @@ std::string decode_ascii(const Screen& screen) {
               ch.push_back(screen[idx] ? '#' : '.');
             }
           }
-          return aoc::as_ascii(ch);
+          return aoc::ocr(ch);
         })
       | ranges::to<std::string>()
   );
