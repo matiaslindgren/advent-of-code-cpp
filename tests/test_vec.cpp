@@ -299,8 +299,41 @@ void test_vec() {
   (test_vec4<Ts>(), ...);
 }
 
+void test_vec_hash() {
+  auto hash{std::hash<int32_t>{}};
+  {
+    aoc::Vec1<int32_t> v(0xabc);
+    assert_equal(std::hash<aoc::Vec1<int32_t>>{}(v), hash(0xabc), "vec1(0xabc) hash");
+  }
+  {
+    aoc::Vec2<int32_t> v(0xabc, 0x123);
+    assert_equal(
+        std::hash<aoc::Vec2<int32_t>>{}(v),
+        (hash(0xabc) << 0) | (hash(0x123) << 15),
+        "vec2(0xabc, 0x123) hash"
+    );
+  }
+  {
+    aoc::Vec3<int32_t> v(0xabc, 0x123, -0xfed);
+    assert_equal(
+        std::hash<aoc::Vec3<int32_t>>{}(v),
+        (hash(0xabc) << 0) | (hash(0x123) << 10) | (hash(-0xfed) << 20),
+        "vec3(0xabc, 0x123, -0xfed) hash"
+    );
+  }
+  {
+    aoc::Vec4<int32_t> v(0xabc, 0x123, 0, -0xfed);
+    assert_equal(
+        std::hash<aoc::Vec4<int32_t>>{}(v),
+        (hash(0xabc) << 0) | (hash(0x123) << 7) | (hash(0) << 14) | (hash(-0xfed) << 21),
+        "vec4(0xabc, 0x123, 0, -0xfed) hash"
+    );
+  }
+}
+
 int main() {
   test_vec<int, float, std::ptrdiff_t, double>();
+  test_vec_hash();
 
   return 0;
 }
