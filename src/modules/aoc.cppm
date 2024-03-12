@@ -326,11 +326,16 @@ struct std::formatter<aoc::Vec<Ts...>, char> {
 };
 
 export template <typename... Ts>
+std::ostream& operator<<(std::ostream& os, const aoc::Vec<Ts...>& v) {
+  return os << std::format("{}", v);
+}
+
+export template <typename... Ts>
 std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
   if (aoc::Vec<Ts...> res; is >> std::get<0>(res.elements)) {
     std::invoke(
-        [&is, &res]<std::size_t... I>(std::index_sequence<I...>) {
-          ((is >> aoc::skip(","s) >> std::get<I + 1>(res.elements)), ...);
+        [&is, &res]<std::size_t... i>(std::index_sequence<i...>) {
+          ((is >> aoc::skip(","s) >> std::get<i + 1>(res.elements)), ...);
         },
         std::make_index_sequence<sizeof...(Ts) - 1>{}
     );
