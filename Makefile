@@ -112,8 +112,13 @@ $(RUN_TOOLS): run_% : $(OUT_DIR)/%
 $(TEST_FILES): $(TEST_OUT_DIR)/%: $(TESTS)/%.cpp $(MOD_OUT_PATHS) | $(TEST_OUT_DIR)/
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT_DIR)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
 
+RUN_TEST_UTILS := $(addprefix run_,$(notdir $(TEST_FILES)))
+
 .PHONY: test_utils
-test_utils: $(TEST_FILES)
+test_utils: $(RUN_TEST_UTILS)
+
+.PHONY: $(RUN_TEST_UTILS)
+$(RUN_TEST_UTILS): run_%: $(TEST_OUT_DIR)/%
 	$<
 
 .SECONDEXPANSION:
