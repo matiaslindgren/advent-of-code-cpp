@@ -8,35 +8,10 @@ using std::operator""s;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Vec4 {
-  int x, y, z, w;
+using Vec4 = aoc::Vec4<int>;
+using Points = std::vector<Vec4>;
 
-  auto operator<=>(const Vec4&) const = default;
-
-  int distance(const Vec4& rhs) const {
-    return std::abs(x - rhs.x) + std::abs(y - rhs.y) + std::abs(z - rhs.z) + std::abs(w - rhs.w);
-  }
-};
-
-template <>
-struct std::hash<Vec4> {
-  std::size_t operator()(const Vec4& v) const noexcept {
-    constexpr int n{10};
-    return (v.x + n) * n * n * n + (v.y + n) * n * n + (v.z + n) * n + v.w + n;
-  }
-};
-
-std::istream& operator>>(std::istream& is, Vec4& vec) {
-  if (Vec4 v; is >> v.x >> skip(","s) >> v.y >> skip(","s) >> v.z >> skip(","s) >> v.w) {
-    vec = v;
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Vec4");
-}
-
-auto find_part1(const auto& points) {
+auto find_part1(const Points& points) {
   auto adjacent{
       views::transform(
           points,
@@ -83,9 +58,20 @@ auto find_part1(const auto& points) {
   return ranges::count(parents, root_sentinel);
 }
 
+Points parse_input(std::string path) {
+  Points points;
+  std::istringstream input{aoc::slurp_file(path)};
+  for (Vec4 v; input >> v;) {
+    points.push_back(v);
+  }
+  if (not input.eof()) {
+    throw std::runtime_error("input parsing failed");
+  }
+  return points;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto points{views::istream<Vec4>(input) | ranges::to<std::vector>()};
+  const auto points{parse_input("/dev/stdin")};
   std::print("{}\n", find_part1(points));
   return 0;
 }

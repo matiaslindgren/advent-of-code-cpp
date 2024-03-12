@@ -24,14 +24,13 @@ std::istream& operator>>(std::istream& is, Move& move) {
   throw std::runtime_error("failed parsing Move");
 }
 
-using aoc::Vec2;
-
+using Vec2 = aoc::Vec2<int>;
 using Path = std::vector<Vec2>;
 using Moves = std::vector<Move>;
 
 Path walk(const Moves& moves) {
   std::vector path{Vec2{}};
-  Vec2 facing{.x = 1};
+  Vec2 facing(1, 0);
   for (const auto& move : moves) {
     switch (move.direction) {
       case Move::Left: {

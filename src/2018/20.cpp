@@ -42,7 +42,7 @@ std::istream& operator>>(std::istream& is, Token& token) {
   throw std::runtime_error("failed parsing Token");
 }
 
-using aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 using Steps = std::vector<std::pair<Vec2, Vec2>>;
 
 auto find_shortest_paths(const Steps& steps) {
@@ -85,16 +85,16 @@ Steps walk(const auto& tokens) {
     steps.emplace_back(p0, p1);
     switch (*token) {
       case Token::north: {
-        q.emplace_back(++token, p1, p1 + Vec2{.y = -1}, branches);
+        q.emplace_back(++token, p1, p1 + Vec2(0, -1), branches);
       } break;
       case Token::east: {
-        q.emplace_back(++token, p1, p1 + Vec2{.x = 1}, branches);
+        q.emplace_back(++token, p1, p1 + Vec2(1, 0), branches);
       } break;
       case Token::south: {
-        q.emplace_back(++token, p1, p1 + Vec2{.y = 1}, branches);
+        q.emplace_back(++token, p1, p1 + Vec2(0, 1), branches);
       } break;
       case Token::west: {
-        q.emplace_back(++token, p1, p1 + Vec2{.x = -1}, branches);
+        q.emplace_back(++token, p1, p1 + Vec2(-1, 0), branches);
       } break;
       case Token::lpar: {
         branches.emplace_back(p0, p1);

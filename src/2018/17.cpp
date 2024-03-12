@@ -2,8 +2,8 @@ import std;
 import aoc;
 import my_std;
 
+using Vec2 = aoc::Vec2<int>;
 using aoc::skip;
-using aoc::Vec2;
 using std::operator""s;
 
 namespace ranges = std::ranges;
@@ -50,7 +50,7 @@ auto count_water(const auto& areas) {
   const auto min_y{min(views::transform(areas, [](auto&& a) { return a.y.lo; }))};
   const auto max_y{max(views::transform(areas, [](auto&& a) { return a.y.hi; }))};
   const auto max_x{max(views::transform(areas, [](auto&& a) { return a.x.hi; }))};
-  const auto index{[=](const Vec2& p) { return p.y * max_x + p.x; }};
+  const auto index{[=](const Vec2& p) { return p.y() * max_x + p.x(); }};
 
   std::unordered_set<int> clay, still, flowing;
   const auto contains{[&index](const auto& set, const Vec2& pos) {
@@ -58,8 +58,8 @@ auto count_water(const auto& areas) {
   }};
 
   for (const auto& area : areas) {
-    for (Vec2 p{.y = area.y.lo}; p.y < area.y.hi; ++p.y) {
-      for (p.x = area.x.lo; p.x < area.x.hi; ++p.x) {
+    for (Vec2 p(0, area.y.lo); p.y() < area.y.hi; ++p.y()) {
+      for (p.x() = area.x.lo; p.x() < area.x.hi; ++p.x()) {
         clay.insert(index(p));
       }
     }
@@ -67,18 +67,18 @@ auto count_water(const auto& areas) {
 
   Vec2 lhs, rhs;
 
-  for (std::vector q{std::pair{Vec2{.y = 1}, Vec2{.x = 500}}}; not q.empty();) {
+  for (std::vector q{std::pair{Vec2(0, 1), Vec2(500, 0)}}; not q.empty();) {
     const auto [dir, pos]{q.back()};
     q.pop_back();
 
     if (contains(clay, pos)) {
-      if (dir.x < 0) {
+      if (dir.x() < 0) {
         lhs = pos;
-      } else if (dir.x > 0) {
+      } else if (dir.x() > 0) {
         rhs = pos;
       }
-      if (lhs.y > 0 and lhs.y == rhs.y) {
-        while (++lhs.x < rhs.x) {
+      if (lhs.y() > 0 and lhs.y() == rhs.y()) {
+        while (++lhs.x() < rhs.x()) {
           still.insert(index(lhs));
         }
         lhs = rhs = Vec2{};
@@ -86,24 +86,24 @@ auto count_water(const auto& areas) {
       continue;
     }
 
-    if (contains(still, pos) or pos.y >= max_y) {
+    if (contains(still, pos) or pos.y() >= max_y) {
       continue;
     }
 
-    if (dir.y) {
+    if (dir.y()) {
       if (not contains(flowing, pos)) {
-        q.emplace_back(Vec2{.x = -1}, pos);
-        q.emplace_back(Vec2{.x = 1}, pos);
+        q.emplace_back(Vec2(-1, 0), pos);
+        q.emplace_back(Vec2(1, 0), pos);
         q.emplace_back(dir, pos + dir);
         flowing.insert(index(pos));
       }
     } else {
-      const auto below{pos + Vec2{.y = 1}};
+      const auto below{pos + Vec2(0, 1)};
       if (contains(clay, below) or contains(still, below)) {
         q.emplace_back(dir, pos + dir);
         flowing.insert(index(pos));
       } else {
-        q.emplace_back(Vec2{.y = 1}, pos);
+        q.emplace_back(Vec2(0, 1), pos);
       }
     }
   }

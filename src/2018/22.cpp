@@ -5,7 +5,7 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 
 auto parse_input(std::string path) {
   using aoc::skip;
@@ -15,7 +15,7 @@ auto parse_input(std::string path) {
   if (int depth; is >> skip("depth:"s) >> depth) {
     if (int x, y; is >> std::ws >> skip("target:"s) >> x >> skip(","s) >> y) {
       if (is or is.eof()) {
-        return std::pair{depth, Vec2{.y = y, .x = x}};
+        return std::pair{depth, Vec2(x, y)};
       }
     }
   }
@@ -29,23 +29,22 @@ auto get_erosion(const auto depth, const Vec2& target, const Vec2& p) {
     return it->second;
   }
   long index;
-  if ((p.x == 0 and p.y == 0) or p == target) {
+  if ((p.x() == 0 and p.y() == 0) or p == target) {
     index = 0;
-  } else if (p.x == 0) {
-    index = p.y * 48'271;
-  } else if (p.y == 0) {
-    index = p.x * 16'807;
+  } else if (p.x() == 0) {
+    index = p.y() * 48'271;
+  } else if (p.y() == 0) {
+    index = p.x() * 16'807;
   } else {
-    index = get_erosion(depth, target, p - Vec2{.y = 1})
-            * get_erosion(depth, target, p - Vec2{.x = 1});
+    index = get_erosion(depth, target, p - Vec2(0, 1)) * get_erosion(depth, target, p - Vec2(1, 0));
   }
   return (erosion[p] = (index + depth) % 20183);
 }
 
 auto find_part1(const auto depth, const Vec2 target) {
   int risk{};
-  for (Vec2 p{}; p.y <= target.y; ++p.y) {
-    for (p.x = 0; p.x <= target.x; ++p.x) {
+  for (Vec2 p{}; p.y() <= target.y(); ++p.y()) {
+    for (p.x() = 0; p.x() <= target.x(); ++p.x()) {
       risk += get_erosion(depth, target, p) % 3;
     }
   }
@@ -97,7 +96,7 @@ auto find_part2(const auto depth, const Vec2 target) {
     if (s == end) {
       break;
     }
-    if (s.pos.y < 0 or s.pos.x < 0) {
+    if (s.pos.y() < 0 or s.pos.x() < 0) {
       continue;
     }
     if (auto&& [_, unseen]{visited.insert(s)}; not unseen) {

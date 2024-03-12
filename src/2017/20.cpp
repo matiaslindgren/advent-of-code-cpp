@@ -5,33 +5,18 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Vec3 {
-  long x{}, y{}, z{};
-
-  Vec3 operator+(const Vec3& rhs) const {
-    return {x + rhs.x, y + rhs.y, z + rhs.z};
-  }
-  Vec3 operator-(const Vec3& rhs) const {
-    return {x - rhs.x, y - rhs.y, z - rhs.z};
-  }
-  Vec3 operator*(const auto a) const {
-    return {a * x, a * y, a * z};
-  }
-  auto operator<=>(const Vec3&) const = default;
-};
+using Vec3 = aoc::Vec3<long>;
 
 struct Particle {
   Vec3 p, v, a;
   int id;
 
-  long distance_to_center() const {
-    return std::abs(p.x) + std::abs(p.y) + std::abs(p.z);
-  }
-
   Particle at_time(const auto t) const {
+    Vec3 t1(t, t, t);
+    Vec3 t2(t1 * t1);
     return {
-        p + v * t + a * t * t,
-        v + a * t,
+        p + v * t1 + a * t2,
+        v + a * t1,
         a,
     };
   }
@@ -40,21 +25,11 @@ struct Particle {
 using aoc::skip;
 using std::operator""s;
 
-std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (long x, y, z; is >> skip("<"s) >> x >> skip(","s) >> y >> skip(","s) >> z >> skip(">"s)) {
-    v = {x, y, z};
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Vec3");
-}
-
 std::istream& operator>>(std::istream& is, Particle& particle) {
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
-    if (Vec3 p, v, a; ls >> std::ws >> skip("p="s) >> p >> skip(","s) >> std::ws >> skip("v="s) >> v
-                      >> skip(","s) >> std::ws >> skip("a="s) >> a) {
+    if (Vec3 p, v, a; ls >> std::ws >> skip("p=<"s) >> p >> skip(">,"s) >> std::ws >> skip("v=<"s)
+                      >> v >> skip(">,"s) >> std::ws >> skip("a=<"s) >> a >> skip(">"s)) {
       particle = {p, v, a};
     }
   }
@@ -83,7 +58,7 @@ std::pair<long, long> solve_quadratic(const auto a, const auto b, const auto c) 
 
 auto find_part1(const auto& particles) {
   const auto closest{ranges::min_element(particles, ranges::less{}, [](const auto& particle) {
-    return particle.at_time(10'000'000).distance_to_center();
+    return particle.at_time(10'000'000).p.distance(Vec3{});
   })};
   if (closest != particles.end()) {
     return closest->id;
@@ -99,11 +74,11 @@ auto find_part2(const auto& particles) {
       continue;
     }
     const auto a{p1.a - p2.a};
-    const auto b{(p1.v - p2.v) * 2 + a};
-    const auto c{(p1.p - p2.p) * 2};
-    const auto [tx0, tx1] = solve_quadratic(a.x, b.x, c.x);
-    const auto [ty0, ty1] = solve_quadratic(a.y, b.y, c.y);
-    const auto [tz0, tz1] = solve_quadratic(a.z, b.z, c.z);
+    const auto b{(p1.v - p2.v) * Vec3(2, 2, 2) + a};
+    const auto c{(p1.p - p2.p) * Vec3(2, 2, 2)};
+    const auto [tx0, tx1] = solve_quadratic(a.x(), b.x(), c.x());
+    const auto [ty0, ty1] = solve_quadratic(a.y(), b.y(), c.y());
+    const auto [tz0, tz1] = solve_quadratic(a.z(), b.z(), c.z());
     if (tx0 >= 0 and tx0 == ty0 and ty0 == tz0) {
       collisions[tx0].emplace_back(p1.id, p2.id);
     }

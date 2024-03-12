@@ -5,22 +5,16 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Vec3 {
-  int x, y, z;
-
-  Vec3 operator+(const auto a) const {
-    return {x + a, y + a, z + a};
-  }
-};
+using Vec3 = aoc::Vec3<int>;
 
 struct Brick {
   Vec3 begin, end;
   std::size_t index{};
 
   bool intersects(const Brick& rhs) const {
-    const auto x{begin.x < rhs.end.x and rhs.begin.x < end.x};
-    const auto y{begin.y < rhs.end.y and rhs.begin.y < end.y};
-    const auto z{begin.z < rhs.end.z and rhs.begin.z < end.z};
+    const auto x{begin.x() < rhs.end.x() and rhs.begin.x() < end.x()};
+    const auto y{begin.y() < rhs.end.y() and rhs.begin.y() < end.y()};
+    const auto z{begin.z() < rhs.end.z() and rhs.begin.z() < end.z()};
     return x and y and z;
   }
 };
@@ -35,7 +29,7 @@ struct SupportGraph {
 
   explicit SupportGraph(const Bricks& input)
       : bricks{input}, supporting(input.size()), supported_by(input.size()) {
-    ranges::sort(bricks, ranges::less{}, [](const auto& b) { return b.begin.z; });
+    ranges::sort(bricks, ranges::less{}, [](const auto& b) { return b.begin.z(); });
 
     auto brick_count{0uz};
     for (auto curr{bricks.begin()}; curr != bricks.end(); ++curr) {
@@ -44,10 +38,10 @@ struct SupportGraph {
       auto b1{*curr};
       const auto intersects_b1{[&b1](const auto& b2) { return b1.intersects(b2); }};
 
-      while (b1.begin.z > 0 and not ranges::any_of(bricks.begin(), curr, intersects_b1)) {
+      while (b1.begin.z() > 0 and not ranges::any_of(bricks.begin(), curr, intersects_b1)) {
         *curr = b1;
-        b1.begin.z -= 1;
-        b1.end.z -= 1;
+        b1.begin.z() -= 1;
+        b1.end.z() -= 1;
       }
 
       for (const auto& b2 : ranges::subrange(bricks.begin(), curr) | views::filter(intersects_b1)) {
@@ -58,22 +52,13 @@ struct SupportGraph {
   }
 };
 
-using aoc::skip;
-using std::operator""s;
-
-std::istream& operator>>(std::istream& is, Vec3& v) {
-  if (int x, y, z; is >> x >> skip(","s) >> y >> skip(","s) >> z) {
-    v = {x, y, z};
-    return is;
-  }
-  throw std::runtime_error("failed parsing Vec3");
-}
-
 std::istream& operator>>(std::istream& is, Brick& brick) {
+  using aoc::skip;
+  using std::operator""s;
   if (std::string line; std::getline(is, line)) {
     std::stringstream ls{line};
     if (Vec3 begin, end; ls >> begin >> skip("~"s) >> end) {
-      brick = {begin, end + 1};
+      brick = {begin, end + Vec3(1, 1, 1)};
       return is;
     }
   }

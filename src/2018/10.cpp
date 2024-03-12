@@ -5,7 +5,7 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 
 struct Light {
   Vec2 p, v;
@@ -31,23 +31,23 @@ constexpr auto intmax{std::numeric_limits<int>::max()};
 auto find_grid_corners(const auto& lights) {
   return my_std::ranges::fold_left(
       lights,
-      std::pair{Vec2{intmax, intmax}, Vec2{intmin, intmin}},
+      std::pair{Vec2(intmax, intmax), Vec2(intmin, intmin)},
       [](const auto& corners, const auto& l) {
         auto [tl, br] = corners;
         return std::pair{
-            Vec2{std::min(tl.y, l.p.y), std::min(tl.x, l.p.x)},
-            Vec2{std::max(br.y, l.p.y), std::max(br.x, l.p.x)}
+            Vec2(std::min(tl.x(), l.p.x()), std::min(tl.y(), l.p.y())),
+            Vec2(std::max(br.x(), l.p.x()), std::max(br.y(), l.p.y()))
         };
       }
   );
 }
 
 auto extract_chunks(const auto& lights, const auto tl, const auto br) {
-  const auto h{br.y - tl.y + 1};
-  const auto w{br.x - tl.x + 1};
+  const auto h{br.y() - tl.y() + 1};
+  const auto w{br.x() - tl.x() + 1};
   std::string sky(h * w, '.');
   for (const auto& l : lights) {
-    sky[(l.p.y - tl.y) * w + (l.p.x - tl.x)] = '#';
+    sky[(l.p.y() - tl.y()) * w + (l.p.x() - tl.x())] = '#';
   }
 
   std::vector<std::string> chunks;
@@ -65,7 +65,7 @@ auto extract_chunks(const auto& lights, const auto tl, const auto br) {
 auto wait_for_message(auto lights) {
   for (int t{}; t < 1'000'000; ++t) {
     const auto [tl, br]{find_grid_corners(lights)};
-    if (br.y - tl.y + 1 == 10 and br.x - tl.x < 200) {
+    if (br.y() - tl.y() + 1 == 10 and br.x() - tl.x() < 200) {
       const auto msg{
           extract_chunks(lights, tl, br) | views::transform(aoc::as_ascii)
           | ranges::to<std::string>()

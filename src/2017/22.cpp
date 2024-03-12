@@ -10,7 +10,7 @@ enum struct State {
   flagged,
 };
 
-using aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 
 auto parse_grid(const auto& lines) {
   std::unordered_map<Vec2, State> grid;
@@ -19,17 +19,17 @@ auto parse_grid(const auto& lines) {
   for (int row{}; row < row_count; ++row) {
     for (int col{}; col < col_count; ++col) {
       if (lines[row][col] == '#') {
-        grid[Vec2{row, col}] = State::infected;
+        grid[Vec2(col, row)] = State::infected;
       }
     }
   }
-  const Vec2 begin{row_count / 2, col_count / 2};
+  Vec2 begin(col_count / 2, row_count / 2);
   return std::pair{grid, begin};
 }
 
 auto count_part1(auto grid, Vec2 virus, const auto bursts) {
   int count{};
-  Vec2 dir{.y = -1};
+  Vec2 dir(0, -1);
   for (int b{}; b < bursts; ++b) {
     if (grid.contains(virus)) {
       grid.erase(virus);
@@ -46,7 +46,7 @@ auto count_part1(auto grid, Vec2 virus, const auto bursts) {
 
 auto count_part2(auto grid, Vec2 virus, const auto bursts) {
   int count{};
-  Vec2 dir{.y = -1};
+  Vec2 dir(0, -1);
   for (int b{}; b < bursts; ++b) {
     if (grid.contains(virus)) {
       auto& state{grid.at(virus)};

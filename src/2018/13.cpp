@@ -22,14 +22,14 @@ enum class Turn : int {
   right = 2,
 };
 
-using aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 
 struct Cart {
   Vec2 pos{}, dir{};
   Turn turn{};
 
   std::string pos2str() const {
-    return std::format("{},{}", pos.x - 1, pos.y - 1);
+    return std::format("{},{}", pos.x() - 1, pos.y() - 1);
   }
   auto operator<=>(const Cart&) const = default;
 };
@@ -41,7 +41,7 @@ struct Grid2D {
   explicit Grid2D(const auto h, const auto w) : height{h}, width{w}, tiles(h * w, Tile::empty) {
   }
   auto index(const Vec2& v) const {
-    return v.y * width + v.x;
+    return v.y() * width + v.x();
   }
   // TODO deduce this
   const auto& get_tile(const Vec2& v) const {
@@ -113,13 +113,13 @@ Tile parse_tile(const auto& lines, const auto y, const auto x) {
 Vec2 parse_direction(const char ch) {
   switch (ch) {
     case '>':
-      return {.x = 1};
+      return Vec2(1, 0);
     case 'v':
-      return {.y = 1};
+      return Vec2(0, 1);
     case '<':
-      return {.x = -1};
+      return Vec2(-1, 0);
     case '^':
-      return {.y = -1};
+      return Vec2(0, -1);
   }
   throw std::runtime_error("invalid direction");
 }
@@ -127,17 +127,17 @@ Vec2 parse_direction(const char ch) {
 std::pair<Grid2D, std::vector<Cart>> parse_state(const auto& lines) {
   Grid2D g(lines.size(), lines.front().size());
   std::vector<Cart> carts;
-  for (Vec2 p{.y = 1}; p.y < g.height - 1; ++p.y) {
-    for (p.x = 1; p.x < g.width - 1; ++p.x) {
-      auto tile{parse_tile(lines, p.y, p.x)};
+  for (Vec2 p(0, 1); p.y() < g.height - 1; ++p.y()) {
+    for (p.x() = 1; p.x() < g.width - 1; ++p.x()) {
+      auto tile{parse_tile(lines, p.y(), p.x())};
       if (tile == Tile::cart) {
-        const auto dir{parse_direction(lines[p.y][p.x])};
+        const auto dir{parse_direction(lines[p.y()][p.x()])};
         carts.push_back(Cart{
             .pos = p,
             .dir = dir,
             .turn = Turn::left,
         });
-        tile = dir.y ? Tile::path_vertical : Tile::path_horizontal;
+        tile = dir.y() ? Tile::path_vertical : Tile::path_horizontal;
       }
       g.get_tile(p) = tile;
     }
@@ -152,16 +152,16 @@ Cart turn(const auto& grid, Cart cart) {
       turn = std::exchange(cart.turn, Turn{(std::to_underlying(cart.turn) + 1) % 3});
     } break;
     case Tile::turn_north_east: {
-      turn = cart.dir.x ? Turn::right : Turn::left;
+      turn = cart.dir.x() ? Turn::right : Turn::left;
     } break;
     case Tile::turn_east_south: {
-      turn = cart.dir.y ? Turn::right : Turn::left;
+      turn = cart.dir.y() ? Turn::right : Turn::left;
     } break;
     case Tile::turn_south_west: {
-      turn = cart.dir.x ? Turn::right : Turn::left;
+      turn = cart.dir.x() ? Turn::right : Turn::left;
     } break;
     case Tile::turn_west_north: {
-      turn = cart.dir.y ? Turn::right : Turn::left;
+      turn = cart.dir.y() ? Turn::right : Turn::left;
     } break;
     case Tile::path_vertical:
     case Tile::path_horizontal: {

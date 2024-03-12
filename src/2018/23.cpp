@@ -8,42 +8,7 @@ using std::operator""s;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Vec3 {
-  long x{}, y{}, z{};
-
-  Vec3 operator-(const Vec3& v) const {
-    return {x - v.x, y - v.y, z - v.z};
-  }
-  Vec3 operator+(const Vec3& v) const {
-    return {x + v.x, y + v.y, z + v.z};
-  }
-  Vec3 scale(long p, long q) const {
-    q = std::max(p, q);
-    return {x * p / q, y * p / q, z * p / q};
-  }
-  Vec3 abs() const {
-    return {std::abs(x), std::abs(y), std::abs(z)};
-  }
-  auto max() const {
-    return std::max(std::max(x, y), z);
-  }
-  auto sum() const {
-    return x + y + z;
-  }
-  auto distance(const Vec3& v) const {
-    return (*this - v).abs().sum();
-  }
-};
-
-std::istream& operator>>(std::istream& is, Vec3& vec) {
-  if (Vec3 v; is >> v.x >> skip(","s) >> v.y >> skip(","s) >> v.z) {
-    vec = v;
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Vec3");
-}
+using Vec3 = aoc::Vec3<long>;
 
 struct Bot {
   Vec3 p;

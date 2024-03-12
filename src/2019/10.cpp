@@ -7,7 +7,7 @@ using std::operator""s;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 using Points = std::vector<Vec2>;
 
 Points parse_asteroids(std::istream& is) {
@@ -15,20 +15,20 @@ Points parse_asteroids(std::istream& is) {
   {
     auto width{0uz};
     Vec2 pos;
-    for (std::string line; std::getline(is, line) and not line.empty(); pos.y += 1) {
+    for (std::string line; std::getline(is, line) and not line.empty(); pos.y() += 1) {
       if (not width) {
         width = line.size();
       } else if (line.size() != width) {
         throw std::runtime_error("every line must be of same width");
       }
-      pos.x = 0;
+      pos.x() = 0;
       for (char ch : line) {
         if (ch == '#') {
           asteroids.push_back(pos);
         } else if (ch != '.') {
           throw std::runtime_error("every tile must be . or #");
         }
-        pos.x += 1;
+        pos.x() += 1;
       }
     }
   }
@@ -41,7 +41,7 @@ Points parse_asteroids(std::istream& is) {
 double angle(const Vec2& p1, const Vec2& p2) {
   const auto pi{std::numbers::pi_v<double>};
   const Vec2 d{p1 - p2};
-  double a{std::atan2(d.y, d.x) - pi / 2.0};
+  double a{std::atan2(d.y(), d.x()) - pi / 2.0};
   return a < 0 ? a + 2.0 * pi : a;
 }
 
@@ -54,8 +54,8 @@ auto search(Points asteroids) {
     for (const auto& p2 : asteroids) {
       if (p1 != p2) {
         const Vec2 d{p2 - p1};
-        if (const auto gcd{std::gcd(d.y, d.x)}) {
-          seen.insert(p1 + d / gcd);
+        if (const auto gcd{std::gcd(d.y(), d.x())}) {
+          seen.insert(p1 + d / Vec2(gcd, gcd));
         }
       }
     }
@@ -79,7 +79,7 @@ auto search(Points asteroids) {
       prev_angle = a;
     }
     if (++destroyed == 200) {
-      return std::pair{max_seen, target.x * 100 + target.y};
+      return std::pair{max_seen, target.x() * 100 + target.y()};
     }
   }
 

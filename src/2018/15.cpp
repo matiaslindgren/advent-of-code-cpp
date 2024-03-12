@@ -38,7 +38,7 @@ struct Unit {
 };
 
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
-using aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 
 struct Cave {
   int width{};
@@ -51,7 +51,7 @@ struct Cave {
   }
 
   auto index(const Vec2& p) const {
-    return p.y * width + p.x;
+    return p.y() * width + p.x();
   }
 
   // TODO deducing this
@@ -147,9 +147,9 @@ Cave parse_cave(std::string path) {
   Cave g{};
   std::istringstream is{aoc::slurp_file(path)};
   {
-    Vec2 p{};
+    Vec2 p(0, 0);
     int unit_id{};
-    for (std::string line; std::getline(is, line) and not line.empty(); ++p.y) {
+    for (std::string line; std::getline(is, line) and not line.empty(); ++p.y()) {
       if (not g.width) {
         g.width = line.size();
       } else if (line.size() != g.width) {
@@ -158,7 +158,7 @@ Cave parse_cave(std::string path) {
       }
 
       std::stringstream ls{line};
-      p.x = 0;
+      p.x() = 0;
       for (Tile t : views::istream<Tile>(ls)) {
         g.walls.push_back(t == Tile::wall);
         if (t == Tile::goblin or t == Tile::elf) {
@@ -170,7 +170,7 @@ Cave parse_cave(std::string path) {
           });
           g.state.push_back(p);
         }
-        ++p.x;
+        ++p.x();
       }
 
       if (not ls.eof()) {
@@ -188,7 +188,7 @@ Cave parse_cave(std::string path) {
 std::optional<int> simulate(Cave cave, const bool is_part2 = false) {
   const auto unit_priority{[&cave](const Unit& u) {
     const auto& pos{cave.get_pos(u)};
-    return std::tuple{pos.y, pos.x};
+    return std::tuple{pos.y(), pos.x()};
   }};
 
   const auto target_priority{[&unit_priority](const Unit& u) {

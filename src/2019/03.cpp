@@ -8,7 +8,7 @@ using std::operator""s;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec2 = aoc::Vec2;
+using Vec2 = aoc::Vec2<int>;
 using Mark = std::pair<int, int>;
 
 constexpr auto intmax{std::numeric_limits<int>::max()};
@@ -23,16 +23,16 @@ std::istream& operator>>(std::istream& is, Step& step) {
     Vec2 dir;
     switch (ch) {
       case 'U': {
-        dir = {.y = -1};
+        dir = Vec2(0, -1);
       } break;
       case 'R': {
-        dir = {.x = 1};
+        dir = Vec2(1, 0);
       } break;
       case 'D': {
-        dir = {.y = 1};
+        dir = Vec2(0, 1);
       } break;
       case 'L': {
-        dir = {.x = -1};
+        dir = Vec2(-1, 0);
       } break;
       default: {
         is.setstate(std::ios_base::failbit);
