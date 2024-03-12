@@ -133,68 +133,203 @@ char as_ascii(std::string aoc_letter) {
   return ' ';
 }
 
-struct Vec2 {
-  int y{}, x{};
+template <typename T, typename... Ts>
+  requires(std::is_arithmetic_v<T> and ... and std::same_as<T, Ts>)
+struct Vec {
+  using value_type = T;
+  using container_type = std::tuple<value_type, Ts...>;
 
-  [[nodiscard]] constexpr auto operator<=>(const Vec2&) const = default;
+  container_type elements;
 
-  [[nodiscard]] constexpr Vec2 operator+(const Vec2& rhs) const noexcept {
-    return {y + rhs.y, x + rhs.x};
-  }
-  [[nodiscard]] constexpr Vec2 operator-(const Vec2& rhs) const noexcept {
-    return {y - rhs.y, x - rhs.x};
-  }
-  [[nodiscard]] constexpr Vec2 operator/(auto d) const noexcept {
-    return {y / d, x / d};
+  constexpr Vec() = default;
+
+  constexpr explicit Vec(T x, Ts... rest) : elements(std::make_tuple(x, rest...)) {
   }
 
-  constexpr Vec2& operator+=(const Vec2& rhs) noexcept {
-    y += rhs.y;
-    x += rhs.x;
+  // TODO deducing this
+  template <std::size_t I>
+    requires(I <= sizeof...(Ts))
+  constexpr value_type& get() noexcept {
+    return std::get<I>(elements);
+  }
+  template <std::size_t I>
+    requires(I <= sizeof...(Ts))
+  constexpr const value_type& get() const noexcept {
+    return std::get<I>(elements);
+  }
+
+  // TODO deducing this
+  constexpr value_type& x() noexcept {
+    return get<0>();
+  }
+  constexpr value_type& y() noexcept {
+    return get<1>();
+  }
+  constexpr value_type& z() noexcept {
+    return get<2>();
+  }
+  constexpr value_type& w() noexcept {
+    return get<3>();
+  }
+  constexpr const value_type& x() const noexcept {
+    return get<0>();
+  }
+  constexpr const value_type& y() const noexcept {
+    return get<1>();
+  }
+  constexpr const value_type& z() const noexcept {
+    return get<2>();
+  }
+  constexpr const value_type& w() const noexcept {
+    return get<3>();
+  }
+
+  [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
+
+  template <std::size_t I = sizeof...(Ts), typename BinaryFn>
+    requires(std::regular_invocable<BinaryFn, value_type, value_type>)
+  constexpr Vec& apply(const Vec& rhs, BinaryFn&& fn) {
+    get<I>() = fn(get<I>(), rhs.get<I>());
+    if constexpr (I) {
+      apply<I - 1, BinaryFn>(rhs, std::forward<BinaryFn>(fn));
+    }
     return *this;
   }
 
-  constexpr void rotate_left() noexcept {
-    x = std::exchange(y, -x);
-  }
-  constexpr void rotate_right() noexcept {
-    x = -std::exchange(y, x);
-  }
-
-  [[nodiscard]] constexpr Vec2 abs() const noexcept {
-    return {std::abs(y), std::abs(x)};
-  }
-
-  [[nodiscard]] constexpr auto distance(const Vec2& rhs) const noexcept {
-    return std::abs(y - rhs.y) + std::abs(x - rhs.x);
+  template <std::size_t I = sizeof...(Ts), typename UnaryFn>
+    requires(std::regular_invocable<UnaryFn, value_type>)
+  constexpr Vec& apply(UnaryFn&& fn) {
+    get<I>() = fn(get<I>());
+    if constexpr (I) {
+      apply<I - 1, UnaryFn>(std::forward<UnaryFn>(fn));
+    }
+    return *this;
   }
 
+  constexpr Vec& operator+=(const Vec& rhs) noexcept {
+    return apply(rhs, std::plus<value_type>{});
+  }
+
+  constexpr Vec& operator-=(const Vec& rhs) noexcept {
+    return apply(rhs, std::minus<value_type>{});
+  }
+
+  constexpr Vec& operator*=(const Vec& rhs) noexcept {
+    return apply(rhs, std::multiplies<value_type>{});
+  }
+
+  constexpr Vec& operator/=(const Vec& rhs) noexcept {
+    return apply(rhs, std::divides<value_type>{});
+  }
+
+  [[nodiscard]] constexpr Vec operator+(const Vec& rhs) const noexcept {
+    Vec lhs{*this};
+    return lhs += rhs;
+  }
+
+  [[nodiscard]] constexpr Vec operator-(const Vec& rhs) const noexcept {
+    Vec lhs{*this};
+    return lhs -= rhs;
+  }
+
+  [[nodiscard]] constexpr Vec operator*(const Vec& rhs) const noexcept {
+    Vec lhs{*this};
+    return lhs *= rhs;
+  }
+
+  [[nodiscard]] constexpr Vec operator/(const Vec& rhs) const noexcept {
+    Vec lhs{*this};
+    return lhs /= rhs;
+  }
+
+  [[nodiscard]] constexpr Vec abs() const noexcept {
+    Vec res{*this};
+    return res.apply([](auto&& x) noexcept -> value_type { return std::abs(x); });
+  }
+
+  [[nodiscard]] constexpr value_type sum() const noexcept {
+    return std::apply([](auto&&... vs) noexcept -> value_type { return (... + vs); }, elements);
+  }
+
+  [[nodiscard]] constexpr value_type distance(const Vec& rhs) const noexcept {
+    return (*this - rhs).abs().sum();
+  }
+
+  constexpr Vec& rotate_left() noexcept
+    requires(sizeof...(Ts) == 1)
+  {
+    y() = std::exchange(x(), -y());
+    return *this;
+  }
+
+  constexpr Vec& rotate_right() noexcept
+    requires(sizeof...(Ts) == 1)
+  {
+    y() = -std::exchange(x(), y());
+    return *this;
+  }
+
+  /*
   [[nodiscard]] constexpr auto adjacent() const noexcept {
     return std::array{
-        Vec2{y - 1, x},
-        Vec2{y, x - 1},
-        Vec2{y, x + 1},
-        Vec2{y + 1, x},
+        Vec(x() - 1, y()),
+        Vec(x(), y() - 1),
+        Vec(x(), y() + 1),
+        Vec(x() + 1, y()),
     };
   }
+  */
 };
 
-std::istream& operator>>(std::istream& is, Vec2& vec) {
+template <typename T>
+using Vec1 = Vec<T>;
+
+template <typename T>
+using Vec2 = Vec<T, T>;
+
+template <typename T>
+using Vec3 = Vec<T, T, T>;
+
+template <typename T>
+using Vec4 = Vec<T, T, T, T>;
+
+#if 0
+template <typename T>
+std::istream& operator>>(std::istream& is, Vec2<T>& vec) {
   using std::operator""s;
-  if (Vec2 v; is >> v.x >> std::ws and is >> skip(","s) >> v.y) {
-    vec = v;
+  if (T x, y; is >> x >> std::ws and is >> skip(","s) >> y) {
+    vec = Vec2(x, y);
   }
   return is;
 }
+#endif
 
 }  // namespace aoc
 
-template <>
-struct std::hash<aoc::Vec2> {
-  constexpr std::size_t to_unsigned(const int i) const noexcept {
-    return aoc::saturating_add(i, std::numeric_limits<int>::max() / 2);
+template <typename T, typename... Ts>
+  requires(std::integral<T> and ... and std::same_as<T, Ts>)
+struct std::hash<aoc::Vec<T, Ts...>> {
+  static constexpr T width{std::numeric_limits<T>::digits / (sizeof...(Ts) + 1)};
+
+  template <std::size_t I = sizeof...(Ts)>
+  constexpr auto operator()(const aoc::Vec<T, Ts...>& v) const noexcept {
+    if constexpr (auto x{std::hash<T>{}(std::get<I>(v.elements))}; I == 0) {
+      return x;
+    } else {
+      return (x << (width * I)) | this->operator()<I - 1>(v);
+    }
   }
-  constexpr auto operator()(const aoc::Vec2& v) const noexcept {
-    return (to_unsigned(v.y) << std::numeric_limits<int>::digits) | to_unsigned(v.x);
+};
+
+template <std::formattable<char>... Ts>
+struct std::formatter<aoc::Vec<Ts...>, char> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx) {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const aoc::Vec<Ts...>& v, FormatContext& ctx) const {
+    return std::format_to(ctx.out(), "Vec{}{}", sizeof...(Ts), v.elements);
   }
 };
