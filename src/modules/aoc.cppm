@@ -132,7 +132,7 @@ char as_ascii(const std::string& aoc_letter) {
 }
 
 template <typename T, typename... Ts>
-  requires(std::is_arithmetic_v<T> and ... and std::same_as<T, Ts>)
+  requires((std::regular<T> and std::is_arithmetic_v<T>) and ... and std::same_as<T, Ts>)
 struct Vec {
   using value_type = T;
   using container_type = std::tuple<value_type, Ts...>;
@@ -143,7 +143,7 @@ struct Vec {
 
   constexpr Vec() = default;
 
-  constexpr explicit Vec(T x, Ts... rest) : elements(x, rest...) {
+  constexpr explicit Vec(value_type x, Ts... rest) : elements(x, rest...) {
   }
 
   // TODO deducing this
