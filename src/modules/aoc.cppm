@@ -143,7 +143,7 @@ struct Vec {
 
   constexpr Vec() = default;
 
-  constexpr explicit Vec(T x, Ts... rest) : elements(std::make_tuple(x, rest...)) {
+  constexpr explicit Vec(T x, Ts... rest) : elements(x, rest...) {
   }
 
   // TODO deducing this
@@ -293,35 +293,24 @@ using Vec3 = Vec<T, T, T>;
 template <typename T>
 using Vec4 = Vec<T, T, T, T>;
 
-#if 0
-template <typename T>
-std::istream& operator>>(std::istream& is, Vec2<T>& vec) {
-  using std::operator""s;
-  if (T x, y; is >> x >> std::ws and is >> skip(","s) >> y) {
-    vec = Vec2(x, y);
-  }
-  return is;
-}
-#endif
-
 }  // namespace aoc
 
-template <typename T, typename... Ts>
+export template <typename T, typename... Ts>
   requires(std::integral<T> and ... and std::same_as<T, Ts>)
 struct std::hash<aoc::Vec<T, Ts...>> {
-  static constexpr T width{std::numeric_limits<T>::digits / (sizeof...(Ts) + 1)};
+  static constexpr T slot_width{std::numeric_limits<T>::digits / (sizeof...(Ts) + 1)};
 
   template <std::size_t I = sizeof...(Ts)>
   constexpr auto operator()(const aoc::Vec<T, Ts...>& v) const noexcept {
     if constexpr (auto x{std::hash<T>{}(std::get<I>(v.elements))}; I == 0) {
       return x;
     } else {
-      return (x << (width * I)) | this->operator()<I - 1>(v);
+      return (x << (slot_width * I)) | this->operator()<I - 1>(v);
     }
   }
 };
 
-template <std::formattable<char>... Ts>
+export template <std::formattable<char>... Ts>
 struct std::formatter<aoc::Vec<Ts...>, char> {
   template <typename ParseContext>
   constexpr auto parse(ParseContext& ctx) {
@@ -333,3 +322,19 @@ struct std::formatter<aoc::Vec<Ts...>, char> {
     return std::format_to(ctx.out(), "Vec{}{}", sizeof...(Ts), v.elements);
   }
 };
+
+template <std::size_t I = 0, typename... Ts>
+std::istream& parse(std::istream& is, aoc::Vec<Ts...>& v) {
+  if constexpr (I == (sizeof...(Ts))) {
+    return is;
+  } else if constexpr (I == 0) {
+    return parse<I + 1>(is >> std::get<I>(v.elements), v);
+  } else {
+    return parse<I + 1>(is >> aoc::skip(","s) >> std::get<I>(v.elements), v);
+  }
+}
+
+export template <typename... Ts>
+std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
+  return parse(is, v);
+}
