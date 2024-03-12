@@ -302,6 +302,7 @@ struct std::hash<aoc::Vec<T, Ts...>> {
 
   template <std::size_t I = sizeof...(Ts)>
   constexpr auto operator()(const aoc::Vec<T, Ts...>& v) const noexcept {
+    // TODO remove recur with index_sequence
     if constexpr (auto x{std::hash<T>{}(std::get<I>(v.elements))}; I == 0) {
       return x;
     } else {
