@@ -67,6 +67,12 @@ void test_vec1() {
     lhs /= rhs;
     assert_equal(lhs, aoc::Vec1<T>(3), "vec1(-6) / vec1(-2)");
   }
+  {
+    std::istringstream is{"1"};
+    aoc::Vec1<T> v;
+    is >> v;
+    assert_equal(v, aoc::Vec1<T>(1), "parse string 1");
+  }
 }
 
 template <typename T>
@@ -132,6 +138,18 @@ void test_vec2() {
     aoc::Vec2<T> lhs(6, 12), rhs(3, 2);
     lhs /= rhs;
     assert_equal(lhs, aoc::Vec2<T>(2, 6), "vec2(6, 12) / vec2(3, 2)");
+  }
+  {
+    std::istringstream is{"1, 2"};
+    aoc::Vec2<T> v;
+    is >> v;
+    assert_equal(v, aoc::Vec2<T>(1, 2), "parse string 1, 2");
+  }
+  {
+    std::istringstream is{"1,2"};
+    aoc::Vec2<T> v;
+    is >> v;
+    assert_equal(v, aoc::Vec2<T>(1, 2), "parse string 1,2");
   }
 }
 
@@ -208,6 +226,18 @@ void test_vec3() {
     aoc::Vec3<T> lhs(-2, 0, 6), rhs(1, 2, 3);
     lhs /= rhs;
     assert_equal(lhs, aoc::Vec3<T>(-2, 0, 2), "vec3(-2, 0, 2) / vec3(1, 2, 3)");
+  }
+  {
+    std::istringstream is{"1, 2, 3"};
+    aoc::Vec3<T> v;
+    is >> v;
+    assert_equal(v, aoc::Vec3<T>(1, 2, 3), "parse string 1, 2, 3");
+  }
+  {
+    std::istringstream is{"1,2,3"};
+    aoc::Vec3<T> v;
+    is >> v;
+    assert_equal(v, aoc::Vec3<T>(1, 2, 3), "parse string 1,2,3");
   }
 }
 
