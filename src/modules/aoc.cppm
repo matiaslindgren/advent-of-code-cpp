@@ -64,10 +64,20 @@ std::istream& operator>>(std::istream& is, skip<Patterns...>&& s) {
 }
 
 template <typename Int>
-  requires std::integral<Int>
-constexpr auto saturating_add(const Int a, const Int b) {
-  constexpr auto limit{std::numeric_limits<Int>::max()};
-  return (a > limit - b) ? limit : a + b;
+  requires(std::integral<Int>)
+constexpr Int saturating_add(Int a, Int b) {
+  // https://stackoverflow.com/a/17582366/5951112
+  // (2024-03-12)
+  constexpr Int intmin{std::numeric_limits<Int>::min()};
+  constexpr Int intmax{std::numeric_limits<Int>::max()};
+  if (a > 0) {
+    if (b > intmax - a) {
+      return intmax;
+    }
+  } else if (b < intmax - a) {
+    return intmin;
+  }
+  return a + b;
 }
 
 char as_ascii(std::string aoc_letter) {
