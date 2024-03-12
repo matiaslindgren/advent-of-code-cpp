@@ -273,10 +273,10 @@ struct Vec {
     requires(sizeof...(Ts) == 1)
   {
     return std::array{
-        *this - Vec(1, 0),
         *this - Vec(0, 1),
-        *this + Vec(0, 1),
+        *this - Vec(1, 0),
         *this + Vec(1, 0),
+        *this + Vec(0, 1),
     };
   }
 };
