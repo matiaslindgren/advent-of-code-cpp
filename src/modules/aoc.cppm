@@ -136,8 +136,7 @@ template <typename T, typename... Ts>
 struct Vec {
   using value_type = T;
   using container_type = std::tuple<value_type, Ts...>;
-  // TODO
-  // using ndim = (sizeof...(Ts) + 1);
+  static constexpr std::size_t ndim{sizeof...(Ts) + 1};
 
   container_type elements;
 
@@ -148,12 +147,12 @@ struct Vec {
 
   // TODO deducing this
   template <std::size_t I>
-    requires(I <= sizeof...(Ts))
+    requires(I < ndim)
   constexpr value_type& get() noexcept {
     return std::get<I>(elements);
   }
   template <std::size_t I>
-    requires(I <= sizeof...(Ts))
+    requires(I < ndim)
   constexpr const value_type& get() const noexcept {
     return std::get<I>(elements);
   }
@@ -186,7 +185,7 @@ struct Vec {
 
   [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
 
-  template <std::size_t I = sizeof...(Ts), typename BinaryFn>
+  template <std::size_t I = ndim - 1, typename BinaryFn>
     requires(std::regular_invocable<BinaryFn, value_type, value_type>)
   constexpr Vec& apply(const Vec& rhs, BinaryFn&& fn) {
     get<I>() = fn(get<I>(), rhs.get<I>());
@@ -196,7 +195,7 @@ struct Vec {
     return *this;
   }
 
-  template <std::size_t I = sizeof...(Ts), typename UnaryFn>
+  template <std::size_t I = ndim - 1, typename UnaryFn>
     requires(std::regular_invocable<UnaryFn, value_type>)
   constexpr Vec& apply(UnaryFn&& fn) {
     get<I>() = fn(get<I>());
@@ -256,21 +255,21 @@ struct Vec {
   }
 
   constexpr Vec& rotate_left() noexcept
-    requires(sizeof...(Ts) == 1)
+    requires(ndim == 2)
   {
     x() = std::exchange(y(), -x());
     return *this;
   }
 
   constexpr Vec& rotate_right() noexcept
-    requires(sizeof...(Ts) == 1)
+    requires(ndim == 2)
   {
     x() = -std::exchange(y(), x());
     return *this;
   }
 
   [[nodiscard]] constexpr auto adjacent() const noexcept
-    requires(sizeof...(Ts) == 1)
+    requires(ndim == 2)
   {
     return std::array{
         *this - Vec(0, 1),
