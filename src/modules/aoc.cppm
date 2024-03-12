@@ -269,16 +269,16 @@ struct Vec {
     return *this;
   }
 
-  /*
-  [[nodiscard]] constexpr auto adjacent() const noexcept {
+  [[nodiscard]] constexpr auto adjacent() const noexcept
+    requires(sizeof...(Ts) == 1)
+  {
     return std::array{
-        Vec(x() - 1, y()),
-        Vec(x(), y() - 1),
-        Vec(x(), y() + 1),
-        Vec(x() + 1, y()),
+        *this - Vec(1, 0),
+        *this - Vec(0, 1),
+        *this + Vec(0, 1),
+        *this + Vec(1, 0),
     };
   }
-  */
 };
 
 template <typename T>
