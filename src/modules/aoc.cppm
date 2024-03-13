@@ -146,50 +146,36 @@ struct Vec {
   }
 
   // TODO deducing this
-  template <std::size_t I>
-    requires(I < ndim)
+  template <std::size_t axis>
+    requires(axis < ndim)
   constexpr value_type& get() noexcept {
-    return std::get<I>(elements);
+    return std::get<axis>(elements);
   }
-  template <std::size_t I>
-    requires(I < ndim)
+  template <std::size_t axis>
+    requires(axis < ndim)
   constexpr const value_type& get() const noexcept {
-    return std::get<I>(elements);
+    return std::get<axis>(elements);
   }
 
+  // clang-format off
   // TODO deducing this
-  constexpr value_type& x() noexcept {
-    return get<0>();
-  }
-  constexpr value_type& y() noexcept {
-    return get<1>();
-  }
-  constexpr value_type& z() noexcept {
-    return get<2>();
-  }
-  constexpr value_type& w() noexcept {
-    return get<3>();
-  }
-  constexpr const value_type& x() const noexcept {
-    return get<0>();
-  }
-  constexpr const value_type& y() const noexcept {
-    return get<1>();
-  }
-  constexpr const value_type& z() const noexcept {
-    return get<2>();
-  }
-  constexpr const value_type& w() const noexcept {
-    return get<3>();
-  }
+  constexpr value_type& x() noexcept { return get<0>(); }
+  constexpr value_type& y() noexcept { return get<1>(); }
+  constexpr value_type& z() noexcept { return get<2>(); }
+  constexpr value_type& w() noexcept { return get<3>(); }
+  constexpr const value_type& x() const noexcept { return get<0>(); }
+  constexpr const value_type& y() const noexcept { return get<1>(); }
+  constexpr const value_type& z() const noexcept { return get<2>(); }
+  constexpr const value_type& w() const noexcept { return get<3>(); }
+  // clang-format on
 
   [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
 
   template <typename BinaryFn>
     requires(std::regular_invocable<BinaryFn, value_type, value_type>)
   constexpr Vec& apply(const Vec& rhs, BinaryFn&& fn) noexcept {
-    [&]<std::size_t... i>(std::index_sequence<i...>) {
-      ((get<i>() = fn(get<i>(), rhs.get<i>())), ...);
+    [&]<std::size_t... axis>(std::index_sequence<axis...>) {
+      ((get<axis>() = fn(get<axis>(), rhs.get<axis>())), ...);
     }(std::make_index_sequence<Vec::ndim>{});
     return *this;
   }
@@ -197,43 +183,31 @@ struct Vec {
   template <typename UnaryFn>
     requires(std::regular_invocable<UnaryFn, value_type>)
   constexpr Vec& apply(UnaryFn&& fn) noexcept {
-    [&]<std::size_t... i>(std::index_sequence<i...>) {
-      ((get<i>() = fn(get<i>())), ...);
+    [&]<std::size_t... axis>(std::index_sequence<axis...>) {
+      ((get<axis>() = fn(get<axis>())), ...);
     }(std::make_index_sequence<Vec::ndim>{});
     return *this;
   }
 
-  constexpr Vec& operator+=(const Vec& rhs) noexcept {
-    return apply(rhs, std::plus<value_type>{});
-  }
-
-  constexpr Vec& operator-=(const Vec& rhs) noexcept {
-    return apply(rhs, std::minus<value_type>{});
-  }
-
-  constexpr Vec& operator*=(const Vec& rhs) noexcept {
-    return apply(rhs, std::multiplies<value_type>{});
-  }
-
-  constexpr Vec& operator/=(const Vec& rhs) noexcept {
-    return apply(rhs, std::divides<value_type>{});
-  }
+  // clang-format off
+  constexpr Vec& operator+=(const Vec& rhs) noexcept { return apply(rhs, std::plus<value_type>{}); }
+  constexpr Vec& operator-=(const Vec& rhs) noexcept { return apply(rhs, std::minus<value_type>{}); }
+  constexpr Vec& operator*=(const Vec& rhs) noexcept { return apply(rhs, std::multiplies<value_type>{}); }
+  constexpr Vec& operator/=(const Vec& rhs) noexcept { return apply(rhs, std::divides<value_type>{}); }
+  // clang-format on
 
   [[nodiscard]] constexpr Vec operator+(const Vec& rhs) const noexcept {
     Vec lhs{*this};
     return lhs += rhs;
   }
-
   [[nodiscard]] constexpr Vec operator-(const Vec& rhs) const noexcept {
     Vec lhs{*this};
     return lhs -= rhs;
   }
-
   [[nodiscard]] constexpr Vec operator*(const Vec& rhs) const noexcept {
     Vec lhs{*this};
     return lhs *= rhs;
   }
-
   [[nodiscard]] constexpr Vec operator/(const Vec& rhs) const noexcept {
     Vec lhs{*this};
     return lhs /= rhs;
@@ -307,8 +281,8 @@ struct std::hash<aoc::Vec<Ts...>> {
   static constexpr auto slot_width{std::numeric_limits<std::size_t>::digits / Vec::ndim};
 
   constexpr auto operator()(const Vec& v) const noexcept {
-    return [&]<std::size_t... i>(std::index_sequence<i...>) {
-      return (... | (std::hash<T>{}(std::get<i>(v.elements)) << (slot_width * i)));
+    return [&]<std::size_t... axis>(std::index_sequence<axis...>) {
+      return (... | (std::hash<T>{}(std::get<axis>(v.elements)) << (slot_width * axis)));
     }(std::make_index_sequence<Vec::ndim>{});
   }
 };
@@ -338,8 +312,8 @@ std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
   using Vec = aoc::Vec<Ts...>;
 
   if (Vec res; is >> std::get<0>(res.elements)) {
-    [&]<std::size_t... i>(std::index_sequence<i...>) {
-      ((is >> aoc::skip(","s) >> std::get<i + 1>(res.elements)), ...);
+    [&]<std::size_t... axis>(std::index_sequence<axis...>) {
+      ((is >> aoc::skip(","s) >> std::get<axis + 1>(res.elements)), ...);
     }(std::make_index_sequence<Vec::ndim - 1>{});
     if (is) {
       v = res;
