@@ -241,7 +241,14 @@ struct Vec {
 
   [[nodiscard]] constexpr Vec abs() const noexcept {
     Vec res{*this};
-    return res.apply([](auto&& x) noexcept -> value_type { return std::abs(x); });
+    return res.apply([](auto&& val) noexcept -> value_type { return std::abs(val); });
+  }
+
+  [[nodiscard]] constexpr Vec signum() const noexcept {
+    Vec res{*this};
+    return res.apply([](auto&& val) noexcept -> value_type {
+      return (value_type{} < val) - (val < value_type{});
+    });
   }
 
   [[nodiscard]] constexpr value_type sum() const noexcept {
