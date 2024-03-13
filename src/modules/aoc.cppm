@@ -171,22 +171,31 @@ struct Vec {
 
   [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
 
-  template <typename BinaryFn>
-    requires(std::regular_invocable<BinaryFn, value_type, value_type>)
-  constexpr Vec& apply(const Vec& rhs, BinaryFn&& fn) noexcept {
-    [&]<std::size_t... axis>(std::index_sequence<axis...>) {
-      ((get<axis>() = fn(get<axis>(), rhs.get<axis>())), ...);
-    }(std::make_index_sequence<Vec::ndim>{});
+ private:
+  // TODO merge with unary impl, do nested fold on rhs and axis?
+  template <typename BinaryFn, std::size_t... axis>
+    requires(std::regular_invocable<BinaryFn, value_type, value_type> and ... and (axis < ndim))
+  constexpr Vec& apply_impl(const Vec& rhs, BinaryFn&& fn, std::index_sequence<axis...>) noexcept {
+    ((get<axis>() = fn(get<axis>(), rhs.get<axis>())), ...);
     return *this;
   }
 
-  template <typename UnaryFn>
-    requires(std::regular_invocable<UnaryFn, value_type>)
-  constexpr Vec& apply(UnaryFn&& fn) noexcept {
-    [&]<std::size_t... axis>(std::index_sequence<axis...>) {
-      ((get<axis>() = fn(get<axis>())), ...);
-    }(std::make_index_sequence<Vec::ndim>{});
+  template <typename UnaryFn, std::size_t... axis>
+    requires(std::regular_invocable<UnaryFn, value_type> and ... and (axis < ndim))
+  constexpr Vec& apply_impl(UnaryFn&& fn, std::index_sequence<axis...>) noexcept {
+    ((get<axis>() = fn(get<axis>())), ...);
     return *this;
+  }
+
+ public:
+  template <typename Fn>
+  constexpr Vec& apply(const Vec& rhs, Fn&& fn) noexcept {
+    return apply_impl(rhs, fn, std::make_index_sequence<Vec::ndim>{});
+  }
+
+  template <typename Fn>
+  constexpr Vec& apply(Fn&& fn) noexcept {
+    return apply_impl(fn, std::make_index_sequence<Vec::ndim>{});
   }
 
   // clang-format off
