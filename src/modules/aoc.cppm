@@ -304,7 +304,7 @@ export template <typename... Ts>
 struct std::hash<aoc::Vec<Ts...>> {
   using Vec = aoc::Vec<Ts...>;
   using T = Vec::value_type;
-  static constexpr auto slot_width{std::numeric_limits<T>::digits / Vec::ndim};
+  static constexpr auto slot_width{std::numeric_limits<std::size_t>::digits / Vec::ndim};
 
   constexpr auto operator()(const Vec& v) const noexcept {
     return [&]<std::size_t... i>(std::index_sequence<i...>) {

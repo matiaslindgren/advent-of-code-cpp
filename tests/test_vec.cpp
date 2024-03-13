@@ -300,32 +300,34 @@ void test_vec() {
 }
 
 void test_vec_hash() {
-  auto hash{std::hash<int32_t>{}};
+  auto hash{std::hash<int>{}};
+  auto width{std::numeric_limits<std::size_t>::digits};
   {
-    aoc::Vec1<int32_t> v(0xabc);
-    assert_equal(std::hash<aoc::Vec1<int32_t>>{}(v), hash(0xabc), "vec1(0xabc) hash");
+    aoc::Vec1<int> v(0xabc);
+    assert_equal(std::hash<aoc::Vec1<int>>{}(v), hash(0xabc), "vec1(0xabc) hash");
   }
   {
-    aoc::Vec2<int32_t> v(0xabc, 0x123);
+    aoc::Vec2<int> v(0xabc, 0x123);
     assert_equal(
-        std::hash<aoc::Vec2<int32_t>>{}(v),
-        (hash(0xabc) << 0) | (hash(0x123) << 15),
+        std::hash<aoc::Vec2<int>>{}(v),
+        (hash(0xabc) << 0) | (hash(0x123) << (width / 2)),
         "vec2(0xabc, 0x123) hash"
     );
   }
   {
-    aoc::Vec3<int32_t> v(0xabc, 0x123, -0xfed);
+    aoc::Vec3<int> v(0xabc, 0x123, -0xfed);
     assert_equal(
-        std::hash<aoc::Vec3<int32_t>>{}(v),
-        (hash(0xabc) << 0) | (hash(0x123) << 10) | (hash(-0xfed) << 20),
+        std::hash<aoc::Vec3<int>>{}(v),
+        (hash(0xabc) << 0) | (hash(0x123) << (width / 3)) | (hash(-0xfed) << ((2 * (width / 3)))),
         "vec3(0xabc, 0x123, -0xfed) hash"
     );
   }
   {
-    aoc::Vec4<int32_t> v(0xabc, 0x123, 0, -0xfed);
+    aoc::Vec4<int> v(0xabc, 0x123, 0, -0xfed);
     assert_equal(
-        std::hash<aoc::Vec4<int32_t>>{}(v),
-        (hash(0xabc) << 0) | (hash(0x123) << 7) | (hash(0) << 14) | (hash(-0xfed) << 21),
+        std::hash<aoc::Vec4<int>>{}(v),
+        (hash(0xabc) << 0) | (hash(0x123) << (width / 4)) | (hash(0) << (2 * (width / 4)))
+            | (hash(-0xfed) << (3 * (width / 4))),
         "vec4(0xabc, 0x123, 0, -0xfed) hash"
     );
   }
