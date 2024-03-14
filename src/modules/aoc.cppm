@@ -131,14 +131,20 @@ char ocr(const std::string& aoc_letter) {
   return ' ';
 }
 
+template <typename Fn, typename T>
+concept unary_function = std::regular_invocable<Fn, T>;
+
+template <typename Fn, typename T>
+concept binary_function = std::regular_invocable<Fn, T, T>;
+
 template <typename T, typename... Ts>
   requires((std::regular<T> and std::is_arithmetic_v<T>) and ... and std::same_as<T, Ts>)
 struct Vec {
-  using value_type = T;
-  using container_type = std::tuple<value_type, Ts...>;
   static constexpr std::size_t ndim{sizeof...(Ts) + 1};
+  std::tuple<T, Ts...> elements;
 
-  container_type elements;
+  using value_type = T;
+  using axes_indices = std::make_index_sequence<ndim>;
 
   constexpr Vec() = default;
 
@@ -172,37 +178,37 @@ struct Vec {
   [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
 
  private:
-  // TODO merge with unary impl, do nested fold on rhs and axis?
-  template <typename BinaryFn, std::size_t... axis>
-    requires(std::regular_invocable<BinaryFn, value_type, value_type> and ... and (axis < ndim))
-  constexpr Vec& apply_impl(const Vec& rhs, BinaryFn&& fn, std::index_sequence<axis...>) noexcept {
-    ((get<axis>() = fn(get<axis>(), rhs.get<axis>())), ...);
+  // TODO how to generalize unary and binary impl?
+  template <unary_function<value_type> Fn, std::size_t... axes>
+    requires(... and (axes < ndim))
+  constexpr Vec& apply_impl(Fn&& fn, std::index_sequence<axes...>) noexcept {
+    ((get<axes>() = fn(get<axes>())), ...);
     return *this;
   }
 
-  template <typename UnaryFn, std::size_t... axis>
-    requires(std::regular_invocable<UnaryFn, value_type> and ... and (axis < ndim))
-  constexpr Vec& apply_impl(UnaryFn&& fn, std::index_sequence<axis...>) noexcept {
-    ((get<axis>() = fn(get<axis>())), ...);
+  template <binary_function<value_type> Fn, std::size_t... axes>
+    requires(... and (axes < ndim))
+  constexpr Vec& apply_impl(Fn&& fn, std::index_sequence<axes...>, const Vec& rhs) noexcept {
+    ((get<axes>() = fn(get<axes>(), rhs.get<axes>())), ...);
     return *this;
   }
 
  public:
-  template <typename Fn>
-  constexpr Vec& apply(const Vec& rhs, Fn&& fn) noexcept {
-    return apply_impl(rhs, fn, std::make_index_sequence<Vec::ndim>{});
+  template <unary_function<value_type> Fn>
+  constexpr Vec& apply(Fn&& fn) noexcept {
+    return apply_impl(std::forward<Fn>(fn), axes_indices{});
   }
 
-  template <typename Fn>
-  constexpr Vec& apply(Fn&& fn) noexcept {
-    return apply_impl(fn, std::make_index_sequence<Vec::ndim>{});
+  template <binary_function<value_type> Fn>
+  constexpr Vec& apply(Fn&& fn, const Vec& rhs) noexcept {
+    return apply_impl(std::forward<Fn>(fn), axes_indices{}, rhs);
   }
 
   // clang-format off
-  constexpr Vec& operator+=(const Vec& rhs) noexcept { return apply(rhs, std::plus<value_type>{}); }
-  constexpr Vec& operator-=(const Vec& rhs) noexcept { return apply(rhs, std::minus<value_type>{}); }
-  constexpr Vec& operator*=(const Vec& rhs) noexcept { return apply(rhs, std::multiplies<value_type>{}); }
-  constexpr Vec& operator/=(const Vec& rhs) noexcept { return apply(rhs, std::divides<value_type>{}); }
+  constexpr Vec& operator+=(const Vec& rhs) noexcept { return apply(std::plus<value_type>{}, rhs); }
+  constexpr Vec& operator-=(const Vec& rhs) noexcept { return apply(std::minus<value_type>{}, rhs); }
+  constexpr Vec& operator*=(const Vec& rhs) noexcept { return apply(std::multiplies<value_type>{}, rhs); }
+  constexpr Vec& operator/=(const Vec& rhs) noexcept { return apply(std::divides<value_type>{}, rhs); }
   // clang-format on
 
   [[nodiscard]] constexpr Vec operator+(const Vec& rhs) const noexcept {
@@ -224,18 +230,21 @@ struct Vec {
 
   [[nodiscard]] constexpr Vec abs() const noexcept {
     Vec res{*this};
-    return res.apply([](auto&& val) noexcept -> value_type { return std::abs(val); });
+    return res.apply([](value_type val) noexcept -> value_type { return std::abs(val); });
   }
 
   [[nodiscard]] constexpr Vec signum() const noexcept {
     Vec res{*this};
-    return res.apply([](auto&& val) noexcept -> value_type {
+    return res.apply([](value_type val) noexcept -> value_type {
       return (value_type{} < val) - (val < value_type{});
     });
   }
 
   [[nodiscard]] constexpr value_type sum() const noexcept {
-    return std::apply([](auto&&... vs) noexcept -> value_type { return (... + vs); }, elements);
+    return std::apply(
+        [](std::same_as<value_type> auto... vs) noexcept -> value_type { return (... + vs); },
+        elements
+    );
   }
 
   [[nodiscard]] constexpr value_type distance(const Vec& rhs) const noexcept {
@@ -289,10 +298,11 @@ struct std::hash<aoc::Vec<Ts...>> {
   using T = Vec::value_type;
   static constexpr auto slot_width{std::numeric_limits<std::size_t>::digits / Vec::ndim};
 
+  template <typename axes = Vec::axes_indices>
   constexpr auto operator()(const Vec& v) const noexcept {
     return [&]<std::size_t... axis>(std::index_sequence<axis...>) {
-      return (... | (std::hash<T>{}(std::get<axis>(v.elements)) << (slot_width * axis)));
-    }(std::make_index_sequence<Vec::ndim>{});
+      return (... | (std::hash<T>{}(v.template get<axis>()) << (slot_width * axis)));
+    }(axes{});
   }
 };
 
@@ -320,9 +330,9 @@ export template <typename... Ts>
 std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
   using Vec = aoc::Vec<Ts...>;
 
-  if (Vec res; is >> std::get<0>(res.elements)) {
+  if (Vec res; is >> res.template get<0>()) {
     [&]<std::size_t... axis>(std::index_sequence<axis...>) {
-      ((is >> aoc::skip(","s) >> std::get<axis + 1>(res.elements)), ...);
+      ((is >> aoc::skip(","s) >> res.template get<axis + 1>()), ...);
     }(std::make_index_sequence<Vec::ndim - 1>{});
     if (is) {
       v = res;
