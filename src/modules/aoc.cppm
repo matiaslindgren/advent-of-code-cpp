@@ -137,8 +137,8 @@ concept unary_function = std::regular_invocable<Fn, T>;
 template <typename Fn, typename T>
 concept binary_function = std::regular_invocable<Fn, T, T>;
 
-template <typename T, typename... Ts>
-  requires((std::regular<T> and std::is_arithmetic_v<T>) and ... and std::same_as<T, Ts>)
+template <typename T, std::same_as<T>... Ts>
+  requires(std::regular<T> and std::is_arithmetic_v<T>)
 struct Vec {
   static constexpr std::size_t ndim{sizeof...(Ts) + 1};
   std::tuple<T, Ts...> elements;
@@ -291,8 +291,7 @@ using Vec4 = Vec<T, T, T, T>;
 
 }  // namespace aoc
 
-export template <typename... Ts>
-  requires(... and std::integral<Ts>)
+export template <std::integral... Ts>
 struct std::hash<aoc::Vec<Ts...>> {
   using Vec = aoc::Vec<Ts...>;
   using T = Vec::value_type;
