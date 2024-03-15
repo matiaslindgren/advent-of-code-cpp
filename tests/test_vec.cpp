@@ -248,12 +248,26 @@ void test_vec3() {
     assert_equal(v.signum(), aoc::Vec3<T>(-1, 1, -1), "Vec3(-1, 2, -3).signum()");
   }
   {
-    aoc::Vec3<T> v();
+    aoc::Vec3<T> v;
     assert_equal(v.sum(), 0, "Vec3().sum()");
   }
   {
     aoc::Vec3<T> v(-1, 2, -3);
     assert_equal(v.sum(), -2, "Vec3(-1, 2, -3).sum()");
+  }
+  {
+    aoc::Vec3<T> v;
+    assert_equal(v.distance(v), 0, "center distance to center");
+  }
+  {
+    aoc::Vec3<T> lhs(-1, 2, -3);
+    assert_equal(lhs.distance(aoc::Vec3<T>()), 6, "Vec3(-1, 2, -3) distance to center");
+    assert_equal(lhs.distance(lhs), 0, "Vec3(-1, 2, -3) distance to self");
+  }
+  {
+    aoc::Vec3<T> lhs(-1, 2, -3);
+    aoc::Vec3<T> rhs(1, 2, 3);
+    assert_equal(lhs.distance(rhs), 8, "Vec3(-1, 2, -3) distance to Vec3(1, 2, 3)");
   }
 }
 
