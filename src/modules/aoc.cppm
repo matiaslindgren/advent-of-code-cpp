@@ -107,8 +107,7 @@ std::istream& operator>>(std::istream& is, skip<Patterns...>&& s) {
   return s.consume(is);
 }
 
-template <typename Int>
-  requires(std::integral<Int>)
+template <std::integral Int>
 constexpr Int saturating_add(Int a, Int b) {
   // https://stackoverflow.com/a/17582366/5951112
   // (2024-03-12)
@@ -178,30 +177,23 @@ struct Vec {
   [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
 
  private:
-  // TODO how to generalize unary and binary impl?
-  template <unary_function<value_type> Fn, std::size_t... axes>
-    requires(... and (axes < ndim))
-  constexpr Vec& apply_impl(Fn&& fn, std::index_sequence<axes...>) noexcept {
-    ((get<axes>() = fn(get<axes>())), ...);
-    return *this;
-  }
-
-  template <binary_function<value_type> Fn, std::size_t... axes>
-    requires(... and (axes < ndim))
-  constexpr Vec& apply_impl(Fn&& fn, std::index_sequence<axes...>, const Vec& rhs) noexcept {
-    ((get<axes>() = fn(get<axes>(), rhs.get<axes>())), ...);
+  template <typename Fn, std::size_t... axes, typename... Args>
+    requires((... and (axes < ndim)) and (... and std::same_as<Vec, std::decay_t<Args>>))
+  constexpr Vec& apply_impl(Fn&& fn, std::index_sequence<axes...>, Args&&... args) noexcept {
+    auto apply_on_axis{[&]<std::size_t axis>() { get<axis>() = fn(args.template get<axis>()...); }};
+    (apply_on_axis.template operator()<axes>(), ...);
     return *this;
   }
 
  public:
   template <unary_function<value_type> Fn>
   constexpr Vec& apply(Fn&& fn) noexcept {
-    return apply_impl(std::forward<Fn>(fn), axes_indices{});
+    return apply_impl(std::forward<Fn>(fn), axes_indices{}, *this);
   }
 
   template <binary_function<value_type> Fn>
   constexpr Vec& apply(Fn&& fn, const Vec& rhs) noexcept {
-    return apply_impl(std::forward<Fn>(fn), axes_indices{}, rhs);
+    return apply_impl(std::forward<Fn>(fn), axes_indices{}, *this, rhs);
   }
 
   // clang-format off
