@@ -5,48 +5,6 @@ export module aoc;
 
 using std::operator""s;
 
-const std::unordered_map<std::string, char> aoc_letter_to_ascii{
-    // 6-pixel character map adapted from
-    // https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
-    // Accessed 2023-11-20
-    {".##.#..##..######..##..#"s, 'A'},
-    {"###.#..####.#..##..####."s, 'B'},
-    {".##.#..##...#...#..#.##."s, 'C'},
-    {"#####...###.#...#...####"s, 'E'},
-    {"#####...###.#...#...#..."s, 'F'},
-    {".##.#..##...#.###..#.###"s, 'G'},
-    {"#..##..######..##..##..#"s, 'H'},
-    {".###..#...#...#...#..###"s, 'I'},
-    {"..##...#...#...##..#.##."s, 'J'},
-    {"#..##.#.##..#.#.#.#.#..#"s, 'K'},
-    {"#...#...#...#...#...####"s, 'L'},
-    {".##.#..##..##..##..#.##."s, 'O'},
-    {"###.#..##..####.#...#..."s, 'P'},
-    {"###.#..##..####.#.#.#..#"s, 'R'},
-    {".####...#....##....####."s, 'S'},
-    {"#..##..##..##..##..#.##."s, 'U'},
-    {"#...#....#.#..#...#...#."s, 'Y'},
-    {"####...#..#..#..#...####"s, 'Z'},
-    // 10-pixel character map adapted from
-    // https://gist.github.com/usbpc/5fa0be48ad7b4b0594b3b8b029bc47b4
-    // Accessed 2024-01-29
-    {"..##...#..#.#....##....##....########....##....##....##....#"s, 'A'},
-    {"#####.#....##....##....######.#....##....##....##....######."s, 'B'},
-    {".####.#....##.....#.....#.....#.....#.....#.....#....#.####."s, 'C'},
-    {"#######.....#.....#.....#####.#.....#.....#.....#.....######"s, 'E'},
-    {"#######.....#.....#.....#####.#.....#.....#.....#.....#....."s, 'F'},
-    {".####.#....##.....#.....#.....#..####....##....##...##.###.#"s, 'G'},
-    {"#....##....##....##....########....##....##....##....##....#"s, 'H'},
-    {"...###....#.....#.....#.....#.....#.....#.#...#.#...#..###.."s, 'J'},
-    {"#....##...#.#..#..#.#...##....##....#.#...#..#..#...#.#....#"s, 'K'},
-    {"#.....#.....#.....#.....#.....#.....#.....#.....#.....######"s, 'L'},
-    {"#....###...###...##.#..##.#..##..#.##..#.##...###...###....#"s, 'N'},
-    {"#####.#....##....##....######.#.....#.....#.....#.....#....."s, 'P'},
-    {"#####.#....##....##....######.#..#..#...#.#...#.#....##....#"s, 'R'},
-    {"#....##....#.#..#..#..#...##....##...#..#..#..#.#....##....#"s, 'X'},
-    {"######.....#.....#....#....#....#....#....#.....#.....######"s, 'Z'},
-};
-
 export namespace aoc {
 
 std::string slurp_file(std::string_view path) {
@@ -123,18 +81,56 @@ constexpr Int saturating_add(Int a, Int b) {
   return a + b;
 }
 
-char ocr(const std::string& aoc_letter) {
-  if (const auto it{aoc_letter_to_ascii.find(aoc_letter)}; it != aoc_letter_to_ascii.end()) {
+constexpr std::array<std::pair<std::string, char>, 33> ocr_letter_rows{
+    // 6-pixel character map adapted from
+    // https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
+    // Accessed 2023-11-20
+    {".##.#..##..######..##..#"s, 'A'},
+    {"###.#..####.#..##..####."s, 'B'},
+    {".##.#..##...#...#..#.##."s, 'C'},
+    {"#####...###.#...#...####"s, 'E'},
+    {"#####...###.#...#...#..."s, 'F'},
+    {".##.#..##...#.###..#.###"s, 'G'},
+    {"#..##..######..##..##..#"s, 'H'},
+    {".###..#...#...#...#..###"s, 'I'},
+    {"..##...#...#...##..#.##."s, 'J'},
+    {"#..##.#.##..#.#.#.#.#..#"s, 'K'},
+    {"#...#...#...#...#...####"s, 'L'},
+    {".##.#..##..##..##..#.##."s, 'O'},
+    {"###.#..##..####.#...#..."s, 'P'},
+    {"###.#..##..####.#.#.#..#"s, 'R'},
+    {".####...#....##....####."s, 'S'},
+    {"#..##..##..##..##..#.##."s, 'U'},
+    {"#...#....#.#..#...#...#."s, 'Y'},
+    {"####...#..#..#..#...####"s, 'Z'},
+    // 10-pixel character map adapted from
+    // https://gist.github.com/usbpc/5fa0be48ad7b4b0594b3b8b029bc47b4
+    // Accessed 2024-01-29
+    {"..##...#..#.#....##....##....########....##....##....##....#"s, 'A'},
+    {"#####.#....##....##....######.#....##....##....##....######."s, 'B'},
+    {".####.#....##.....#.....#.....#.....#.....#.....#....#.####."s, 'C'},
+    {"#######.....#.....#.....#####.#.....#.....#.....#.....######"s, 'E'},
+    {"#######.....#.....#.....#####.#.....#.....#.....#.....#....."s, 'F'},
+    {".####.#....##.....#.....#.....#..####....##....##...##.###.#"s, 'G'},
+    {"#....##....##....##....########....##....##....##....##....#"s, 'H'},
+    {"...###....#.....#.....#.....#.....#.....#.#...#.#...#..###.."s, 'J'},
+    {"#....##...#.#..#..#.#...##....##....#.#...#..#..#...#.#....#"s, 'K'},
+    {"#.....#.....#.....#.....#.....#.....#.....#.....#.....######"s, 'L'},
+    {"#....###...###...##.#..##.#..##..#.##..#.##...###...###....#"s, 'N'},
+    {"#####.#....##....##....######.#.....#.....#.....#.....#....."s, 'P'},
+    {"#####.#....##....##....######.#..#..#...#.#...#.#....##....#"s, 'R'},
+    {"#....##....#.#..#..#..#...##....##...#..#..#..#.#....##....#"s, 'X'},
+    {"######.....#.....#....#....#....#....#....#.....#.....######"s, 'Z'},
+};
+
+constexpr char ocr(std::string_view rows) {
+  if (const auto it{ranges::find_if(ocr_letter_rows, [&rows](auto&& p) { return p.first == rows; })
+      };
+      it != ocr_letter_rows.end()) {
     return it->second;
   }
   return ' ';
 }
-
-template <typename Fn, typename T>
-concept unary_function = std::regular_invocable<Fn, T>;
-
-template <typename Fn, typename T>
-concept binary_function = std::regular_invocable<Fn, T, T>;
 
 template <typename T, std::same_as<T>... Ts>
   requires(std::regular<T> and std::is_arithmetic_v<T>)
@@ -186,14 +182,14 @@ struct Vec {
   }
 
  public:
-  template <unary_function<value_type> Fn>
-  constexpr Vec& apply(Fn&& fn) noexcept {
-    return apply_impl(std::forward<Fn>(fn), axes_indices{}, *this);
+  template <std::regular_invocable<value_type> UnaryFn>
+  constexpr Vec& apply(UnaryFn&& fn) noexcept {
+    return apply_impl(std::forward<UnaryFn>(fn), axes_indices{}, *this);
   }
 
-  template <binary_function<value_type> Fn>
-  constexpr Vec& apply(Fn&& fn, const Vec& rhs) noexcept {
-    return apply_impl(std::forward<Fn>(fn), axes_indices{}, *this, rhs);
+  template <std::regular_invocable<value_type, value_type> BinaryFn>
+  constexpr Vec& apply(BinaryFn&& fn, const Vec& rhs) noexcept {
+    return apply_impl(std::forward<BinaryFn>(fn), axes_indices{}, *this, rhs);
   }
 
   // clang-format off
