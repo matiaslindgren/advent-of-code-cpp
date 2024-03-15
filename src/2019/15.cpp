@@ -1,10 +1,6 @@
 import std;
 import aoc;
 import intcode;
-import my_std;
-
-namespace ranges = std::ranges;
-namespace views = std::views;
 
 using intcode::IntCode;
 using Vec2 = aoc::Vec2<int>;
