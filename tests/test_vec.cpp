@@ -239,6 +239,22 @@ void test_vec3() {
     is >> v;
     assert_equal(v, aoc::Vec3<T>(1, 2, 3), "parse string 1,2,3");
   }
+  {
+    aoc::Vec3<T> v(-1, 2, -3);
+    assert_equal(v.abs(), aoc::Vec3<T>(1, 2, 3), "Vec3(-1, 2, -3).abs()");
+  }
+  {
+    aoc::Vec3<T> v(-1, 2, -3);
+    assert_equal(v.signum(), aoc::Vec3<T>(-1, 1, -1), "Vec3(-1, 2, -3).signum()");
+  }
+  {
+    aoc::Vec3<T> v();
+    assert_equal(v.sum(), 0, "Vec3().sum()");
+  }
+  {
+    aoc::Vec3<T> v(-1, 2, -3);
+    assert_equal(v.sum(), -2, "Vec3(-1, 2, -3).sum()");
+  }
 }
 
 template <typename T>
