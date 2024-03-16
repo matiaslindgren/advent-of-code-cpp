@@ -105,8 +105,14 @@ class IntCode {
     }
   }
 
-  void push_input(auto&&... values) {
-    (input.push_back(values), ...);
+  void push_input(std::ranges::view auto&& v) {
+    input.append_range(v);
+  }
+
+  template <typename T>
+    requires(not std::ranges::range<T>)
+  void push_input(T value) {
+    input.push_back(value);
   }
 
   Int pop_input() {
