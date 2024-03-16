@@ -1,7 +1,7 @@
 SHELL ?= /bin/sh
 CXX   := clang++-17
 
-INCLUDES ?=
+INCLUDES ?= -I./deps
 LDFLAGS  ?= -lm -fuse-ld=lld -lc++
 CXXFLAGS ?= \
 	-std=c++23 \
