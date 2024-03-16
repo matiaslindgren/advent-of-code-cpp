@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         fast: [0, 1]
-        llvm: [17]
+        llvm: [18]
     name: "fast: ${{ matrix.fast }}, llvm: ${{ matrix.llvm }}"
     runs-on: ubuntu-22.04
     steps:
