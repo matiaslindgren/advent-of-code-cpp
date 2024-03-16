@@ -22,7 +22,7 @@ std::ostream& operator<<(std::ostream& os, const Item& item) {
 }
 
 std::istream& operator>>(std::istream& is, Item& item) {
-  if (std::string line; std::getline(is, line)) {
+  if (std::string line; std::getline(is, line) and not line.empty()) {
     std::stringstream ls{line};
     if (int id; ls >> id) {
       if (std::string str; ls >> str) {
@@ -46,10 +46,10 @@ auto find_part2(const auto& items) {
   return 0;
 }
 
-auto parse_input(const std::string path) {
-  std::istringstream input{aoc::slurp_file(path)};
-  auto items{views::istream<Item>(input) | ranges::to<std::vector>()};
-  if (input.eof()) {
+auto parse_input(std::string_view path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  auto items{views::istream<Item>(is) | ranges::to<std::vector>()};
+  if (is.eof()) {
     return items;
   }
   throw std::runtime_error("invalid input, parsing failed");
