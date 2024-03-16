@@ -30,10 +30,14 @@ auto find_part1(auto v) {
 
 auto find_part2(const auto& input) {
   std::vector<int> v;
-  for (int n{}; n < 10'000; ++n) {
-    v.append_range(input);
+  {
+    const auto n{input.size()};
+    const auto offset{take_prefix(input, 7)};
+    v.append_range(views::drop(input, offset % n));
+    for (int rep{}; rep < (10'000 * n - offset) / n; ++rep) {
+      v.append_range(input);
+    }
   }
-  v = views::drop(v, take_prefix(input, 7)) | ranges::to<std::vector>();
   for (int phase{}; phase < 100; ++phase) {
     long out{};
     for (int& x : views::reverse(v)) {
