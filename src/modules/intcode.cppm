@@ -46,17 +46,17 @@ class IntCode {
  public:
   using Int = long;
 
+  std::deque<Int> input, output;
+
  private:
   std::unordered_map<Int, Int> memory;
-  std::deque<Int> input;
-  std::optional<Int> output;
 
   Int ip{}, relbase{};
 
   [[nodiscard]] auto parse_instruction(auto ins) const noexcept {
     std::array<int, 5> d;
     for (int& x : d) {
-      auto&& [q, r]{std::ldiv(ins, 10)};
+      auto [q, r]{std::ldiv(ins, 10)};
       ins = q;
       x = r;
     }
@@ -78,7 +78,7 @@ class IntCode {
  public:
   IntCode() = default;
   IntCode(std::ranges::input_range auto&& program) {
-    for (auto&& [i, value] : std::views::zip(std::views::iota(0uz), program)) {
+    for (auto [i, value] : std::views::zip(std::views::iota(0uz), program)) {
       memory[i] = value;
     }
   }
@@ -105,27 +105,26 @@ class IntCode {
     }
   }
 
-  void push_input(std::ranges::view auto&& v) {
-    input.append_range(v);
+ private:
+  std::optional<Int> pop_queue(auto& q) {
+    if (not q.empty()) {
+      auto val{q.front()};
+      q.pop_front();
+      return val;
+    }
+    return std::nullopt;
   }
 
-  template <typename T>
-    requires(not std::ranges::range<T>)
-  void push_input(T value) {
-    input.push_back(value);
-  }
-
+ public:
   Int pop_input() {
-    if (not input.empty()) {
-      auto res{input.front()};
-      input.pop_front();
-      return res;
+    if (auto inp{pop_queue(input)}) {
+      return inp.value();
     }
     throw std::runtime_error("cannot pop from empty input queue");
   }
 
-  auto pop_output() {
-    return std::exchange(output, std::nullopt);
+  std::optional<Int> pop_output() {
+    return pop_queue(output);
   }
 
   [[nodiscard]] Int compute(const Op op, const Int lhs, const Int rhs) const {
@@ -146,7 +145,7 @@ class IntCode {
   }
 
   void do_step() {
-    auto&& [op, mode1, mode2, mode3]{parse_instruction(next())};
+    auto [op, mode1, mode2, mode3]{parse_instruction(next())};
     switch (op) {
       case Op::add:
       case Op::multiply:
@@ -161,7 +160,7 @@ class IntCode {
         store(next(), pop_input(), mode1);
       } break;
       case Op::output: {
-        output = load(next(), mode1);
+        output.push_back(load(next(), mode1));
       } break;
       case Op::jump_if_nonzero:
       case Op::jump_if_zero: {
@@ -190,10 +189,17 @@ class IntCode {
     }
   }
 
-  void run_until_output() {
-    while (not(is_done() or output)) {
+  void run_while_input() {
+    while (not is_done() and not input.empty()) {
       do_step();
     }
+  }
+
+  auto run_until_output() {
+    while (not is_done() and output.empty()) {
+      do_step();
+    }
+    return pop_output();
   }
 };
 

@@ -29,7 +29,7 @@ auto run(auto nics) {
       } else {
         nic.idle = false;
       }
-      nic.ic.run();
+      nic.ic.run_while_input();
       if (nic.ic.output.empty()) {
         continue;
       }

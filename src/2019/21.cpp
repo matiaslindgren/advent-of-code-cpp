@@ -9,15 +9,14 @@ using intcode::IntCode;
 auto run_script(const auto& program, auto&& script) {
   IntCode ic(program);
   for (std::string prompt; prompt != "Input instructions:\n"s;) {
-    ic.run_until_output();
-    prompt.push_back(static_cast<char>(ic.pop_output().value()));
+    auto out{ic.run_until_output().value()};
+    prompt.push_back(static_cast<char>(out));
   }
   for (auto line : script) {
-    ic.push_input(std::views::all(line + "\n"s));
+    ic.input.append_range(std::views::all(line + "\n"s));
   }
   for (;;) {
-    ic.run_until_output();
-    if (auto out{ic.pop_output().value()}; out > 128) {
+    if (auto out{ic.run_until_output().value()}; out > 128) {
       return out;
     }
   }

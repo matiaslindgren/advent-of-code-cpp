@@ -1,7 +1,6 @@
 import std;
 import aoc;
 import intcode;
-import my_std;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -19,10 +18,9 @@ using Tiles = std::unordered_map<Vec2, Tile>;
 Tiles paint(Tiles tiles, const auto& program) {
   for (auto [ic, pos, dir]{std::tuple{IntCode(program), Vec2(0, 0), Vec2(0, -1)}}; not ic.is_done();
        pos += dir) {
-    ic.push_input(tiles.contains(pos) and tiles.at(pos) == Tile::white);
+    ic.input.push_back(tiles.contains(pos) and tiles.at(pos) == Tile::white);
 
-    ic.run_until_output();
-    if (auto paint{ic.pop_output()}) {
+    if (auto paint{ic.run_until_output()}) {
       switch (paint.value()) {
         case 0: {
           tiles[pos] = Tile::black;
@@ -36,8 +34,7 @@ Tiles paint(Tiles tiles, const auto& program) {
       }
     }
 
-    ic.run_until_output();
-    if (auto turn{ic.pop_output()}) {
+    if (auto turn{ic.run_until_output()}) {
       switch (turn.value()) {
         case 0: {
           dir.rotate_left();

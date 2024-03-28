@@ -2,16 +2,12 @@ import std;
 import aoc;
 import intcode;
 
-namespace ranges = std::ranges;
-namespace views = std::views;
-
 using intcode::IntCode;
 
 auto run(const auto& program, const int input) {
   IntCode ic(program);
-  ic.push_input(input);
-  ic.run_until_output();
-  return ic.pop_output().value();
+  ic.input.push_back(input);
+  return ic.run_until_output().value();
 }
 
 int main() {

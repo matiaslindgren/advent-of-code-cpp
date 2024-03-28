@@ -22,10 +22,8 @@ auto explore(const auto& program) {
       }
 
       IntCode droid(droid_prev);
-      droid.push_input(cmd);
-      droid.run_until_output();
-
-      switch (droid.pop_output().value()) {
+      droid.input.push_back(cmd);
+      switch (droid.run_until_output().value()) {
         case 2: {
           oxygen_distance = n_moves + 1;
           oxygen = pos;

@@ -35,16 +35,35 @@ struct Options {
   bool operator==(const Options& rhs) const = default;
 };
 
+std::string get_line(IntCode& ic) {
+  std::ostringstream os;
+  while (not ic.is_done()) {
+    ic.do_step();
+    if (auto out{ic.pop_output()}) {
+      if (auto val{out.value()}; 0 < val and val < 128) {
+        if (auto ch{static_cast<char>(val)}; ch == '\n') {
+          break;
+        } else {
+          os << ch;
+        }
+      }
+    }
+  }
+  return os.str();
+}
+
 Options run_until_prompt(IntCode& ic) {
   Options opts;
   int n_empty{};
+
   for (auto s{ParseState::lines};;) {
     if (n_empty > 5) {
       s = ParseState::invalid;
     }
+
     switch (s) {
       case ParseState::lines: {
-        auto line{ic.run_until_line()};
+        auto line{get_line(ic)};
         if (line == "Command?"s) {
           s = ParseState::command;
         } else if (line == "Items here:"s) {
@@ -68,25 +87,29 @@ Options run_until_prompt(IntCode& ic) {
         }
         n_empty = line.empty() ? n_empty + 1 : 0;
       } break;
+
       case ParseState::doors: {
-        auto door{ic.run_until_line()};
+        auto door{get_line(ic)};
         if (door.starts_with("- "s)) {
           opts.doors.insert(door.substr(2));
         } else {
           s = ParseState::lines;
         }
       } break;
+
       case ParseState::items: {
-        auto item{ic.run_until_line()};
+        auto item{get_line(ic)};
         if (item.starts_with("- "s)) {
           opts.items.insert(item.substr(2));
         } else {
           s = ParseState::lines;
         }
       } break;
+
       case ParseState::command: {
         return opts;
       } break;
+
       case ParseState::invalid: {
         return {.invalid = true};
       } break;

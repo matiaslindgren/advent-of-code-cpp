@@ -9,7 +9,7 @@ namespace views = std::views;
 using intcode::IntCode;
 using Vec2 = aoc::Vec2<int>;
 
-inline constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& program) {
   Vec2 vacuum;
@@ -17,8 +17,7 @@ auto find_part1(const auto& program) {
   {
     Vec2 pos;
     for (IntCode ic(program); not ic.is_done();) {
-      ic.run_until_output();
-      if (const auto out{ic.pop_output()}) {
+      if (const auto out{ic.run_until_output()}) {
         switch (out.value()) {
           case '.': {
             pos.x() += 1;
@@ -61,17 +60,25 @@ auto find_part1(const auto& program) {
   return sum(views::transform(intersections, [](Vec2 p) { return p.x() * p.y(); }));
 }
 
+using std::operator""s;
+
 auto find_part2(const auto& program) {
-  using std::operator""sv;
   IntCode ic(program);
   ic.store(0, 2, intcode::Mode::address);
-  ic.push_input("A,B,A,C,C,A,B,C,B,B\n"sv);
-  ic.push_input("L,8,R,10,L,8,R,8\n"sv);
-  ic.push_input("L,12,R,8,R,8\n"sv);
-  ic.push_input("L,8,R,6,R,6,R,10,L,8\n"sv);
-  ic.push_input("n\n"sv);
+  for (auto&& cmd : {
+           "A,B,A,C,C,A,B,C,B,B"s,
+           "L,8,R,10,L,8,R,8"s,
+           "L,12,R,8,R,8"s,
+           "L,8,R,6,R,6,R,10,L,8"s,
+           "n"s,
+       }) {
+    ic.input.append_range(cmd + "\n"s);
+  }
   ic.run_to_end();
-  return ic.pop_output().value();
+  if (ic.output.empty()) {
+    throw std::runtime_error("output must not be empty");
+  }
+  return ic.output.back();
 }
 
 int main() {

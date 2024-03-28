@@ -6,9 +6,12 @@ using intcode::IntCode;
 
 auto run(const auto& program, const int test_id) {
   IntCode ic(program);
-  ic.push_input(test_id);
+  ic.input.push_back(test_id);
   ic.run_to_end();
-  return ic.pop_output().value();
+  if (ic.output.empty()) {
+    throw std::runtime_error("output must not be empty");
+  }
+  return ic.output.back();
 }
 
 int main() {

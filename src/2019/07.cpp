@@ -7,7 +7,12 @@ namespace views = std::views;
 
 using intcode::IntCode;
 
-auto run(const auto& program, ranges::input_range auto&& phase_set, const bool stateful) {
+enum class Mode {
+  stateless,
+  stateful,
+};
+
+auto run(const auto& program, ranges::input_range auto&& phase_set, Mode mode) {
   int max_signal{};
   {
     auto phases{ranges::to<std::vector>(phase_set)};
@@ -15,22 +20,25 @@ auto run(const auto& program, ranges::input_range auto&& phase_set, const bool s
       std::vector<IntCode> amps(5);
       for (auto&& [amp, phase] : views::zip(amps, phases)) {
         amp = IntCode(program);
-        amp.push_input(phase);
+        amp.input.push_back(phase);
       }
 
       int signal{};
 
       while (not amps.empty()) {
         ranges::for_each(amps, [&signal](IntCode& amp) {
-          amp.push_input(signal);
-          amp.run_until_output();
-          signal = amp.pop_output().value_or(signal);
+          amp.input.push_back(signal);
+          signal = amp.run_until_output().value_or(signal);
         });
-        if (not stateful) {
-          amps.clear();
-        } else {
-          const auto rm{ranges::remove_if(amps, [](const IntCode& amp) { return amp.is_done(); })};
-          amps.erase(rm.begin(), rm.end());
+        switch (mode) {
+          case Mode::stateless: {
+            amps.clear();
+          } break;
+          case Mode::stateful: {
+            const auto rm{ranges::remove_if(amps, [](const IntCode& amp) { return amp.is_done(); })
+            };
+            amps.erase(rm.begin(), rm.end());
+          } break;
         }
       }
 
@@ -43,8 +51,8 @@ auto run(const auto& program, ranges::input_range auto&& phase_set, const bool s
 int main() {
   const auto program{intcode::parse_program(aoc::slurp_file("/dev/stdin"))};
 
-  const auto part1{run(program, views::iota(0, 5), false)};
-  const auto part2{run(program, views::iota(5, 10), true)};
+  const auto part1{run(program, views::iota(0, 5), Mode::stateless)};
+  const auto part2{run(program, views::iota(5, 10), Mode::stateful)};
 
   std::print("{} {}\n", part1, part2);
 

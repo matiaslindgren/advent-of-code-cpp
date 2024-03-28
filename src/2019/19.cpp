@@ -7,15 +7,14 @@ namespace views = std::views;
 
 using intcode::IntCode;
 
-inline constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
 
 auto search(const auto& program) {
   const auto is_pulled{[&program](int y, int x) {
     IntCode ic(program);
-    ic.push_input(x);
-    ic.push_input(y);
-    ic.run_until_output();
-    return ic.pop_output().value();
+    ic.input.push_back(x);
+    ic.input.push_back(y);
+    return ic.run_until_output().value();
   }};
 
   auto part1{sum(views::transform(views::iota(0, 50 * 50), [&is_pulled](auto i) {
