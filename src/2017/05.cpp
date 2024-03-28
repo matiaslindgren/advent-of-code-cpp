@@ -15,8 +15,7 @@ auto find_exit(auto jumps, int limit = std::numeric_limits<int>::max()) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto jumps{views::istream<int>(input) | ranges::to<std::vector<int>>()};
+  const auto jumps{aoc::slurp<int>("/dev/stdin")};
   if (jumps.empty()) {
     throw std::runtime_error("cannot do anything with empty input");
   }

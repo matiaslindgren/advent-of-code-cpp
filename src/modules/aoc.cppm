@@ -22,6 +22,19 @@ std::string slurp_file(std::string_view path) {
   return data;
 }
 
+template <typename T>
+std::vector<T> slurp(std::string_view path) {
+  std::istringstream is{slurp_file(path)};
+  auto items{std::views::istream<T>(is) | std::ranges::to<std::vector>()};
+  if (items.empty()) {
+    throw std::runtime_error("input is empty");
+  }
+  if (not is and not is.eof()) {
+    throw std::runtime_error("input is invalid");
+  }
+  return items;
+}
+
 auto cpu_count() {
   return std::max(1u, std::thread::hardware_concurrency());
 };

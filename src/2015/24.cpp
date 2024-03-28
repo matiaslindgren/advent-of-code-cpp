@@ -47,9 +47,7 @@ long optimize_qe(const Ints& packages, const int group_count) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto packages{views::istream<int>(input) | ranges::to<Ints>()};
+  const auto packages{aoc::slurp<int>("/dev/stdin")};
   const auto part1{optimize_qe(packages, 3)};
   const auto part2{optimize_qe(packages, 4)};
   std::print("{} {}\n", part1, part2);

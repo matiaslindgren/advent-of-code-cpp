@@ -17,11 +17,8 @@ auto find_frequencies(const auto& items) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto items{std::views::istream<int>(input) | std::ranges::to<std::vector>()};
-
+  const auto items{aoc::slurp<int>("/dev/stdin")};
   const auto [part1, part2]{find_frequencies(items)};
   std::print("{} {}\n", part1, part2);
-
   return 0;
 }

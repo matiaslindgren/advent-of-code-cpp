@@ -25,18 +25,8 @@ auto search(const auto& items) {
   throw std::runtime_error("could not find answer");
 }
 
-auto parse_input(std::string_view path) {
-  std::istringstream is{aoc::slurp_file(path)};
-  auto items{views::istream<int>(is) | ranges::to<std::vector>()};
-  if (is.eof()) {
-    return items;
-  }
-  throw std::runtime_error("invalid input, parsing failed");
-}
-
 int main() {
-  const auto items{parse_input("/dev/stdin")};
-  const auto [part1, part2]{search(items)};
+  const auto [part1, part2]{search(aoc::slurp<int>("/dev/stdin"))};
   std::print("{} {}\n", part1, part2);
   return 0;
 }
