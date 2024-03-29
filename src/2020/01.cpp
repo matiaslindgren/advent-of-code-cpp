@@ -2,24 +2,14 @@ import std;
 import aoc;
 import my_std;
 
-namespace ranges = std::ranges;
-namespace views = std::views;
-
-auto search(const auto& items) {
-  long part1{}, part2{};
-  for (auto [i, x] : my_std::views::enumerate(items)) {
-    for (auto [j, y] : my_std::views::enumerate(views::drop(items, i + 1))) {
-      if (x + y == 2020) {
-        part1 = x * y;
-      }
-      for (auto z : views::drop(items, i + j + 2)) {
-        if (x + y + z == 2020) {
-          part2 = x * y * z;
-        }
-        if (part1 and part2) {
-          return std::pair{part1, part2};
-        }
-      }
+auto search(const auto& v) {
+  long part1{};
+  for (auto [x, y, z] : my_std::views::cartesian_product(v, v, v)) {
+    if (x + y == 2020) {
+      part1 = x * y;
+    }
+    if (part1 and x + y + z == 2020) {
+      return std::pair{part1, x * y * z};
     }
   }
   throw std::runtime_error("could not find answer");
