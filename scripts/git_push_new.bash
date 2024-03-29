@@ -10,11 +10,11 @@ year="$1"
 day="$2"
 sol=${year}/${day}
 
+git add src/${sol}.cpp
+git commit -m "solve ${sol}"
+
 pushd txt
 git add correct/${sol}
 git commit -m "solve ${sol}"
 git push
 popd
-
-git add src/${sol}.cpp
-git commit -m "solve ${sol}"
