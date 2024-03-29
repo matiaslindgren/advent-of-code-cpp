@@ -23,8 +23,8 @@ int main() {
   for (std::string line; std::getline(input, line);) {
     std::istringstream ls{line};
     const auto row{views::istream<int>(ls) | ranges::to<std::vector<int>>()};
-    const auto [min, max] = ranges::minmax_element(row);
-    part1 += *max - *min;
+    const auto [min, max]{ranges::minmax(row)};
+    part1 += max - min;
     part2 += search_divide(row);
   }
 

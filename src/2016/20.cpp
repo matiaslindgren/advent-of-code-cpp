@@ -50,8 +50,7 @@ auto find_allowed(const auto& excluded) {
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto excluded_ranges{views::istream<Range>(input) | ranges::to<std::vector>()};
+  const auto excluded_ranges{aoc::slurp<Range>("/dev/stdin")};
 
   const auto allowed{find_allowed(excluded_ranges)};
   if (allowed.empty()) {

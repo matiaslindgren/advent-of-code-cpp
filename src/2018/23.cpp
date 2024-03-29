@@ -30,7 +30,7 @@ std::istream& operator>>(std::istream& is, Bot& bot) {
 }
 
 auto find_part1(const auto& bots) {
-  const auto b1{*ranges::max_element(bots, {}, &Bot::r)};
+  const auto b1{ranges::max(bots, {}, &Bot::r)};
   return ranges::count_if(bots, [&b1](const auto& b2) { return b1.in_range(b2); });
 }
 
@@ -67,11 +67,7 @@ auto find_part2(const auto& bots) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto bots{views::istream<Bot>(input) | ranges::to<std::vector>()};
-  if (bots.empty()) {
-    throw std::runtime_error("input must contain at least one nanobot");
-  }
+  const auto bots{aoc::slurp<Bot>("/dev/stdin")};
 
   const auto part1{find_part1(bots)};
   const auto part2{find_part2(bots)};

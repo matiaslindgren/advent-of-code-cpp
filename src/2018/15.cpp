@@ -218,16 +218,16 @@ std::optional<int> simulate(Cave cave, const bool is_part2 = false) {
 
       if (targets.empty()) {
         if (auto paths{cave.find_target_paths(unit)}; not paths.empty()) {
-          const auto min_path{*ranges::min_element(paths, {}, path_priority)};
+          const auto min_path{ranges::min(paths, {}, path_priority)};
           cave.get_pos(unit) = min_path.front();
           targets = cave.find_adjacent_opponents(unit);
         }
       }
 
       if (not targets.empty()) {
-        auto& target{*ranges::min_element(targets, {}, target_priority)};
-        target.hp -= unit.power;
-        if (target.hp < 0 and target.type == Tile::elf and is_part2) {
+        auto target{ranges::min_element(targets, {}, target_priority)};
+        target->hp -= unit.power;
+        if (target->hp < 0 and target->type == Tile::elf and is_part2) {
           return {};
         }
       }

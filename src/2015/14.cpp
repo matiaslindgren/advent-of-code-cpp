@@ -39,7 +39,7 @@ int main() {
   };
   std::vector<ReindeerState> race_state(herd.size());
   const auto find_leader{[&race_state](const auto& state_accessor) {
-    return *ranges::max_element(race_state, {}, state_accessor);
+    return ranges::max(race_state, {}, state_accessor);
   }};
 
   for (int t{1}; t <= 2503; ++t) {

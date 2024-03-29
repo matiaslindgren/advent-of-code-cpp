@@ -145,8 +145,7 @@ auto invert(ranges::forward_range auto&& operations) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto operations{views::istream<Operation>(input) | ranges::to<std::vector>()};
+  const auto operations{aoc::slurp<Operation>("/dev/stdin")};
 
   const auto part1{scramble("abcdefgh"s, operations)};
   const auto part2{scramble("fbgdceah"s, invert(operations))};

@@ -62,11 +62,8 @@ auto find_max_bridges(auto components) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto components{views::istream<Component>(input) | ranges::to<std::vector>()};
-
+  const auto components{aoc::slurp<Component>("/dev/stdin")};
   const auto [part1, part2] = find_max_bridges(components);
   std::print("{} {}\n", part1, part2);
-
   return 0;
 }

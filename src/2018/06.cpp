@@ -8,13 +8,9 @@ namespace views = std::views;
 using Vec2 = aoc::Vec2<int>;
 using Points = std::vector<Vec2>;
 
-constexpr auto intmin{std::numeric_limits<int>::min()};
-constexpr auto intmax{std::numeric_limits<int>::max()};
-
-constexpr auto max{std::__bind_back(my_std::ranges::fold_left, intmin, ranges::max)};
-constexpr auto min{std::__bind_back(my_std::ranges::fold_left, intmax, ranges::min)};
-
 auto find_grid_corners(const Points& points) {
+  constexpr auto intmin{std::numeric_limits<int>::min()};
+  constexpr auto intmax{std::numeric_limits<int>::max()};
   return my_std::ranges::fold_left(
       points,
       std::pair{Vec2(intmax, intmax), Vec2(intmin, intmin)},
@@ -36,9 +32,9 @@ auto find_areas(const Points& points) {
     std::unordered_map<Vec2, std::vector<std::size_t>> claims;
     for (Vec2 p(0, top_left.y() - 1); p.y() < bottom_right.y() + 1; ++p.y()) {
       for (p.x() = top_left.x() - 1; p.x() < bottom_right.x() + 1; ++p.x()) {
-        const auto& min_dist{
-            min(views::transform(points, [&](const auto& center) { return center.distance(p); }))
-        };
+        const auto& min_dist{ranges::min(views::transform(points, [&](const auto& center) {
+          return center.distance(p);
+        }))};
         for (auto [id, center] : my_std::views::enumerate(points)) {
           const auto d{center.distance(p)};
           total_dist[p] += d;
@@ -60,9 +56,9 @@ auto find_areas(const Points& points) {
     return y_finite and x_finite;
   }};
   return std::pair{
-      max(cells | views::transform([&](const auto& cell) {
-            return ranges::all_of(cell, is_finite) ? static_cast<int>(cell.size()) : 0;
-          })),
+      ranges::max(cells | views::transform([&](const auto& cell) {
+                    return ranges::all_of(cell, is_finite) ? static_cast<int>(cell.size()) : 0;
+                  })),
       ranges::count_if(total_dist | views::values, [](auto d) { return d < 10000; })
   };
 }

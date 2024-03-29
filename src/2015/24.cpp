@@ -41,7 +41,7 @@ long optimize_qe(const Ints& packages, const int group_count) {
     }
     // why is not required to check the other groups???
     const auto all_qe{views::transform(good_1st_groups, product)};
-    return *ranges::min_element(all_qe);
+    return ranges::min(all_qe);
   }
   throw std::runtime_error("oh no");
 }

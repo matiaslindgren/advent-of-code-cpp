@@ -25,10 +25,9 @@ std::istream& operator>>(std::istream& is, Light& light) {
   throw std::runtime_error("failed parsing Light");
 }
 
-constexpr auto intmin{std::numeric_limits<int>::min()};
-constexpr auto intmax{std::numeric_limits<int>::max()};
-
 auto find_grid_corners(const auto& lights) {
+  constexpr auto intmin{std::numeric_limits<int>::min()};
+  constexpr auto intmax{std::numeric_limits<int>::max()};
   return my_std::ranges::fold_left(
       lights,
       std::pair{Vec2(intmax, intmax), Vec2(intmin, intmin)},
@@ -79,11 +78,8 @@ auto wait_for_message(auto lights) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto lights{views::istream<Light>(input) | ranges::to<std::vector>()};
-
+  const auto lights{aoc::slurp<Light>("/dev/stdin")};
   const auto [part1, part2]{wait_for_message(lights)};
   std::print("{} {}\n", part1, part2);
-
   return 0;
 }

@@ -16,9 +16,6 @@ auto find_exit(auto jumps, int limit = std::numeric_limits<int>::max()) {
 
 int main() {
   const auto jumps{aoc::slurp<int>("/dev/stdin")};
-  if (jumps.empty()) {
-    throw std::runtime_error("cannot do anything with empty input");
-  }
 
   const auto part1{find_exit(jumps)};
   const auto part2{find_exit(jumps, 3)};

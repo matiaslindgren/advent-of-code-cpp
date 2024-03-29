@@ -84,18 +84,18 @@ auto count_valid(const auto& springs, const auto& cache, const auto i, const aut
 }
 
 auto count_valid(const auto& springs) {
-  auto [status, counts] = springs;
-  auto n_springs(status.size() + 1);
-  auto n_counts(counts.size() + 1);
-  auto max_count((*ranges::max_element(counts)) + 1);
+  auto [status, counts]{springs};
+  auto n_springs{status.size() + 1};
+  auto n_counts{counts.size() + 1};
+  auto max_count{ranges::max(counts) + 1};
   std::vector<std::size_t> cache_data(n_springs * n_counts * max_count, no_value);
-  auto cache = std::mdspan(cache_data.data(), n_springs, n_counts, max_count);
+  auto cache{std::mdspan(cache_data.data(), n_springs, n_counts, max_count)};
   return count_valid(springs, cache, 0, 0, 0);
 }
 
 auto repeat_and_count_valid(std::ranges::range auto&& springs, const auto repeats) {
   return views::transform(springs, [=](auto s) {
-    auto [status, counts] = s;
+    auto [status, counts]{s};
     for (auto r{1}; r < repeats; ++r) {
       s.status.push_back(Spring::unknown);
       s.status.append_range(status);
@@ -109,8 +109,7 @@ auto repeat_and_count_valid(std::ranges::range auto&& springs, const auto repeat
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto springs{views::istream<Springs>(input) | ranges::to<std::vector>()};
+  const auto springs{aoc::slurp<Springs>("/dev/stdin")};
 
   const auto part1{sum(repeat_and_count_valid(springs, 1))};
   const auto part2{sum(repeat_and_count_valid(springs, 5))};

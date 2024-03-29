@@ -30,7 +30,7 @@ auto find_winning_score(const auto n_players, const auto max_marble) {
     }
   }
 
-  return *std::ranges::max_element(scores);
+  return std::ranges::max(scores);
 }
 
 auto parse_input(std::string path) {

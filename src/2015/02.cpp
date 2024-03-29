@@ -39,9 +39,7 @@ std::istream& operator>>(std::istream& is, Present& p) {
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto presents{views::istream<Present>(input) | ranges::to<std::vector>()};
+  const auto presents{aoc::slurp<Present>("/dev/stdin")};
 
   const auto part1{sum(views::transform(presents, [](const auto& p) {
     return p.surface_area() + p.slack_size();

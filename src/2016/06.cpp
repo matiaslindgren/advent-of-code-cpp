@@ -18,7 +18,7 @@ CharPairs minmax_char_freq_by_column(const auto& lines) {
           ++char_count[line[column]];
         }
         const auto get_freq{[](const auto& p) { return p.second; }};
-        auto [min, max] = ranges::minmax_element(char_count, {}, get_freq);
+        auto [min, max]{ranges::minmax_element(char_count, {}, get_freq)};
         return std::tuple{min->first, max->first};
       })
       | ranges::to<CharPairs>()
@@ -26,9 +26,7 @@ CharPairs minmax_char_freq_by_column(const auto& lines) {
 }
 
 int main() {
-  std::ios::sync_with_stdio(false);
-
-  const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
+  const auto lines{aoc::slurp<std::string>("/dev/stdin")};
 
   const CharPairs minmax_chars{minmax_char_freq_by_column(lines)};
 

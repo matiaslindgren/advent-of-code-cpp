@@ -5,16 +5,9 @@ import my_std;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr auto min{
-    std::__bind_back(my_std::ranges::fold_left, std::numeric_limits<unsigned>::max(), ranges::min)
-};
-constexpr auto max{
-    std::__bind_back(my_std::ranges::fold_left, std::numeric_limits<unsigned>::min(), ranges::max)
-};
-
 auto search(const auto& ids) {
-  const auto min_id{min(ids)};
-  const auto max_id{max(ids)};
+  const auto min_id{ranges::min(ids)};
+  const auto max_id{ranges::max(ids)};
   auto part2{min_id};
   for (auto id{min_id}; id <= max_id; ++id) {
     if (not ids.contains(id)) {

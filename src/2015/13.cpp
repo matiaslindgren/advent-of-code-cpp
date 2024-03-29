@@ -97,9 +97,7 @@ auto maximize_happiness(const auto& pairs) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  auto pairs{views::istream<Pair>(input) | ranges::to<std::vector>()};
+  auto pairs{aoc::slurp<Pair>("/dev/stdin")};
 
   const auto part1{maximize_happiness(pairs)};
 

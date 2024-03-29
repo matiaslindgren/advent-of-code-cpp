@@ -62,8 +62,7 @@ auto find_part2(const auto& polymer) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto polymer{views::istream<Unit>(input) | ranges::to<std::vector>()};
+  const auto polymer{aoc::slurp<Unit>("/dev/stdin")};
 
   const auto part1{react(polymer)};
   const auto part2{find_part2(polymer)};

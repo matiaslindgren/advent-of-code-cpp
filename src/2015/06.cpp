@@ -40,8 +40,7 @@ std::istream& operator>>(std::istream& is, Region& r) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto regions{views::istream<Region>(input) | ranges::to<std::vector>()};
+  const auto regions{aoc::slurp<Region>("/dev/stdin")};
 
   // TODO
   std::vector<bool> part1_lights(1'000'000, false);

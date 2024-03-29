@@ -34,9 +34,7 @@ std::istream& operator>>(std::istream& is, Claim& claim) {
 }
 
 auto max_value(const auto& claims, int Claim::*const begin, int Claim::*const len) {
-  const auto max_claim{*ranges::max_element(claims, ranges::less{}, [&](const Claim& c) {
-    return c.*begin + c.*len;
-  })};
+  const auto max_claim{ranges::max(claims, {}, [&](const Claim& c) { return c.*begin + c.*len; })};
   return max_claim.*begin + max_claim.*len;
 }
 

@@ -116,14 +116,11 @@ class Graph {
 };
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  constexpr auto max_node_count{8};
-
-  const auto edges{views::istream<Edge>(input) | ranges::to<std::vector>()};
+  const auto edges{aoc::slurp<Edge>("/dev/stdin")};
 
   Graph g{edges};
-  const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<max_node_count>()};
-  const auto [shortest_path, longest_path] = ranges::minmax_element(hamiltonian_path_lengths);
+  const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<8>()};
+  const auto [shortest_path, longest_path]{ranges::minmax_element(hamiltonian_path_lengths)};
 
   const auto part1{*shortest_path};
   const auto part2{*longest_path};

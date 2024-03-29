@@ -39,17 +39,10 @@ std::istream& operator>>(std::istream& is, Area& area) {
   throw std::runtime_error("failed parsing Area");
 }
 
-constexpr auto min{
-    std::__bind_back(my_std::ranges::fold_left, std::numeric_limits<int>::max(), ranges::min)
-};
-constexpr auto max{
-    std::__bind_back(my_std::ranges::fold_left, std::numeric_limits<int>::min(), ranges::max)
-};
-
 auto count_water(const auto& areas) {
-  const auto min_y{min(views::transform(areas, [](auto&& a) { return a.y.lo; }))};
-  const auto max_y{max(views::transform(areas, [](auto&& a) { return a.y.hi; }))};
-  const auto max_x{max(views::transform(areas, [](auto&& a) { return a.x.hi; }))};
+  const auto min_y{ranges::min(views::transform(areas, [](auto&& a) { return a.y.lo; }))};
+  const auto max_y{ranges::max(views::transform(areas, [](auto&& a) { return a.y.hi; }))};
+  const auto max_x{ranges::max(views::transform(areas, [](auto&& a) { return a.x.hi; }))};
   const auto index{[=](const Vec2& p) { return p.y() * max_x + p.x(); }};
 
   std::unordered_set<int> clay, still, flowing;
@@ -117,11 +110,8 @@ auto count_water(const auto& areas) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto areas{views::istream<Area>(input) | ranges::to<std::vector>()};
-
+  const auto areas{aoc::slurp<Area>("/dev/stdin")};
   const auto [part1, part2]{count_water(areas)};
   std::print("{} {}\n", part1, part2);
-
   return 0;
 }

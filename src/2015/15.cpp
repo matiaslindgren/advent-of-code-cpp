@@ -82,9 +82,7 @@ long find_optimal_cookie(
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto ingredients{views::istream<Ingredient>(input) | ranges::to<std::vector>()};
+  const auto ingredients{aoc::slurp<Ingredient>("/dev/stdin")};
 
   std::vector<std::vector<int>> weights{ingredients.front().as_vector().size()};
   for (const auto& ingredient : ingredients) {

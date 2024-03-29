@@ -9,8 +9,7 @@ inline constexpr auto width{25};
 inline constexpr auto height{6};
 
 auto find_part1(const auto& layers) {
-  const auto l_zero{*ranges::min_element(layers, {}, [](auto&& l) { return ranges::count(l, '0'); })
-  };
+  const auto l_zero{ranges::min(layers, {}, [](auto&& l) { return ranges::count(l, '0'); })};
   return ranges::count(l_zero, '1') * ranges::count(l_zero, '2');
 }
 

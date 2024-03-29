@@ -92,8 +92,7 @@ std::istream& operator>>(std::istream& is, Statement& stmt) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto statements{views::istream<Statement>(input) | ranges::to<std::vector>()};
+  const auto statements{aoc::slurp<Statement>("/dev/stdin")};
 
   std::unordered_map<std::string, int> memory;
   int part2{};
@@ -103,7 +102,7 @@ int main() {
     }
   }
 
-  const auto part1{*ranges::max_element(views::values(memory))};
+  const auto part1{ranges::max(views::values(memory))};
 
   std::print("{} {}\n", part1, part2);
 
