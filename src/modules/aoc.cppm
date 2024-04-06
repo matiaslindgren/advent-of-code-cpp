@@ -22,6 +22,20 @@ std::string slurp_file(std::string_view path) {
   return data;
 }
 
+std::vector<std::string> slurp_lines(std::string_view path) {
+  std::vector<std::string> lines;
+  {
+    std::istringstream is{slurp_file(path)};
+    for (std::string line; std::getline(is, line);) {
+      lines.push_back(line);
+    }
+    if (not is and not is.eof()) {
+      throw std::runtime_error("input is invalid");
+    }
+    return lines;
+  }
+}
+
 template <typename T>
 std::vector<T> slurp(std::string_view path) {
   std::istringstream is{slurp_file(path)};
