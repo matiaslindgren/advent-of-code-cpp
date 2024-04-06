@@ -12,9 +12,3 @@ sol=${year}/${day}
 
 git add src/${sol}.cpp
 git commit -m "solve ${sol}"
-
-pushd txt
-git add correct/${sol}
-git commit -m "solve ${sol}"
-git push
-popd
