@@ -1,5 +1,7 @@
+LLVM_VERSION ?= 17
+
 SHELL ?= /bin/sh
-CXX   := clang++-17
+CXX   := clang++-$(LLVM_VERSION)
 
 INCLUDES ?= -I./include
 LDFLAGS  ?= -lm -fuse-ld=lld -lc++
