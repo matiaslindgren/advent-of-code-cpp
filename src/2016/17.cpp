@@ -1,6 +1,6 @@
-import std;
-import aoc;
-import md5;
+#include "std.hpp"
+#include "aoc.hpp"
+#include "md5.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;

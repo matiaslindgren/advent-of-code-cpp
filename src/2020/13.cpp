@@ -1,6 +1,6 @@
-import std;
-import my_std;
-import aoc;
+#include "aoc.hpp"
+#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -16,7 +16,7 @@ int find_part1(int earliest, const auto& ids) {
   return res;
 }
 
-using Int = __int128;
+using Int = long long;
 
 Int powmod(Int base, Int exp, Int mod) {
   // https://en.wikipedia.org/wiki/Modular_exponentiation

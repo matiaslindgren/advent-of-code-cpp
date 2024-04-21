@@ -1,7 +1,7 @@
 SHELL ?= /bin/sh
 CXX   := clang++-17
 
-INCLUDES ?=
+INCLUDES ?= -I./include
 LDFLAGS  ?= -lm -fuse-ld=lld -lc++
 CXXFLAGS ?= \
 	-std=c++23 \
@@ -9,7 +9,6 @@ CXXFLAGS ?= \
 	-Wall \
 	-Wpedantic \
 	-Werror \
-	-fmodules \
 	-pthread
 
 ifeq ($(shell uname), Darwin)
@@ -36,7 +35,7 @@ ifeq ($(FAST), 1)
 	CXXFLAGS += -O3 -march=native
 else
 	OUT_DIR  := $(OUT)/debug
-	CXXFLAGS += -g -O2 -fsanitize=address,undefined
+	CXXFLAGS += -g -O2 -fsanitize=address,undefined --rtlib=compiler-rt
 endif
 
 YEARS     := $(subst $(SRC)/,,$(wildcard $(SRC)/20??))
@@ -52,17 +51,10 @@ TEST_FILES := $(addprefix $(OUT_DIR)/,$(basename $(TEST_SRC)))
 
 TEST_OUT_DIR := $(OUT_DIR)/$(TESTS)
 
-MODULES       := modules
-MOD_SRC_PATHS := $(wildcard $(SRC)/$(MODULES)/*.cppm)
-MOD_OUT_PATHS := $(subst .cppm,.pcm,$(subst $(SRC)/,$(OUT_DIR)/,$(MOD_SRC_PATHS)))
-MODULE_CACHE  := $(OUT_DIR)/$(MODULES)/cache
-
-CXXFLAGS += -fmodules-cache-path=$(MODULE_CACHE) -fmodules-prune-interval=0
-
 .PHONY: all
 all: $(OUT_PATHS) $(TEST_FILES)
 
-$(addsuffix /,$(OUT_DIRS) $(MODULE_CACHE) $(TEST_OUT_DIR)):
+$(addsuffix /,$(OUT_DIRS) $(TEST_OUT_DIR)):
 	mkdir -p $@
 
 .PHONY: clean
@@ -70,12 +62,8 @@ clean:
 	$(RM) -rv $(OUT)
 
 .PHONY: fmt
-fmt: $(SRC_PATHS) $(MOD_SRC_PATHS)
+fmt: $(SRC_PATHS)
 	@clang-format --verbose -i $^
-
-
-$(MOD_OUT_PATHS): $(OUT_DIR)/$(MODULES)/%.pcm: $(SRC)/$(MODULES)/%.cppm | $(OUT_DIR)/$(MODULES)/ $(MODULE_CACHE)/
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $< --precompile -o $@
 
 
 SOLUTIONS            := $(wildcard txt/correct/*/*)
@@ -109,8 +97,8 @@ $(RUN_TOOLS): run_% : $(OUT_DIR)/%
 	@$(OUT_DIR)/$*
 
 
-$(TEST_FILES): $(TEST_OUT_DIR)/%: $(TESTS)/%.cpp $(MOD_OUT_PATHS) | $(TEST_OUT_DIR)/
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT_DIR)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
+$(TEST_FILES): $(TEST_OUT_DIR)/%: $(TESTS)/%.cpp | $(TEST_OUT_DIR)/
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
 
 RUN_TEST_UTILS := $(addprefix run_,$(notdir $(TEST_FILES)))
 
@@ -123,12 +111,10 @@ $(RUN_TEST_UTILS): run_%: $(TEST_OUT_DIR)/%
 
 .SECONDEXPANSION:
 
-$(OUT_PATHS): $(OUT_DIR)/%: $(SRC)/%.cpp $(MOD_OUT_PATHS) | $$(dir $(OUT_DIR)/%)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -fprebuilt-module-path=$(OUT_DIR)/$(MODULES)/ $(MOD_OUT_PATHS) -o $@ $(LDFLAGS)
+$(OUT_PATHS): $(OUT_DIR)/%: $(SRC)/%.cpp | $$(dir $(OUT_DIR)/%)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
 
 PERCENT := %
 TEST_YEARS := $(subst $(OUT_DIR)/,test_,$(OUT_DIRS))
 .PHONY: $(TEST_YEARS)
 $(TEST_YEARS): test_% : $$(filter test_%$$(PERCENT),$(QUICK_TEST_TARGETS))
-
-# TODO https://clang.llvm.org/docs/StandardCPlusPlusModules.html#id53

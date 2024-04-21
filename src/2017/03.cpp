@@ -1,4 +1,4 @@
-import std;
+#include "std.hpp"
 
 int main() {
   std::ios::sync_with_stdio(false);

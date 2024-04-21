@@ -1,6 +1,6 @@
-import std;
-import aoc;
-import intcode;
+#include "std.hpp"
+#include "aoc.hpp"
+#include "intcode.hpp"
 
 using intcode::IntCode;
 

@@ -1,4 +1,4 @@
-import std;
+#include "std.hpp"
 
 int find_part1(const auto steps) {
   std::vector<int> buf{0};

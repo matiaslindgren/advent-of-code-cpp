@@ -1,6 +1,6 @@
-import std;
-import aoc;
-import intcode;
+#include "std.hpp"
+#include "aoc.hpp"
+#include "intcode.hpp"
 
 auto run(const auto& program, const int noun, const int verb) {
   using intcode::IntCode;

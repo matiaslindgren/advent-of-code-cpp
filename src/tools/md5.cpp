@@ -1,6 +1,6 @@
-import std;
-import aoc;
-import md5;
+#include "std.hpp"
+#include "aoc.hpp"
+#include "md5.hpp"
 
 int main() {
   const auto input{aoc::slurp_file("/dev/stdin")};

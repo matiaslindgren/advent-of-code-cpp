@@ -1,4 +1,4 @@
-import std;
+#include "std.hpp"
 
 std::pair<int, int> parse_garbage(std::string_view s) {
   enum class State {

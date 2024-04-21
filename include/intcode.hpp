@@ -1,9 +1,9 @@
-module;
-import std;
+#ifndef INTCODE_HEADER_INCLUDED
+#define INTCODE_HEADER_INCLUDED
 
-export module intcode;
+#include "std.hpp"
 
-export namespace intcode {
+namespace intcode {
 
 enum class Op : int {
   add = 1,
@@ -214,3 +214,5 @@ std::vector<IntCode::Int> parse_program(std::string input) {
 }
 
 }  // namespace intcode
+
+#endif // INTCODE_HEADER_INCLUDED

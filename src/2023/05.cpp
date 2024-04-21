@@ -1,6 +1,6 @@
-import std;
-import my_std;
-import aoc;
+#include "std.hpp"
+#include "my_std.hpp"
+#include "aoc.hpp"
 
 using aoc::skip;
 using std::operator""s;

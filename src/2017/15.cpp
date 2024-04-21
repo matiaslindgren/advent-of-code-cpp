@@ -1,5 +1,5 @@
-import std;
-import aoc;
+#include "std.hpp"
+#include "aoc.hpp"
 
 auto parse_input(std::istream& is) {
   using aoc::skip;

@@ -1,16 +1,16 @@
-module;
+#ifndef MD5_HEADER_INCLUDED
+#define MD5_HEADER_INCLUDED
+
+#include "std.hpp"
+
 // MD5 algorithm references (accessed 2024-01-11)
 // 1. https://datatracker.ietf.org/doc/html/rfc1321
 // 2. https://en.wikipedia.org/wiki/MD5
 
-import std;
-
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-export module md5;
-
-export namespace md5 {
+namespace md5 {
 
 using Byte = uint8_t;
 using Chunk = uint32_t;
@@ -129,3 +129,5 @@ std::string hexdigest(const State& state) {
 }
 
 }  // namespace md5
+
+#endif // MD5_HEADER_INCLUDED

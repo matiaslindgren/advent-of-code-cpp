@@ -1,12 +1,12 @@
-module;
-import std;
+#ifndef AOC_HEADER_INCLUDED
+#define AOC_HEADER_INCLUDED
 
-export module aoc;
+#include "std.hpp"
 
 using std::operator""s;
 using std::operator""sv;
 
-export namespace aoc {
+namespace aoc {
 
 std::string slurp_file(std::string_view path) {
   std::ios::sync_with_stdio(false);
@@ -308,7 +308,7 @@ using Vec4 = Vec<T, T, T, T>;
 
 }  // namespace aoc
 
-export template <std::integral... Ts>
+template <std::integral... Ts>
 struct std::hash<aoc::Vec<Ts...>> {
   using Vec = aoc::Vec<Ts...>;
   using T = Vec::value_type;
@@ -322,7 +322,7 @@ struct std::hash<aoc::Vec<Ts...>> {
   }
 };
 
-export template <std::formattable<char>... Ts>
+template <std::formattable<char>... Ts>
 struct std::formatter<aoc::Vec<Ts...>, char> {
   using Vec = aoc::Vec<Ts...>;
 
@@ -337,12 +337,12 @@ struct std::formatter<aoc::Vec<Ts...>, char> {
   }
 };
 
-export template <typename... Ts>
+template <typename... Ts>
 std::ostream& operator<<(std::ostream& os, const aoc::Vec<Ts...>& v) {
   return os << std::format("{}", v);
 }
 
-export template <typename... Ts>
+template <typename... Ts>
 std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
   using Vec = aoc::Vec<Ts...>;
 
@@ -357,3 +357,5 @@ std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
 
   return is;
 }
+
+#endif // AOC_HEADER_INCLUDED

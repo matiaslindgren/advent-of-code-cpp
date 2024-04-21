@@ -1,11 +1,10 @@
-module;
+#ifndef MY_STD_HEADER_INCLUDED
+#define MY_STD_HEADER_INCLUDED
 // oversimplified C++23 stuff until libc++ implements these
 
-import std;
+#include "std.hpp"
 
-export module my_std;
-
-export namespace my_std {
+namespace my_std {
 namespace ranges {
 // Taken from "Possible implementations" at
 // https://en.cppreference.com/w/cpp/algorithm/ranges/fold_left
@@ -407,3 +406,5 @@ struct _apply_fn {
 inline constexpr auto apply_fn = _apply_fn{};
 
 }  // namespace my_std
+
+#endif // MY_STD_HEADER_INCLUDED

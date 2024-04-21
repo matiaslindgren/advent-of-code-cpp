@@ -1,4 +1,4 @@
-import std;
+#include "std.hpp"
 
 int josephus(const auto n) {
   int res{};

@@ -1,5 +1,5 @@
-import std;
-import my_std;
+#include "my_std.hpp"
+#include "std.hpp"
 
 void test_ranges_fold() {
   using std::operator""s;

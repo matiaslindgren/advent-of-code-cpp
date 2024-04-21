@@ -8,6 +8,7 @@ docker build --tag $image .
 docker run \
   --workdir $workdir \
   -v $(pwd)/src:${workdir}/src \
+  -v $(pwd)/include:${workdir}/include \
   -v $(pwd)/txt:${workdir}/txt \
   -v $(pwd)/Makefile:${workdir}/Makefile \
   -v $(pwd)/scripts/test_one_verbose.bash:${workdir}/scripts/test_one_verbose.bash \

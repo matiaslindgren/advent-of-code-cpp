@@ -1,5 +1,5 @@
-import std;
-import aoc;
+#include "aoc.hpp"
+#include "std.hpp"
 
 using std::operator""s;
 

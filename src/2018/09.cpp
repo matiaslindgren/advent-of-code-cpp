@@ -1,5 +1,5 @@
-import std;
-import aoc;
+#include "std.hpp"
+#include "aoc.hpp"
 
 void left_rotate(auto& q, const auto n) {
   for (int i{}; i < n; ++i) {

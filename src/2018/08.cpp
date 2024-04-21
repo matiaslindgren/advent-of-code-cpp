@@ -1,6 +1,6 @@
-import std;
-import aoc;
-import my_std;
+#include "std.hpp"
+#include "aoc.hpp"
+#include "my_std.hpp"
 
 constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
 

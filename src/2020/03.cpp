@@ -1,6 +1,6 @@
-import std;
-import aoc;
-import my_std;
+#include "std.hpp"
+#include "aoc.hpp"
+#include "my_std.hpp"
 
 using Vec2 = aoc::Vec2<int>;
 

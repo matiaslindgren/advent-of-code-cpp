@@ -1,5 +1,5 @@
-import std;
-import aoc;
+#include "std.hpp"
+#include "aoc.hpp"
 
 template <typename T>
 void print_typeinfo(const auto name) {

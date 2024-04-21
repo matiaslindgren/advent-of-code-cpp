@@ -1,7 +1,7 @@
-import std;
-import aoc;
-import intcode;
-import my_std;
+#include "std.hpp"
+#include "aoc.hpp"
+#include "intcode.hpp"
+#include "my_std.hpp"
 
 namespace views = std::views;
 
