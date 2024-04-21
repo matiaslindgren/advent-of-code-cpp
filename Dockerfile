@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-ARG llvm=17
+ARG llvm=18
 
 RUN apt update --yes \
     && apt install --yes wget \

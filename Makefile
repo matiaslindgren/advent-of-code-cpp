@@ -16,7 +16,7 @@ CXXFLAGS ?= \
 ifeq ($(shell uname), Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
 	LLVM_DIR := $(shell brew --prefix llvm)
-	CXX      := $(LLVM_DIR)/bin/clang-17
+	CXX      := $(LLVM_DIR)/bin/clang-$(LLVM_VERSION)
 	LDFLAGS  := \
 		$(LDFLAGS) \
 		-L$(LLVM_DIR)/lib/c++ \
