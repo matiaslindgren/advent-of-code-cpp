@@ -43,7 +43,7 @@ std::istream& operator>>(std::istream& is, Rule& rule) {
       std::string name(line.begin(), sep);
       std::string values(sep + 1, line.end());
       if (not name.empty() and not values.empty()) {
-        std::stringstream ls{values};
+        std::istringstream ls{values};
         if (Range a, b; ls >> a >> std::ws >> skip("or"s) >> b) {
           rule = {.name = name, .a = a, .b = b};
           ok = true;
@@ -60,7 +60,7 @@ std::istream& operator>>(std::istream& is, Rule& rule) {
 std::istream& operator>>(std::istream& is, Ticket& ticket) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
     ranges::replace(line, ',', ' ');
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     ticket = {views::istream<int>(ls) | ranges::to<std::vector>()};
     if (not ls.eof()) {
       throw std::runtime_error(std::format("failed parsing line {} as ticket", line));

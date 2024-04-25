@@ -44,11 +44,11 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
     for (char rm : "=[]"sv) {
       ranges::replace(line, rm, ' ');
     }
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (std::string type; ls >> type) {
       if (type == "mask") {
         if (std::string mask; ls >> mask and not mask.empty()) {
-          std::stringstream bs{mask};
+          std::istringstream bs{mask};
           ins = {
               .type = Instruction::new_mask,
               .mask = views::istream<Bit>(bs) | ranges::to<std::vector>(),

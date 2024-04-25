@@ -99,7 +99,7 @@ struct Card {
 
 std::istream& operator>>(std::istream& is, Card& card) {
   if (std::string line; std::getline(is, line)) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (std::string str_hand; ls >> str_hand and str_hand.size() == 5) {
       Hand hand;
       ranges::transform(str_hand, hand.values.begin(), char2card);

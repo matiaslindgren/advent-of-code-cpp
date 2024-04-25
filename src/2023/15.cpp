@@ -19,7 +19,7 @@ std::istream& operator>>(std::istream& is, Step& step) {
     if (s.str.back() == '\n') {
       s.str.pop_back();
     }
-    std::stringstream ls{s.str};
+    std::istringstream ls{s.str};
     char ch;
     while (ls.get(ch) and ch != '=' and ch != '-') {
       s.label.push_back(ch);

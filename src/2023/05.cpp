@@ -31,7 +31,7 @@ using MapGroups = std::vector<std::vector<Map>>;
 
 std::istream& operator>>(std::istream& is, Seeds& ss) {
   if (std::string line; is >> skip("seeds:"s) and std::getline(is, line)) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     ss = views::istream<long>(ls) | ranges::to<std::vector>();
     return is;
   }
@@ -52,7 +52,7 @@ std::istream& operator>>(std::istream& is, MapGroups& mg) {
     mg.emplace_back();
     if (std::string tmp; is >> tmp and tmp == map_name and is >> skip(" map:\n"s)) {
       for (std::string line; std::getline(is, line) and not line.empty();) {
-        std::stringstream ls{line};
+        std::istringstream ls{line};
         if (long dst, src, len; ls >> dst >> src >> len) {
           mg.back().push_back({.dst = {dst, len}, .src = {src, len}});
         } else {

@@ -54,7 +54,7 @@ std::istream& operator>>(std::istream& is, Module::Type& t) {
 std::istream& operator>>(std::istream& is, Module& m) {
   if (std::string line; std::getline(is, line)) {
     ranges::replace(line, ',', ' ');
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (Module::Type type; ls >> type) {
       if (std::string id; ls >> id and not id.empty()) {
         if (ls >> std::ws >> skip("->"s)) {

@@ -15,7 +15,7 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   using aoc::skip;
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (int id; ls >> skip("Game"s) >> id >> skip(":"s)) {
       std::unordered_map<std::string, int> counts;
       while (ls and is) {

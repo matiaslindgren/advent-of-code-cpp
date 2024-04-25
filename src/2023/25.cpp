@@ -57,7 +57,7 @@ struct Graph {
 std::istream& operator>>(std::istream& is, Graph& graph) {
   Graph::EdgeMap edges;
   for (std::string line; std::getline(is, line) and not line.empty();) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (std::string lhs; ls >> lhs and lhs.ends_with(":"s)) {
       lhs.pop_back();
       for (auto rhs : views::istream<std::string>(ls)) {

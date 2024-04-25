@@ -20,7 +20,7 @@ struct Node {
 std::istream& operator>>(std::istream& is, Node& node) {
   if (std::string line; std::getline(is, line)) {
     ranges::replace(line, ',', ' ');
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (std::string id; ls >> id) {
       if (int weight; ls >> std::ws >> skip("("s) >> weight >> skip(")"s)) {
         if (ls >> std::ws >> skip("->"s)) {

@@ -18,7 +18,7 @@ std::istream& operator>>(std::istream& is, Marker& marker) {
   if (char ch; is >> ch) {
     if (ch == '(') {
       if (std::string m_str; std::getline(is, m_str, ')')) {
-        std::stringstream ms{m_str};
+        std::istringstream ms{m_str};
         if (int length, repeat; ms >> length and ms.ignore(1, 'x') and ms >> repeat) {
           const int width{static_cast<int>(m_str.size())};
           marker = {length, repeat, width + 2};

@@ -33,7 +33,7 @@ using Steps = std::vector<Step>;
 
 std::istream& operator>>(std::istream& is, Steps& steps) {
   if (std::string line; is >> line) {
-    std::stringstream line_stream{line};
+    std::istringstream line_stream{line};
     steps = {views::istream<Step>(line_stream) | ranges::to<Steps>()};
     return is;
   }

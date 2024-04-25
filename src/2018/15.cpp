@@ -152,7 +152,7 @@ Cave parse_cave(std::string path) {
         break;
       }
 
-      std::stringstream ls{line};
+      std::istringstream ls{line};
       p.x() = 0;
       for (Tile t : views::istream<Tile>(ls)) {
         g.walls.push_back(t == Tile::wall);

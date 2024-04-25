@@ -104,7 +104,7 @@ std::istream& operator>>(std::istream& is, Grid2D& g) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    for (std::stringstream ls{line}; is and ls;) {
+    for (std::istringstream ls{line}; is and ls;) {
       if (std::underlying_type_t<Tile> ch; ls >> ch) {
         switch (ch) {
           case std::to_underlying(Tile::round):

@@ -73,7 +73,7 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
   Grid g{};
   for (std::string line; std::getline(is, line); ++g.height) {
     g.width = line.size();
-    for (std::stringstream ls{line}; ls;) {
+    for (std::istringstream ls{line}; ls;) {
       if (Grid::Cell c; ls >> c) {
         g.cells.push_back(c);
       }

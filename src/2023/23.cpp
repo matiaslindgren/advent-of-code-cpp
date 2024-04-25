@@ -112,7 +112,7 @@ std::istream& operator>>(std::istream& is, Grid2D& grid) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     g.tiles.append_range(views::istream<Tile>(ls));
   }
   if (g.width and g.height) {

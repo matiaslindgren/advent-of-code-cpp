@@ -14,7 +14,7 @@ std::istream& operator>>(std::istream& is, Disc& disc) {
   using aoc::skip;
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (int id, mod, time, pos;
         ls >> skip("Disc #"s) >> id and id > 0
         and ls >> skip(" has"s) >> mod >> skip(" positions;"s) >> skip(" at time="s) >> time

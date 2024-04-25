@@ -43,7 +43,7 @@ std::istream& operator>>(std::istream& is, Blocks& blocks) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    for (std::stringstream ls{line}; is and ls;) {
+    for (std::istringstream ls{line}; is and ls;) {
       if (char ch; ls >> ch) {
         switch (ch) {
           case '1':

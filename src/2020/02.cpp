@@ -15,7 +15,7 @@ struct Item {
 
 std::istream& operator>>(std::istream& is, Item& item) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (int min_n, max_n; ls >> min_n >> skip("-"s) >> max_n) {
       if (char ch; ls >> ch >> skip(":"s)) {
         if (std::string pw; ls >> pw) {

@@ -70,7 +70,7 @@ std::istream& operator>>(std::istream& is, Operand& op) {
 
 std::istream& operator>>(std::istream& is, Instruction& ins) {
   if (std::string line; std::getline(is, line)) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     using Type = Instruction::Type;
     if (Type type; ls >> type) {
       if (type == Type::send or type == Type::receive) {

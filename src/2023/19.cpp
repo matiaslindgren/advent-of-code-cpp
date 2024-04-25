@@ -47,7 +47,7 @@ std::istream& operator>>(std::istream& is, Rule& rule) {
       line = "x<4001:" + line;
     }
     ranges::replace(line, ':', ' ');
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (char var; ls >> var and "xmas"s.contains(var)) {
       const auto i{var == 'x' ? 0u : var == 'm' ? 1u : var == 'a' ? 2u : 3u};
       if (char op; ls >> op and "<>"s.contains(op)) {
@@ -70,7 +70,7 @@ std::istream& operator>>(std::istream& is, Workflow& workflow) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
     ranges::replace(line, '{', ' ');
     ranges::replace(line, '}', ' ');
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (std::string id; ls >> id) {
       workflow = {
           .id = id,
@@ -88,7 +88,7 @@ std::istream& operator>>(std::istream& is, Workflow& workflow) {
 auto parse_workflows(std::istream& is) {
   std::unordered_map<std::string, Workflow> workflows;
   for (std::string line; std::getline(is, line) and not line.empty();) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (Workflow wf; ls >> wf) {
       workflows[wf.id] = wf;
     } else {
@@ -105,7 +105,7 @@ auto parse_ratings(std::istream& is) {
   using aoc::skip;
   std::vector<Rating> ratings;
   for (std::string line; std::getline(is, line) and not line.empty();) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (ls >> skip("{"s)) {
       if (unsigned x, m, a, s;
           ls >> skip("x="s) >> x >> skip(",m="s) >> m >> skip(",a="s) >> a >> skip(",s="s) >> s) {

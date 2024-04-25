@@ -14,11 +14,11 @@ std::istream& operator>>(std::istream& is, Wins& w) {
 
   if (unsigned id; is >> skip("Card"s) >> id >> skip(":"s)) {
     if (std::string tmp; std::getline(is, tmp, '|') and not tmp.empty()) {
-      std::stringstream win_str{tmp};
+      std::istringstream win_str{tmp};
       const auto win{views::istream<int>(win_str) | ranges::to<std::unordered_set>()};
 
       if (std::getline(is, tmp) and not tmp.empty()) {
-        std::stringstream given_str{tmp};
+        std::istringstream given_str{tmp};
         const auto count{ranges::count_if(views::istream<int>(given_str), [&win](const auto c) {
           return win.contains(c);
         })};

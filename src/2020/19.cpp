@@ -29,7 +29,7 @@ struct Statement {
 std::istream& operator>>(std::istream& is, Statement& statement) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
     Statement stmt;
-    std::stringstream ls{line + " | "s};
+    std::istringstream ls{line + " | "s};
     if (int key; ls >> key >> skip(":"s)) {
       stmt.key = key;
       if (line.contains("\"a\""s) and ls >> std::ws >> skip("\"a\" |"s)) {

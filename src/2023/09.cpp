@@ -10,7 +10,7 @@ using Ints = std::vector<int>;
 std::vector<Ints> parse_input(std::istream& is) {
   std::vector<Ints> histories;
   for (std::string line; std::getline(is, line);) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     histories.push_back(views::istream<int>(ls) | ranges::to<Ints>());
   }
   if (is.eof()) {

@@ -97,7 +97,7 @@ Grid2D parse_grid(std::istream& is) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     g.tiles.append_range(views::istream<Tile>(ls));
   }
   if (is or is.eof()) {

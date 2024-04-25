@@ -28,7 +28,7 @@ std::istream& operator>>(std::istream& is, Bag& bag) {
 
 std::istream& operator>>(std::istream& is, Rule& rule) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (Bag bag; ls >> bag >> std::ws >> skip("contain"s)) {
       std::vector<Bag> inside;
       while (ls) {

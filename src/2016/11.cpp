@@ -50,7 +50,7 @@ std::istream& operator>>(std::istream& is, FloorItems& fi) {
   int floor;
   std::vector<Item> items;
   if (std::string line; std::getline(is, line)) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (std::string fname; ls >> skip("The"s) >> std::ws >> fname and floor_numbers.contains(fname)
                            and ls >> std::ws >> skip("floor contains"s)) {
       floor = floor_numbers.find(fname)->second;

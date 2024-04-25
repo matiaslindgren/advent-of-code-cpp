@@ -32,7 +32,7 @@ std::istream& operator>>(std::istream& is, Graph& graph) {
   Graph g;
   for (std::string line; std::getline(is, line);) {
     ranges::replace(line, ',', ' ');
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (int src; ls >> src >> std::ws >> skip("<->"s)) {
       const auto adjacent{views::istream<int>(ls) | ranges::to<std::vector>()};
       if (adjacent.empty()) {

@@ -27,7 +27,7 @@ struct std::formatter<Item, char> {
 
 std::istream& operator>>(std::istream& is, Item& item) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (int id; ls >> id) {
       if (std::string str; ls >> str) {
         item = {id, str};

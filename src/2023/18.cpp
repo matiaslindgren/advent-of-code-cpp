@@ -46,7 +46,7 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
   using aoc::skip;
   if (auto [dir1, len1, colour] = std::tuple{Direction{}, int{}, ""s};
       is >> dir1 >> len1 >> colour) {
-    std::stringstream ls{colour};
+    std::istringstream ls{colour};
     int len2{0};
     if (ls >> skip("(#"s)) {
       for (char i{}, ch; i < 5 and ls >> ch; ++i) {

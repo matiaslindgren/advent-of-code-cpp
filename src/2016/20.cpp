@@ -16,7 +16,7 @@ std::istream& operator>>(std::istream& is, Range& range) {
   using aoc::skip;
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     if (UInt begin, end; ls >> begin >> skip("-"s) >> end and begin < end) {
       range = {begin, end};
       return is;

@@ -55,7 +55,7 @@ std::istream& operator>>(std::istream& is, Grid2D& grid) {
       is.setstate(std::ios_base::failbit);
       break;
     }
-    std::stringstream ls{line};
+    std::istringstream ls{line};
     g.tiles.append_range(views::istream<Tile>(ls));
   }
   if (g.width and not g.tiles.empty()) {
@@ -73,7 +73,7 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
   for (std::string line; std::getline(is, line);) {
     lines.push_back(line);
   }
-  std::stringstream input;
+  std::istringstream input;
   const auto center{repeat_count / 2};
   for (int r1{0}; r1 < repeat_count; ++r1) {
     for (const auto& original_line : lines) {

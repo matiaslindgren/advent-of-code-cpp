@@ -35,7 +35,7 @@ struct Springs {
 std::istream& operator>>(std::istream& is, Springs& springs) {
   if (std::string lhs, rhs; is >> lhs and not lhs.empty() and is >> rhs and not rhs.empty()) {
     ranges::replace(rhs, ',', ' ');
-    std::stringstream lhs_s{lhs}, rhs_s{rhs};
+    std::istringstream lhs_s{lhs}, rhs_s{rhs};
     springs = {
         .status = views::istream<Spring>(lhs_s) | ranges::to<std::vector>(),
         .counts = views::istream<int>(rhs_s) | ranges::to<std::vector>(),
