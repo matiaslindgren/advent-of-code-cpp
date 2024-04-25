@@ -13,17 +13,6 @@ struct Light {
 using aoc::skip;
 using std::operator""s;
 
-std::istream& operator>>(std::istream& is, Light& light) {
-  if (Vec2 p, v; is >> std::ws >> skip("position=<"s) >> p >> skip(">"s) >> std::ws
-                 >> skip("velocity=<"s) >> v >> skip(">"s)) {
-    light = {p, v};
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Light");
-}
-
 auto find_grid_corners(const auto& lights) {
   constexpr auto intmin{std::numeric_limits<int>::min()};
   constexpr auto intmax{std::numeric_limits<int>::max()};
@@ -76,8 +65,33 @@ auto wait_for_message(auto lights) {
   throw std::runtime_error("search space exhausted");
 }
 
+std::istream& operator>>(std::istream& is, Light& light) {
+  if (Vec2 p, v; is >> std::ws >> skip("position=<"s) >> p >> skip(">"s) >> std::ws
+                 >> skip("velocity=<"s) >> v >> skip(">"s)) {
+    light = {p, v};
+  }
+  if (is or is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Light");
+}
+
+auto parse_input(std::string_view path) {
+  auto input{aoc::slurp_file(path)};
+  ranges::replace(input, ',', ' ');
+  std::istringstream is{input};
+  auto lights{std::views::istream<Light>(is) | std::ranges::to<std::vector>()};
+  if (lights.empty()) {
+    throw std::runtime_error("input is empty");
+  }
+  if (not is and not is.eof()) {
+    throw std::runtime_error("input is invalid");
+  }
+  return lights;
+}
+
 int main() {
-  const auto lights{aoc::slurp<Light>("/dev/stdin")};
+  const auto lights{parse_input("/dev/stdin")};
   const auto [part1, part2]{wait_for_message(lights)};
   std::print("{} {}\n", part1, part2);
   return 0;

@@ -19,8 +19,12 @@ struct Bot {
 };
 
 std::istream& operator>>(std::istream& is, Bot& bot) {
-  if (Bot b; is >> std::ws >> skip("pos=<"s) >> b.p >> skip(">, r="s) >> b.r) {
-    bot = b;
+  if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
+    if (Bot b; ls >> std::ws >> skip("pos=<"s) >> b.p >> skip(">"s, "r="s) >> b.r) {
+      bot = b;
+    }
   }
   if (is or is.eof()) {
     return is;

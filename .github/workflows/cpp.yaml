@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         fast: [0, 1]
-        llvm: [17, 18]
+        llvm: [18]
     name: "fast: ${{ matrix.fast }}, llvm: ${{ matrix.llvm }}"
     runs-on: ubuntu-22.04
     steps:
@@ -35,6 +35,14 @@ jobs:
           lld-${{ matrix.llvm }}
     - name: checkout solutions
       uses: actions/checkout@v4
+    - name: checkout ndvec
+      uses: actions/checkout@v4
+      with:
+        repository: matiaslindgren/ndvec
+        path: ndvec
+        sparse-checkout: |
+          ndvec.hpp
+        sparse-checkout-cone-mode: false
     - name: checkout inputs and answers
       uses: actions/checkout@v4
       with:

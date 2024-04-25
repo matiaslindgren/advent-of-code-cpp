@@ -55,11 +55,13 @@ auto find_part1(const Points& points) {
 
 Points parse_input(std::string path) {
   Points points;
-  std::istringstream input{aoc::slurp_file(path)};
-  for (Vec4 v; input >> v;) {
+  auto input{aoc::slurp_file(path)};
+  ranges::replace(input, ',', ' ');
+  std::istringstream is{input};
+  for (Vec4 v; is >> v;) {
     points.push_back(v);
   }
-  if (not input.eof()) {
+  if (not is.eof()) {
     throw std::runtime_error("input parsing failed");
   }
   return points;

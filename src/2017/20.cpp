@@ -27,9 +27,10 @@ using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Particle& particle) {
   if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
     std::stringstream ls{line};
-    if (Vec3 p, v, a; ls >> std::ws >> skip("p=<"s) >> p >> skip(">,"s) >> std::ws >> skip("v=<"s)
-                      >> v >> skip(">,"s) >> std::ws >> skip("a=<"s) >> a >> skip(">"s)) {
+    if (Vec3 p, v, a; ls >> std::ws >> skip("p=<"s) >> p >> skip(">"s) >> std::ws >> skip("v=<"s)
+                      >> v >> skip(">"s) >> std::ws >> skip("a=<"s) >> a >> skip(">"s)) {
       particle = {p, v, a};
     }
   }

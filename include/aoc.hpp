@@ -2,6 +2,7 @@
 #define AOC_HEADER_INCLUDED
 
 #include "std.hpp"
+#include "ndvec.hpp"
 
 using std::operator""s;
 using std::operator""sv;
@@ -161,201 +162,18 @@ constexpr char ocr(std::string_view rows) {
   return ' ';
 }
 
-template <typename T, std::same_as<T>... Ts>
-  requires(std::regular<T> and std::is_arithmetic_v<T>)
-struct Vec {
-  static constexpr std::size_t ndim{sizeof...(Ts) + 1};
-  std::tuple<T, Ts...> elements;
 
-  using value_type = T;
-  using axes_indices = std::make_index_sequence<ndim>;
-
-  constexpr Vec() = default;
-
-  constexpr explicit Vec(value_type x, Ts... rest) : elements(x, rest...) {
-  }
-
-  // TODO deducing this
-  template <std::size_t axis>
-    requires(axis < ndim)
-  constexpr value_type& get() noexcept {
-    return std::get<axis>(elements);
-  }
-  template <std::size_t axis>
-    requires(axis < ndim)
-  constexpr const value_type& get() const noexcept {
-    return std::get<axis>(elements);
-  }
-
-  // clang-format off
-  // TODO deducing this
-  constexpr value_type& x() noexcept { return get<0>(); }
-  constexpr value_type& y() noexcept { return get<1>(); }
-  constexpr value_type& z() noexcept { return get<2>(); }
-  constexpr value_type& w() noexcept { return get<3>(); }
-  constexpr const value_type& x() const noexcept { return get<0>(); }
-  constexpr const value_type& y() const noexcept { return get<1>(); }
-  constexpr const value_type& z() const noexcept { return get<2>(); }
-  constexpr const value_type& w() const noexcept { return get<3>(); }
-  // clang-format on
-
-  [[nodiscard]] constexpr auto operator<=>(const Vec&) const = default;
-
- private:
-  template <typename Fn, std::size_t... axes, typename... Args>
-    requires((... and (axes < ndim)) and (... and std::same_as<Vec, std::decay_t<Args>>))
-  constexpr Vec& apply_impl(Fn&& fn, std::index_sequence<axes...>, Args&&... args) noexcept {
-    auto apply_on_axis{[&]<std::size_t axis>() { get<axis>() = fn(args.template get<axis>()...); }};
-    (apply_on_axis.template operator()<axes>(), ...);
-    return *this;
-  }
-
- public:
-  template <std::regular_invocable<value_type> UnaryFn>
-  constexpr Vec& apply(UnaryFn&& fn) noexcept {
-    return apply_impl(std::forward<UnaryFn>(fn), axes_indices{}, *this);
-  }
-
-  template <std::regular_invocable<value_type, value_type> BinaryFn>
-  constexpr Vec& apply(BinaryFn&& fn, const Vec& rhs) noexcept {
-    return apply_impl(std::forward<BinaryFn>(fn), axes_indices{}, *this, rhs);
-  }
-
-  // clang-format off
-  constexpr Vec& operator+=(const Vec& rhs) noexcept { return apply(std::plus<value_type>{}, rhs); }
-  constexpr Vec& operator-=(const Vec& rhs) noexcept { return apply(std::minus<value_type>{}, rhs); }
-  constexpr Vec& operator*=(const Vec& rhs) noexcept { return apply(std::multiplies<value_type>{}, rhs); }
-  constexpr Vec& operator/=(const Vec& rhs) noexcept { return apply(std::divides<value_type>{}, rhs); }
-  // clang-format on
-
-  [[nodiscard]] constexpr Vec operator+(const Vec& rhs) const noexcept {
-    Vec lhs{*this};
-    return lhs += rhs;
-  }
-  [[nodiscard]] constexpr Vec operator-(const Vec& rhs) const noexcept {
-    Vec lhs{*this};
-    return lhs -= rhs;
-  }
-  [[nodiscard]] constexpr Vec operator*(const Vec& rhs) const noexcept {
-    Vec lhs{*this};
-    return lhs *= rhs;
-  }
-  [[nodiscard]] constexpr Vec operator/(const Vec& rhs) const noexcept {
-    Vec lhs{*this};
-    return lhs /= rhs;
-  }
-
-  [[nodiscard]] constexpr Vec abs() const noexcept {
-    Vec res{*this};
-    return res.apply([](value_type val) noexcept -> value_type { return std::abs(val); });
-  }
-
-  [[nodiscard]] constexpr Vec signum() const noexcept {
-    Vec res{*this};
-    return res.apply([](value_type val) noexcept -> value_type {
-      return (value_type{} < val) - (val < value_type{});
-    });
-  }
-
-  [[nodiscard]] constexpr value_type sum() const noexcept {
-    return std::apply(
-        [](std::same_as<value_type> auto... vs) noexcept -> value_type { return (... + vs); },
-        elements
-    );
-  }
-
-  [[nodiscard]] constexpr value_type distance(const Vec& rhs) const noexcept {
-    return (*this - rhs).abs().sum();
-  }
-
-  constexpr Vec& rotate_left() noexcept
-    requires(ndim == 2)
-  {
-    x() = std::exchange(y(), -x());
-    return *this;
-  }
-
-  constexpr Vec& rotate_right() noexcept
-    requires(ndim == 2)
-  {
-    x() = -std::exchange(y(), x());
-    return *this;
-  }
-
-  [[nodiscard]] constexpr auto adjacent() const noexcept
-    requires(ndim == 2)
-  {
-    return std::array{
-        *this - Vec(0, 1),
-        *this - Vec(1, 0),
-        *this + Vec(1, 0),
-        *this + Vec(0, 1),
-    };
-  }
-};
-
+template <typename... Ts>
+using Vec = ndvec<Ts...>;
 template <typename T>
-using Vec1 = Vec<T>;
-
+using Vec1 = vec1<T>;
 template <typename T>
-using Vec2 = Vec<T, T>;
-
+using Vec2 = vec2<T>;
 template <typename T>
-using Vec3 = Vec<T, T, T>;
-
+using Vec3 = vec3<T>;
 template <typename T>
-using Vec4 = Vec<T, T, T, T>;
+using Vec4 = vec4<T>;
 
 }  // namespace aoc
-
-template <std::integral... Ts>
-struct std::hash<aoc::Vec<Ts...>> {
-  using Vec = aoc::Vec<Ts...>;
-  using T = Vec::value_type;
-  static constexpr auto slot_width{std::numeric_limits<std::size_t>::digits / Vec::ndim};
-
-  template <typename axes = Vec::axes_indices>
-  constexpr auto operator()(const Vec& v) const noexcept {
-    return [&]<std::size_t... axis>(std::index_sequence<axis...>) {
-      return (... | (std::hash<T>{}(v.template get<axis>()) << (slot_width * axis)));
-    }(axes{});
-  }
-};
-
-template <std::formattable<char>... Ts>
-struct std::formatter<aoc::Vec<Ts...>, char> {
-  using Vec = aoc::Vec<Ts...>;
-
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx) {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(const Vec& v, FormatContext& ctx) const {
-    return std::format_to(ctx.out(), "Vec{}{}", Vec::ndim, v.elements);
-  }
-};
-
-template <typename... Ts>
-std::ostream& operator<<(std::ostream& os, const aoc::Vec<Ts...>& v) {
-  return os << std::format("{}", v);
-}
-
-template <typename... Ts>
-std::istream& operator>>(std::istream& is, aoc::Vec<Ts...>& v) {
-  using Vec = aoc::Vec<Ts...>;
-
-  if (Vec res; is >> res.template get<0>()) {
-    [&]<std::size_t... axis>(std::index_sequence<axis...>) {
-      ((is >> aoc::skip(","s) >> res.template get<axis + 1>()), ...);
-    }(std::make_index_sequence<Vec::ndim - 1>{});
-    if (is) {
-      v = res;
-    }
-  }
-
-  return is;
-}
 
 #endif // AOC_HEADER_INCLUDED

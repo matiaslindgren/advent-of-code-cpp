@@ -31,9 +31,13 @@ struct Stone {
 };
 
 std::istream& operator>>(std::istream& is, Stone& stone) {
-  if (Vec3 p, v; is >> p >> std::ws >> skip("@"s) >> v) {
-    stone = {p, v};
-    return is;
+  if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
+    std::stringstream ls{line};
+    if (Vec3 p, v; ls >> p >> std::ws >> skip("@"s) >> v) {
+      stone = {p, v};
+      return is;
+    }
   }
   if (is.eof()) {
     return is;

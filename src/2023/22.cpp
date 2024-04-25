@@ -55,7 +55,8 @@ std::istream& operator>>(std::istream& is, Brick& brick) {
   using aoc::skip;
   using std::operator""s;
   if (std::string line; std::getline(is, line)) {
-    std::stringstream ls{line};
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
     if (Vec3 begin, end; ls >> begin >> skip("~"s) >> end) {
       brick = {begin, end + Vec3(1, 1, 1)};
       return is;

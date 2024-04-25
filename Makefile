@@ -3,7 +3,7 @@ LLVM_VERSION ?= 18
 SHELL ?= /bin/sh
 CXX   := clang++-$(LLVM_VERSION)
 
-INCLUDES ?= -I./include
+INCLUDES ?= -I./include -I./ndvec
 LDFLAGS  ?= -lm -fuse-ld=lld -lc++
 CXXFLAGS ?= \
 	-std=c++23 \
