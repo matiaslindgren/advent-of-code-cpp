@@ -1,0 +1,3 @@
+[submodule "ndvec"]
+	path = ndvec
+	url = git@github.com:matiaslindgren/ndvec.git
