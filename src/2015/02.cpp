@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -36,7 +35,7 @@ std::istream& operator>>(std::istream& is, Present& p) {
   throw std::runtime_error("failed parsing Present");
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 
 int main() {
   const auto presents{aoc::slurp<Present>("/dev/stdin")};

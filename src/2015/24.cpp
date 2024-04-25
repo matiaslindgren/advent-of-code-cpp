@@ -1,14 +1,13 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 using Ints = std::vector<int>;
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
-constexpr auto product{std::__bind_back(my_std::ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 std::vector<Ints> combinations_with_sum(const Ints& ints, const int k, const long target) {
   std::vector<bool> selected(ints.size(), false);

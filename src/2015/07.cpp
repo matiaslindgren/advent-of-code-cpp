@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -109,9 +109,8 @@ int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
   const auto circuit{
-      views::istream<Statement>(input) | views::transform([](const auto& stmt) {
-        return std::tuple{stmt.dst, stmt};
-      })
+      views::istream<Statement>(input)
+      | views::transform([](const auto& stmt) { return std::tuple{stmt.dst, stmt}; })
       | ranges::to<std::unordered_map<std::string, Statement>>()
   };
 

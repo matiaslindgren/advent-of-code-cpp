@@ -1,6 +1,5 @@
-#include "std.hpp"
-#include "my_std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -35,12 +34,8 @@ struct Grid2D {
     return y * width + x;
   }
 
-  // TODO
-  const Tile& get(const auto y, const auto x) const {
-    return tiles.at(index(y, x));
-  }
-  Tile& get(const auto y, const auto x) {
-    return tiles.at(index(y, x));
+  auto&& get(this auto&& self, const auto y, const auto x) {
+    return self.tiles.at(self.index(y, x));
   }
 
   const char& get_letter(const auto y, const auto x) const {

@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using std::operator""s;
 
@@ -76,7 +75,7 @@ std::istream& operator>>(std::istream& is, Graph& graph) {
   throw std::runtime_error("failed parsing Graph");
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(Graph graph) {
   // Stoer–Wagner algorithm

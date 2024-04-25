@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -115,12 +115,7 @@ int main() {
   const auto part1{replace_all(medicine, replacements).size()};
 
   auto reverse_replacements{
-      views::transform(
-          replacements,
-          [](const auto& r) -> Replacement {
-            return {r.dst, r.src};
-          }
-      )
+      views::transform(replacements, [](const auto& r) -> Replacement { return {r.dst, r.src}; })
       | ranges::to<std::vector>()
   };
   ranges::sort(reverse_replacements, ranges::greater{}, [](const auto& r) { return r.src.size(); });

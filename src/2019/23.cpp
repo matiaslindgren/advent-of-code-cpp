@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "intcode.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;

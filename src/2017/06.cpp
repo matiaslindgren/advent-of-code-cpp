@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -15,7 +14,7 @@ struct Bank {
 template <>
 struct std::hash<Bank> {
   std::size_t operator()(const Bank& bank) const noexcept {
-    return my_std::ranges::fold_left(bank.v, 0uz, [](auto h, auto x) { return (h << 4) | x; });
+    return ranges::fold_left(bank.v, 0uz, [](auto h, auto x) { return (h << 4) | x; });
   }
 };
 

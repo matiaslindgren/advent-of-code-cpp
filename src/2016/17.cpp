@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "md5.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;

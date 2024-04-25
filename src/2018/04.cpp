@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -48,8 +47,8 @@ auto find_max(const auto& all_naps, const auto& f) {
   return guard * (ranges::max_element(naps) - naps.begin());
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
-constexpr auto max{std::__bind_back(my_std::ranges::fold_left, 0, ranges::max)};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto max{std::__bind_back(ranges::fold_left, 0, ranges::max)};
 
 auto find_sleepy_guards(const auto& events) {
   std::unordered_map<int, std::array<int, 60>> naps;

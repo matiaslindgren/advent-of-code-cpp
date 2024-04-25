@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using std::operator""s;
 
@@ -77,7 +76,7 @@ std::istream& operator>>(std::istream& is, Operation& op) {
 }
 
 std::string scramble(std::string input, ranges::forward_range auto&& operations) {
-  return my_std::ranges::fold_left(operations, input, [](std::string s, auto op) {
+  return ranges::fold_left(operations, input, [](std::string s, auto op) {
     if (std::max(op.idx0, op.idx1) >= s.size()) {
       throw std::runtime_error("operation has an index which exceeds input string size");
     }

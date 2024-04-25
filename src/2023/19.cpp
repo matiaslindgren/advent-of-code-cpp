@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 using std::operator""s;
 
@@ -32,7 +32,7 @@ struct RatingBound {
   }
 
   constexpr auto combination_count() const {
-    return my_std::ranges::fold_left(
+    return ranges::fold_left(
         views::zip(lower, upper)
             | views::transform(my_std::apply_fn([](auto&& lo, auto&& up) { return up - lo - 1; })),
         1uz,
@@ -164,7 +164,7 @@ auto find_bounds(const auto& workflows) {
   return bounds;
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0uz, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0uz, std::plus{})};
 
 auto find_part1(const auto& bounds, const auto& ratings) {
   return sum(

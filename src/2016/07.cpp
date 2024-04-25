@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -34,7 +34,7 @@ std::istream& operator>>(std::istream& is, IP& ip) {
   throw std::runtime_error("failed parsing IP");
 }
 
-// TODO ranges::adjacent
+// TODO (llvm19?) ranges::adjacent
 constexpr decltype(auto) window3(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2));
 }

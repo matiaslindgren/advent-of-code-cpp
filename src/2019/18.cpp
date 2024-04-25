@@ -1,6 +1,5 @@
-#include "std.hpp"
-#include "my_std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -84,7 +83,7 @@ struct State {
 template <>
 struct std::hash<State> {
   auto operator()(const State& s) const {
-    return my_std::ranges::fold_left(s.robots, s.keys.to_ulong(), [](auto h, Vec2 v) {
+    return ranges::fold_left(s.robots, s.keys.to_ulong(), [](auto h, Vec2 v) {
       return (h << 1) ^ std::hash<Vec2>{}(v);
     });
   }

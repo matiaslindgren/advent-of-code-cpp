@@ -13,7 +13,7 @@ function test_with_random_data {
   data="${tmpdir}/rand.data"
   dd if=/dev/urandom of="$data" bs=${bs} count=${n} 2> /dev/null
   wc -c "$data"
-  aoc_md5=$(make LLVM_VERSION=${LLVM_VERSION:-17} FAST=${FAST:-0} run_tools/md5 < "$data")
+  aoc_md5=$(make LLVM_VERSION=${LLVM_VERSION:-18} FAST=${FAST:-0} run_tools/md5 < "$data")
   gnu_md5=$(md5sum < "$data" | cut -f1 -d' ')
   if [ "$aoc_md5" != "$gnu_md5" ]; then
     printf "aoc_md5 '$aoc_md5' != '$gnu_md5' gnu_md5\n"

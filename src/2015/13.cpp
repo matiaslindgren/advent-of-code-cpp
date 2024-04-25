@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -39,15 +38,8 @@ class Graph {
     return nodes.size();
   }
 
-  /* //TODO(P0847R7) */
-  /* auto&& happiness(this auto&& self, auto n1, auto n2) { */
-  /*   return weights[n1 + n2 * node_count()]; */
-  /* } */
-  auto& happiness(auto n1, auto n2) {
-    return weights[n1 + n2 * node_count()];
-  }
-  const auto& happiness(auto n1, auto n2) const {
-    return weights[n1 + n2 * node_count()];
+  auto&& happiness(this auto&& self, auto n1, auto n2) {
+    return self.weights[n1 + n2 * self.node_count()];
   }
 
   explicit Graph(const std::vector<Pair>& pairs) {
@@ -74,7 +66,7 @@ class Graph {
   }
 };
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {

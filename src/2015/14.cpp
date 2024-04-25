@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -26,9 +26,7 @@ std::istream& operator>>(std::istream& is, Reindeer& r) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto herd{views::istream<Reindeer>(input) | ranges::to<std::vector>()};
+  const auto herd{aoc::slurp<Reindeer>("/dev/stdin")};
 
   struct ReindeerState {
     bool resting;

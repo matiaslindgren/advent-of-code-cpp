@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 auto search(const auto& v) {
   long part1{};

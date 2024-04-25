@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 auto find_frequencies(const auto& items) {
   const auto n{items.size()};

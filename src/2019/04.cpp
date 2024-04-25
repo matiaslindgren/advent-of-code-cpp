@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -14,7 +14,7 @@ auto get_digits(auto x) {
   return d;
 }
 
-// TODO ranges::adjacent
+// TODO (llvm19?) ranges::adjacent
 constexpr decltype(auto) window2(ranges::random_access_range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }

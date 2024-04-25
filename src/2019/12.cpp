@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -17,13 +17,13 @@ using Moons = std::array<Moon, 4>;
 
 template <std::size_t axis>
 auto hash_axis(const Moons& moons) {
-  auto state_str{my_std::ranges::fold_left(moons, ""s, [](auto&& s, const Moon& m) {
+  auto state_str{ranges::fold_left(moons, ""s, [](auto&& s, const Moon& m) {
     return s + std::format("{}{}", m.p.get<axis>(), m.v.get<axis>());
   })};
   return std::hash<std::string>{}(state_str);
 }
 
-inline constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+inline constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto search(Moons moons) {
   long part1{}, part2{};

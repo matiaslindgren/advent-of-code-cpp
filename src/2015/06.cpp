@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -68,7 +67,7 @@ int main() {
   }
 
   const auto part1{ranges::count_if(part1_lights, std::identity())};
-  const auto part2{my_std::ranges::fold_left(part2_lights, 0LL, std::plus{})};
+  const auto part2{ranges::fold_left(part2_lights, 0LL, std::plus{})};
 
   std::print("{} {}\n", part1, part2);
 

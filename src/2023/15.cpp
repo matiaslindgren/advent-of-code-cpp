@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -44,18 +43,18 @@ std::istream& operator>>(std::istream& is, Step& step) {
 }
 
 uint8_t hash(std::string_view s) {
-  return my_std::ranges::fold_left(s, uint8_t{}, [](const uint8_t h, const char ch) {
+  return ranges::fold_left(s, uint8_t{}, [](const uint8_t h, const char ch) {
     return 17u * (h + ch);
   });
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0u, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0u, std::plus{})};
 
 auto find_part1(const auto& steps) {
   return sum(steps | views::transform([](auto step) { return hash(step.str); }));
 }
 
-// TODO ranges::adjacent
+// TODO (llvm19) ranges::adjacent
 constexpr decltype(auto) window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }
@@ -91,7 +90,7 @@ auto find_part2(const auto& steps) {
   auto ordered{lenses | views::values | ranges::to<std::vector>()};
   ranges::sort(ordered);
 
-  return my_std::ranges::fold_left(
+  return ranges::fold_left(
       window2(ordered) | views::transform([slot = 1](const auto& w) mutable {
         const auto& [l1, l2] = w;
         if (l1.box != l2.box) {

@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 using std::operator""sv;
 
@@ -69,7 +69,7 @@ std::istream& operator>>(std::istream& is, Instruction& ins) {
   return is;
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 
 auto find_part1(const auto& instructions) {
   std::unordered_map<long, long> mem;
@@ -81,7 +81,7 @@ auto find_part1(const auto& instructions) {
           mask = ins.mask;
         } break;
         case Instruction::write: {
-          mem[ins.dst] = my_std::ranges::fold_left(
+          mem[ins.dst] = ranges::fold_left(
               views::iota(0uz, mask.size()),
               ins.src,
               [&mask](auto res, auto i) -> long {

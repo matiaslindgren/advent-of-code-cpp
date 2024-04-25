@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -51,11 +50,7 @@ long count_decompressed(const Markers& markers, const bool simple) {
   }};
 
   const auto get_current_total_repeat{[&] {
-    return my_std::ranges::fold_left(
-        repeating | views::transform(&Marker::repeat),
-        1L,
-        std::multiplies{}
-    );
+    return ranges::fold_left(repeating | views::transform(&Marker::repeat), 1L, std::multiplies{});
   }};
 
   long n{};

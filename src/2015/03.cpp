@@ -69,13 +69,13 @@ int main() {
     | ranges::to<Moves>()
   };
 
-  // TODO(llvm18?) P1899R3 std::views::stride
+  // TODO(llvm19?) P1899R3 std::views::stride
   const auto santa_moves{
     all_moves
     | my_std::views::stride(2)
     | ranges::to<Moves>()
   };
-  // TODO(llvm18?) P1899R3 std::views::stride
+  // TODO(llvm19?) P1899R3 std::views::stride
   const auto robot_moves{
     all_moves
     | views::drop(1)

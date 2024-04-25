@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -31,6 +31,10 @@ class Graph {
   std::vector<std::size_t> distances;
 
  public:
+  auto&& distance(this auto&& self, auto n1, auto n2) {
+    return self.distances[n1 + n2 * self.node_count()];
+  }
+
   constexpr explicit Graph(const std::vector<Edge>& edges) {
     std::vector<std::string> nodes;
     for (const auto& edge : edges) {
@@ -65,17 +69,6 @@ class Graph {
 
   constexpr std::size_t max_distance() const {
     return std::numeric_limits<std::size_t>::max();
-  }
-
-  /* //TODO(P0847R7) */
-  /* auto&& distance(this auto&& self, auto n1, auto n2) { */
-  /*   return distances[n1 + n2 * node_count()]; */
-  /* } */
-  std::size_t& distance(auto n1, auto n2) {
-    return distances[n1 + n2 * node_count()];
-  }
-  const std::size_t& distance(auto n1, auto n2) const {
-    return distances[n1 + n2 * node_count()];
   }
 
   template <std::size_t max_node_count>

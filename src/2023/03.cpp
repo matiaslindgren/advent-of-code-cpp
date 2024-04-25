@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -16,12 +16,8 @@ struct Grid {
   std::size_t width{};
   std::size_t height{};
 
-  // TODO llvm18? deducing this
-  constexpr Cell& get(auto y, auto x) {
-    return cells[y * width + x];
-  }
-  constexpr const Cell& get(auto y, auto x) const {
-    return cells[y * width + x];
+  constexpr auto&& get(this auto&& self, auto y, auto x) {
+    return self.cells[y * self.width + x];
   }
 
   constexpr auto iter_yx_with_padding(const std::size_t pad) const {
@@ -90,7 +86,7 @@ std::istream& operator>>(std::istream& is, Grid& grid) {
   throw std::runtime_error("failed parsing Grid");
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 constexpr std::pair<int, int> search(const Grid& grid) {
   int part1{};

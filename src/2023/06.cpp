@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -21,7 +21,7 @@ inline auto count_ways_to_win{[](auto time, auto dist) {
     return t_press * (time - t_press) > dist;
   });
 }};
-constexpr auto product{std::__bind_back(my_std::ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 auto find_part1(const Ints& times, const Ints& dists) {
   return product(views::zip(times, dists) | views::transform(my_std::apply_fn(count_ways_to_win)));
@@ -36,7 +36,7 @@ long pow10_ceil(long x) {
 }
 
 auto concat_digits(const Ints& v) {
-  return my_std::ranges::fold_left(v, 0L, [](auto res, auto x) { return res * pow10_ceil(x) + x; });
+  return ranges::fold_left(v, 0L, [](auto res, auto x) { return res * pow10_ceil(x) + x; });
 }
 
 auto find_part2(const Ints& times, const Ints& dists) {

@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 using std::operator""s;
 
@@ -73,9 +73,9 @@ struct Point2D {
   }
 };
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 
-// TODO ranges::adjacent
+// TODO (llvm19?) ranges::adjacent
 constexpr decltype(auto) window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }

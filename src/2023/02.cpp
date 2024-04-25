@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -43,7 +42,7 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   throw std::runtime_error("failed parsing GameMax");
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
   const auto max_counts{aoc::slurp<GameMax>("/dev/stdin")};

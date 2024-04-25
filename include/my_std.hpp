@@ -7,31 +7,6 @@
 namespace my_std {
 namespace ranges {
 // Taken from "Possible implementations" at
-// https://en.cppreference.com/w/cpp/algorithm/ranges/fold_left
-// (accessed 2023-09-30)
-struct fold_left_fn {
-  template <std::input_iterator I, std::sentinel_for<I> S, class T, class F>
-  constexpr auto operator()(I first, S last, T init, F f) const {
-    using U = std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
-    if (first == last) {
-      return U(std::move(init));
-    }
-    U accum = std::invoke(f, std::move(init), *first);
-    for (++first; first != last; ++first) {
-      accum = std::invoke(f, std::move(accum), *first);
-    }
-    return std::move(accum);
-  }
-
-  template <std::ranges::input_range R, class T, class F>
-  constexpr auto operator()(R&& r, T init, F f) const {
-    return (*this)(std::ranges::begin(r), std::ranges::end(r), std::move(init), std::ref(f));
-  }
-};
-
-inline constexpr fold_left_fn fold_left;
-
-// Taken from "Possible implementations" at
 // https://en.cppreference.com/w/cpp/algorithm/ranges/fold_right
 // (accessed 2023-12-09)
 struct fold_right_fn {
@@ -57,7 +32,7 @@ struct fold_right_fn {
 
 inline constexpr fold_right_fn fold_right;
 
-// TODO(llvm18?) P1899R3
+// TODO(llvm19?) P1899R3
 template <std::ranges::input_range V>
   requires std::ranges::view<V>
 class stride_view : public std::ranges::view_interface<stride_view<V>> {
@@ -193,7 +168,7 @@ class stride_view<V>::iterator_ {
   }
 };
 
-// TODO P2374R4 (llvm18?)
+// TODO P2374R4 (llvm19?)
 // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2374r4.html
 
 // TODO
@@ -341,13 +316,13 @@ class cartesian_product_view<First, Vs...>::iterator {
   }
 };
 
-// TODO(llvm18) P2442R1
+// TODO(llvm19) P2442R1
 // chunk
 
 }  // namespace ranges
 
 namespace views {
-// TODO(llvm18?) P1899R3
+// TODO(llvm19?) P1899R3
 struct _stride_fn : public std::__range_adaptor_closure<_stride_fn> {
   template <class Range, class Step>
   constexpr auto operator()(Range&& r, Step&& step) const {

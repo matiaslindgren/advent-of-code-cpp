@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using Vec2 = aoc::Vec2<int>;
 using aoc::skip;

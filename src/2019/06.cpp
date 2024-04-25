@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 using std::operator""s;
 
@@ -75,12 +75,7 @@ int main() {
   const auto edges{parse_input("/dev/stdin")};
 
   const auto parent{
-      views::transform(
-          edges,
-          [](const Edge& e) {
-            return std::pair{e.dst, e.src};
-          }
-      )
+      views::transform(edges, [](const Edge& e) { return std::pair{e.dst, e.src}; })
       | ranges::to<std::unordered_map>()
   };
   const auto part1{find_part1(parent)};

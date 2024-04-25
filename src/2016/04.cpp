@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -71,7 +70,7 @@ std::istream& operator>>(std::istream& is, Room& room) {
 
 int find_part1(const auto& rooms) {
   // clang-format off
-  return my_std::ranges::fold_left(
+  return ranges::fold_left(
     rooms
       | views::filter([](const auto& r) { return r.check_name() == r.checksum; })
       | views::transform(&Room::id),

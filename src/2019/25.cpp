@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "intcode.hpp"
+#include "std.hpp"
 
 using std::operator""s;
 

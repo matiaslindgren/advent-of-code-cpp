@@ -1,8 +1,9 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+namespace ranges = std::ranges;
+
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 std::pair<int, int> find_tree_value(const auto& tree, const bool part1, const int i = 0) {
   const auto n_children{tree[i]};

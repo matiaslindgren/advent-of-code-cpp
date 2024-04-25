@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -36,7 +36,7 @@ int main() {
       front.push_back(diff.front());
       back.push_back(diff.back());
     }
-    part1 += my_std::ranges::fold_left(back, 0L, std::plus{});
+    part1 += ranges::fold_left(back, 0L, std::plus{});
     part2 += my_std::ranges::fold_right(front, 0L, std::minus{});
   }
 

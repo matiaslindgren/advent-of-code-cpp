@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -11,7 +11,7 @@ using Row = std::bitset<128>;
 auto knot_hash(std::string input) {
   input.append_range(std::vector<char>{17, 31, 73, 47, 23});
   HashState state;
-  // TODO ranges::iota(state, 0u);
+  // TODO (llvm19?) ranges::iota(state, 0u);
   for (unsigned x{}; x < state.size(); ++x) {
     state[x] = x;
   }
@@ -31,18 +31,16 @@ auto knot_hash(std::string input) {
   }
   Row row;
   for (auto begin{0uz}; begin < state.size(); begin += 16) {
-    const auto chunk{my_std::ranges::fold_left(
-        state | views::drop(begin) | views::take(16),
-        uint8_t{0},
-        std::bit_xor{}
-    )};
+    const auto chunk{
+        ranges::fold_left(state | views::drop(begin) | views::take(16), uint8_t{0}, std::bit_xor{})
+    };
     row <<= 8;
     row |= Row(chunk);
   }
   return row;
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0u, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0u, std::plus{})};
 
 auto parse_rows(std::istream& is) {
   std::string input;

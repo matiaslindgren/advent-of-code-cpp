@@ -1,6 +1,5 @@
-#include "std.hpp"
-#include "my_std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -133,7 +132,7 @@ int main() {
                                       const auto [lo, hi] = b.value();
                                       return lo == 17 and hi == 61;
                                     }))};
-  const auto part2{my_std::ranges::fold_left(
+  const auto part2{ranges::fold_left(
       ranges::subrange(outputs.begin(), outputs.begin() + 3)
           | views::transform([](const auto& out) { return out.value().second; }),
       1,

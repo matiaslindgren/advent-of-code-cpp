@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -129,7 +128,7 @@ auto search_paths(const auto& tokens) {
   const auto dist{find_shortest_paths(steps)};
   const auto lengths{views::values(dist)};
   return std::pair{
-      my_std::ranges::fold_left(lengths, 0, ranges::max),
+      ranges::fold_left(lengths, 0, ranges::max),
       ranges::count_if(lengths, [](auto&& len) { return len >= 1'000; }),
   };
 }

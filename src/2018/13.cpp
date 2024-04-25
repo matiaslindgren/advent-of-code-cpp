@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -43,12 +43,8 @@ struct Grid2D {
   auto index(const Vec2& v) const {
     return v.y() * width + v.x();
   }
-  // TODO deduce this
-  const auto& get_tile(const Vec2& v) const {
-    return tiles.at(index(v));
-  }
-  auto& get_tile(const Vec2& v) {
-    return tiles.at(index(v));
+  auto&& get_tile(this auto&& self, const Vec2& v) {
+    return self.tiles.at(self.index(v));
   }
 };
 
@@ -187,12 +183,7 @@ auto run(auto grid, auto carts) {
   while (carts.size() > 1) {
     ranges::sort(carts);
     auto pos2cart{
-        views::transform(
-            carts,
-            [&](const auto& c) {
-              return std::pair{pos_index(c), c};
-            }
-        )
+        views::transform(carts, [&](const auto& c) { return std::pair{pos_index(c), c}; })
         | ranges::to<std::unordered_map<int, Cart>>()
     };
     for (Cart cart : std::exchange(carts, {})) {

@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -33,7 +32,7 @@ std::istream& operator>>(std::istream& is, Unit& unit) {
 
 std::size_t react(auto polymer) {
   for (auto alive{ranges::subrange(polymer)};;) {
-    // TODO std adjacent
+    // TODO (llvm19?) std adjacent
     for (const auto [lhs, rhs] : views::zip(alive, views::drop(alive, 1))) {
       if (lhs.alive and rhs.alive and lhs.destroys(rhs)) {
         lhs.alive = rhs.alive = false;
@@ -48,7 +47,7 @@ std::size_t react(auto polymer) {
 }
 
 auto find_part2(const auto& polymer) {
-  return my_std::ranges::fold_left(
+  return ranges::fold_left(
       views::iota(0, 'z' - 'a' + 1),
       polymer.size(),
       [&polymer](const auto best, const auto without) {

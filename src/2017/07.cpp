@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using aoc::skip;
 using std::operator""s;
@@ -61,7 +60,7 @@ auto find_root(const auto& nodes) {
   throw std::runtime_error("cannot find root");
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 int find_tree_weight(const auto& root, const auto& nodes) {
   return root.weight + sum(views::transform(root.children, [&nodes](const auto& cid) {
@@ -116,9 +115,8 @@ auto find_balance_weight(const auto& nodes) {
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
   const auto nodes{
-      views::istream<Node>(input) | views::transform([](const auto& n) {
-        return std::pair{n.id, n};
-      })
+      views::istream<Node>(input)
+      | views::transform([](const auto& n) { return std::pair{n.id, n}; })
       | ranges::to<std::unordered_map>()
   };
 

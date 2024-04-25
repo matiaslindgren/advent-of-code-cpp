@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -37,7 +36,7 @@ struct Unit {
   int id{}, power{}, hp{};
 };
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 using Vec2 = aoc::Vec2<int>;
 
 struct Cave {
@@ -54,12 +53,8 @@ struct Cave {
     return p.y() * width + p.x();
   }
 
-  // TODO deducing this
-  const auto& get_pos(const Unit& u) const {
-    return state.at(u.id);
-  }
-  auto& get_pos(const Unit& u) {
-    return state.at(u.id);
+  auto&& get_pos(this auto&& self, const Unit& u) {
+    return self.state.at(u.id);
   }
 
   bool is_wall(const Vec2& p) const {

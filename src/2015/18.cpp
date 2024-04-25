@@ -1,5 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -35,12 +35,8 @@ struct Grid2D {
       : grid{lights}, size{static_cast<std::size_t>(std::sqrt(lights.size()))} {
   }
 
-  // TODO(llvm18) deducing this
-  auto& get(const std::size_t row, const std::size_t col) {
-    return grid.at(row * size + col);
-  }
-  const auto& get(const std::size_t row, const std::size_t col) const {
-    return grid.at(row * size + col);
+  auto&& get(this auto&& self, std::size_t row, std::size_t col) {
+    return self.grid.at(row * self.size + col);
   }
 
   bool is_on(const Light l) const {

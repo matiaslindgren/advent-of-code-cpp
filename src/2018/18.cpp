@@ -1,6 +1,6 @@
-#include "std.hpp"
-#include "my_std.hpp"
 #include "aoc.hpp"
+#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -45,12 +45,8 @@ struct Grid2D {
     ++height;
   }
 
-  // TODO deduce this
-  const auto& get(auto y, auto x) const {
-    return tiles.at(y * width + x);
-  }
-  auto& get(auto y, auto x) {
-    return tiles.at(y * width + x);
+  auto&& get(this auto&& self, auto y, auto x) {
+    return self.tiles.at(y * self.width + x);
   }
 
   Grid2D step() const {

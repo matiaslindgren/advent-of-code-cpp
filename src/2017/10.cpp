@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -9,7 +8,7 @@ using HashState = std::array<uint8_t, 256>;
 
 HashState compute_hash(const auto& input, int rounds) {
   HashState state;
-  // TODO ranges::iota(state, 0u);
+  // TODO (llvm19?) ranges::iota(state, 0u);
   for (unsigned x{}; x < state.size(); ++x) {
     state[x] = x;
   }
@@ -44,7 +43,7 @@ auto compute_part2(std::string input) {
   // TODO join_with view
   std::string res;
   for (auto begin{0uz}; begin < state.size(); begin += 16) {
-    const auto chunk{my_std::ranges::fold_left(
+    const auto chunk{ranges::fold_left(
         state | views::drop(begin + 1) | views::take(15),
         state[begin],
         std::bit_xor{}

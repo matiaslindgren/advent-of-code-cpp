@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -35,7 +34,7 @@ struct Space {
 
   auto distance_sum(const auto expansion) const {
     const auto n{galaxies.size()};
-    return my_std::ranges::fold_left(
+    return ranges::fold_left(
         views::iota(0uz, n * n) | views::transform([=, this](const auto& i) -> long {
           if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
             const auto p1{this->galaxies[i1]};

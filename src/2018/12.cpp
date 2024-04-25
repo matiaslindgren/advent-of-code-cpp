@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 using aoc::skip;
 using std::operator""s;
@@ -15,10 +15,10 @@ struct Rule {
 
 using Pots = std::vector<bool>;
 
-constexpr auto bools2int{std::__bind_back(my_std::ranges::fold_left, 0u, [](auto x, bool b) {
+constexpr auto bools2int{std::__bind_back(ranges::fold_left, 0u, [](auto x, bool b) {
   return (x << 1) | b;
 })};
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 std::istream& operator>>(std::istream& is, Pots& pots) {
   Pots p;

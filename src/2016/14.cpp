@@ -1,7 +1,7 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
 #include "md5.hpp"
+#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -31,7 +31,7 @@ void fill_checksums_parallel(std::string_view msg, const auto i, const auto stre
   ranges::for_each(threads, [](auto& th) { th.join(); });
 }
 
-// TODO ranges::adjacent
+// TODO (llvm19?) ranges::adjacent
 // TODO template index sequence
 constexpr decltype(auto) window5(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2), views::drop(r, 3), views::drop(r, 4));

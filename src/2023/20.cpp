@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using aoc::skip;
 using std::operator""s;
@@ -73,9 +72,7 @@ std::istream& operator>>(std::istream& is, Module& m) {
 }
 
 auto parse_input(std::istream& is) {
-  return views::istream<Module>(is) | views::transform([](auto&& m) {
-           return std::pair{m.id, m};
-         })
+  return views::istream<Module>(is) | views::transform([](auto&& m) { return std::pair{m.id, m}; })
          | ranges::to<Modules>();
 }
 
@@ -191,7 +188,7 @@ auto search(auto modules) {
   }
 
   auto part1{lo_count * hi_count};
-  auto part2{my_std::ranges::fold_left(cycle_lengths, 1uz, [](auto lcm, auto len) {
+  auto part2{ranges::fold_left(cycle_lengths, 1uz, [](auto lcm, auto len) {
     return std::lcm(lcm, len);
   })};
 

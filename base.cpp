@@ -1,5 +1,4 @@
 #include "aoc.hpp"
-#include "my_std.hpp"
 #include "std.hpp"
 
 using aoc::skip;
@@ -45,7 +44,7 @@ std::ostream& operator<<(std::ostream& os, const Item& item) {
   return os << std::format("{}", item);
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& items) {
   return sum(views::transform(items, &Item::id));

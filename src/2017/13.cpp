@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -31,7 +30,7 @@ std::istream& operator>>(std::istream& is, Scanner& scanner) {
   throw std::runtime_error("failed parsing Scanner");
 }
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& scanners) {
   return sum(views::transform(scanners, [](const auto& s) {
@@ -48,8 +47,7 @@ auto find_part2(const auto& scanners) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto scanners{views::istream<Scanner>(input) | ranges::to<std::vector>()};
+  const auto scanners{aoc::slurp<Scanner>("/dev/stdin")};
 
   const auto part1{find_part1(scanners)};
   const auto part2{find_part2(scanners)};

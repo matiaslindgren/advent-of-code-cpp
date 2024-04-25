@@ -1,12 +1,11 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 auto take_prefix(const auto& v, std::size_t n) {
-  return my_std::ranges::fold_left(
+  return ranges::fold_left(
       v | views::take(n) | views::reverse,
       0uz,
       [tens = 1L](auto res, int x) mutable { return res + x * (tens *= 10) / 10; }

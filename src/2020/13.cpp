@@ -1,5 +1,4 @@
 #include "aoc.hpp"
-#include "my_std.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
@@ -34,7 +33,7 @@ Int powmod(Int base, Int exp, Int mod) {
   return res;
 }
 
-constexpr auto product{std::__bind_back(my_std::ranges::fold_left, Int{1}, std::multiplies{})};
+constexpr auto product{std::__bind_back(ranges::fold_left, Int{1}, std::multiplies{})};
 
 long find_part2(const auto& ids) {
   // https://www.reddit.com/r/adventofcode/comments/kc4njx/comment/gfnbyg2

@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using aoc::skip;
 using std::operator""s;
@@ -24,15 +23,11 @@ struct Group {
   Flavour attacks_with;
 
   bool is_weak_to(Flavour f) const {
-    // TODO
-    // return ranges::contains(weak_to, f);
-    return ranges::find(weak_to, f) != weak_to.end();
+    return ranges::contains(weak_to, f);
   }
 
   bool is_immune_to(Flavour f) const {
-    // TODO
-    // return ranges::contains(immune_to, f);
-    return ranges::find(immune_to, f) != immune_to.end();
+    return ranges::contains(immune_to, f);
   }
 
   int damage_to(const Group& target) const {
@@ -241,7 +236,7 @@ bool fight(auto& teams) {
   return total_dead > 0;
 }
 
-inline constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+inline constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto count_units(const auto& teams) {
   return std::pair{

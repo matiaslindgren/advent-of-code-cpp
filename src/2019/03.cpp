@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using aoc::skip;
 using std::operator""s;
@@ -68,7 +67,7 @@ auto search(const auto& wire1, const auto& wire2) {
   std::unordered_map<Vec2, Mark> paths;
   find_paths(wire1, 1, paths);
   find_paths(wire2, 2, paths);
-  return my_std::ranges::fold_left(paths, std::pair{intmax, intmax}, [](auto&& res, auto&& kv) {
+  return ranges::fold_left(paths, std::pair{intmax, intmax}, [](auto&& res, auto&& kv) {
     auto&& [part1, part2]{res};
     auto&& [pos, mark]{kv};
     auto&& [wire, n_steps]{mark};

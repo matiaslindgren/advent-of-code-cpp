@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -28,7 +27,7 @@ std::istream& operator>>(std::istream& is, Light& light) {
 auto find_grid_corners(const auto& lights) {
   constexpr auto intmin{std::numeric_limits<int>::min()};
   constexpr auto intmax{std::numeric_limits<int>::max()};
-  return my_std::ranges::fold_left(
+  return ranges::fold_left(
       lights,
       std::pair{Vec2(intmax, intmax), Vec2(intmin, intmin)},
       [](const auto& corners, const auto& l) {

@@ -1,6 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "std.hpp"
 
 using aoc::skip;
 using std::operator""s;
@@ -13,12 +13,7 @@ using Points = std::vector<Vec4>;
 
 auto find_part1(const Points& points) {
   auto adjacent{
-      views::transform(
-          points,
-          [](auto&& p) {
-            return std::pair{p, std::vector<Vec4>{}};
-          }
-      )
+      views::transform(points, [](auto&& p) { return std::pair{p, std::vector<Vec4>{}}; })
       | ranges::to<std::unordered_map>()
   };
 

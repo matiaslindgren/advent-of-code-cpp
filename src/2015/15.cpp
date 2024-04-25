@@ -1,6 +1,5 @@
-#include "std.hpp"
-#include "my_std.hpp"
 #include "aoc.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -44,7 +43,7 @@ auto compute_scores(const auto& weights, const auto& spoons) {
 }
 
 constexpr auto product{std::bind(
-    my_std::ranges::fold_left,
+    ranges::fold_left,
     std::placeholders::_1,
     std::placeholders::_2,
     1L,

@@ -5,19 +5,10 @@ void test_ranges_fold() {
   using std::operator""s;
 
   const auto s{"abcdef"s};
-  {
-    const auto expect{"."s + s};
-    const auto result{my_std::ranges::fold_left(s, "."s, std::plus{})};
-    if (result != expect) {
-      throw std::runtime_error(std::format("fold left concat: {} != {}", expect, result));
-    }
-  }
-  {
-    const auto expect{s + "."s};
-    const auto result{my_std::ranges::fold_right(s, "."s, std::plus{})};
-    if (result != expect) {
-      throw std::runtime_error(std::format("fold right concat: {} != {}", expect, result));
-    }
+  const auto expect{s + "."s};
+  const auto result{my_std::ranges::fold_right(s, "."s, std::plus{})};
+  if (result != expect) {
+    throw std::runtime_error(std::format("fold right concat: {} != {}", expect, result));
   }
 }
 

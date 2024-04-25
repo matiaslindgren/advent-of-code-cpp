@@ -1,7 +1,6 @@
-#include "std.hpp"
 #include "aoc.hpp"
 #include "intcode.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -9,7 +8,7 @@ namespace views = std::views;
 using intcode::IntCode;
 using Vec2 = aoc::Vec2<int>;
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& program) {
   Vec2 vacuum;

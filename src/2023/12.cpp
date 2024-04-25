@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -106,7 +105,7 @@ auto repeat_and_count_valid(std::ranges::range auto&& springs, const auto repeat
   });
 };
 
-constexpr auto sum{std::__bind_back(my_std::ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
   const auto springs{aoc::slurp<Springs>("/dev/stdin")};

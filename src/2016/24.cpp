@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -97,7 +96,7 @@ std::pair<int, int> search_min_paths(const Grid& grid) {
     auto targets{grid.targets | views::values | ranges::to<std::vector<int>>()};
     do {
       const auto begin{targets.front()};
-      const auto path{my_std::ranges::fold_left(
+      const auto path{ranges::fold_left(
           targets | views::drop(1),
           Distance{begin, 0},
           [&dist](const auto prev, const auto dst) {

@@ -1,6 +1,5 @@
-#include "std.hpp"
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "std.hpp"
 
 using Vec2 = aoc::Vec2<int>;
 
@@ -20,7 +19,7 @@ auto slide_and_count(const Grid& g, const Vec2& d) {
   return n;
 }
 
-constexpr auto product{std::__bind_back(my_std::ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 auto search(const Grid g) {
   auto tree_counts{

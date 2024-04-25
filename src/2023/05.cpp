@@ -1,6 +1,6 @@
-#include "std.hpp"
-#include "my_std.hpp"
 #include "aoc.hpp"
+#include "my_std.hpp"
+#include "std.hpp"
 
 using aoc::skip;
 using std::operator""s;
@@ -134,10 +134,7 @@ int main() {
   input >> seeds >> map_groups;
 
   const auto seed_ranges1{
-      seeds | views::transform([](auto idx) {
-        return Range{idx, 1};
-      })
-      | ranges::to<Ranges>()
+      seeds | views::transform([](auto idx) { return Range{idx, 1}; }) | ranges::to<Ranges>()
   };
   const auto part1{search(seed_ranges1, map_groups)};
 
