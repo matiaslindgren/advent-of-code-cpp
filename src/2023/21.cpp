@@ -73,7 +73,7 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
   for (std::string line; std::getline(is, line);) {
     lines.push_back(line);
   }
-  std::istringstream input;
+  std::stringstream input;
   const auto center{repeat_count / 2};
   for (int r1{0}; r1 < repeat_count; ++r1) {
     for (const auto& original_line : lines) {
