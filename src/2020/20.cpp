@@ -51,7 +51,7 @@ struct Tile {
       out.img.row(y)[img.flip_x(x)] = img.row(x)[y];
     }
     for (auto&& [side, border] : my_std::views::enumerate(out.borders)) {
-      border = borders.at((side + 3) % 4);
+      border = borders.at((side + 3) % borders.size());
     }
     return out;
   }
@@ -62,7 +62,7 @@ struct Tile {
       out.img.row(img.flip_y(y))[x] = img.row(y)[x];
     }
     for (auto&& [side, border] : my_std::views::enumerate(out.borders)) {
-      border = reversed(borders.at((2 - side + 4) % 4));
+      border = reversed(borders.at((2 - side + borders.size()) % borders.size()));
     }
     return out;
   }
@@ -71,7 +71,7 @@ struct Tile {
     for (int flips{}; flips < 2; ++flips) {
       for (int rotations{}; rotations < 4; ++rotations) {
         auto lhs{borders.at(side)};
-        auto rhs{other.borders.at((side + 2) % 4)};
+        auto rhs{other.borders.at((side + 2) % borders.size())};
         if (ranges::equal(lhs, rhs | views::reverse)) {
           return other;
         }
@@ -144,7 +144,7 @@ struct Grid {
     Grid out{*this};
     frozen.insert(t1.id);
     out.tiles[p] = t1;
-    for (auto side{0uz}; side < 4; ++side) {
+    for (auto side{0uz}; side < deltas.size(); ++side) {
       for (Tile t : tilemap | views::values) {
         if (not frozen.contains(t.id)) {
           if (auto match{t1.find_matching_orientation(t, side)}) {
