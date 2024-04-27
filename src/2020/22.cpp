@@ -82,21 +82,16 @@ auto play(Cards cards1, Cards cards2, bool recursive) {
   return std::pair{score(cards1), score(cards2)};
 }
 
-auto find_part1(const Cards& cards1, const Cards& cards2) {
-  auto [score1, score2]{play(cards1, cards2, false)};
-  return std::max(score1, score2);
-}
-
-auto find_part2(const Cards& cards1, const Cards& cards2) {
-  auto [score1, score2]{play(cards1, cards2, true)};
+auto winner_score(const Cards& cards1, const Cards& cards2, bool recursive) {
+  auto [score1, score2]{play(cards1, cards2, recursive)};
   return std::max(score1, score2);
 }
 
 int main() {
   const auto [cards1, cards2]{parse_input("/dev/stdin")};
 
-  const auto part1{find_part1(cards1, cards2)};
-  const auto part2{find_part2(cards1, cards2)};
+  const auto part1{winner_score(cards1, cards2, false)};
+  const auto part2{winner_score(cards1, cards2, true)};
 
   std::print("{} {}\n", part1, part2);
 
