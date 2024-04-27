@@ -1,10 +1,278 @@
 #include "aoc.hpp"
+#include "my_std.hpp"
 #include "std.hpp"
 
+using aoc::skip;
+using std::operator""s;
+using Vec2 = aoc::Vec2<int>;
+
+namespace ranges = std::ranges;
+namespace views = std::views;
+
+auto reversed(ranges::range auto&& r) {
+  auto res{r};
+  ranges::reverse(res);
+  return res;
+}
+
+struct Image {
+  std::size_t width{};
+  std::string str{};
+
+  auto height() const {
+    return str.size() / width;
+  }
+
+  auto row(this auto&& self, std::size_t y) {
+    return self.str | views::drop(y * self.width) | views::take(self.width);
+  }
+
+  auto yx_range() const {
+    return my_std::views::cartesian_product(views::iota(0uz, height()), views::iota(0uz, width));
+  }
+
+  auto flip_y(auto y) const {
+    return height() - y - 1;
+  }
+
+  auto flip_x(auto x) const {
+    return width - x - 1;
+  }
+};
+
+struct Tile {
+  int id{};
+  Image img;
+  std::array<std::string, 4> borders;
+
+  Tile rotate() const {
+    Tile out{*this};
+    for (auto [y, x] : img.yx_range()) {
+      out.img.row(y)[img.flip_x(x)] = img.row(x)[y];
+    }
+    for (auto&& [side, border] : my_std::views::enumerate(out.borders)) {
+      border = borders.at((side + 3) % 4);
+    }
+    return out;
+  }
+
+  Tile flip() const {
+    Tile out{*this};
+    for (auto [y, x] : img.yx_range()) {
+      out.img.row(img.flip_y(y))[x] = img.row(y)[x];
+    }
+    for (auto&& [side, border] : my_std::views::enumerate(out.borders)) {
+      border = reversed(borders.at((2 - side + 4) % 4));
+    }
+    return out;
+  }
+
+  std::optional<Tile> find_matching_orientation(Tile other, int side) const {
+    for (int flips{}; flips < 2; ++flips) {
+      for (int rotations{}; rotations < 4; ++rotations) {
+        auto lhs{borders.at(side)};
+        auto rhs{other.borders.at((side + 2) % 4)};
+        if (ranges::equal(lhs, rhs | views::reverse)) {
+          return other;
+        }
+        other = other.rotate();
+      }
+      other = other.flip();
+    }
+    return {};
+  }
+};
+
+std::istream& operator>>(std::istream& is, Tile& tile) {
+  if (int id; is >> std::ws >> skip("Tile"s) >> id >> skip(":"s) >> std::ws) {
+    std::vector<std::string> lines;
+    for (std::string line; std::getline(is, line) and not line.empty();) {
+      if (line.size() < 3) {
+        throw std::runtime_error("every line must have at least 3 characters");
+      }
+      if (not lines.empty() and lines.back().size() != line.size()) {
+        throw std::runtime_error("every line must be of same length");
+      }
+      lines.push_back(line);
+    }
+    if (lines.size() < 3) {
+      throw std::runtime_error("every tile must have at least 3 rows");
+    }
+
+    std::string north, east, south, west;
+    north = lines.front();
+    for (const std::string& line : lines) {
+      west.push_back(line.front());
+      east.push_back(line.back());
+    }
+    west = reversed(west);
+    south = reversed(lines.back());
+
+    const auto without_borders{[](ranges::sized_range auto&& r) {
+      return r | views::take(r.size() - 1) | views::drop(1);
+    }};
+    Image img{.width = south.size() - 2};
+    for (const std::string& line : without_borders(lines)) {
+      img.str.append_range(without_borders(line));
+    }
+
+    tile = {
+        .id = id,
+        .img = img,
+        .borders = {north, east, south, west},
+    };
+  }
+  return is;
+}
+
+struct Grid {
+  std::unordered_map<Vec2, Tile> tiles;
+
+  Grid(Tile t1, Vec2 p, const auto& tilemap) {
+    std::unordered_set<int> frozen;
+    *this = build(t1, p, tilemap, frozen);
+  }
+
+ private:
+  Grid build(Tile t1, Vec2 p, const auto& tilemap, auto& frozen) {
+    constexpr std::array<Vec2, 4> deltas{{
+        Vec2(0, -1),
+        Vec2(1, 0),
+        Vec2(0, 1),
+        Vec2(-1, 0),
+    }};
+    Grid out{*this};
+    frozen.insert(t1.id);
+    out.tiles[p] = t1;
+    for (auto side{0uz}; side < 4; ++side) {
+      for (Tile t : tilemap | views::values) {
+        if (not frozen.contains(t.id)) {
+          if (auto match{t1.find_matching_orientation(t, side)}) {
+            Tile t2{match.value()};
+            Vec2 p2{p + deltas.at(side)};
+            out = out.build(t2, p2, tilemap, frozen);
+          }
+        }
+      }
+    }
+    return out;
+  }
+
+ public:
+  auto corners() const {
+    auto ps{views::keys(tiles)};
+    return std::array{
+        ranges::min(ps, {}, [](const Vec2& p) { return std::tuple{p.x(), p.y()}; }),
+        ranges::max(ps, {}, [](const Vec2& p) { return std::tuple{p.x(), -p.y()}; }),
+        ranges::min(ps, {}, [](const Vec2& p) { return std::tuple{p.x(), -p.y()}; }),
+        ranges::max(ps, {}, [](const Vec2& p) { return std::tuple{p.x(), p.y()}; }),
+    };
+  }
+
+  Image as_image() const {
+    if (tiles.empty()) {
+      throw std::runtime_error("cannot build image of empty grid");
+    }
+    const auto c{corners()};
+    const Vec2 top_left{c[0]};
+    const Vec2 bottom_right{c[3]};
+    const auto h{tiles.begin()->second.img.height()};
+    Image img;
+    for (auto p{top_left}; p.y() <= bottom_right.y(); ++p.y()) {
+      for (auto y_img{0uz}; y_img < h; ++y_img) {
+        std::string row;
+        for (p.x() = top_left.x(); p.x() <= bottom_right.x(); ++p.x()) {
+          if (tiles.contains(p)) {
+            row.append_range(tiles.at(p).img.row(y_img));
+          }
+        }
+        if (row.empty()) {
+          continue;
+        }
+        if (img.width == 0) {
+          img.width = row.size();
+        } else if (img.width != row.size()) {
+          throw std::runtime_error("all rows in image must be of same width");
+        }
+        img.str += row;
+      }
+    }
+    return img;
+  }
+};
+
+constexpr std::array monster_pattern{
+    "..................#."s,
+    "#....##....##....###"s,
+    ".#..#..#..#..#..#..."s,
+};
+
+auto count_monsters(Image img) {
+  int n{};
+  const auto is_match{[](auto row, auto begin, auto pattern) {
+    return ranges::all_of(views::zip(row | views::drop(begin), pattern), [](auto&& p) {
+      auto [lhs, rhs]{p};
+      return rhs != '#' or lhs == rhs;
+    });
+  }};
+  const auto monster_width{monster_pattern[0].size()};
+  for (auto r{2uz}; r < img.height(); ++r) {
+    auto row1{img.row(r - 2)};
+    auto row2{img.row(r - 1)};
+    auto row3{img.row(r - 0)};
+    if (row1.size() < monster_width) {
+      throw std::runtime_error("row too short to contain a monster");
+    }
+    for (auto begin{0uz}; begin <= row1.size() - monster_width; ++begin) {
+      if (is_match(row1, begin, monster_pattern[0]) and is_match(row2, begin, monster_pattern[1])
+          and is_match(row3, begin, monster_pattern[2])) {
+        ++n;
+        begin += monster_width;
+      }
+    }
+  }
+  return n;
+}
+
+auto find_monster_grid(const auto& tilemap) {
+  for (Tile t : tilemap | views::values) {
+    for (int flips{}; flips < 2; ++flips) {
+      for (int rotations{}; rotations < 4; ++rotations) {
+        Grid g(t, Vec2(), tilemap);
+        if (g.tiles.size() == tilemap.size()) {
+          if (auto img{g.as_image()}; count_monsters(img) > 0) {
+            return std::pair{g, img};
+          }
+        }
+        t = t.rotate();
+      }
+      t = t.flip();
+    }
+  }
+  throw std::runtime_error("failed finding monster grid");
+}
+
+constexpr auto product{std::__bind_back(ranges::fold_left, 1LL, std::multiplies{})};
+
+auto search(const auto& tilemap) {
+  auto [grid, img]{find_monster_grid(tilemap)};
+  auto corner_id{product(views::transform(grid.corners(), [&grid](const Vec2& p) {
+    return grid.tiles.at(p).id;
+  }))};
+  auto monsters{count_monsters(img)};
+  auto monster_hashes{ranges::count(monster_pattern | views::join, '#')};
+  auto hashes{ranges::count(img.str, '#')};
+  auto roughness{hashes - monsters * monster_hashes};
+  return std::pair{corner_id, roughness};
+}
+
 int main() {
-  // TODO implement
-  const auto input{aoc::slurp_file("/dev/stdin")};
-  (void)input;
-  std::cout << aoc::slurp_file("txt/correct/2020/20");
+  const auto tiles{aoc::slurp<Tile>("/dev/stdin")};
+  const auto tilemap{
+      tiles | views::transform([](Tile t) { return std::pair{t.id, t}; })
+      | ranges::to<std::unordered_map<int, Tile>>()
+  };
+  const auto [part1, part2]{search(tilemap)};
+  std::print("{} {}\n", part1, part2);
   return 0;
 }
