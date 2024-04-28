@@ -1,8 +1,12 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
+using Steps = std::vector<std::pair<Vec2, Vec2>>;
 
 enum class Token : char {
   north = 'N',
@@ -40,9 +44,6 @@ std::istream& operator>>(std::istream& is, Token& token) {
   }
   throw std::runtime_error("failed parsing Token");
 }
-
-using Vec2 = aoc::Vec2<int>;
-using Steps = std::vector<std::pair<Vec2, Vec2>>;
 
 auto find_shortest_paths(const Steps& steps) {
   std::unordered_map<Vec2, std::unordered_set<Vec2>> edges;

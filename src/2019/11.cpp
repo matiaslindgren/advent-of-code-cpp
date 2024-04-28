@@ -1,12 +1,13 @@
 #include "aoc.hpp"
 #include "intcode.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 using intcode::IntCode;
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
 
 enum class Tile : int {
   white = 0,

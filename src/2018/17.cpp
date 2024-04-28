@@ -1,12 +1,13 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
-
-using Vec2 = aoc::Vec2<int>;
-using aoc::skip;
-using std::operator""s;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
+using aoc::skip;
+using std::operator""s;
 
 struct Range {
   int lo{}, hi{};

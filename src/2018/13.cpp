@@ -1,4 +1,5 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
@@ -22,7 +23,7 @@ enum class Turn : int {
   right = 2,
 };
 
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
 
 struct Cart {
   Vec2 pos{}, dir{};

@@ -1,16 +1,17 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
 
 enum class Tile : char {
   floor = '.',
   empty = 'L',
   taken = '#',
 };
-
-using Vec2 = aoc::Vec2<int>;
 
 struct Grid {
   std::unordered_map<Vec2, Tile> tiles;

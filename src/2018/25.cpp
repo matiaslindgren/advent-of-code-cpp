@@ -1,15 +1,15 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
-
-using aoc::skip;
-using std::operator""s;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec4 = aoc::Vec4<int>;
+using Vec4 = ndvec::vec4<int>;
 using Points = std::vector<Vec4>;
+using aoc::skip;
+using std::operator""s;
 
 auto find_part1(const Points& points) {
   auto adjacent{

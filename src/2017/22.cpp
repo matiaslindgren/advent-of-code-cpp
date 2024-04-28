@@ -1,4 +1,5 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
@@ -10,7 +11,7 @@ enum struct State {
   flagged,
 };
 
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
 
 auto parse_grid(const auto& lines) {
   std::unordered_map<Vec2, State> grid;

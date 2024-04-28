@@ -1,10 +1,11 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
 using Graph = std::unordered_map<Vec2, std::unordered_map<Vec2, int>>;
 
 struct Maze {

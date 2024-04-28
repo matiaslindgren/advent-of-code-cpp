@@ -1,11 +1,12 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
 using Points = std::vector<Vec2>;
 
 auto find_grid_corners(const Points& points) {

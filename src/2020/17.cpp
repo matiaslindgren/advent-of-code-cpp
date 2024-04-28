@@ -1,7 +1,8 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
-using Vec4 = aoc::Vec4<int>;
+using Vec4 = ndvec::vec4<int>;
 
 auto get_adjacent(Vec4 p, bool dim4) {
   std::vector<Vec4> adj;

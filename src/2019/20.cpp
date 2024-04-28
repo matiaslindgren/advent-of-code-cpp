@@ -1,9 +1,10 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 using std::operator""s;
-using Vec2 = aoc::Vec2<int>;
-using Vec3 = aoc::Vec3<int>;
+using Vec2 = ndvec::vec2<int>;
+using Vec3 = ndvec::vec3<int>;
 
 struct Graph {
   std::unordered_map<Vec2, std::unordered_map<Vec2, int>> edges;

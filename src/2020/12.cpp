@@ -1,7 +1,8 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
-using Vec2 = aoc::Vec2<double>;
+using Vec2 = ndvec::vec2<double>;
 
 struct Action {
   enum class Type : char {

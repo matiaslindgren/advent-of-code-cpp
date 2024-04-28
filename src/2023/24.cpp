@@ -1,18 +1,18 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
-
-using aoc::skip;
-using std::operator""s;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using Vec3 = ndvec::vec3<long double>;
+using aoc::skip;
+using std::operator""s;
+
 constexpr auto min_coord{200000000000000L};
 constexpr auto max_coord{400000000000000L};
 constexpr auto distance_epsilon{20.0};
-
-using Vec3 = aoc::Vec3<long double>;
 
 struct Stone {
   Vec3 p, v;

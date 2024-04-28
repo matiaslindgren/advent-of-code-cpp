@@ -1,8 +1,11 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
 
 enum class Tile : char {
   wall = '#',
@@ -37,7 +40,6 @@ struct Unit {
 };
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
-using Vec2 = aoc::Vec2<int>;
 
 struct Cave {
   int width{};

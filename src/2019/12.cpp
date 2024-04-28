@@ -1,13 +1,13 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 using std::operator""s;
-
-using Vec3 = aoc::Vec3<int>;
+using Vec3 = ndvec::vec3<int>;
 
 struct Moon {
   Vec3 p, v;

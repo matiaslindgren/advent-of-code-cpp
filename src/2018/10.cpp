@@ -1,17 +1,17 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
+using aoc::skip;
+using std::operator""s;
 
 struct Light {
   Vec2 p, v;
 };
-
-using aoc::skip;
-using std::operator""s;
 
 auto find_grid_corners(const auto& lights) {
   constexpr auto intmin{std::numeric_limits<int>::min()};

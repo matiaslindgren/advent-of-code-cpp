@@ -1,11 +1,14 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec3 = aoc::Vec3<long>;
+using Vec3 = ndvec::vec3<long>;
+using aoc::skip;
+using std::operator""s;
 
 struct Particle {
   Vec3 p, v, a;
@@ -21,9 +24,6 @@ struct Particle {
     };
   }
 };
-
-using aoc::skip;
-using std::operator""s;
 
 std::istream& operator>>(std::istream& is, Particle& particle) {
   if (std::string line; std::getline(is, line)) {

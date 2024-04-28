@@ -1,9 +1,10 @@
 #include "aoc.hpp"
 #include "intcode.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 using intcode::IntCode;
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
 
 auto find_part1(const auto& program) {
   int n_blocks{};

@@ -1,4 +1,5 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
@@ -24,7 +25,7 @@ std::istream& operator>>(std::istream& is, Move& move) {
   throw std::runtime_error("failed parsing Move");
 }
 
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
 using Path = std::vector<Vec2>;
 using Moves = std::vector<Move>;
 

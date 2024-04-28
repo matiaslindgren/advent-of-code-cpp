@@ -1,13 +1,14 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
-
-using aoc::skip;
-using std::operator""s;
-using Vec2 = aoc::Vec2<int>;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
+using aoc::skip;
+using std::operator""s;
 
 auto reversed(ranges::range auto&& r) {
   auto res{r};

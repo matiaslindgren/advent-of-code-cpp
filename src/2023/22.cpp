@@ -1,10 +1,11 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec3 = aoc::Vec3<int>;
+using Vec3 = ndvec::vec3<int>;
 
 struct Brick {
   Vec3 begin, end;

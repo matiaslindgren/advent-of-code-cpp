@@ -1,12 +1,13 @@
 #include "aoc.hpp"
 #include "intcode.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 using std::operator""s;
-
 using aoc::skip;
 using intcode::IntCode;
-using Vec2 = aoc::Vec2<int>;
+using Vec2 = ndvec::vec2<int>;
+using Strings = std::unordered_set<std::string>;
 
 enum class ParseState {
   lines,
@@ -15,8 +16,6 @@ enum class ParseState {
   items,
   invalid,
 };
-
-using Strings = std::unordered_set<std::string>;
 
 struct Options {
   Strings doors, items;

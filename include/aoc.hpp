@@ -2,9 +2,7 @@
 #define AOC_HEADER_INCLUDED
 
 #include "std.hpp"
-#include "ndvec.hpp"
 
-using std::operator""s;
 using std::operator""sv;
 
 namespace aoc {
@@ -161,18 +159,6 @@ constexpr char ocr(std::string_view rows) {
   }
   return ' ';
 }
-
-
-template <typename... Ts>
-using Vec = ndvec<Ts...>;
-template <typename T>
-using Vec1 = vec1<T>;
-template <typename T>
-using Vec2 = vec2<T>;
-template <typename T>
-using Vec3 = vec3<T>;
-template <typename T>
-using Vec4 = vec4<T>;
 
 }  // namespace aoc
 

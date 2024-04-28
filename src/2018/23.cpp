@@ -1,13 +1,13 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
-
-using aoc::skip;
-using std::operator""s;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec3 = aoc::Vec3<long>;
+using Vec3 = ndvec::vec3<long>;
+using aoc::skip;
+using std::operator""s;
 
 struct Bot {
   Vec3 p;
