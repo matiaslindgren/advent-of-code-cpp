@@ -1,11 +1,11 @@
 #include "aoc.hpp"
 #include "std.hpp"
 
-using aoc::skip;
-using std::operator""s;
-
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using aoc::skip;
+using std::operator""s;
 
 struct Item {
   int id;
@@ -44,10 +44,8 @@ std::ostream& operator<<(std::ostream& os, const Item& item) {
   return os << std::format("{}", item);
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
-
 auto find_part1(const auto& items) {
-  return sum(views::transform(items, &Item::id));
+  return 0;
 }
 
 auto find_part2(const auto& items) {
