@@ -50,40 +50,6 @@ const auto direction_deltas{
     | ranges::to<std::vector>()
 };
 
-template <>
-struct std::formatter<Direction, char> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx) {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(const Direction& dir, FormatContext& ctx) const {
-    std::string d;
-    switch (dir) {
-      case Direction::east: {
-        d = "e";
-      } break;
-      case Direction::south_east: {
-        d = "se";
-      } break;
-      case Direction::south_west: {
-        d = "sw";
-      } break;
-      case Direction::west: {
-        d = "w";
-      } break;
-      case Direction::north_west: {
-        d = "nw";
-      } break;
-      case Direction::north_east: {
-        d = "ne";
-      } break;
-    }
-    return std::format_to(ctx.out(), "{}", d);
-  }
-};
-
 std::istream& operator>>(std::istream& is, Direction& dir) {
   if (char c1; is >> c1) {
     if (c1 == 'e') {
@@ -110,10 +76,6 @@ std::istream& operator>>(std::istream& is, Direction& dir) {
     return is;
   }
   throw std::runtime_error("failed parsing Direction");
-}
-
-std::ostream& operator<<(std::ostream& os, const Direction& dir) {
-  return os << std::format("{}", dir);
 }
 
 auto step(auto grid) {
