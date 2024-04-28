@@ -10,6 +10,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <list>
 #include <mdspan>
 #include <numbers>
 #include <numeric>
