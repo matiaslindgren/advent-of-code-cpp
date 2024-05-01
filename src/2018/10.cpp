@@ -76,22 +76,8 @@ std::istream& operator>>(std::istream& is, Light& light) {
   throw std::runtime_error("failed parsing Light");
 }
 
-auto parse_input(std::string_view path) {
-  auto input{aoc::slurp_file(path)};
-  ranges::replace(input, ',', ' ');
-  std::istringstream is{input};
-  auto lights{std::views::istream<Light>(is) | std::ranges::to<std::vector>()};
-  if (lights.empty()) {
-    throw std::runtime_error("input is empty");
-  }
-  if (not is and not is.eof()) {
-    throw std::runtime_error("input is invalid");
-  }
-  return lights;
-}
-
 int main() {
-  const auto lights{parse_input("/dev/stdin")};
+  const auto lights{aoc::slurp<Light>("/dev/stdin", ',')};
   const auto [part1, part2]{wait_for_message(lights)};
   std::print("{} {}\n", part1, part2);
   return 0;

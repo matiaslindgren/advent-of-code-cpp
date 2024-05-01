@@ -64,25 +64,9 @@ auto find_areas(const Points& points) {
   };
 }
 
-Points parse_input(std::string path) {
-  Points points;
-  auto input{aoc::slurp_file(path)};
-  ranges::replace(input, ',', ' ');
-  std::istringstream is{input};
-  for (Vec2 v; is >> v;) {
-    points.push_back(v);
-  }
-  if (not is.eof()) {
-    throw std::runtime_error("is parsing failed");
-  }
-  return points;
-}
-
 int main() {
-  const auto points{parse_input("/dev/stdin")};
-
+  const auto points{aoc::slurp<Vec2>("/dev/stdin", ',')};
   const auto [part1, part2]{find_areas(points)};
   std::print("{} {}\n", part1, part2);
-
   return 0;
 }

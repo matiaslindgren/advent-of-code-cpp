@@ -53,22 +53,8 @@ auto find_part1(const Points& points) {
   return ranges::count(parents, root_sentinel);
 }
 
-Points parse_input(std::string path) {
-  Points points;
-  auto input{aoc::slurp_file(path)};
-  ranges::replace(input, ',', ' ');
-  std::istringstream is{input};
-  for (Vec4 v; is >> v;) {
-    points.push_back(v);
-  }
-  if (not is.eof()) {
-    throw std::runtime_error("input parsing failed");
-  }
-  return points;
-}
-
 int main() {
-  const auto points{parse_input("/dev/stdin")};
+  const auto points{aoc::slurp<Vec4>("/dev/stdin", ',')};
   std::print("{}\n", find_part1(points));
   return 0;
 }

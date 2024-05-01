@@ -43,13 +43,6 @@ std::istream& operator>>(std::istream& is, Hex& h) {
   throw std::runtime_error("failed parsing Hex");
 }
 
-auto parse_steps(std::string path) {
-  auto input{aoc::slurp_file(path)};
-  ranges::replace(input, ',', ' ');
-  std::istringstream is{input};
-  return views::istream<Hex>(is) | ranges::to<std::vector>();
-}
-
 auto measure_distances(const auto& steps) {
   const Hex begin{0, 0};
   auto pos{begin};
@@ -62,7 +55,7 @@ auto measure_distances(const auto& steps) {
 }
 
 int main() {
-  const auto steps{parse_steps("/dev/stdin")};
+  const auto steps{aoc::slurp<Hex>("/dev/stdin", ',')};
   const auto [part1, part2] = measure_distances(steps);
   std::print("{} {}\n", part1, part2);
   return 0;

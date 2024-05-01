@@ -36,8 +36,12 @@ std::vector<std::string> slurp_lines(std::string_view path) {
 }
 
 template <typename T>
-std::vector<T> slurp(std::string_view path) {
-  std::istringstream is{slurp_file(path)};
+std::vector<T> slurp(std::string_view path, const char sep = 0) {
+  auto input{slurp_file(path)};
+  if (sep) {
+    std::ranges::replace(input, sep, ' ');
+  }
+  std::istringstream is{input};
   auto items{std::views::istream<T>(is) | std::ranges::to<std::vector>()};
   if (items.empty()) {
     throw std::runtime_error("input is empty");

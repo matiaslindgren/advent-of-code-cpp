@@ -55,15 +55,8 @@ std::string dance(const auto& moves, const int rounds) {
   return seen.at(rounds % seen.size());
 }
 
-auto parse_moves(std::string path) {
-  auto input{aoc::slurp_file(path)};
-  ranges::replace(input, ',', ' ');
-  std::istringstream is{input};
-  return views::istream<Move>(is) | ranges::to<std::vector>();
-}
-
 int main() {
-  const auto moves{parse_moves("/dev/stdin")};
+  const auto moves{aoc::slurp<Move>("/dev/stdin", ',')};
 
   const auto part1{dance(moves, 1)};
   const auto part2{dance(moves, 1'000'000'000)};

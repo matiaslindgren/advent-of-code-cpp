@@ -23,15 +23,8 @@ auto search(const auto& crabs) {
   );
 }
 
-auto parse_crabs(std::string path) {
-  auto input{aoc::slurp_file(path)};
-  ranges::replace(input, ',', ' ');
-  std::istringstream is{input};
-  return views::istream<int>(is) | ranges::to<std::vector>();
-}
-
 int main() {
-  const auto crabs{parse_crabs("/dev/stdin")};
+  const auto crabs{aoc::slurp<int>("/dev/stdin", ',')};
   const auto [part1, part2]{search(crabs)};
   std::print("{} {}\n", part1, part2);
   return 0;
