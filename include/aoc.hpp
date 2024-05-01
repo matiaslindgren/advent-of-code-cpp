@@ -2,6 +2,7 @@
 #define AOC_HEADER_INCLUDED
 
 #include "std.hpp"
+#include "ndvec.hpp"
 
 using std::operator""sv;
 
