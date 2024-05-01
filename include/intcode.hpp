@@ -215,4 +215,4 @@ std::vector<IntCode::Int> parse_program(std::string input) {
 
 }  // namespace intcode
 
-#endif // INTCODE_HEADER_INCLUDED
+#endif  // INTCODE_HEADER_INCLUDED

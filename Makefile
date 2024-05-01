@@ -64,7 +64,7 @@ clean:
 	$(RM) -rv $(OUT)
 
 .PHONY: fmt
-fmt: $(SRC_PATHS)
+fmt: $(SRC_PATHS) $(wildcard include/*.hpp)
 	@clang-format --verbose -i $^
 
 

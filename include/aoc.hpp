@@ -1,8 +1,8 @@
 #ifndef AOC_HEADER_INCLUDED
 #define AOC_HEADER_INCLUDED
 
-#include "std.hpp"
 #include "ndvec.hpp"
+#include "std.hpp"
 
 using std::operator""sv;
 
@@ -167,4 +167,4 @@ constexpr char ocr(std::string_view rows) {
 
 }  // namespace aoc
 
-#endif // AOC_HEADER_INCLUDED
+#endif  // AOC_HEADER_INCLUDED

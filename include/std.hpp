@@ -27,4 +27,4 @@
 #include <utility>
 #include <vector>
 
-#endif // STD_HEADER_INCLUDED
+#endif  // STD_HEADER_INCLUDED

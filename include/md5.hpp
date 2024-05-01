@@ -130,4 +130,4 @@ std::string hexdigest(const State& state) {
 
 }  // namespace md5
 
-#endif // MD5_HEADER_INCLUDED
+#endif  // MD5_HEADER_INCLUDED
