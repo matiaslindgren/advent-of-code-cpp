@@ -43,12 +43,15 @@ std::vector<T> slurp(std::string_view path, const char sep = 0) {
     std::ranges::replace(input, sep, ' ');
   }
   std::istringstream is{input};
-  auto items{std::views::istream<T>(is) | std::ranges::to<std::vector>()};
-  if (items.empty()) {
-    throw std::runtime_error("input is empty");
+  std::vector<T> items;
+  for (T item; is >> item;) {
+    items.push_back(item);
   }
   if (not is and not is.eof()) {
     throw std::runtime_error("stream read error before EOF");
+  }
+  if (items.empty()) {
+    throw std::runtime_error("input is empty");
   }
   return items;
 }
