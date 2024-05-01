@@ -48,7 +48,7 @@ std::vector<T> slurp(std::string_view path, const char sep = 0) {
     throw std::runtime_error("input is empty");
   }
   if (not is and not is.eof()) {
-    throw std::runtime_error("input is invalid");
+    throw std::runtime_error("stream read error before EOF");
   }
   return items;
 }
