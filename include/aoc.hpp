@@ -162,8 +162,7 @@ constexpr std::array ocr_letter_rows{
 };
 
 constexpr char ocr(std::string_view rows) {
-  if (const auto it{
-          ranges::find_if(ocr_letter_rows, [&rows](auto&& p) { return p.first == rows; })
+  if (const auto it{ranges::find_if(ocr_letter_rows, [&rows](auto&& p) { return p.first == rows; })
       };
       it != ocr_letter_rows.end()) {
     return it->second;
