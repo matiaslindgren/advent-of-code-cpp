@@ -43,7 +43,7 @@ Strings intersect_ingredients(const Foods& foods) {
   auto common{foods.at(0).ingredients};
   for (const Food& f : foods | views::drop(1)) {
     const auto prev{std::exchange(common, {})};
-    std::ranges::set_intersection(prev, f.ingredients, std::inserter(common, common.end()));
+    ranges::set_intersection(prev, f.ingredients, std::inserter(common, common.end()));
   }
   return common;
 }

@@ -92,7 +92,7 @@ auto count_valid(const auto& springs) {
   return count_valid(springs, cache, 0, 0, 0);
 }
 
-auto repeat_and_count_valid(std::ranges::range auto&& springs, const auto repeats) {
+auto repeat_and_count_valid(ranges::range auto&& springs, const auto repeats) {
   return views::transform(springs, [=](auto s) {
     auto [status, counts]{s};
     for (auto r{1}; r < repeats; ++r) {

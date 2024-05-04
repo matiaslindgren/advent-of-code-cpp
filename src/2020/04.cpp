@@ -12,7 +12,7 @@ using Passports = std::vector<Passport>;
 Passports parse_passports(std::string_view path) {
   Passports ps;
   for (auto&& section_chars : views::split(aoc::slurp_file(path), "\n\n"s)) {
-    auto section{std::ranges::to<std::string>(section_chars)};
+    auto section{ranges::to<std::string>(section_chars)};
     ranges::replace(section, ':', ' ');
     std::istringstream is{section};
     ps.emplace_back();

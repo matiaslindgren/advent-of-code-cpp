@@ -112,7 +112,7 @@ int find_part2(const auto& instructions) {
 
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto instructions{std::views::istream<Instruction>(input) | std::ranges::to<std::vector>()};
+  const auto instructions{std::views::istream<Instruction>(input) | ranges::to<std::vector>()};
 
   const auto part1{find_part1(instructions)};
   const auto part2{find_part2(instructions)};

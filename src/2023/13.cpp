@@ -75,7 +75,7 @@ auto summarize(const auto& mirrors, const auto fix_count) {
 using std::operator""s;
 
 struct parse_section {
-  Mirrors operator()(std::ranges::range auto&& section) const {
+  Mirrors operator()(ranges::range auto&& section) const {
     std::vector<char> chars;
     auto width{0uz};
     for (auto&& line : views::split(section, "\n"s)) {

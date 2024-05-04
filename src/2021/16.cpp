@@ -17,7 +17,7 @@ using Int = long;
 constexpr auto sum{std::__bind_back(ranges::fold_left, Int{}, std::plus{})};
 constexpr auto product{std::__bind_back(ranges::fold_left, Int{1}, std::multiplies{})};
 
-Int as_int(std::ranges::sized_range auto&& bits) {
+Int as_int(ranges::sized_range auto&& bits) {
   return sum(bits | views::reverse | my_std::views::enumerate | views::transform([](auto&& ib) {
                auto [i, b]{ib};
                return (b ? Int{1} : Int{}) << i;
@@ -35,7 +35,7 @@ enum class Op : Int {
   equal,
 };
 
-Op as_op(std::ranges::sized_range auto&& bits) {
+Op as_op(ranges::sized_range auto&& bits) {
   auto id{as_int(bits)};
   Op op;
   switch (id) {
@@ -54,7 +54,7 @@ Op as_op(std::ranges::sized_range auto&& bits) {
 }
 
 // TODO libc++19?
-auto chunks5(std::ranges::range auto&& r) {
+auto chunks5(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2), views::drop(r, 3), views::drop(r, 4))
          | my_std::views::stride(5);
 }

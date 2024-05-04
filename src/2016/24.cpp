@@ -106,7 +106,7 @@ std::pair<int, int> search_min_paths(const Grid& grid) {
       )};
       part1 = std::min(part1, path.len);
       part2 = std::min(part2, path.len + dist[begin, path.dst]);
-    } while (std::ranges::next_permutation(targets).found);
+    } while (ranges::next_permutation(targets).found);
   }
 
   return {part1, part2};

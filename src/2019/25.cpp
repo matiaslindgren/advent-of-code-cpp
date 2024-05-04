@@ -135,7 +135,7 @@ auto explore(const auto& program) {
     }
 
     if (auto it{seen.find(s.pos)}; it != seen.end()) {
-      if (std::ranges::find(it->second, s.inventory) != it->second.end()) {
+      if (ranges::find(it->second, s.inventory) != it->second.end()) {
         continue;
       }
     }

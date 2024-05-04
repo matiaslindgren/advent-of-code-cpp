@@ -4,6 +4,9 @@
 #include "ndvec.hpp"
 #include "std.hpp"
 
+namespace ranges = std::ranges;
+namespace views = std::views;
+
 using std::operator""sv;
 
 namespace aoc {
@@ -17,7 +20,7 @@ std::string slurp_file(std::string_view path) {
   std::string data;
   for (std::array<char, 1024> buffer; is;) {
     is.read(buffer.data(), buffer.size());
-    std::ranges::copy(buffer | std::views::take(is.gcount()), std::back_inserter(data));
+    ranges::copy(buffer | views::take(is.gcount()), std::back_inserter(data));
   }
   return data;
 }
@@ -40,7 +43,7 @@ template <typename T>
 std::vector<T> slurp(std::string_view path, const char sep = 0) {
   auto input{slurp_file(path)};
   if (sep) {
-    std::ranges::replace(input, sep, ' ');
+    ranges::replace(input, sep, ' ');
   }
   std::istringstream is{input};
   std::vector<T> items;
@@ -160,7 +163,7 @@ constexpr std::array ocr_letter_rows{
 
 constexpr char ocr(std::string_view rows) {
   if (const auto it{
-          std::ranges::find_if(ocr_letter_rows, [&rows](auto&& p) { return p.first == rows; })
+          ranges::find_if(ocr_letter_rows, [&rows](auto&& p) { return p.first == rows; })
       };
       it != ocr_letter_rows.end()) {
     return it->second;
