@@ -6,6 +6,7 @@
 #include <bit>
 #include <bitset>
 #include <deque>
+#include <filesystem>
 #include <format>
 #include <fstream>
 #include <functional>
