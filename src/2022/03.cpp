@@ -55,7 +55,7 @@ auto find_part2(const auto& lines) {
 int main() {
   const auto lines{aoc::slurp_lines("/dev/stdin")};
 
-  if (lines.empty() or lines.size() % 3 != 0) {
+  if (lines.size() % 3 != 0) {
     throw std::runtime_error("amount of lines must be divisible by 3");
   }
   if (ranges::any_of(lines, [](auto s) { return s.empty() or s.size() % 2; })) {

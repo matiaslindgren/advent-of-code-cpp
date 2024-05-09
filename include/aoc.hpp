@@ -35,6 +35,9 @@ std::vector<std::string> slurp_lines(std::string_view path) {
     if (not is and not is.eof()) {
       throw std::runtime_error("input is invalid");
     }
+    if (lines.empty()) {
+      throw std::runtime_error("input is empty");
+    }
     return lines;
   }
 }
