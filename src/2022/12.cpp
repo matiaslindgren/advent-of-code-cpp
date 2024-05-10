@@ -19,7 +19,7 @@ struct Grid {
     return std::numeric_limits<int>::max();
   }
 
-  Grid lower(int n) const {
+  Grid lower() const {
     Grid res{*this};
     ranges::for_each(res.heights | views::values, [](int& h) { h = std::max(0, h - 1); });
     return res;
@@ -130,7 +130,7 @@ int main() {
   const auto [grid, start, end]{parse_grid("/dev/stdin")};
 
   const auto part1{find_shortest_path(grid, start, end)};
-  const auto part2{find_shortest_path(grid.lower(1), start, end)};
+  const auto part2{find_shortest_path(grid.lower(), start, end)};
 
   std::print("{} {}\n", part1, part2);
 
