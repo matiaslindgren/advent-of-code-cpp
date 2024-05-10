@@ -26,11 +26,7 @@ auto search(const auto& steps) {
         knots.at(0) += s.direction;
         for (auto&& [k1, k2] : pairwise(knots)) {
           Vec2 d{k1 - k2};
-          if (d.abs().x() > 1 and d.abs().y() == 0) {
-            k2.x() += d.signum().x();
-          } else if (d.abs().x() == 0 and d.abs().y() > 1) {
-            k2.y() += d.signum().y();
-          } else if (d.abs().sum() > 2) {
+          if ((d / Vec2(2, 2)).abs().sum() > 0) {
             k2 += d.signum();
           }
         }
