@@ -12,6 +12,14 @@ struct Item {
   std::string str;
 };
 
+auto find_part1(const auto& items) {
+  return 0;
+}
+
+auto find_part2(const auto& items) {
+  return 0;
+}
+
 template <>
 struct std::formatter<Item, char> {
   template <typename ParseContext>
@@ -42,14 +50,6 @@ std::istream& operator>>(std::istream& is, Item& item) {
 
 std::ostream& operator<<(std::ostream& os, const Item& item) {
   return os << std::format("{}", item);
-}
-
-auto find_part1(const auto& items) {
-  return 0;
-}
-
-auto find_part2(const auto& items) {
-  return 0;
 }
 
 int main() {
