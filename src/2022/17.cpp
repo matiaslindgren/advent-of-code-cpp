@@ -39,37 +39,6 @@ enum struct RockType {
   square,
 };
 
-template <>
-struct std::formatter<RockType, char> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx) {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(const RockType& rt, FormatContext& ctx) const {
-    std::string s;
-    switch (rt) {
-      case RockType::horizontal: {
-        s = "RockType::horizontal";
-      } break;
-      case RockType::plus: {
-        s = "RockType::plus";
-      } break;
-      case RockType::angle: {
-        s = "RockType::angle";
-      } break;
-      case RockType::vertical: {
-        s = "RockType::vertical";
-      } break;
-      case RockType::square: {
-        s = "RockType::square";
-      } break;
-    }
-    return std::format_to(ctx.out(), "{}", s);
-  }
-};
-
 struct Rock {
   /* rocks with a shape encoding as a 4x4 boolean grid in row-major order
      ####
