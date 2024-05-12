@@ -109,35 +109,22 @@ auto search_max_pressure(
     auto max_pressure{s.pressure};
 
     for (int dst{}; dst < valves.size(); ++dst) {
-      if (targets[dst] and dst != src) {
-        const int time_after_travel{s.time - dist[src][dst]};
-        if (time_after_travel > 0) {
+      if (targets[dst] and dst != src and not s.opened[dst] and valves[dst].flow) {
+        auto after_open{s.opened};
+        after_open[src] = true;
+        const int time_after_move{s.time - dist[src][dst] - 1};
+        if (time_after_move > 0) {
           max_pressure = std::max(
               max_pressure,
               self(State{
                   .position = dst,
-                  .time = time_after_travel,
-                  .opened = s.opened,
-                  .pressure = s.pressure,
+                  .time = time_after_move,
+                  .opened = after_open,
+                  .pressure = s.pressure + time_after_move * valves[dst].flow,
               })
           );
         }
       }
-    }
-
-    const Valve& valve{valves[src]};
-    if (not s.opened[src] and valve.flow) {
-      auto after_open{s.opened};
-      after_open[src] = true;
-      max_pressure = std::max(
-          max_pressure,
-          self(State{
-              .position = src,
-              .time = s.time - 1,
-              .opened = after_open,
-              .pressure = s.pressure + (s.time - 1) * valve.flow,
-          })
-      );
     }
 
     return (cache[s] = max_pressure);
