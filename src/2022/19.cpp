@@ -126,34 +126,29 @@ struct std::hash<State> {
 auto find_max_geodes(Blueprint bp, int time_limit) {
   int max_n_geodes{};
   {
+    State init_state{.time = time_limit, .producing = {.ore = 1}};
     std::unordered_set<State> visited;
-    for (std::vector q{State{.time = time_limit, .producing = {.ore = 1}}}; not q.empty();) {
+    for (std::vector q{init_state}; not q.empty();) {
       State s{q.back()};
       q.pop_back();
-
-      max_n_geodes = std::max(max_n_geodes, s.inventory.geodes);
-
-      if (s.time < 2 or s.maximum_possible_geodes() < max_n_geodes) {
+      if (visited.contains(s)) {
+        continue;
+      } else {
+        visited.insert(s);
+        max_n_geodes = std::max(max_n_geodes, s.inventory.geodes);
+      }
+      if (s.time < 2 or s.maximum_possible_geodes() < max_n_geodes or not s.is_valid()
+          or s.excessive_production(bp)) {
         continue;
       }
-
-      std::vector<State> next_states;
       if (s.producing.ore) {
-        next_states.push_back(s.build_ore_robot(bp));
-        next_states.push_back(s.build_clay_robot(bp));
+        q.push_back(s.build_ore_robot(bp));
+        q.push_back(s.build_clay_robot(bp));
         if (s.producing.clay) {
-          next_states.push_back(s.build_obsidian_robot(bp));
+          q.push_back(s.build_obsidian_robot(bp));
         }
         if (s.producing.obsidian) {
-          next_states.push_back(s.make_geodes(bp));
-        }
-      }
-
-      for (const State& s2 : next_states) {
-        if (s2.is_valid() and not s2.excessive_production(bp)) {
-          if (const auto [_, is_new]{visited.insert(s2)}; is_new) {
-            q.push_back(s2);
-          }
+          q.push_back(s.make_geodes(bp));
         }
       }
     }
