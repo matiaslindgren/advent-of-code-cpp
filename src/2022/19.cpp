@@ -131,14 +131,16 @@ auto find_max_geodes(Blueprint bp, int time_limit) {
     for (std::vector q{init_state}; not q.empty();) {
       State s{q.back()};
       q.pop_back();
+      if (not s.is_valid()) {
+        continue;
+      }
       if (visited.contains(s)) {
         continue;
       } else {
         visited.insert(s);
         max_n_geodes = std::max(max_n_geodes, s.inventory.geodes);
       }
-      if (s.time < 2 or s.maximum_possible_geodes() < max_n_geodes or not s.is_valid()
-          or s.excessive_production(bp)) {
+      if (s.time < 2 or s.maximum_possible_geodes() < max_n_geodes or s.excessive_production(bp)) {
         continue;
       }
       if (s.producing.ore) {
