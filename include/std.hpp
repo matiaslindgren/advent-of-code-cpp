@@ -5,6 +5,7 @@
 #include <array>
 #include <bit>
 #include <bitset>
+#include <charconv>
 #include <deque>
 #include <filesystem>
 #include <format>
@@ -23,6 +24,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
