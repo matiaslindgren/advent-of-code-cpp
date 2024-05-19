@@ -34,7 +34,7 @@ std::pair<int, int> find_tree_value(const auto& tree, const bool part1, const in
 }
 
 int main() {
-  const auto tree{aoc::slurp<int>("/dev/stdin")};
+  const auto tree{aoc::parse_items<int>("/dev/stdin")};
 
   const auto part1{find_tree_value(tree, true).second};
   const auto part2{find_tree_value(tree, false).second};

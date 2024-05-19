@@ -108,7 +108,7 @@ auto repeat_and_count_valid(ranges::range auto&& springs, const auto repeats) {
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
-  const auto springs{aoc::slurp<Springs>("/dev/stdin")};
+  const auto springs{aoc::parse_items<Springs>("/dev/stdin")};
 
   const auto part1{sum(repeat_and_count_valid(springs, 1))};
   const auto part2{sum(repeat_and_count_valid(springs, 5))};

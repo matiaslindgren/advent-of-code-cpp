@@ -98,7 +98,7 @@ std::istream& operator>>(std::istream& is, Packet& packet) {
 }
 
 int main() {
-  const auto packets{aoc::slurp<Packet>("/dev/stdin")};
+  const auto packets{aoc::parse_items<Packet>("/dev/stdin")};
 
   if (packets.empty() or packets.size() % 2) {
     throw std::runtime_error("input must contain an even number of packets");

@@ -268,7 +268,7 @@ auto search(const auto& tilemap) {
 }
 
 int main() {
-  const auto tiles{aoc::slurp<Tile>("/dev/stdin")};
+  const auto tiles{aoc::parse_items<Tile>("/dev/stdin")};
   const auto tilemap{
       tiles | views::transform([](Tile t) { return std::pair{t.id, t}; })
       | ranges::to<std::unordered_map<int, Tile>>()

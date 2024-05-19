@@ -31,7 +31,7 @@ int count_triangles_col_order(const Ints& input) {
 }
 
 int main() {
-  const auto ints{aoc::slurp<int>("/dev/stdin")};
+  const auto ints{aoc::parse_items<int>("/dev/stdin")};
   if (ints.size() % 3) {
     throw std::runtime_error("input must be divisible by 3");
   }

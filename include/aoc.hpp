@@ -43,7 +43,7 @@ std::vector<std::string> slurp_lines(std::string_view path) {
 }
 
 template <typename T>
-std::vector<T> slurp(std::string_view path, const char sep = 0) {
+std::vector<T> parse_items(std::string_view path, const char sep = 0) {
   auto input{slurp_file(path)};
   if (sep) {
     ranges::replace(input, sep, ' ');

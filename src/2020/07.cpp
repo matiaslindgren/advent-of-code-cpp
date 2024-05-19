@@ -90,7 +90,7 @@ auto find_part2(const auto& rules) {
 }
 
 int main() {
-  const auto rules{aoc::slurp<Rule>("/dev/stdin")};
+  const auto rules{aoc::parse_items<Rule>("/dev/stdin")};
 
   const auto part1{find_part1(rules)};
   const auto part2{find_part2(rules)};

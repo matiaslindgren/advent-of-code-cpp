@@ -82,7 +82,7 @@ auto find_part2(const auto& program) {
 }
 
 int main() {
-  const auto program{aoc::slurp<Instruction>("/dev/stdin")};
+  const auto program{aoc::parse_items<Instruction>("/dev/stdin")};
 
   const auto part1{find_part1(program)};
   const auto part2{find_part2(program)};

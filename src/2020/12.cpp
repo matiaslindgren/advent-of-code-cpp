@@ -125,7 +125,7 @@ auto find_part2(const auto& actions) {
 }
 
 int main() {
-  const auto actions{aoc::slurp<Action>("/dev/stdin")};
+  const auto actions{aoc::parse_items<Action>("/dev/stdin")};
 
   const auto part1{find_part1(actions)};
   const auto part2{find_part2(actions)};

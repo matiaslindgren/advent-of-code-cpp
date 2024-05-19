@@ -45,7 +45,7 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
-  const auto max_counts{aoc::slurp<GameMax>("/dev/stdin")};
+  const auto max_counts{aoc::parse_items<GameMax>("/dev/stdin")};
 
   auto possible_ids{
       max_counts

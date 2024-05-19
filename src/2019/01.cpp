@@ -16,7 +16,7 @@ auto compute(auto masses) {
 }
 
 int main() {
-  const auto masses{aoc::slurp<int>("/dev/stdin")};
+  const auto masses{aoc::parse_items<int>("/dev/stdin")};
   const auto results{compute(masses)};
 
   const auto part1{results.front()};

@@ -167,7 +167,7 @@ std::istream& operator>>(std::istream& is, Valve& valve) {
 }
 
 int main() {
-  auto valves{aoc::slurp<Valve>("/dev/stdin")};
+  auto valves{aoc::parse_items<Valve>("/dev/stdin")};
 
   const auto dist_all_paths{all_pairs_shortest_paths(valves)};
 

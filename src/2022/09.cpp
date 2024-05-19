@@ -65,7 +65,7 @@ std::istream& operator>>(std::istream& is, Step& step) {
   return is;
 }
 int main() {
-  const auto steps{aoc::slurp<Step>("/dev/stdin")};
+  const auto steps{aoc::parse_items<Step>("/dev/stdin")};
   const auto [part1, part2]{search(steps)};
   std::print("{} {}\n", part1, part2);
   return 0;

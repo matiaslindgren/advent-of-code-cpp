@@ -89,7 +89,7 @@ auto maximize_happiness(const auto& pairs) {
 }
 
 int main() {
-  auto pairs{aoc::slurp<Pair>("/dev/stdin")};
+  auto pairs{aoc::parse_items<Pair>("/dev/stdin")};
 
   const auto part1{maximize_happiness(pairs)};
 

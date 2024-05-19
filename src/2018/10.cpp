@@ -77,7 +77,7 @@ std::istream& operator>>(std::istream& is, Light& light) {
 }
 
 int main() {
-  const auto lights{aoc::slurp<Light>("/dev/stdin", ',')};
+  const auto lights{aoc::parse_items<Light>("/dev/stdin", ',')};
   const auto [part1, part2]{wait_for_message(lights)};
   std::print("{} {}\n", part1, part2);
   return 0;

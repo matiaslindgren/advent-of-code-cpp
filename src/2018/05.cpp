@@ -61,7 +61,7 @@ auto find_part2(const auto& polymer) {
 }
 
 int main() {
-  const auto polymer{aoc::slurp<Unit>("/dev/stdin")};
+  const auto polymer{aoc::parse_items<Unit>("/dev/stdin")};
 
   const auto part1{react(polymer)};
   const auto part2{find_part2(polymer)};

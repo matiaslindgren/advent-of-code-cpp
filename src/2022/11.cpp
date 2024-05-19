@@ -115,7 +115,7 @@ std::istream& operator>>(std::istream& is, Monkey& monkey) {
 }
 
 int main() {
-  const auto monkeys{aoc::slurp<Monkey>("/dev/stdin")};
+  const auto monkeys{aoc::parse_items<Monkey>("/dev/stdin")};
 
   const auto part1{run_monkey_business(monkeys, 3, 20)};
   const auto part2{run_monkey_business(monkeys, 1, 10'000)};

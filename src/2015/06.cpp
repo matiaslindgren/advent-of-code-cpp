@@ -39,7 +39,7 @@ std::istream& operator>>(std::istream& is, Region& r) {
 }
 
 int main() {
-  const auto regions{aoc::slurp<Region>("/dev/stdin")};
+  const auto regions{aoc::parse_items<Region>("/dev/stdin")};
 
   // TODO
   std::vector<bool> part1_lights(1'000'000, false);

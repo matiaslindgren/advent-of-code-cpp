@@ -81,7 +81,7 @@ long find_optimal_cookie(
 }
 
 int main() {
-  const auto ingredients{aoc::slurp<Ingredient>("/dev/stdin")};
+  const auto ingredients{aoc::parse_items<Ingredient>("/dev/stdin")};
 
   std::vector<std::vector<int>> weights{ingredients.front().as_vector().size()};
   for (const auto& ingredient : ingredients) {

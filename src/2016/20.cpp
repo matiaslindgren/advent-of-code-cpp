@@ -49,7 +49,7 @@ auto find_allowed(const auto& excluded) {
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
-  const auto excluded_ranges{aoc::slurp<Range>("/dev/stdin")};
+  const auto excluded_ranges{aoc::parse_items<Range>("/dev/stdin")};
 
   const auto allowed{find_allowed(excluded_ranges)};
   if (allowed.empty()) {

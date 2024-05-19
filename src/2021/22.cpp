@@ -78,7 +78,7 @@ std::istream& operator>>(std::istream& is, Step& step) {
 }
 
 int main() {
-  const auto steps{aoc::slurp<Step>("/dev/stdin")};
+  const auto steps{aoc::parse_items<Step>("/dev/stdin")};
 
   const auto part1{reboot(steps | views::filter([](auto s) { return s.cuboid.is_init(); }))};
   const auto part2{reboot(steps)};

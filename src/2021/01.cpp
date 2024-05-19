@@ -30,7 +30,7 @@ auto find_part2(const auto& depths) {
 }
 
 int main() {
-  const auto depths{aoc::slurp<int>("/dev/stdin")};
+  const auto depths{aoc::parse_items<int>("/dev/stdin")};
   const auto part1{find_part1(depths)};
   const auto part2{find_part2(depths)};
   std::print("{} {}\n", part1, part2);

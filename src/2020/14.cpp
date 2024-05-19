@@ -147,7 +147,7 @@ auto find_part2(const auto& instructions) {
 }
 
 int main() {
-  const auto instructions{aoc::slurp<Instruction>("/dev/stdin")};
+  const auto instructions{aoc::parse_items<Instruction>("/dev/stdin")};
 
   const auto part1{find_part1(instructions)};
   const auto part2{find_part2(instructions)};

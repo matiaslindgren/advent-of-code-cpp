@@ -33,7 +33,7 @@ auto search(std::vector<long> input, long key, int n_iterations) {
 }
 
 int main() {
-  const auto input{aoc::slurp<long>("/dev/stdin")};
+  const auto input{aoc::parse_items<long>("/dev/stdin")};
 
   const auto part1{search(input, 1, 1)};
   const auto part2{search(input, 811'589'153, 10)};

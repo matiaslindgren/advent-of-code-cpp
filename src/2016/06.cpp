@@ -26,7 +26,7 @@ CharPairs minmax_char_freq_by_column(const auto& lines) {
 }
 
 int main() {
-  const auto lines{aoc::slurp<std::string>("/dev/stdin")};
+  const auto lines{aoc::parse_items<std::string>("/dev/stdin")};
 
   const CharPairs minmax_chars{minmax_char_freq_by_column(lines)};
 

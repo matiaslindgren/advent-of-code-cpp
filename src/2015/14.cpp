@@ -26,7 +26,7 @@ std::istream& operator>>(std::istream& is, Reindeer& r) {
 }
 
 int main() {
-  const auto herd{aoc::slurp<Reindeer>("/dev/stdin")};
+  const auto herd{aoc::parse_items<Reindeer>("/dev/stdin")};
 
   struct ReindeerState {
     bool resting;

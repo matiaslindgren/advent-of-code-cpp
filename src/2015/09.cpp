@@ -109,7 +109,7 @@ class Graph {
 };
 
 int main() {
-  const auto edges{aoc::slurp<Edge>("/dev/stdin")};
+  const auto edges{aoc::parse_items<Edge>("/dev/stdin")};
 
   Graph g{edges};
   const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<8>()};

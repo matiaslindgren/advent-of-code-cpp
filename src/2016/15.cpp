@@ -44,7 +44,7 @@ auto find_time_to_press(const auto& discs) {
 }
 
 int main() {
-  auto discs{aoc::slurp<Disc>("/dev/stdin")};
+  auto discs{aoc::parse_items<Disc>("/dev/stdin")};
 
   const auto part1{find_time_to_press(discs)};
 

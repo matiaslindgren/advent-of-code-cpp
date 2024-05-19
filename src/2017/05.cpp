@@ -15,7 +15,7 @@ auto find_exit(auto jumps, int limit = std::numeric_limits<int>::max()) {
 }
 
 int main() {
-  const auto jumps{aoc::slurp<int>("/dev/stdin")};
+  const auto jumps{aoc::parse_items<int>("/dev/stdin")};
 
   const auto part1{find_exit(jumps)};
   const auto part2{find_exit(jumps, 3)};

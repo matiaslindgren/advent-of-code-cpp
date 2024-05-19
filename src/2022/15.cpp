@@ -83,7 +83,7 @@ std::istream& operator>>(std::istream& is, Sensor& sensor) {
 }
 
 int main() {
-  const auto sensors{aoc::slurp<Sensor>("/dev/stdin")};
+  const auto sensors{aoc::parse_items<Sensor>("/dev/stdin")};
 
   const auto part1{find_part1(sensors)};
   const auto part2{find_part2(sensors)};

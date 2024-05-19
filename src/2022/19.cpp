@@ -219,7 +219,7 @@ std::istream& operator>>(std::istream& is, Blueprint& bp) {
 }
 
 int main() {
-  const auto blueprints{aoc::slurp<Blueprint>("/dev/stdin")};
+  const auto blueprints{aoc::parse_items<Blueprint>("/dev/stdin")};
 
   const auto part1{find_part1(blueprints)};
   const auto part2{find_part2(blueprints)};

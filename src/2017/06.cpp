@@ -37,7 +37,7 @@ auto find_loop(Bank bank) {
 }
 
 int main() {
-  const auto bank{aoc::slurp<int>("/dev/stdin")};
+  const auto bank{aoc::parse_items<int>("/dev/stdin")};
   if (bank.size() > 16 or not ranges::all_of(bank, [](auto x) { return 0 <= x and x <= 15; })) {
     throw std::runtime_error(
         "invalid input, input size must be at most 16 and every element must fit into 4 bits"

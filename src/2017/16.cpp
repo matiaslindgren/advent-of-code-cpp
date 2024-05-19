@@ -56,7 +56,7 @@ std::string dance(const auto& moves, const int rounds) {
 }
 
 int main() {
-  const auto moves{aoc::slurp<Move>("/dev/stdin", ',')};
+  const auto moves{aoc::parse_items<Move>("/dev/stdin", ',')};
 
   const auto part1{dance(moves, 1)};
   const auto part2{dance(moves, 1'000'000'000)};

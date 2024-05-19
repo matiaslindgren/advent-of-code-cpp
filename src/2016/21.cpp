@@ -144,7 +144,7 @@ auto invert(ranges::forward_range auto&& operations) {
 }
 
 int main() {
-  const auto operations{aoc::slurp<Operation>("/dev/stdin")};
+  const auto operations{aoc::parse_items<Operation>("/dev/stdin")};
 
   const auto part1{scramble("abcdefgh"s, operations)};
   const auto part2{scramble("fbgdceah"s, invert(operations))};

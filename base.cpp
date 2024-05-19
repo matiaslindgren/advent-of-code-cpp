@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& os, const Item& item) {
 }
 
 int main() {
-  const auto items{aoc::slurp<Item>("/dev/stdin")};
+  const auto items{aoc::parse_items<Item>("/dev/stdin")};
 
   ranges::copy(items, std::ostream_iterator<Item>(std::cout, "\n"));
 

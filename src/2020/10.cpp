@@ -30,7 +30,7 @@ auto search(auto jolts) {
 }
 
 int main() {
-  const auto [part1, part2]{search(aoc::slurp<int>("/dev/stdin"))};
+  const auto [part1, part2]{search(aoc::parse_items<int>("/dev/stdin"))};
   std::print("{} {}\n", part1, part2);
   return 0;
 }

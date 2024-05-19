@@ -91,7 +91,7 @@ std::istream& operator>>(std::istream& is, Statement& stmt) {
 }
 
 int main() {
-  const auto statements{aoc::slurp<Statement>("/dev/stdin")};
+  const auto statements{aoc::parse_items<Statement>("/dev/stdin")};
 
   std::unordered_map<std::string, int> memory;
   int part2{};

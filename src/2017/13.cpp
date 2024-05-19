@@ -47,7 +47,7 @@ auto find_part2(const auto& scanners) {
 }
 
 int main() {
-  const auto scanners{aoc::slurp<Scanner>("/dev/stdin")};
+  const auto scanners{aoc::parse_items<Scanner>("/dev/stdin")};
 
   const auto part1{find_part1(scanners)};
   const auto part2{find_part2(scanners)};

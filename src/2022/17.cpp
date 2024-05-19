@@ -260,7 +260,7 @@ auto infer_tower_height(const auto& height_deltas, const auto& cycle, const std:
 }
 
 int main() {
-  const auto jet{aoc::slurp<Direction>("/dev/stdin")};
+  const auto jet{aoc::parse_items<Direction>("/dev/stdin")};
 
   const auto [height_deltas, cycle]{simulate_until_cycle(jet)};
   const auto part1{infer_tower_height(height_deltas, cycle, 2022)};

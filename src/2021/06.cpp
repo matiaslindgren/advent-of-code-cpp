@@ -24,7 +24,7 @@ auto simulate(const auto& timers, const int days) {
 }
 
 int main() {
-  const auto timers{aoc::slurp<int>("/dev/stdin", ',')};
+  const auto timers{aoc::parse_items<int>("/dev/stdin", ',')};
   const auto part1{simulate(timers, 80)};
   const auto part2{simulate(timers, 256)};
   std::print("{} {}\n", part1, part2);

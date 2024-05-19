@@ -70,7 +70,7 @@ auto find_part2(const auto& bots) {
 }
 
 int main() {
-  const auto bots{aoc::slurp<Bot>("/dev/stdin")};
+  const auto bots{aoc::parse_items<Bot>("/dev/stdin")};
 
   const auto part1{find_part1(bots)};
   const auto part2{find_part2(bots)};
