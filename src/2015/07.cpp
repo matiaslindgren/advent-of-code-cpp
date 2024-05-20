@@ -127,7 +127,7 @@ int main() {
     part2 = compute_signal("a", circuit_part2);
   }
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

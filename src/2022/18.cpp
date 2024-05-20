@@ -64,7 +64,7 @@ int main() {
   const auto part1{n_sides};
   const auto part2{count_3d_surface(points)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

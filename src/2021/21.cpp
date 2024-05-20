@@ -119,7 +119,7 @@ int main() {
   const auto part1{find_part1(state)};
   const auto part2{find_part2(state)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

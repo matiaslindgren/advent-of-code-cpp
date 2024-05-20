@@ -118,7 +118,7 @@ int main() {
   const auto part1{dig(views::elements<0>(steps))};
   const auto part2{dig(views::elements<1>(steps))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -129,7 +129,7 @@ int main() {
   run(memory, program);
   const auto part2{memory[1]};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

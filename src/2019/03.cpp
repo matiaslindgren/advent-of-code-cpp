@@ -105,6 +105,6 @@ auto parse_input(const std::string path) {
 int main() {
   const auto [wire1, wire2]{parse_input("/dev/stdin")};
   const auto [part1, part2]{search(wire1, wire2)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

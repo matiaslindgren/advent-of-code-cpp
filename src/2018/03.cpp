@@ -69,7 +69,7 @@ int main() {
   const auto claims{views::istream<Claim>(input) | ranges::to<std::vector>()};
 
   const auto [part1, part2]{count_squares(claims)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

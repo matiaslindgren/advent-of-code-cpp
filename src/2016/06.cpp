@@ -32,7 +32,7 @@ int main() {
 
   const auto part1{views::elements<1>(minmax_chars) | ranges::to<std::string>()};
   const auto part2{views::elements<0>(minmax_chars) | ranges::to<std::string>()};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

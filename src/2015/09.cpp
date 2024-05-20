@@ -118,7 +118,7 @@ int main() {
   const auto part1{*shortest_path};
   const auto part2{*longest_path};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

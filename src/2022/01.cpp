@@ -37,7 +37,7 @@ int main() {
   const auto part1{calories.front()};
   const auto part2{sum(calories | views::take(3))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -127,7 +127,7 @@ int main() {
   const auto part1{run({0, 0, 0, 0, 0, 0}, ip, instructions)};
   const auto part2{run({1, 0, 0, 0, 0, 0}, ip, instructions)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

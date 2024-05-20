@@ -98,6 +98,6 @@ int main() {
   const Passports ps{parse_passports("/dev/stdin")};
   const auto part1{ranges::count_if(ps, is_filled)};
   const auto part2{ranges::count_if(ps, is_valid)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

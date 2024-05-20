@@ -33,6 +33,6 @@ int main() {
   const auto depths{aoc::parse_items<int>("/dev/stdin")};
   const auto part1{find_part1(depths)};
   const auto part2{find_part2(depths)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

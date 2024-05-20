@@ -113,7 +113,7 @@ int main() {
   const auto part1{sum(repeat_and_count_valid(springs, 1))};
   const auto part2{sum(repeat_and_count_valid(springs, 5))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -60,7 +60,7 @@ int main() {
   const auto part2{sum(views::transform(allowed, [](const auto& r) { return r.end - r.begin + 1; }))
   };
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -56,7 +56,7 @@ int main() {
 
   const auto part1{sum(possible_ids)};
   const auto part2{sum(powers)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

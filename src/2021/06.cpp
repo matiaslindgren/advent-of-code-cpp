@@ -27,6 +27,6 @@ int main() {
   const auto timers{aoc::parse_items<int>("/dev/stdin", ',')};
   const auto part1{simulate(timers, 80)};
   const auto part2{simulate(timers, 256)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

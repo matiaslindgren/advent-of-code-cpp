@@ -86,7 +86,7 @@ int main() {
   const auto part1{sum(lines | views::transform(count_bytes))};
   const auto part2{sum(lines | views::transform(escape) | views::transform(count_bytes))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

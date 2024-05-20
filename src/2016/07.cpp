@@ -92,7 +92,7 @@ int main() {
   const auto part1{ranges::count_if(ips, supports_tls)};
   const auto part2{ranges::count_if(ips, supports_ssl)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -129,7 +129,7 @@ int main() {
   const Grid2D grid{parse_grid(parse_lines(input))};
 
   const auto [part1, part2] = traverse_diagram(grid);
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

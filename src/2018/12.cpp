@@ -101,7 +101,7 @@ int main() {
   const auto part1{generate_plants(init_state, rules, 20)};
   const auto part2{generate_plants(init_state, rules, 50'000'000'000)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

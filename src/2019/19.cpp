@@ -36,6 +36,6 @@ auto search(const auto& program) {
 int main() {
   const auto program{intcode::parse_program(aoc::slurp_file("/dev/stdin"))};
   const auto [part1, part2]{search(program)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

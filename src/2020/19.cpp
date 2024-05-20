@@ -129,6 +129,6 @@ auto parse_input(std::string path) {
 int main() {
   const auto [statements, input]{parse_input("/dev/stdin")};
   const auto [part1, part2]{search(statements, input)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

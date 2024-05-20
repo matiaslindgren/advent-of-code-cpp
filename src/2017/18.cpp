@@ -188,7 +188,7 @@ int main() {
   const auto part1{run_part1(instructions)};
   const auto part2{run_part2(instructions)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

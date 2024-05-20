@@ -163,7 +163,7 @@ int main() {
   const auto part1{p.version_sum()};
   const auto part2{p.eval()};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

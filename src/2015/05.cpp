@@ -78,7 +78,7 @@ int main() {
   const auto part1{ranges::count_if(lines, is_nice_part1)};
   const auto part2{ranges::count_if(lines, is_nice_part2)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

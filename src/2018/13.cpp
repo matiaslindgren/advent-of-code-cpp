@@ -218,7 +218,7 @@ int main() {
   const auto [grid, carts]{parse_state(parse_lines(input))};
 
   const auto [part1, part2]{run(grid, carts)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

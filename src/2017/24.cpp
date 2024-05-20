@@ -64,6 +64,6 @@ auto find_max_bridges(auto components) {
 int main() {
   const auto components{aoc::parse_items<Component>("/dev/stdin")};
   const auto [part1, part2] = find_max_bridges(components);
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

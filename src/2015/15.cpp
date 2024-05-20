@@ -96,7 +96,7 @@ int main() {
   const auto part1{find_optimal_cookie(weights, init_spoons)};
   const auto part2{find_optimal_cookie(weights, init_spoons, {500})};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

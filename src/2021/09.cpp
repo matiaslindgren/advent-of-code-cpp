@@ -99,6 +99,6 @@ int main() {
   Map m;
   std::cin >> m;
   const auto [part1, part2]{search_basins(m)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

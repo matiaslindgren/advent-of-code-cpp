@@ -40,6 +40,6 @@ int main() {
       part2 += ((password.at(min_n - 1) == ch) != (password.at(max_n - 1) == ch));
     }
   }
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

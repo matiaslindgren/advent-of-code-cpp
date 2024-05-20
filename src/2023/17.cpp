@@ -164,7 +164,7 @@ int main() {
   const auto part1{search(blocks, 1, 3)};
   const auto part2{search(blocks, 4, 10)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

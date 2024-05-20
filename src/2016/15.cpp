@@ -51,7 +51,7 @@ int main() {
   discs.push_back({0, 11});
   const auto part2{find_time_to_press(discs)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

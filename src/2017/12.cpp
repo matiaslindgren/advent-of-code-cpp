@@ -76,7 +76,7 @@ int main() {
   input >> graph;
 
   const auto [part1, part2] = find_group_sizes(graph);
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -87,7 +87,7 @@ int main() {
   const auto part1{run_tasks(steps, 1).first};
   const auto part2{run_tasks(steps, 5).second};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

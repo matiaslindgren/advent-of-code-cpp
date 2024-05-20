@@ -121,7 +121,7 @@ int main() {
   ranges::sort(reverse_replacements, ranges::greater{}, [](const auto& r) { return r.src.size(); });
   const auto part2{count_shortest_path_to(medicine, reverse_replacements, {"e"s})};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

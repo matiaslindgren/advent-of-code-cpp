@@ -375,7 +375,7 @@ int main() {
   const auto part1{search_min_energy(begin1, end1)};
   const auto part2{search_min_energy(begin2, end2)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

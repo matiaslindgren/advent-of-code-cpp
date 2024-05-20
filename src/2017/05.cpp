@@ -20,7 +20,7 @@ int main() {
   const auto part1{find_exit(jumps)};
   const auto part2{find_exit(jumps, 3)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

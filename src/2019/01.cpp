@@ -21,7 +21,7 @@ int main() {
 
   const auto part1{results.front()};
   const auto part2{sum(results)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -69,7 +69,7 @@ int main() {
   const auto part1{ranges::count_if(part1_lights, std::identity())};
   const auto part2{ranges::fold_left(part2_lights, 0LL, std::plus{})};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -103,6 +103,6 @@ auto parse_input(std::string path) {
 int main() {
   const auto [numbers, boards]{parse_input("/dev/stdin")};
   const auto [part1, part2]{play(numbers, boards)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

@@ -34,7 +34,7 @@ int main() {
   const auto part1{1 + 2 * (elf_count - pow2(log2(elf_count)))};
   const auto part2{josephus(elf_count)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

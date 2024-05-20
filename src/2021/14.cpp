@@ -73,7 +73,7 @@ int main() {
   const auto part1{apply_steps(polymer, rules, 10)};
   const auto part2{apply_steps(polymer, rules, 40)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

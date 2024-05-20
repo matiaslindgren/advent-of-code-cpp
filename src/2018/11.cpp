@@ -61,7 +61,7 @@ int main() {
   const auto sq_max{ranges::max_element(results, ranges::less{}, &Result::power)};
   const auto part2{std::format("{},{},{}", sq_max->x, sq_max->y, sq_max->size)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

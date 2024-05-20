@@ -120,7 +120,7 @@ int main() {
   const auto part1{run_monkey_business(monkeys, 3, 20)};
   const auto part2{run_monkey_business(monkeys, 1, 10'000)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

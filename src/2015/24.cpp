@@ -49,7 +49,7 @@ int main() {
   const auto packages{aoc::parse_items<int>("/dev/stdin")};
   const auto part1{optimize_qe(packages, 3)};
   const auto part2{optimize_qe(packages, 4)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

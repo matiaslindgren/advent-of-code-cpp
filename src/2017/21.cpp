@@ -145,7 +145,7 @@ int main() {
   const auto part1{ranges::count(expanded[5].str, '#')};
   const auto part2{ranges::count(expanded[18].str, '#')};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

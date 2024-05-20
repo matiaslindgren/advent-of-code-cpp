@@ -149,7 +149,7 @@ int main() {
   const auto part1{scramble("abcdefgh"s, operations)};
   const auto part2{scramble("fbgdceah"s, invert(operations))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

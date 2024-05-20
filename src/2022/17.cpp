@@ -266,7 +266,7 @@ int main() {
   const auto part1{infer_tower_height(height_deltas, cycle, 2022)};
   const auto part2{infer_tower_height(height_deltas, cycle, 1'000'000'000'000)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

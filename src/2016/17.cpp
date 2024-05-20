@@ -54,7 +54,7 @@ int main() {
 
   const auto [part1, part2] = search(passcode);
 
-  std::print("{} {}\n", part1, part2.size());
+  std::println("{} {}", part1, part2.size());
 
   return 0;
 }

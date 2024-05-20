@@ -59,7 +59,7 @@ int main() {
     part2 += (lhs_val2 ? lhs_val2 : lhs_val1) + (rhs_val2 ? rhs_val2 : rhs_val1);
   }
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

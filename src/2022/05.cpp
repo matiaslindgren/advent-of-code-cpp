@@ -98,7 +98,7 @@ int main() {
   const auto part1{search(stacks, moves, Mover::v9000)};
   const auto part2{search(stacks, moves, Mover::v9001)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

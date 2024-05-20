@@ -52,7 +52,7 @@ int main() {
   const auto part1{find_winning_score(n_players, max_marble)};
   const auto part2{find_winning_score(n_players, 100 * max_marble)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

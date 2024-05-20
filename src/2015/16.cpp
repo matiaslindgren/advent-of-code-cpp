@@ -80,7 +80,7 @@ int main() {
   const auto aunt1{find_aunt(aunts, target, equal_compare)};
   const auto aunt2{find_aunt(aunts, target, fancy_compare)};
 
-  std::print("{} {}\n", aunt1.id, aunt2.id);
+  std::println("{} {}", aunt1.id, aunt2.id);
 
   return 0;
 }

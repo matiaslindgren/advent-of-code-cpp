@@ -148,7 +148,7 @@ int main() {
   const auto part1{path.size() / 2};
   const auto part2{count_inner(grid, path)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

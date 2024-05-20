@@ -93,6 +93,6 @@ Moons parse_system(const std::string path) {
 
 int main() {
   const auto [part1, part2]{search(parse_system("/dev/stdin"))};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

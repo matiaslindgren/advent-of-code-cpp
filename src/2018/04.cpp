@@ -98,6 +98,6 @@ auto parse_events(std::string path) {
 int main() {
   const auto events{parse_events("/dev/stdin")};
   const auto [part1, part2]{find_sleepy_guards(events)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

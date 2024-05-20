@@ -90,7 +90,7 @@ int main() {
   const auto part1{search(graph, Search::simple)};
   const auto part2{search(graph, Search::recursive)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

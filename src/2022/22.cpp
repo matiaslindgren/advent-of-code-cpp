@@ -240,7 +240,7 @@ int main() {
   const auto part1{search(grid, moves, WrapType::square)};
   const auto part2{search(grid, moves, WrapType::cube)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

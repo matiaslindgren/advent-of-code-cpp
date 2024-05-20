@@ -54,7 +54,7 @@ int main() {
   const auto part1{run(program, views::iota(0, 5), Mode::stateless)};
   const auto part2{run(program, views::iota(5, 10), Mode::stateful)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

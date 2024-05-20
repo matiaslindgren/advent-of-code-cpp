@@ -93,7 +93,7 @@ int main() {
   const auto part1{winner_score(cards1, cards2, false)};
   const auto part2{winner_score(cards1, cards2, true)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

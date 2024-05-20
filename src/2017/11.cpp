@@ -57,6 +57,6 @@ auto measure_distances(const auto& steps) {
 int main() {
   const auto steps{aoc::parse_items<Hex>("/dev/stdin", ',')};
   const auto [part1, part2] = measure_distances(steps);
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

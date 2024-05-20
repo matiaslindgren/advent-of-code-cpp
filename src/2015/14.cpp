@@ -67,7 +67,7 @@ int main() {
   const auto part1{find_leader(&ReindeerState::distance).distance};
   const auto part2{find_leader(&ReindeerState::points).points};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

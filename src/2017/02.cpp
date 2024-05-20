@@ -28,7 +28,7 @@ int main() {
     part2 += search_divide(row);
   }
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

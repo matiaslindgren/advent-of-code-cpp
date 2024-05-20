@@ -19,6 +19,6 @@ auto find_frequencies(const auto& items) {
 int main() {
   const auto items{aoc::parse_items<int>("/dev/stdin")};
   const auto [part1, part2]{find_frequencies(items)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

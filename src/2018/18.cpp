@@ -128,7 +128,7 @@ int main() {
   const auto part1{simulate(grid, 10)};
   const auto part2{simulate(grid, 1'000'000'000)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

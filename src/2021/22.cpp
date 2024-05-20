@@ -83,7 +83,7 @@ int main() {
   const auto part1{reboot(steps | views::filter([](auto s) { return s.cuboid.is_init(); }))};
   const auto part2{reboot(steps)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

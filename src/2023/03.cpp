@@ -112,7 +112,7 @@ int main() {
   input >> grid;
 
   const auto [part1, part2] = search(grid);
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

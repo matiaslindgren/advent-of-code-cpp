@@ -79,7 +79,7 @@ int main() {
     part = to_string(password);
   }
 
-  std::print("{} {}\n", parts[0], parts[1]);
+  std::println("{} {}", parts[0], parts[1]);
 
   return 0;
 }

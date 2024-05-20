@@ -103,7 +103,7 @@ int main() {
 
   const auto part1{ranges::max(views::values(memory))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

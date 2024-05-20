@@ -89,6 +89,6 @@ auto search(Points asteroids) {
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
   const auto [part1, part2]{search(parse_asteroids(input))};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

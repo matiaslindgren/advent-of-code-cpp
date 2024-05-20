@@ -122,7 +122,7 @@ int main() {
   const auto part1{min_distance_to(grid, Vec2(), corner / Vec2(5, 5))};
   const auto part2{min_distance_to(grid, Vec2(), corner)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

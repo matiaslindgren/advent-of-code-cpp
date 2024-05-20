@@ -57,7 +57,7 @@ int main() {
   const auto part1{count_safe_tiles(tiles, 40)};
   const auto part2{count_safe_tiles(tiles, 400000)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

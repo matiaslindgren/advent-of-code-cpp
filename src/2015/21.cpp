@@ -108,7 +108,7 @@ int main() {
   std::cin >> boss;
 
   const auto [part1, part2] = minmax_gold(boss);
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

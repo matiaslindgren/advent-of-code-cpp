@@ -112,6 +112,6 @@ auto count_water(const auto& areas) {
 int main() {
   const auto areas{aoc::parse_items<Area>("/dev/stdin")};
   const auto [part1, part2]{count_water(areas)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

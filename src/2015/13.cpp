@@ -96,7 +96,7 @@ int main() {
   pairs.emplace_back("Me", "Anyone", 0);
   const auto part2{maximize_happiness(pairs)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

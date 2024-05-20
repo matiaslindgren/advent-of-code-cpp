@@ -77,7 +77,7 @@ int main() {
   const auto tiles2{paint(Tiles{{Vec2(), Tile::white}}, program)};
   const auto part2{parse_identifier(tiles2)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

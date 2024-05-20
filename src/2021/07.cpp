@@ -26,6 +26,6 @@ auto search(const auto& crabs) {
 int main() {
   const auto crabs{aoc::parse_items<int>("/dev/stdin", ',')};
   const auto [part1, part2]{search(crabs)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

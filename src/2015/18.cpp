@@ -113,7 +113,7 @@ int main() {
   const auto part1{simulate(grid1, 100).count_on()};
   const auto part2{simulate(grid2, 100).count_on()};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

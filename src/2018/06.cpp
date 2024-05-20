@@ -67,6 +67,6 @@ auto find_areas(const Points& points) {
 int main() {
   const auto points{aoc::parse_items<Vec2>("/dev/stdin", ',')};
   const auto [part1, part2]{find_areas(points)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

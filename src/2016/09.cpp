@@ -74,7 +74,7 @@ int main() {
   const auto markers{views::istream<Marker>(input) | ranges::to<Markers>()};
   const auto part1{count_decompressed(markers, true)};
   const auto part2{count_decompressed(markers, false)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

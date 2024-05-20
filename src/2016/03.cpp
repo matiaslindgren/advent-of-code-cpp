@@ -39,7 +39,7 @@ int main() {
   const auto part1{count_triangles_row_order(ints)};
   const auto part2{count_triangles_col_order(ints)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

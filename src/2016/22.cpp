@@ -107,7 +107,7 @@ int main() {
   const auto part1{count_viable_pairs(nodes)};
   const auto part2{find_shortest_path(nodes)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

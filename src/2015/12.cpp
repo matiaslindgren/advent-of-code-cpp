@@ -252,7 +252,7 @@ int main() {
   auto part1{sum(o)};
   auto part2{sum(o, std::optional("red"))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

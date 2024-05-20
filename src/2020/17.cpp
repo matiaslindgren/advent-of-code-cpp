@@ -85,7 +85,7 @@ int main() {
   const auto part1{simulate(grid, 6, false)};
   const auto part2{simulate(grid, 6, true)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

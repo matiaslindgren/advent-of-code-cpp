@@ -21,7 +21,7 @@ int main() {
   const auto part1{find_distinct(input, 4)};
   const auto part2{find_distinct(input, 14)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

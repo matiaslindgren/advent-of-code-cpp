@@ -201,7 +201,7 @@ int main() {
   const auto modules{update_module_connections(parse_input(input))};
   const auto [part1, part2] = search(modules);
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -141,6 +141,6 @@ auto search(const Foods& foods) {
 int main() {
   const auto foods{aoc::parse_items<Food>("/dev/stdin")};
   const auto [part1, part2]{search(foods)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

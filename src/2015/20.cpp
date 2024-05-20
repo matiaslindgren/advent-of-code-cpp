@@ -24,7 +24,7 @@ int main() {
 
   const auto part1{deliver_presents(target, 10)};
   const auto part2{deliver_presents(target, 11, 50)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

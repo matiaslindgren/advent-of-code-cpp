@@ -141,7 +141,7 @@ int main() {
   const auto part1{count_on(screen)};
   const auto part2{decode_ascii(screen)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

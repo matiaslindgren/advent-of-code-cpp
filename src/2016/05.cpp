@@ -80,6 +80,6 @@ int main() {
 
   const auto [part1, part2] = parallel_find_passwords(msg);
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

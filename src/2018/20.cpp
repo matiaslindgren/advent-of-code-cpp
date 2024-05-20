@@ -139,7 +139,7 @@ int main() {
   const auto tokens{views::istream<Token>(input) | ranges::to<std::vector>()};
 
   const auto [part1, part2]{search_paths(tokens)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -80,7 +80,7 @@ int main() {
 
   const auto part1{find_part1(nums)};
   const auto part2{find_part2(nums)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

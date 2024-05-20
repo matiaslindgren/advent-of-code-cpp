@@ -163,6 +163,6 @@ auto parse_input(std::string path) {
 int main() {
   const auto [rules, my_ticket, tickets]{parse_input("/dev/stdin")};
   const auto [part1, part2]{search(rules, my_ticket, tickets)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

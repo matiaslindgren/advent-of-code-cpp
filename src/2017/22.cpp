@@ -82,7 +82,7 @@ int main() {
 
   const auto part1{count_part1(grid, begin, 10'000)};
   const auto part2{count_part2(grid, begin, 10'000'000)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

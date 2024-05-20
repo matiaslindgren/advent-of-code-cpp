@@ -132,7 +132,7 @@ int main() {
   const auto part1{find_shortest_path(grid, start, end)};
   const auto part2{find_shortest_path(grid.lower(), start, end)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

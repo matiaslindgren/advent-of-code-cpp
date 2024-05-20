@@ -69,6 +69,6 @@ auto search(const auto& entries) {
 int main() {
   const auto entries{aoc::parse_items<Entry>("/dev/stdin")};
   const auto [part1, part2]{search(entries)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

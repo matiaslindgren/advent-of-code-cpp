@@ -104,6 +104,6 @@ auto search(const auto& lines) {
 int main() {
   const auto lines{aoc::parse_items<std::string>("/dev/stdin")};
   const auto [part1, part2]{search(lines)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

@@ -66,7 +66,7 @@ int main() {
   const auto part1{react(polymer)};
   const auto part2{find_part2(polymer)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

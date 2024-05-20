@@ -41,7 +41,7 @@ int main() {
   };
   const auto part2{ranges::count(combinations, minimum_combination->size(), get_container_count)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

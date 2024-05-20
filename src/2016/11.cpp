@@ -421,7 +421,7 @@ int main() {
   }
   const auto part2{a_star_search(begin2, as_end_state(begin2))};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

@@ -47,7 +47,7 @@ int main() {
       sum(views::transform(presents, [](const auto& p) { return p.ribbon_size() + p.bow_size(); }))
   };
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

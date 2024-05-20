@@ -90,7 +90,7 @@ int main() {
   const auto part1{img.enhance(2).count_light()};
   const auto part2{img.enhance(50).count_light()};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

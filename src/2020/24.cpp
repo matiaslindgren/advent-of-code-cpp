@@ -134,6 +134,6 @@ auto parse_walks(std::string_view path) {
 int main() {
   const auto walks{parse_walks("/dev/stdin")};
   const auto [part1, part2]{search(walks)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

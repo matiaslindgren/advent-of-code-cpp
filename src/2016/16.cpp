@@ -49,7 +49,7 @@ int main() {
   const auto part1{search_checksum(input, 272)};
   const auto part2{search_checksum(input, 35651584)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

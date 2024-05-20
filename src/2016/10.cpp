@@ -138,7 +138,7 @@ int main() {
       1,
       std::multiplies{}
   )};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

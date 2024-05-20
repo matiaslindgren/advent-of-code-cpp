@@ -68,6 +68,6 @@ int main() {
       | ranges::to<std::vector>()
   };
   const auto [part1, part2]{run(nics)};
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
   return 0;
 }

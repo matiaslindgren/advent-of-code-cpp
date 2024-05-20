@@ -225,7 +225,7 @@ int main() {
   const auto part1{collect_keys(maze1, std::vector{entrance1})};
   const auto part2{collect_keys(maze2, entrances2)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

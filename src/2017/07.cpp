@@ -123,7 +123,7 @@ int main() {
   const auto part1{find_root(nodes).id};
   const auto part2{find_balance_weight(nodes)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

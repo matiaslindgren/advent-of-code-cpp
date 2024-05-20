@@ -40,7 +40,7 @@ int main() {
     part2 += my_std::ranges::fold_right(front, 0L, std::minus{});
   }
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

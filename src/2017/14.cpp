@@ -99,7 +99,7 @@ int main() {
   const auto part1{compute_part1(rows)};
   const auto part2{compute_part2(rows)};
 
-  std::print("{} {}\n", part1, part2);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }
