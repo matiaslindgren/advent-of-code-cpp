@@ -29,7 +29,7 @@ struct Image {
   }
 
   auto yx_range() const {
-    return my_std::views::cartesian_product(views::iota(0uz, height()), views::iota(0uz, width));
+    return my_std::views::cartesian_product(views::iota(0UZ, height()), views::iota(0UZ, width));
   }
 
   auto flip_y(auto y) const {
@@ -145,7 +145,7 @@ struct Grid {
     Grid out{*this};
     frozen.insert(t1.id);
     out.tiles[p] = t1;
-    for (auto side{0uz}; side < deltas.size(); ++side) {
+    for (auto side{0UZ}; side < deltas.size(); ++side) {
       for (Tile t : tilemap | views::values) {
         if (not frozen.contains(t.id)) {
           if (auto match{t1.find_matching_orientation(t, side)}) {
@@ -180,7 +180,7 @@ struct Grid {
     const auto h{tiles.begin()->second.img.height()};
     Image img;
     for (auto p{top_left}; p.y() <= bottom_right.y(); ++p.y()) {
-      for (auto y_img{0uz}; y_img < h; ++y_img) {
+      for (auto y_img{0UZ}; y_img < h; ++y_img) {
         std::string row;
         for (p.x() = top_left.x(); p.x() <= bottom_right.x(); ++p.x()) {
           if (tiles.contains(p)) {
@@ -217,14 +217,14 @@ auto count_monsters(Image img) {
     });
   }};
   const auto monster_width{monster_pattern[0].size()};
-  for (auto r{2uz}; r < img.height(); ++r) {
+  for (auto r{2UZ}; r < img.height(); ++r) {
     auto row1{img.row(r - 2)};
     auto row2{img.row(r - 1)};
     auto row3{img.row(r - 0)};
     if (row1.size() < monster_width) {
       throw std::runtime_error("row too short to contain a monster");
     }
-    for (auto begin{0uz}; begin <= row1.size() - monster_width; ++begin) {
+    for (auto begin{0UZ}; begin <= row1.size() - monster_width; ++begin) {
       if (is_match(row1, begin, monster_pattern[0]) and is_match(row2, begin, monster_pattern[1])
           and is_match(row3, begin, monster_pattern[2])) {
         ++n;

@@ -9,7 +9,7 @@ int main() {
   std::unordered_map<int, std::unordered_map<int, std::size_t>> grid;
 
   const auto adjacent_sum{[&grid](int x, int y) {
-    auto sum{0uz};
+    auto sum{0UZ};
     for (int dx{-1}; dx <= 1; ++dx) {
       for (int dy{-1}; dy <= 1; ++dy) {
         if (not(dx == 0 and dy == 0)) {
@@ -31,7 +31,7 @@ int main() {
         if (not part2 and sum > n) {
           part2 = sum;
         }
-        grid[x][y] = std::max(1uz, sum);
+        grid[x][y] = std::max(1UZ, sum);
         x += dx;
         y += dy;
         if ((i += 1) == n) {

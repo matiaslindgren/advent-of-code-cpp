@@ -14,7 +14,7 @@ struct Bank {
 template <>
 struct std::hash<Bank> {
   std::size_t operator()(const Bank& bank) const noexcept {
-    return ranges::fold_left(bank.v, 0uz, [](auto h, auto x) { return (h << 4) | x; });
+    return ranges::fold_left(bank.v, 0UZ, [](auto h, auto x) { return (h << 4) | x; });
   }
 };
 

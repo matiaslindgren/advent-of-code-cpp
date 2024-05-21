@@ -10,12 +10,12 @@ constexpr std::size_t bit_count{Bits{}.size()};
 Bits compute_gamma(const auto& nums) {
   std::array<int, bit_count> one_count{};
   for (const Bits& b : nums) {
-    for (auto i{0uz}; i < b.size(); ++i) {
+    for (auto i{0UZ}; i < b.size(); ++i) {
       one_count[i] += b[i];
     }
   }
   Bits gamma;
-  for (auto i{0uz}; i < gamma.size(); ++i) {
+  for (auto i{0UZ}; i < gamma.size(); ++i) {
     gamma[i] = 2 * one_count[i] >= nums.size();
   }
   return gamma;

@@ -24,7 +24,7 @@ auto find_part1(const Points& points) {
   }
 
   const auto ids{
-      views::zip(points, views::iota(0uz, points.size())) | ranges::to<std::unordered_map>()
+      views::zip(points, views::iota(0UZ, points.size())) | ranges::to<std::unordered_map>()
   };
 
   constexpr auto root_sentinel{std::numeric_limits<std::size_t>::max()};

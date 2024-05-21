@@ -121,8 +121,8 @@ auto search(auto modules) {
     throw std::runtime_error("inputs to the input of rx should be 4 conjunctions");
   }
 
-  auto lo_count{0uz};
-  auto hi_count{0uz};
+  auto lo_count{0UZ};
+  auto hi_count{0UZ};
   std::array<std::size_t, 4> cycle_lengths;
   cycle_lengths.fill(1);
 
@@ -131,7 +131,7 @@ auto search(auto modules) {
     bool high;
   };
 
-  for (auto press{1uz}; ranges::any_of(cycle_lengths, [](const auto len) { return len < 2; });
+  for (auto press{1UZ}; ranges::any_of(cycle_lengths, [](const auto len) { return len < 2; });
        ++press) {
     const Signal init_signal{
         .src = "button"s,
@@ -188,7 +188,7 @@ auto search(auto modules) {
   }
 
   auto part1{lo_count * hi_count};
-  auto part2{ranges::fold_left(cycle_lengths, 1uz, [](auto lcm, auto len) {
+  auto part2{ranges::fold_left(cycle_lengths, 1UZ, [](auto lcm, auto len) {
     return std::lcm(lcm, len);
   })};
 

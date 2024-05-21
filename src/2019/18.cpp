@@ -154,7 +154,7 @@ auto collect_keys(const Maze& maze, const auto& entrances) {
       min_dist = std::min(min_dist, dist(src));
       continue;
     }
-    for (auto robot{0uz}; robot < src.robots.size(); ++robot) {
+    for (auto robot{0UZ}; robot < src.robots.size(); ++robot) {
       for (auto [key_pos, n_steps] : find_available_keys(robot, src, maze, graphs[robot])) {
         State dst{src};
         dst.robots[robot] = key_pos;

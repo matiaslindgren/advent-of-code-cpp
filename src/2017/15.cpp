@@ -28,7 +28,7 @@ bool is_match(const auto a, const auto b) {
 
 int find_part1(std::size_t a, std::size_t b) {
   int matches{};
-  for (auto i{0uz}; i < 40'000'000; ++i) {
+  for (auto i{0UZ}; i < 40'000'000; ++i) {
     a = next_a(a);
     b = next_b(b);
     matches += is_match(a, b);
@@ -38,7 +38,7 @@ int find_part1(std::size_t a, std::size_t b) {
 
 int find_part2(std::size_t a, std::size_t b) {
   int matches{};
-  for (auto i{0uz}; i < 5'000'000; ++i) {
+  for (auto i{0UZ}; i < 5'000'000; ++i) {
     while ((a = next_a(a)) % 4) {
     }
     while ((b = next_b(b)) % 8) {

@@ -112,16 +112,16 @@ auto encode_element_names(const auto& floor_items) {
 // ...
 // [56-60): chip 7 on floor 1-4
 
-static constexpr auto N_FLOORS{4uz};
-static constexpr auto N_ELEMENTS{7uz};
+static constexpr auto N_FLOORS{4UZ};
+static constexpr auto N_ELEMENTS{7UZ};
 using FloorState = std::bitset<N_FLOORS * (1 + N_ELEMENTS * 2)>;
 
 constexpr decltype(auto) floor_indexes() {
-  return views::iota(0uz, N_FLOORS);
+  return views::iota(0UZ, N_FLOORS);
 }
 
 constexpr decltype(auto) item_indexes(const FloorState& fs, const auto floor = 0) {
-  return views::iota(1uz, fs.count())
+  return views::iota(1UZ, fs.count())
          | views::transform([=](const auto& i) { return i * N_FLOORS + floor; });
 }
 

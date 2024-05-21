@@ -61,7 +61,7 @@ bool isalpha(unsigned char ch) {
 std::istream& operator>>(std::istream& is, Instruction& ins) {
   Code code;
   if (is >> code) {
-    int jmp{0};
+    int jmp{};
     if (code == Code::jump and is >> jmp) {
       ins = {code, -1, jmp};
       return is;
@@ -83,7 +83,7 @@ using Memory = std::array<int, 8>;
 using Program = std::vector<Instruction>;
 
 void run(Memory& memory, const Program& program) {
-  for (int i{0}; 0 <= i and i < program.size();) {
+  for (int i{}; 0 <= i and i < program.size();) {
     const Instruction ins = program[i];
     int jump{1};
     switch (ins.code) {

@@ -174,12 +174,12 @@ auto find_part1(const Grid2D& grid) {
 auto find_part2(const Grid2D& grid) {
   const auto w{grid.width};
   const auto h{grid.height};
-  auto max{0uz};
-  for (const auto y : views::iota(1uz, h - 1)) {
+  auto max{0UZ};
+  for (const auto y : views::iota(1UZ, h - 1)) {
     max = std::max(max, count_energized(grid, {Beam::Direction::E, y, 0}));
     max = std::max(max, count_energized(grid, {Beam::Direction::W, y, w - 1}));
   }
-  for (const auto x : views::iota(1uz, w - 1)) {
+  for (const auto x : views::iota(1UZ, w - 1)) {
     max = std::max(max, count_energized(grid, {Beam::Direction::S, 0, x}));
     max = std::max(max, count_energized(grid, {Beam::Direction::N, h - 1, x}));
   }

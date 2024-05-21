@@ -38,7 +38,7 @@ auto pop_front(Cards& cards1, Cards& cards2) {
   return std::pair{c1, c2};
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0uz, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0UZ, std::plus{})};
 
 auto hash(const Cards& cs) {
   return sum(views::transform(my_std::views::enumerate(cs, 1), my_std::apply_fn(std::multiplies{}))
@@ -63,7 +63,7 @@ auto score(const Cards& cards) {
 auto play(Cards cards1, Cards cards2, bool recursive) {
   for (std::unordered_set<std::size_t> seen; not cards1.empty() and not cards2.empty();) {
     if (auto [_, unseen]{seen.insert(hash(cards1) * hash(cards2))}; not unseen) {
-      return std::pair{1uz, 0uz};
+      return std::pair{1UZ, 0UZ};
     }
     auto [card1, card2]{pop_front(cards1, cards2)};
     bool one_wins{};

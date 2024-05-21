@@ -85,7 +85,7 @@ auto parse_grid(std::string_view path) {
     for (auto [row, p, width]{std::tuple{
              ""s,
              Vec2{},
-             0uz,
+             0UZ,
          }};
          is >> row and not row.empty();
          p.y() += 1) {

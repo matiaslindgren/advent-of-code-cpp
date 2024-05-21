@@ -23,7 +23,7 @@ struct Packet {
       return {*this};
     }
     std::vector<Packet> subpacks;
-    for (auto [i, depth, size]{std::tuple{1uz, 0uz, 0uz}}; i < str.size(); ++i) {
+    for (auto [i, depth, size]{std::tuple{1UZ, 0UZ, 0UZ}}; i < str.size(); ++i) {
       const char ch{str.at(i)};
       depth += int{ch == '['};
       depth -= int{ch == ']'};

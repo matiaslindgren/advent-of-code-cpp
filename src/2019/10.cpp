@@ -13,7 +13,7 @@ using Points = std::vector<Vec2>;
 Points parse_asteroids(std::istream& is) {
   Points asteroids;
   {
-    auto width{0uz};
+    auto width{0UZ};
     Vec2 pos;
     for (std::string line; std::getline(is, line) and not line.empty(); pos.y() += 1) {
       if (not width) {
@@ -47,7 +47,7 @@ double angle(const Vec2& p1, const Vec2& p2) {
 
 auto search(Points asteroids) {
   Vec2 laser;
-  auto max_seen{0uz};
+  auto max_seen{0UZ};
 
   for (const auto& p1 : asteroids) {
     std::unordered_set<Vec2> seen;

@@ -76,7 +76,7 @@ auto generate_plants(auto state, const auto& rules, const auto n_iter) {
       state.insert(state.end(), false);
     }
     const auto prev_state{std::exchange(state, Pots(state.size()))};
-    for (auto i{0uz}; i < state.size() - 5; ++i) {
+    for (auto i{0UZ}; i < state.size() - 5; ++i) {
       if (const auto pot{rules.at(bools2int(prev_state | views::drop(i) | views::take(5)))}) {
         state[i + 2] = pot - 1;
       }

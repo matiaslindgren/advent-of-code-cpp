@@ -55,12 +55,12 @@ auto count_valid(const auto& springs, const auto& cache, const auto i, const aut
   const auto c_end{cache.extent(1) - 1};
   const auto n_end{cache.extent(2) - 1};
   if (not(i <= i_end and c <= c_end and n <= n_end)) {
-    return 0uz;
+    return 0UZ;
   }
   if (auto res{cache[i, c, n]}; res != no_value) {
     return res;
   }
-  auto res{0uz};
+  auto res{0UZ};
   if (i == i_end) {
     if (c == c_end and n == 0) {
       res = 1;

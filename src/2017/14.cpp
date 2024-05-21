@@ -30,7 +30,7 @@ auto knot_hash(std::string input) {
     }
   }
   Row row;
-  for (auto begin{0uz}; begin < state.size(); begin += 16) {
+  for (auto begin{0UZ}; begin < state.size(); begin += 16) {
     const auto chunk{
         ranges::fold_left(state | views::drop(begin) | views::take(16), uint8_t{0}, std::bit_xor{})
     };
@@ -82,7 +82,7 @@ auto compute_part2(const auto& rows) {
   std::unordered_set<int> visited;
   int regions{};
   for (const auto& [y, row] : my_std::views::enumerate(rows)) {
-    for (auto x{0uz}; x < row.size(); ++x) {
+    for (auto x{0UZ}; x < row.size(); ++x) {
       if (row[x] and not visited.contains(y * row.size() + x)) {
         visited.insert_range(bfs(rows, y, x));
         regions += 1;

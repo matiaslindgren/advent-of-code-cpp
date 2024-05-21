@@ -38,10 +38,10 @@ auto extract_chunks(const auto& lights, const auto tl, const auto br) {
   }
 
   std::vector<std::string> chunks;
-  for (auto i{0uz}; i < w; i += 8) {
+  for (auto i{0UZ}; i < w; i += 8) {
     auto& chunk{chunks.emplace_back()};
-    for (auto y{0uz}; y < h; ++y) {
-      for (auto x{0uz}; x < 6; ++x) {
+    for (auto y{0UZ}; y < h; ++y) {
+      for (auto x{0UZ}; x < 6; ++x) {
         chunk.push_back(sky[y * w + x + i]);
       }
     }

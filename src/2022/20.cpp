@@ -15,7 +15,7 @@ constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 // https://www.reddit.com/r/adventofcode/comments/zqezkn/comment/j0xxfet
 // accessed 2024-05-19
 auto search(std::vector<long> input, long key, int n_iterations) {
-  auto index{views::iota(0uz, input.size()) | ranges::to<std::vector>()};
+  auto index{views::iota(0UZ, input.size()) | ranges::to<std::vector>()};
   while (n_iterations-- > 0) {
     for (auto [i, num] : my_std::views::enumerate(input)) {
       auto src{ranges::find(index, i) - index.begin()};

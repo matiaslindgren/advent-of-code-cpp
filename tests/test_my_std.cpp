@@ -42,7 +42,7 @@ void test_ranges_stride() {
 void test_ranges_enumerate() {
   const auto v{std::views::iota(0, 10) | std::ranges::to<std::vector>()};
 
-  auto expect{0uz};
+  auto expect{0UZ};
   for (auto&& [i, x] : my_std::views::enumerate(v)) {
     if (expect == v.size()) {
       throw std::runtime_error("enumerate produced too many values");

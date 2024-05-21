@@ -173,8 +173,8 @@ bool fight(auto& teams) {
   std::vector<GroupID> select_q;
   std::array<std::vector<std::size_t>, 2> available;
 
-  for (auto team{0uz}; team < 2; ++team) {
-    for (auto id{0uz}; id < teams[team].size(); ++id) {
+  for (auto team{0UZ}; team < 2; ++team) {
+    for (auto id{0UZ}; id < teams[team].size(); ++id) {
       select_q.emplace_back(team, id);
       if (get_group(team, id).units) {
         available[team].push_back(id);

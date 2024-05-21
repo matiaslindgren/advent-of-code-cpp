@@ -8,7 +8,7 @@ auto search_for_recipes(const int target, const auto& digits) {
   std::ptrdiff_t part2{};
   {
     std::vector<int> r{3, 7};
-    auto i1{0uz}, i2{1uz};
+    auto i1{0UZ}, i2{1UZ};
     while (part1.empty() or part2 == 0) {
       const auto x1{r[i1]};
       const auto x2{r[i2]};

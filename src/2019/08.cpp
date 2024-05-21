@@ -15,10 +15,10 @@ auto find_part1(const auto& layers) {
 
 auto find_part2(const auto& layers) {
   std::string res;
-  for (auto left{0uz}; left < width; left += 5) {
+  for (auto left{0UZ}; left < width; left += 5) {
     std::string chunk;
-    for (auto y{0uz}; y < height; ++y) {
-      for (auto x{0uz}; x < 4; ++x) {
+    for (auto y{0UZ}; y < height; ++y) {
+      for (auto x{0UZ}; x < 4; ++x) {
         const auto px_stack{layers | views::transform([&](auto&& l) {
                               return l.at(y * width + left + x);
                             })};
@@ -40,7 +40,7 @@ auto parse_layers(const std::string path) {
     }
     // TODO (llvm19?) views::chunk
     return (
-        views::iota(0uz, line.size() - n + 1) | my_std::views::stride(n)
+        views::iota(0UZ, line.size() - n + 1) | my_std::views::stride(n)
         | views::transform([&](auto&& i) { return line.substr(i, n); }) | ranges::to<std::vector>()
     );
   }

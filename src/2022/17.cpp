@@ -109,7 +109,7 @@ struct Rock {
 
   auto points() const {
     return (
-        views::iota(0uz, shape.size()) | views::filter([this](auto i) { return shape[i]; })
+        views::iota(0UZ, shape.size()) | views::filter([this](auto i) { return shape[i]; })
         | views::transform([this](auto i) {
             auto [y, x]{std::div(i, Rock::max_size)};
             return pos + Vec2(x, -y);

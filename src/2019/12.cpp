@@ -33,7 +33,7 @@ auto search(Moons moons) {
     states.fill({});
     cycles.fill(0);
 
-    for (auto step{0uz}; ranges::any_of(cycles, [](long c) { return c == 0; }); ++step) {
+    for (auto step{0UZ}; ranges::any_of(cycles, [](long c) { return c == 0; }); ++step) {
       if (step == 1'000) {
         part1 = sum(views::transform(moons, [](const Moon& m) {
           return m.p.distance(Vec3()) * m.v.distance(Vec3());

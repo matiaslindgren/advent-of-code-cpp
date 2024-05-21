@@ -22,7 +22,7 @@ const int find_str_digit(const It begin, const It end) {
        {"eight", 8},
        {"nine", 9}}
   };
-  for (auto n{3uz}; n <= 5uz; ++n) {
+  for (auto n{3UZ}; n <= 5UZ; ++n) {
     const std::string s{begin, ranges::next(begin, n, end)};
     if (const auto num{str2num.find(s)}; num != str2num.end()) {
       return num->second;

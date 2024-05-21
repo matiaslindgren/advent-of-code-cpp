@@ -44,8 +44,8 @@ struct Grid2D {
     const std::size_t input_size = std::sqrt(input_tiles.size());
     size = input_size + 2;
     tiles.resize(size * size, Tile::ground);
-    for (auto row{0uz}; row < input_size; ++row) {
-      for (auto col{0uz}; col < input_size; ++col) {
+    for (auto row{0UZ}; row < input_size; ++row) {
+      for (auto col{0UZ}; col < input_size; ++col) {
         tiles[(row + 1) * size + (col + 1)] = input_tiles[row * input_size + col];
       }
     }
@@ -109,13 +109,13 @@ struct Grid2D {
 
 auto count_inner(Grid2D grid, const auto& path) {
   grid.infer_tile(grid.index_of(Tile::start));
-  for (auto i{0uz}; i < grid.tiles.size(); ++i) {
+  for (auto i{0UZ}; i < grid.tiles.size(); ++i) {
     if (not path.contains(i)) {
       grid.tiles.at(i) = Tile::ground;
     }
   }
   return ranges::count_if(
-      views::iota(0uz, grid.tiles.size()),
+      views::iota(0UZ, grid.tiles.size()),
       [prev_angle = Tile::ground, is_in = false, &grid](const auto& i) mutable {
         if (i % grid.size == 0) {
           prev_angle = Tile::ground;

@@ -131,7 +131,7 @@ struct Graph {
 
   explicit Graph(const Grid2D& grid) {
     const auto all_edges{grid.compress_edges()};
-    nodes = views::zip(all_edges | views::keys, views::iota(0uz, all_edges.size()))
+    nodes = views::zip(all_edges | views::keys, views::iota(0UZ, all_edges.size()))
             | ranges::to<std::unordered_map>();
     edges.resize(nodes.size());
     for (const auto& [node1, adjacent] : all_edges) {
@@ -158,7 +158,7 @@ auto find_longest_path(const Grid2D& grid) {
 
   const auto start{graph.nodes.at(grid.start_index())};
   const auto end{graph.nodes.at(grid.end_index())};
-  int max_dist{0};
+  int max_dist{};
 
   for (std::vector q{State{.current = start}}; not q.empty();) {
     auto [curr, dist_total, visited] = q.back();

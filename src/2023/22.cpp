@@ -31,7 +31,7 @@ struct SupportGraph {
       : bricks{input}, supporting(input.size()), supported_by(input.size()) {
     ranges::sort(bricks, ranges::less{}, [](const auto& b) { return b.begin.z(); });
 
-    auto brick_count{0uz};
+    auto brick_count{0UZ};
     for (auto curr{bricks.begin()}; curr != bricks.end(); ++curr) {
       curr->index = brick_count++;
 

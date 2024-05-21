@@ -43,7 +43,7 @@ struct Grid {
   }
 
   constexpr int parse_int(auto y, auto x) const {
-    int num{0};
+    int num{};
     for (; std::isdigit(get(y, x)); ++x) {
       num = (num * 10) + (get(y, x) - '0');
     }
@@ -91,7 +91,7 @@ constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 constexpr std::pair<int, int> search(const Grid& grid) {
   int part1{};
   int part2{};
-  for (const auto& p : grid.iter_yx_with_padding(1uz)) {
+  for (const auto& p : grid.iter_yx_with_padding(1UZ)) {
     const auto& [y, x] = p;
     if (const auto cell{grid.get(y, x)}; grid.is_symbol(cell)) {
       if (const auto adj{grid.adjacent_numbers(p)}; not adj.empty()) {

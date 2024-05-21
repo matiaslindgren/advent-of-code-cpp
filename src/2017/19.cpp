@@ -94,8 +94,8 @@ Tile parse_tile(const auto& lines, const auto y, const auto x) {
 
 Grid2D parse_grid(const auto& lines) {
   Grid2D g(lines.size(), lines.front().size());
-  for (auto y{1uz}; y < g.height - 1; ++y) {
-    for (auto x{1uz}; x < g.width - 1; ++x) {
+  for (auto y{1UZ}; y < g.height - 1; ++y) {
+    for (auto x{1UZ}; x < g.width - 1; ++x) {
       const auto tile{parse_tile(lines, y, x)};
       if (tile == Tile::letter) {
         g.get_letter(y, x) = lines[y][x];

@@ -93,7 +93,7 @@ constexpr auto search(const auto& blocks, const auto min_moves, const auto max_m
 
   const auto n_blocks{blocks.size()};
   const auto n_moves{max_moves};
-  const auto n_directions{4uz};
+  const auto n_directions{4UZ};
   std::vector<int> loss_data(n_blocks * n_moves * n_directions, Blocks::max_loss);
 
   const auto loss{[&](const auto& s) -> auto& {

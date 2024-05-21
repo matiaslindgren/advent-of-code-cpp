@@ -16,8 +16,8 @@ struct Image {
   std::vector<int> algorithm;
 
   std::size_t extract_index(const Vec2 mid, int default_px) const {
-    auto idx{0uz};
-    auto i{0uz};
+    auto idx{0UZ};
+    auto i{0UZ};
     for (Vec2 p(1, 1); p.y() >= -1; --p.y()) {
       for (p.x() = 1; p.x() >= -1; --p.x()) {
         int px{pixels.contains(mid + p) ? pixels.at(mid + p) : default_px};

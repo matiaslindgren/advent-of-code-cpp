@@ -2,7 +2,7 @@
 
 int find_part1(const auto steps) {
   std::vector<int> buf{0};
-  auto i{0uz};
+  auto i{0UZ};
   while (buf.size() < 2018) {
     i = 1 + (i + steps) % buf.size();
     buf.insert(buf.begin() + i, buf.size());
@@ -11,8 +11,8 @@ int find_part1(const auto steps) {
 }
 
 int find_part2(const auto steps) {
-  auto value{0uz};
-  for (auto i{0uz}, n{1uz}; n < 50'000'000; ++n) {
+  auto value{0UZ};
+  for (auto i{0UZ}, n{1UZ}; n < 50'000'000; ++n) {
     i = 1 + (i + steps) % n;
     if (i == 1) {
       value = n;

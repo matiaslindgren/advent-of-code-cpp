@@ -7,7 +7,7 @@ namespace views = std::views;
 auto take_prefix(const auto& v, std::size_t n) {
   return ranges::fold_left(
       v | views::take(n) | views::reverse,
-      0uz,
+      0UZ,
       [tens = 1L](auto res, int x) mutable { return res + x * (tens *= 10) / 10; }
   );
 }
@@ -15,9 +15,9 @@ auto take_prefix(const auto& v, std::size_t n) {
 auto find_part1(auto v) {
   const std::array pattern{0, 1, 0, -1};
   for (int phase{}; phase < 100; ++phase) {
-    for (auto i{0uz}; i < v.size(); ++i) {
+    for (auto i{0UZ}; i < v.size(); ++i) {
       long out{};
-      for (auto j{0uz}; j < v.size(); ++j) {
+      for (auto j{0UZ}; j < v.size(); ++j) {
         const auto k{((j + 1) / (i + 1)) % pattern.size()};
         out += v[j] * pattern[k];
       }

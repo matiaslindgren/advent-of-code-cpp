@@ -40,7 +40,7 @@ constexpr auto count_length(
 ) {
   long n{};
   std::string current{start};
-  for (auto i{0uz}; not is_end(current); i = (i + 1) % loop.size()) {
+  for (auto i{0UZ}; not is_end(current); i = (i + 1) % loop.size()) {
     const auto step{steps.at(current)};
     current = (loop[i] == 'L' ? step.lhs : step.rhs);
     ++n;

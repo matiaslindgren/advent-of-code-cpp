@@ -97,7 +97,7 @@ int find_part2(const auto& instructions) {
   const auto c{b - i7.rhs.value};
   const auto step{-i30.rhs.value};
 
-  int not_prime_count{0};
+  int not_prime_count{};
 
   for (int x{b}; x <= c; x += step) {
     bool is_prime{true};

@@ -47,7 +47,7 @@ struct Grid2D {
   }
 
   int count_adjacent_on(const std::size_t row, const std::size_t col) const {
-    int n{0};
+    int n{};
     for (auto r{row - 1}; r <= row + 1; ++r) {
       for (auto c{col - 1}; c <= col + 1; ++c) {
         if (not(r == row and c == col) and is_on(r, c)) {
@@ -60,8 +60,8 @@ struct Grid2D {
 
   Grid2D pad() const {
     Grid2D padded{decltype(grid)((size + 2) * (size + 2), Light::off)};
-    for (auto row{0uz}; row < size; ++row) {
-      for (auto col{0uz}; col < size; ++col) {
+    for (auto row{0UZ}; row < size; ++row) {
+      for (auto col{0UZ}; col < size; ++col) {
         padded.get(row + 1, col + 1) = get(row, col);
       }
     }
@@ -70,8 +70,8 @@ struct Grid2D {
 
   Grid2D step() const {
     Grid2D next_grid{*this};
-    for (auto row{1uz}; row < size - 1; ++row) {
-      for (auto col{1uz}; col < size - 1; ++col) {
+    for (auto row{1UZ}; row < size - 1; ++row) {
+      for (auto col{1UZ}; col < size - 1; ++col) {
         if (get(row, col) == Light::stuck) {
           continue;
         }
@@ -93,7 +93,7 @@ struct Grid2D {
 };
 
 Grid2D simulate(Grid2D grid, int steps) {
-  for (int step{0}; step < steps; ++step) {
+  for (int step{}; step < steps; ++step) {
     grid = grid.step();
   }
   return grid;

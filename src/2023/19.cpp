@@ -35,7 +35,7 @@ struct RatingBound {
     return ranges::fold_left(
         views::zip(lower, upper)
             | views::transform(my_std::apply_fn([](auto&& lo, auto&& up) { return up - lo - 1; })),
-        1uz,
+        1UZ,
         std::multiplies{}
     );
   }
@@ -135,7 +135,7 @@ auto parse_input(std::istream& is) {
 
 auto find_bounds(const auto& workflows) {
   std::vector<RatingBound> bounds;
-  for (std::deque q{{std::tuple{RatingBound{}, "in"s, 0uz}}}; not q.empty(); q.pop_front()) {
+  for (std::deque q{{std::tuple{RatingBound{}, "in"s, 0UZ}}}; not q.empty(); q.pop_front()) {
     const auto [bound, workflow, i_rule]{q.front()};
     if (workflow == "A"s) {
       bounds.push_back(bound);
@@ -157,14 +157,14 @@ auto find_bounds(const auto& workflows) {
         branch_true.lower[i] = std::max(branch_true.lower[i], rhs);
         branch_false.upper[i] = std::min(branch_false.upper[i], rhs + 1);
       }
-      q.emplace_back(branch_true, rule.next, 0uz);
+      q.emplace_back(branch_true, rule.next, 0UZ);
       q.emplace_back(branch_false, workflow, i_rule + 1);
     }
   }
   return bounds;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0uz, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0UZ, std::plus{})};
 
 auto find_part1(const auto& bounds, const auto& ratings) {
   return sum(

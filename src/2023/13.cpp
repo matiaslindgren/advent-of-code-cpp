@@ -23,8 +23,8 @@ struct Diffs {
      *  #.#.##.#. 4 1 6 6 1 5 0
      *
      */
-    for (auto i{1uz}; i < width; ++i) {
-      const auto diffs{views::iota(0uz, std::min(i, width - i)) | views::transform([&](auto size) {
+    for (auto i{1UZ}; i < width; ++i) {
+      const auto diffs{views::iota(0UZ, std::min(i, width - i)) | views::transform([&](auto size) {
                          const auto lhs{i - 1 - size};
                          const auto rhs{i + size};
                          const auto d1{diff[lhs * width + lhs]};
@@ -52,9 +52,9 @@ auto pairwise_diff(
     const auto stride2
 ) {
   return (
-      my_std::views::cartesian_product(views::iota(0uz, n), views::iota(0uz, n))
+      my_std::views::cartesian_product(views::iota(0UZ, n), views::iota(0UZ, n))
       | views::transform(my_std::apply_fn([&](auto&& i1, auto&& i2) -> int {
-          return ranges::count_if(views::iota(0uz, m), [&](auto j) {
+          return ranges::count_if(views::iota(0UZ, m), [&](auto j) {
             const auto x1{v[i1 * stride1 + j * stride2]};
             const auto x2{v[i2 * stride1 + j * stride2]};
             return x1 != x2;
@@ -77,7 +77,7 @@ using std::operator""s;
 struct parse_section {
   Mirrors operator()(ranges::range auto&& section) const {
     std::vector<char> chars;
-    auto width{0uz};
+    auto width{0UZ};
     for (auto&& line : views::split(section, "\n"s)) {
       if (not line.empty()) {
         width = line.size();

@@ -7,7 +7,7 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Result {
-  static constexpr auto password_len{8uz};
+  static constexpr auto password_len{8UZ};
   std::string pw1;
   std::string pw2;
 
@@ -19,7 +19,7 @@ struct Result {
   }
 };
 
-constexpr auto chunk_size{1uz << 18};
+constexpr auto chunk_size{1UZ << 18};
 const auto n_threads{aoc::cpu_count()};
 std::vector<Result> results(n_threads);
 std::vector<std::thread> threads(n_threads);
@@ -48,7 +48,7 @@ struct find_passwords {
 
 Result parallel_find_passwords(std::string_view msg) {
   Result res;
-  for (auto i{0uz}; i < 100'000'000 and not res.is_complete(); i += threads.size() * chunk_size) {
+  for (auto i{0UZ}; i < 100'000'000 and not res.is_complete(); i += threads.size() * chunk_size) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
       th = std::thread(find_passwords{}, t, msg, i + t * chunk_size, chunk_size);
     }

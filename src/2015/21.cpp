@@ -80,7 +80,7 @@ struct Player {
 
 std::pair<int, int> minmax_gold(const Boss& boss) {
   int min_win_gold{std::numeric_limits<int>::max()};
-  int max_lose_gold{0};
+  int max_lose_gold{};
   for (const auto& w : weapons) {
     for (const auto& a : armor) {
       for (const auto& r1 : rings) {

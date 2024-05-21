@@ -75,9 +75,9 @@ Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
   }
   std::stringstream input;
   const auto center{repeat_count / 2};
-  for (int r1{0}; r1 < repeat_count; ++r1) {
+  for (int r1{}; r1 < repeat_count; ++r1) {
     for (const auto& original_line : lines) {
-      for (int r2{0}; r2 < repeat_count; ++r2) {
+      for (int r2{}; r2 < repeat_count; ++r2) {
         auto line{original_line};
         if (not(r1 == center and r2 == center)) {
           ranges::replace(line, std::to_underlying(Tile::start), std::to_underlying(Tile::garden));

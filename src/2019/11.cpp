@@ -55,10 +55,10 @@ Tiles paint(Tiles tiles, const auto& program) {
 std::string parse_identifier(const Tiles& tiles) {
   std::string id;
   const std::size_t w{4}, h{6};
-  for (auto i_letter{0uz}; i_letter < 8; ++i_letter) {
+  for (auto i_letter{0UZ}; i_letter < 8; ++i_letter) {
     std::string letter;
-    for (auto y{0uz}; y < h; ++y) {
-      for (auto x{0uz}; x < w; ++x) {
+    for (auto y{0UZ}; y < h; ++y) {
+      for (auto x{0UZ}; x < w; ++x) {
         const Vec2 p(x + 1 + i_letter * (w + 1), y);
         letter.push_back(tiles.contains(p) and tiles.at(p) == Tile::white ? '#' : '.');
       }

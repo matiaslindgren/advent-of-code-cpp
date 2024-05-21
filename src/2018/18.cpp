@@ -51,7 +51,7 @@ struct Grid2D {
 
   Grid2D step() const {
     Grid2D g{*this};
-    for (auto [y, x] : square_points(1uz, width - 1)) {
+    for (auto [y, x] : square_points(1UZ, width - 1)) {
       int trees{}, yards{};
       for (auto [dy, dx] : square_points(-1, 2)) {
         if (dy == 0 and dx == 0) {

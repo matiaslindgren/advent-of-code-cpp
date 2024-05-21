@@ -20,7 +20,7 @@ struct Sample {
 
 std::istream& operator>>(std::istream& is, Memory& memory) {
   if (Memory m{}; is >> std::ws >> skip("["s)) {
-    for (auto i{0uz}; i < m.size() - 1 and is >> m[i] >> skip(","s); ++i) {
+    for (auto i{0UZ}; i < m.size() - 1 and is >> m[i] >> skip(","s); ++i) {
     }
     if (is >> m.back() >> skip("]"s)) {
       memory = m;

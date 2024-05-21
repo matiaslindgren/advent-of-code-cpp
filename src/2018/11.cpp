@@ -20,20 +20,20 @@ struct Result {
 
 auto search(const int serial) {
   // https://en.wikipedia.org/wiki/Summed-area_table
-  constexpr auto size{301uz};
+  constexpr auto size{301UZ};
   std::vector<long> sums(size * size, 0);
   std::mdspan grid(sums.data(), size, size);
-  for (auto y{1uz}; y < size; ++y) {
-    for (auto x{1uz}; x < size; ++x) {
+  for (auto y{1UZ}; y < size; ++y) {
+    for (auto x{1UZ}; x < size; ++x) {
       const auto power{get_digit((x + 10) * ((x + 10) * y + serial), 3) - 5};
       grid[x, y] = power + grid[x, y - 1] + grid[x - 1, y] - grid[x - 1, y - 1];
     }
   }
   std::vector<Result> results;
-  for (auto n{1uz}; n < size; ++n) {
+  for (auto n{1UZ}; n < size; ++n) {
     auto& r{results.emplace_back(std::numeric_limits<long>::min(), 0, 0, n)};
-    for (auto y{1uz}; y < size - n; ++y) {
-      for (auto x{1uz}; x < size - n; ++x) {
+    for (auto y{1UZ}; y < size - n; ++y) {
+      for (auto x{1UZ}; x < size - n; ++x) {
         const auto ad{grid[x, y] + grid[x + n, y + n]};
         const auto bc{grid[x + n, y] + grid[x, y + n]};
         if (const auto power{ad - bc}; power > r.power) {

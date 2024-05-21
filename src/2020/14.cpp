@@ -82,7 +82,7 @@ auto find_part1(const auto& instructions) {
         } break;
         case Instruction::write: {
           mem[ins.dst] = ranges::fold_left(
-              views::iota(0uz, mask.size()),
+              views::iota(0UZ, mask.size()),
               ins.src,
               [&mask](auto res, auto i) -> long {
                 auto bit{1L << (mask.size() - i - 1)};

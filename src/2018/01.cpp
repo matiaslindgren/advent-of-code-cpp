@@ -5,7 +5,7 @@ auto find_frequencies(const auto& items) {
   const auto n{items.size()};
   int sum1{}, sum2{};
   std::unordered_map<int, int> sum_counts;
-  for (auto i{0uz};; ++i) {
+  for (auto i{0UZ};; ++i) {
     if (i == n) {
       sum1 = sum2;
     }

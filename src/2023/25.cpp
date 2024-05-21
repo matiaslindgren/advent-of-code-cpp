@@ -90,9 +90,9 @@ auto find_part1(Graph graph) {
   const auto graph_size{nodes.size()};
 
   auto best_weight{std::numeric_limits<Graph::Weight>::max()};
-  auto best_cut{0uz};
+  auto best_cut{0UZ};
 
-  for (auto phase{0uz}; phase < graph_size - 1; ++phase) {
+  for (auto phase{0UZ}; phase < graph_size - 1; ++phase) {
     auto s{nodes.front()};
     std::vector<Graph::Node> q;
     std::unordered_map<Graph::Node, Graph::Weight> cut_weights;

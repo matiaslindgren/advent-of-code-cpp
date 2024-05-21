@@ -21,10 +21,10 @@ struct Grid2D {
     return views::zip(v, views::reverse(v));
   }
   auto y_range() const {
-    return bidirectional_range(1uz, height - 1);
+    return bidirectional_range(1UZ, height - 1);
   }
   auto x_range() const {
-    return bidirectional_range(1uz, width - 1);
+    return bidirectional_range(1UZ, width - 1);
   }
 
  public:
@@ -148,7 +148,7 @@ auto find_part2(Grid2D grid) {
     grid.cycle();
   }
 
-  const auto i{(1'000'000'000uz - seen.size()) % repeating.size()};
+  const auto i{(1'000'000'000UZ - seen.size()) % repeating.size()};
   return repeating[i].load();
 }
 

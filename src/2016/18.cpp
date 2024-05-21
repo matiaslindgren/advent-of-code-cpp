@@ -43,7 +43,7 @@ auto count_safe_tiles(const auto& tiles, const auto line_count) {
   for (int l{}; l < line_count; ++l) {
     n += safe.count() - (safe.size() - tiles.size());
     const auto prev{safe};
-    for (auto i{0uz}; i < tiles.size(); ++i) {
+    for (auto i{0UZ}; i < tiles.size(); ++i) {
       safe[i + 1] = not is_trap(prev[i], prev[i + 1], prev[i + 2]);
     }
   }

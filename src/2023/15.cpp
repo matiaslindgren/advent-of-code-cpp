@@ -70,7 +70,7 @@ struct Lens {
 };
 
 auto find_part2(const auto& steps) {
-  int seq_no{0};
+  int seq_no{};
   std::unordered_map<std::string, Lens> lenses;
   for (const auto& step : steps) {
     switch (step.command) {

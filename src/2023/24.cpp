@@ -63,8 +63,8 @@ std::optional<Vec3> intersectXY(const Stone& lhs, const Stone& rhs) {
 }
 
 auto find_part1(const auto& stones) {
-  auto n{0uz};
-  for (const auto& [i, stone1] : my_std::views::enumerate(stones, 1uz)) {
+  auto n{0UZ};
+  for (const auto& [i, stone1] : my_std::views::enumerate(stones, 1UZ)) {
     n += ranges::count_if(stones | views::drop(i), [&stone1](const auto& stone2) {
       auto is{intersectXY(stone1, stone2)};
       return is and is_inside_square(*is, min_coord, max_coord);
@@ -80,7 +80,7 @@ auto infer_collision_time(const Vec3& p, const Stone& s) {
 }
 
 auto find_part2(const auto& stones) {
-  for (int radius{0}; radius < 4000; ++radius) {
+  for (int radius{}; radius < 4000; ++radius) {
     Vec3 v{};
     const auto lo{-radius};
     const auto hi{radius};

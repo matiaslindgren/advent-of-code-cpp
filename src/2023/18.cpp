@@ -47,7 +47,7 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
   if (auto [dir1, len1, colour] = std::tuple{Direction{}, int{}, ""s};
       is >> dir1 >> len1 >> colour) {
     std::istringstream ls{colour};
-    int len2{0};
+    int len2{};
     if (ls >> skip("(#"s)) {
       for (char i{}, ch; i < 5 and ls >> ch; ++i) {
         len2 = 16 * len2 + std::stoi(""s + ch, nullptr, 16);
@@ -82,7 +82,7 @@ constexpr decltype(auto) window2(ranges::range auto&& r) {
 
 auto dig(ranges::view auto&& steps) {
   std::vector trench{{Point2D{}}};
-  auto trench_len{0uz};
+  auto trench_len{0UZ};
   for (const auto& step : steps) {
     Point2D delta{};
     switch (step.dir) {

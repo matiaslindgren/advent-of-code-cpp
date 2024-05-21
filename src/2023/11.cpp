@@ -35,7 +35,7 @@ struct Space {
   auto distance_sum(const auto expansion) const {
     const auto n{galaxies.size()};
     return ranges::fold_left(
-        views::iota(0uz, n * n) | views::transform([=, this](const auto& i) -> long {
+        views::iota(0UZ, n * n) | views::transform([=, this](const auto& i) -> long {
           if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
             const auto p1{this->galaxies[i1]};
             const auto p2{this->galaxies[i2]};
@@ -64,7 +64,7 @@ struct Space {
 
 std::istream& operator>>(std::istream& is, Space& space) {
   Points galaxies;
-  for (auto [ch, y, x] = std::make_tuple('\0', 0uz, 0uz); is.get(ch);) {
+  for (auto [ch, y, x] = std::make_tuple('\0', 0UZ, 0UZ); is.get(ch);) {
     switch (ch) {
       case '\n':
         x = 0;

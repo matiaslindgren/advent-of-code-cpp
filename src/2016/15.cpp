@@ -31,7 +31,7 @@ std::istream& operator>>(std::istream& is, Disc& disc) {
 
 auto find_time_to_press(const auto& discs) {
   // TODO no loop, find common multiple/divisor
-  for (auto t{0uz}; t < 100'000'000; ++t) {
+  for (auto t{0UZ}; t < 100'000'000; ++t) {
     const auto has_open_slot{[=](const auto& p) {
       const auto& [i, disc] = p;
       return ((disc.pos + t + i + 1) % disc.mod) == 0;

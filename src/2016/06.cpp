@@ -12,7 +12,7 @@ CharPairs minmax_char_freq_by_column(const auto& lines) {
   }
   const auto col_count{lines.front().size()};
   return (
-      views::iota(0uz, col_count) | views::transform([&lines](const auto column) {
+      views::iota(0UZ, col_count) | views::transform([&lines](const auto column) {
         std::unordered_map<char, int> char_count;
         for (const auto& line : lines) {
           ++char_count[line[column]];

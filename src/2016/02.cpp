@@ -46,7 +46,7 @@ std::istream& operator>>(std::istream& is, Steps& steps) {
 using Keypad = std::vector<std::string>;
 
 std::pair<unsigned, unsigned> find(const Keypad& keypad, char key) {
-  const auto axis{views::iota(0uz, keypad.size())};
+  const auto axis{views::iota(0UZ, keypad.size())};
   for (auto&& [y, x] : my_std::views::cartesian_product(axis, axis)) {
     if (keypad[y][x] == key) {
       return {y, x};

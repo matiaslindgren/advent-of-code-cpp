@@ -28,7 +28,7 @@ class Board {
   }
 
   bool won() const {
-    const auto idx{views::iota(0uz, width)};
+    const auto idx{views::iota(0UZ, width)};
     bool won_row{ranges::any_of(idx, [&](auto y) {
       return ranges::all_of(idx, [&](auto x) { return is_marked(y, x); });
     })};

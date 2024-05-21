@@ -42,7 +42,7 @@ auto compute_part2(std::string input) {
   const auto state{compute_hash(input, 64)};
   // TODO join_with view
   std::string res;
-  for (auto begin{0uz}; begin < state.size(); begin += 16) {
+  for (auto begin{0UZ}; begin < state.size(); begin += 16) {
     const auto chunk{ranges::fold_left(
         state | views::drop(begin + 1) | views::take(15),
         state[begin],

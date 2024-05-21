@@ -71,7 +71,7 @@ constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 // TODO rotated view?
 auto find_seating_happiness(const auto& seating, const Graph& g) {
   const auto n{g.node_count()};
-  return sum(views::transform(views::iota(0uz, n), [&](auto i) {
+  return sum(views::transform(views::iota(0UZ, n), [&](auto i) {
     const auto& lhs{seating[i]};
     const auto& rhs{seating[(i + 1) % n]};
     return g.happiness(lhs, rhs) + g.happiness(rhs, lhs);
@@ -80,7 +80,7 @@ auto find_seating_happiness(const auto& seating, const Graph& g) {
 
 auto maximize_happiness(const auto& pairs) {
   Graph g{pairs};
-  auto seating = views::iota(0uz, g.node_count()) | ranges::to<std::vector>();
+  auto seating = views::iota(0UZ, g.node_count()) | ranges::to<std::vector>();
   int happiness{};
   do {
     happiness = std::max(happiness, find_seating_happiness(seating, g));

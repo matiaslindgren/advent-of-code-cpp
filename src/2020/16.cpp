@@ -91,7 +91,7 @@ auto search(const auto& rules, const auto& my_ticket, auto tickets) {
   }
 
   std::unordered_map<int, std::unordered_map<int, bool>> valid_rules;
-  for (auto i{0uz}; i < tickets.front().values.size(); ++i) {
+  for (auto i{0UZ}; i < tickets.front().values.size(); ++i) {
     for (auto [r, rule] : my_std::views::enumerate(rules)) {
       for (const auto& t : tickets) {
         auto& vr{valid_rules[i]};

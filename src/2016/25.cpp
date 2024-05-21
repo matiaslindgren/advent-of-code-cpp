@@ -116,7 +116,7 @@ auto execute(auto& memory, const Instruction& ins, auto& out) {
 }
 
 int run(const auto& instructions) {
-  for (int a{0};; ++a) {
+  for (int a{};; ++a) {
     std::array<int, 4> memory{a, 0, 0, 0};
     std::vector<int> out;
     for (std::ptrdiff_t pos{}; 0 <= pos and pos < instructions.size();) {

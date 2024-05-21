@@ -54,7 +54,7 @@ struct Map {
 
 auto search(Map m) {
   long part1{}, part2{};
-  for (auto n_flashes{0uz}; n_flashes < m.energies.size();) {
+  for (auto n_flashes{0UZ}; n_flashes < m.energies.size();) {
     n_flashes = 0;
     for (m.step(); m.flash_all();) {
     }
