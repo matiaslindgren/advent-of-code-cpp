@@ -9,7 +9,7 @@ struct Region {
   int left;
   int bottom;
   int right;
-  enum {
+  enum : unsigned char {
     turn_on,
     turn_off,
     toggle,
@@ -19,7 +19,7 @@ struct Region {
 std::istream& operator>>(std::istream& is, Region& r) {
   std::string turn;
   std::string tmp;
-  char ch;
+  char ch{};
   if (((is >> turn and turn == "toggle") or (is >> turn and (turn == "on" or turn == "off")))
       and is >> r.top >> ch and ch == ',' and is >> r.left >> tmp and tmp == "through"
       and is >> r.bottom >> ch and ch == ',' and is >> r.right) {
@@ -39,27 +39,28 @@ std::istream& operator>>(std::istream& is, Region& r) {
 }
 
 int main() {
+  constexpr auto size{1000UZ};
   const auto regions{aoc::parse_items<Region>("/dev/stdin")};
 
-  // TODO
-  std::vector<bool> part1_lights(1'000'000, false);
-  std::vector<long long> part2_lights(1'000'000, 0);
+  // TODO dry
+  std::vector<bool> part1_lights(size * size, false);
+  std::vector<long long> part2_lights(size * size, 0);
   for (const auto& r : regions) {
     for (auto y{std::min(r.top, r.bottom)}; y <= std::max(r.top, r.bottom); ++y) {
       for (auto x{std::min(r.left, r.right)}; x <= std::max(r.left, r.right); ++x) {
-        const auto current_brightness{part2_lights[y * 1000 + x]};
+        const auto current_brightness{part2_lights[y * size + x]};
         switch (r.command) {
           case Region::turn_on: {
-            part1_lights[y * 1000 + x] = true;
-            part2_lights[y * 1000 + x] = current_brightness + 1;
+            part1_lights[y * size + x] = true;
+            part2_lights[y * size + x] = current_brightness + 1;
           } break;
           case Region::turn_off: {
-            part1_lights[y * 1000 + x] = false;
-            part2_lights[y * 1000 + x] = std::max(0LL, current_brightness - 1);
+            part1_lights[y * size + x] = false;
+            part2_lights[y * size + x] = std::max(0LL, current_brightness - 1);
           } break;
           case Region::toggle: {
-            part1_lights[y * 1000 + x] = not part1_lights[y * 1000 + x];
-            part2_lights[y * 1000 + x] = current_brightness + 2;
+            part1_lights[y * size + x] = not part1_lights[y * size + x];
+            part2_lights[y * size + x] = current_brightness + 2;
           } break;
         }
       }
