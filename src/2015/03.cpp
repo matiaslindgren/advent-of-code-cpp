@@ -12,21 +12,21 @@ enum class Direction : char {
   west = '<',
 };
 
-std::istream& operator>>(std::istream& is, Direction& d) {
-  if (std::underlying_type_t<Direction> ch; is >> ch) {
+std::istream& operator>>(std::istream& is, Direction& dir) {
+  if (std::underlying_type_t<Direction> ch{}; is >> ch) {
     switch (ch) {
       case std::to_underlying(Direction::north):
       case std::to_underlying(Direction::east):
       case std::to_underlying(Direction::south):
-      case std::to_underlying(Direction::west):
-        d = {ch};
-        return is;
+      case std::to_underlying(Direction::west): {
+        dir = {ch};
+      } break;
+      default: {
+        throw std::runtime_error(std::format("invalid direction '{}'", ch));
+      }
     }
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Direction");
+  return is;
 }
 
 using Moves = std::vector<Direction>;
