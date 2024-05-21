@@ -4,7 +4,7 @@ SHELL ?= /bin/sh
 CXX   := clang++-$(LLVM_VERSION)
 
 INCLUDES ?= -I./include -I./ndvec
-LDFLAGS  ?= -lm -fuse-ld=lld -lc++
+LDFLAGS  ?= -fuse-ld=lld -lm -lc++
 CXXFLAGS ?= \
 	-std=c++23 \
 	-stdlib=libc++ \
@@ -17,15 +17,14 @@ ifeq ($(shell uname), Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
 	LLVM_DIR := $(shell brew --prefix llvm)
 	CXX      := $(LLVM_DIR)/bin/clang-$(LLVM_VERSION)
-	LDFLAGS  := \
-		$(LDFLAGS) \
-		-L$(LLVM_DIR)/lib/c++ \
-		-Wl,-rpath,$(LLVM_DIR)/lib/c++,-syslibroot,$(SDK_PATH)
 	INCLUDES += \
 		-nostdinc++ \
 		-nostdlib++ \
 		-isysroot $(SDK_PATH) \
 		-isystem $(LLVM_DIR)/include/c++/v1
+	LDFLAGS  += \
+		-L$(LLVM_DIR)/lib/c++ \
+		-Wl,-rpath,$(LLVM_DIR)/lib/c++,-syslibroot,$(SDK_PATH)
 endif
 
 SRC := src
@@ -46,6 +45,7 @@ OUT_DIRS  := $(subst $(SRC)/,$(OUT_DIR)/,$(SRC_DIRS))
 SRC_PATHS := $(wildcard $(SRC)/*/*.cpp)
 OUT_FILES := $(basename $(SRC_PATHS:$(SRC)/%=%))
 OUT_PATHS := $(addprefix $(OUT_DIR)/,$(OUT_FILES))
+OBJ_PATHS := $(addsuffix .o,$(OUT_PATHS))
 
 TESTS      := tests
 TEST_SRC   := $(wildcard $(TESTS)/*.cpp)
@@ -111,10 +111,15 @@ test_utils: $(RUN_TEST_UTILS)
 $(RUN_TEST_UTILS): run_%: $(TEST_OUT_DIR)/%
 	$<
 
+
 .SECONDEXPANSION:
 
-$(OUT_PATHS): $(OUT_DIR)/%: $(SRC)/%.cpp | $$(dir $(OUT_DIR)/%)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
+$(OBJ_PATHS): $(OUT_DIR)/%.o: $(SRC)/%.cpp | $$(dir $(OUT_DIR)/%)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+$(OUT_PATHS): $(OUT_DIR)/%: $(OUT_DIR)/%.o
+	$(CXX) -fsanitize=address,undefined $< -o $@ $(LDFLAGS)
+
 
 PERCENT := %
 TEST_YEARS := $(subst $(OUT_DIR)/,test_,$(OUT_DIRS))
