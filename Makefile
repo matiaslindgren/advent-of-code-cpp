@@ -2,6 +2,7 @@ LLVM_VERSION ?= 18
 
 SHELL ?= /bin/sh
 CXX   := clang++-$(LLVM_VERSION)
+TIDY  := clang-tidy
 
 INCLUDES ?= -I./include -I./ndvec
 LDFLAGS  ?= -fuse-ld=lld -lm -lc++
@@ -17,6 +18,7 @@ ifeq ($(shell uname), Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
 	LLVM_DIR := $(shell brew --prefix llvm)
 	CXX      := $(LLVM_DIR)/bin/clang-$(LLVM_VERSION)
+	TIDY     := $(LLVM_DIR)/bin/$(TIDY)
 	INCLUDES += \
 		-nostdinc++ \
 		-nostdlib++ \
@@ -68,6 +70,24 @@ fmt: $(SRC_PATHS) $(wildcard include/*.hpp)
 	@clang-format --verbose -i $^
 
 
+JQ_MAKE_COMPILE_COMMANDS := [inputs|{\
+	directory: "$(abspath .)", \
+	command: ., \
+	file: match("('$(SRC)'[^ ]*)").captures[0].string, \
+	output: match("-o ([^ ]+)").captures[0].string \
+	}]
+
+$(OUT_DIR)/compile_commands.json: $(OUT_DIR)/
+	@$(MAKE) --always-make --dry-run \
+		| grep -wE '^'$(CXX) \
+		| jq -nR '$(JQ_MAKE_COMPILE_COMMANDS)' > $@
+
+
+.PHONY: lint
+lint: $(OUT_DIR)/compile_commands.json $(SRC_PATHS) $(wildcard include/*.hpp)
+	@$(TIDY) -p $^
+
+
 SOLUTIONS            := $(wildcard txt/correct/*/*)
 QUICK_TEST_TARGETS   := $(subst txt/correct/,test_,$(SOLUTIONS))
 VERBOSE_TEST_TARGETS := $(subst txt/correct/,test_verbose_,$(SOLUTIONS))
@@ -91,6 +111,11 @@ RUN_SOLUTIONS := $(addprefix run_,$(filter $(addsuffix %,$(YEARS)),$(OUT_FILES))
 .PHONY: $(RUN_SOLUTIONS)
 $(RUN_SOLUTIONS): run_% : txt/input/% $(OUT_DIR)/%
 	$(OUT_DIR)/$* < $<
+
+LINT_TARGETS := $(addprefix lint_,$(OUT_FILES))
+.PHONY: $(LINT_TARGETS)
+$(LINT_TARGETS): lint_% : $(OUT_DIR)/compile_commands.json $(SRC)/%.cpp
+	$(TIDY) -p $^
 
 
 RUN_TOOLS := $(addprefix run_,$(filter tools%,$(OUT_FILES)))
