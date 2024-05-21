@@ -1,19 +1,16 @@
+#include "aoc.hpp"
 #include "std.hpp"
 
 int main() {
-  std::ios::sync_with_stdio(false);
-
-  int part1{0};
-  int part2{0};
-  int i{1};
-  for (char ch : std::views::istream<char>(std::cin)) {
-    part1 += (ch == '(') - (ch == ')');
+  int part1{};
+  int part2{};
+  for (int i{1}; char ch : aoc::slurp_file("/dev/stdin")) {
+    part1 += int{ch == '('} - int{ch == ')'};
     if (part1 < 0 and part2 == 0) {
       part2 = i;
     }
     ++i;
   }
   std::println("{} {}", part1, part2);
-
   return 0;
 }

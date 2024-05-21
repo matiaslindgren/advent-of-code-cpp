@@ -78,7 +78,7 @@ class IntCode {
  public:
   IntCode() = default;
   IntCode(std::ranges::input_range auto&& program) {
-    for (auto [i, value] : std::views::zip(std::views::iota(0uz), program)) {
+    for (auto [i, value] : std::views::zip(std::views::iota(0UZ), program)) {
       memory[i] = value;
     }
   }

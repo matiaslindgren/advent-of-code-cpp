@@ -6,14 +6,14 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr auto chunk_size{1uz << 12};
+constexpr auto chunk_size{1UZ << 12};
 std::vector<std::thread> threads(aoc::cpu_count());
 std::vector<std::pair<int, md5::Chunk>> results(threads.size() * chunk_size);
 
 struct md5sum_32bit {
   void operator()(std::string_view msg, const auto begin, const auto res_begin, const auto count)
       const {
-    for (int i{0}; i < count; ++i) {
+    for (int i{}; i < count; ++i) {
       results[res_begin + i] = {begin + i, md5::sum32bit(std::format("{}{:d}", msg, begin + i))};
     }
   }

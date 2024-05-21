@@ -36,8 +36,8 @@ int count_visited_houses(const auto&... moves_list) {
   const auto deliver_presents{[&visit_counts](const auto& moves) {
     const auto grid_size{moves.size()};
     ++visit_counts[0];
-    int x{0};
-    int y{0};
+    int x{};
+    int y{};
     for (const auto direction : moves) {
       switch (direction) {
         case Direction::north: {
