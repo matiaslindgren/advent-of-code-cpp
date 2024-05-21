@@ -83,11 +83,6 @@ $(OUT_DIR)/compile_commands.json: $(OUT_DIR)/
 		| jq -nR '$(JQ_MAKE_COMPILE_COMMANDS)' > $@
 
 
-.PHONY: lint
-lint: $(OUT_DIR)/compile_commands.json $(SRC_PATHS) $(wildcard include/*.hpp)
-	@$(TIDY) -p $^
-
-
 SOLUTIONS            := $(wildcard txt/correct/*/*)
 QUICK_TEST_TARGETS   := $(subst txt/correct/,test_,$(SOLUTIONS))
 VERBOSE_TEST_TARGETS := $(subst txt/correct/,test_verbose_,$(SOLUTIONS))
@@ -115,7 +110,10 @@ $(RUN_SOLUTIONS): run_% : txt/input/% $(OUT_DIR)/%
 LINT_TARGETS := $(addprefix lint_,$(OUT_FILES))
 .PHONY: $(LINT_TARGETS)
 $(LINT_TARGETS): lint_% : $(OUT_DIR)/compile_commands.json $(SRC)/%.cpp
-	$(TIDY) -p $^
+	$(TIDY) --quiet -p $^
+
+.PHONY: lint
+lint: $(LINT_TARGETS)
 
 
 RUN_TOOLS := $(addprefix run_,$(filter tools%,$(OUT_FILES)))
