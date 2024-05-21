@@ -2,7 +2,7 @@ LLVM_VERSION ?= 18
 
 SHELL ?= /bin/sh
 CXX   := clang++-$(LLVM_VERSION)
-TIDY  := clang-tidy
+TIDY  := clang-tidy-$(LLVM_VERSION)
 
 INCLUDES ?= -I./include -I./ndvec
 LDFLAGS  ?= -fuse-ld=lld -lm -lc++
@@ -18,7 +18,7 @@ ifeq ($(shell uname), Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
 	LLVM_DIR := $(shell brew --prefix llvm)
 	CXX      := $(LLVM_DIR)/bin/clang-$(LLVM_VERSION)
-	TIDY     := $(LLVM_DIR)/bin/$(TIDY)
+	TIDY     := $(LLVM_DIR)/bin/clang-tidy
 	INCLUDES += \
 		-nostdinc++ \
 		-nostdlib++ \
@@ -58,7 +58,7 @@ TEST_OUT_DIR := $(OUT_DIR)/$(TESTS)
 .PHONY: all
 all: $(OUT_PATHS) $(TEST_FILES)
 
-$(addsuffix /,$(OUT_DIRS) $(TEST_OUT_DIR)):
+$(addsuffix /,$(OUT_DIR) $(OUT_DIRS) $(TEST_OUT_DIR)):
 	mkdir -p $@
 
 .PHONY: clean
@@ -79,7 +79,7 @@ JQ_MAKE_COMPILE_COMMANDS := [inputs|{\
 
 $(OUT_DIR)/compile_commands.json: $(OUT_DIR)/
 	@$(MAKE) --always-make --dry-run \
-		| grep -wE '^'$(CXX) \
+		| grep -wE '^\S*clang' \
 		| jq -nR '$(JQ_MAKE_COMPILE_COMMANDS)' > $@
 
 
