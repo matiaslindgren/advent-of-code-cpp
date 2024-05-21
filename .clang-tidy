@@ -1,0 +1,17 @@
+Checks: >
+  -*,
+  bugprone-*,
+  #TODO investigate clang-tidy segfault when using clang-analyzer* checks
+  #clang-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -bugprone-exception-escape,
+  -bugprone-switch-missing-default-case,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length
+WarningsAsErrors: '*'
+FormatStyle: none
+HeaderFilterRegex: ''
+SystemHeaders: false
