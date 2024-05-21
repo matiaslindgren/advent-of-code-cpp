@@ -38,7 +38,7 @@ ifeq ($(FAST), 1)
 	CXXFLAGS += -O3 -march=native
 else
 	OUT_DIR  := $(OUT)/debug
-	CXXFLAGS += -g -O2 -fsanitize=address,undefined --rtlib=compiler-rt
+	CXXFLAGS += -g -O2 -fsanitize=address,undefined
 endif
 
 YEARS     := $(subst $(SRC)/,,$(wildcard $(SRC)/20??))
