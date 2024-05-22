@@ -21,6 +21,47 @@ struct Statement {
   } gate{};
 };
 
+bool is_literal(const std::string& s) {
+  return not s.empty() and is_digit(s.front());
+}
+
+uint16_t parse_literal(const std::string& s) {
+  return std::stoul(s);
+}
+
+uint16_t compute_signal(const std::string& wire, auto& circuit) {
+  if (is_literal(wire)) {
+    return parse_literal(wire);
+  }
+  const auto& stmt{circuit.at(wire)};
+  uint16_t result{};
+  switch (stmt.gate) {
+    case Statement::Assign: {
+      result = compute_signal(stmt.lhs0, circuit);
+    } break;
+    case Statement::Not: {
+      result = ~compute_signal(stmt.lhs0, circuit);
+    } break;
+    case Statement::And: {
+      result = compute_signal(stmt.lhs0, circuit) & compute_signal(stmt.lhs1, circuit);
+    } break;
+    case Statement::Or: {
+      result = compute_signal(stmt.lhs0, circuit) | compute_signal(stmt.lhs1, circuit);
+    } break;
+    case Statement::LShift: {
+      result = compute_signal(stmt.lhs0, circuit) << compute_signal(stmt.lhs1, circuit);
+    } break;
+    case Statement::RShift: {
+      result = compute_signal(stmt.lhs0, circuit) >> compute_signal(stmt.lhs1, circuit);
+    } break;
+    case Statement::Unknown:
+    default:
+      throw std::runtime_error("broken circuit");
+  }
+  circuit[wire] = {std::format("{}", result), "", wire, Statement::Assign};
+  return result;
+}
+
 std::istream& operator>>(std::istream& is, Statement& s) {
   std::string str;
   std::vector<std::string> lhs;
@@ -64,47 +105,6 @@ std::istream& operator>>(std::istream& is, Statement& s) {
     return is;
   }
   throw std::runtime_error("failed to parse Statement");
-}
-
-bool is_literal(const std::string& s) {
-  return not s.empty() and is_digit(s.front());
-}
-
-uint16_t parse_literal(const std::string& s) {
-  return std::stoul(s);
-}
-
-uint16_t compute_signal(const std::string& wire, auto& circuit) {
-  if (is_literal(wire)) {
-    return parse_literal(wire);
-  }
-  const auto& stmt{circuit.at(wire)};
-  uint16_t result{};
-  switch (stmt.gate) {
-    case Statement::Assign: {
-      result = compute_signal(stmt.lhs0, circuit);
-    } break;
-    case Statement::Not: {
-      result = ~compute_signal(stmt.lhs0, circuit);
-    } break;
-    case Statement::And: {
-      result = compute_signal(stmt.lhs0, circuit) & compute_signal(stmt.lhs1, circuit);
-    } break;
-    case Statement::Or: {
-      result = compute_signal(stmt.lhs0, circuit) | compute_signal(stmt.lhs1, circuit);
-    } break;
-    case Statement::LShift: {
-      result = compute_signal(stmt.lhs0, circuit) << compute_signal(stmt.lhs1, circuit);
-    } break;
-    case Statement::RShift: {
-      result = compute_signal(stmt.lhs0, circuit) >> compute_signal(stmt.lhs1, circuit);
-    } break;
-    case Statement::Unknown:
-    default:
-      throw std::runtime_error("broken circuit");
-  }
-  circuit[wire] = {std::format("{}", result), "", wire, Statement::Assign};
-  return result;
 }
 
 int main() {
