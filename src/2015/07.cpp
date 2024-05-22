@@ -108,26 +108,18 @@ uint16_t compute_signal(const std::string& wire, auto& circuit) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
   const auto circuit{
-      views::istream<Statement>(input)
+      aoc::parse_items<Statement>("/dev/stdin")
       | views::transform([](const auto& stmt) { return std::tuple{stmt.dst, stmt}; })
       | ranges::to<std::unordered_map<std::string, Statement>>()
   };
 
-  uint16_t part1{};
-  {
-    auto circuit_part1{circuit};
-    part1 = compute_signal("a", circuit_part1);
-  }
+  auto circuit_part1{circuit};
+  const auto part1{compute_signal("a", circuit_part1)};
 
-  uint16_t part2{};
-  {
-    auto circuit_part2{circuit};
-    circuit_part2["b"] = {std::format("{}", part1), "", "b", Statement::Assign};
-    part2 = compute_signal("a", circuit_part2);
-  }
+  auto circuit_part2{circuit};
+  circuit_part2["b"] = {std::format("{}", part1), "", "b", Statement::Assign};
+  const auto part2{compute_signal("a", circuit_part2)};
 
   std::println("{} {}", part1, part2);
 

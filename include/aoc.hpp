@@ -32,7 +32,6 @@ struct is_lower_fn {
 };
 inline constexpr auto is_lower = is_lower_fn{};
 
-
 std::string slurp_file(std::string_view path) {
   std::ios::sync_with_stdio(false);
 

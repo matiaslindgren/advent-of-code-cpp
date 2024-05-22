@@ -17,10 +17,8 @@ auto look_and_say(const auto& digits) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
   auto digits{
-      views::istream<char>(input) | views::transform([](char ch) { return ch - '0'; })
+      aoc::parse_items<char>("/dev/stdin") | views::transform([](char ch) { return ch - '0'; })
       | ranges::to<std::vector>()
   };
 

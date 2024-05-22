@@ -7,16 +7,6 @@ namespace views = std::views;
 using std::operator""s;
 using aoc::skip;
 
-auto parse_input(std::istream& is) {
-  if (int row{}, col{};
-      is
-      >> skip("To continue, please consult the code grid in the manual."s, "Enter the code at row"s)
-      >> row >> skip(", column"s) >> col) {
-    return std::pair{row, col};
-  }
-  throw std::runtime_error("failed parsing input");
-}
-
 using UInt = unsigned long;
 
 UInt find(const int target_row, const int target_col) {
@@ -34,11 +24,14 @@ UInt find(const int target_row, const int target_col) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto [row, col]{parse_input(input)};
-  const auto part1{find(row, col)};
-  std::println("{}", part1);
-
-  return 0;
+  std::istringstream is{aoc::slurp_file("/dev/stdin")};
+  if (int row{}, col{};
+      is
+      >> skip("To continue, please consult the code grid in the manual."s, "Enter the code at row"s)
+      >> row >> skip(", column"s) >> col) {
+    const auto part1{find(row, col)};
+    std::println("{}", part1);
+    return 0;
+  }
+  throw std::runtime_error("failed parsing input");
 }

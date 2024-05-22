@@ -35,7 +35,7 @@ int count_visited_houses(const auto&... moves_list) {
   std::unordered_map<long, int> visit_counts;
   const auto deliver_presents{[&visit_counts](const auto& moves) {
     const auto grid_size{moves.size()};
-    ++visit_counts[0];
+    visit_counts[0] += 1;
     int x{};
     int y{};
     for (const auto direction : moves) {
@@ -53,7 +53,7 @@ int count_visited_houses(const auto&... moves_list) {
           --x;
         } break;
       }
-      ++visit_counts[y + grid_size * x];
+      visit_counts[y + grid_size * x] += 1;
     }
   }};
   (deliver_presents(moves_list), ...);
@@ -61,28 +61,14 @@ int count_visited_houses(const auto&... moves_list) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  // clang-format off
-  const auto all_moves{
-    views::istream<Direction>(input)
-    | ranges::to<Moves>()
-  };
+  const auto all_moves{aoc::parse_items<Direction>("/dev/stdin")};
 
   // TODO(llvm19?) P1899R3 std::views::stride
-  const auto santa_moves{
-    all_moves
-    | my_std::views::stride(2)
-    | ranges::to<Moves>()
-  };
+  const auto santa_moves{all_moves | my_std::views::stride(2) | ranges::to<Moves>()};
   // TODO(llvm19?) P1899R3 std::views::stride
   const auto robot_moves{
-    all_moves
-    | views::drop(1)
-    | my_std::views::stride(2)
-    | ranges::to<Moves>()
+      all_moves | views::drop(1) | my_std::views::stride(2) | ranges::to<Moves>()
   };
-  // clang-format on
 
   const auto part1{count_visited_houses(all_moves)};
   const auto part2{count_visited_houses(santa_moves, robot_moves)};
