@@ -1,4 +1,5 @@
 #include "aoc.hpp"
+#include "my_std.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
@@ -39,10 +40,7 @@ bool valid(const auto& password) {
   // std::views::adjacent<3>(password) ...
   return ranges::any_of(
       views::zip(password, views::drop(password, 1), views::drop(password, 2)),
-      [](const auto& t) {
-        const auto& [x0, x1, x2] = t;
-        return x0 + 1 == x1 and x1 + 1 == x2;
-      }
+      my_std::apply_fn([](auto x0, auto x1, auto x2) { return x0 + 1 == x1 and x1 + 1 == x2; })
   );
 }
 

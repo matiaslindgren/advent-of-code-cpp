@@ -18,8 +18,7 @@ using Foods = std::vector<Food>;
 
 std::istream& operator>>(std::istream& is, Food& food) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
-    auto rm{ranges::remove_if(line, [](char ch) { return ",()"s.contains(ch); })};
-    line.erase(rm.begin(), rm.end());
+    std::erase_if(line, [](char ch) { return ",()"s.contains(ch); });
     Food f;
     std::istringstream ls{line};
     for (std::string ig; ls >> ig and ig != "contains"s;) {

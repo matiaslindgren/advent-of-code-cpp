@@ -43,10 +43,7 @@ long count_decompressed(const Markers& markers, const bool simple) {
   Markers repeating;
 
   const auto drop_nonrepeating{[&] {
-    const auto rm{ranges::remove_if(repeating, [&str_pos](const auto& m) {
-      return m.begin + m.length <= str_pos;
-    })};
-    repeating.erase(rm.begin(), rm.end());
+    std::erase_if(repeating, [&str_pos](const auto& m) { return m.begin + m.length <= str_pos; });
   }};
 
   const auto get_current_total_repeat{[&] {

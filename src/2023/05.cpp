@@ -68,15 +68,10 @@ std::istream& operator>>(std::istream& is, MapGroups& mg) {
 }
 
 constexpr void prune(Ranges& rs) {
-  {
-    const auto empty{ranges::remove_if(rs, [](const auto& r) { return r.len <= 0; })};
-    rs.erase(empty.begin(), empty.end());
-  }
+  std::erase_if(rs, [](const auto& r) { return r.len <= 0; });
   ranges::sort(rs);
-  {
-    const auto dup{ranges::unique(rs)};
-    rs.erase(dup.begin(), dup.end());
-  }
+  const auto dup{ranges::unique(rs)};
+  rs.erase(dup.begin(), dup.end());
 }
 
 Ranges split_subranges(const Range& input, const auto& map_groups) {

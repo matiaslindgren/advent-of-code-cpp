@@ -7,13 +7,13 @@ namespace views = std::views;
 
 using intcode::IntCode;
 
-enum class Mode {
+enum class Mode : unsigned char {
   stateless,
   stateful,
 };
 
 auto run(const auto& program, ranges::input_range auto&& phase_set, Mode mode) {
-  int max_signal{};
+  IntCode::Int max_signal{};
   {
     auto phases{ranges::to<std::vector>(phase_set)};
     do {
@@ -23,7 +23,7 @@ auto run(const auto& program, ranges::input_range auto&& phase_set, Mode mode) {
         amp.input.push_back(phase);
       }
 
-      int signal{};
+      IntCode::Int signal{};
 
       while (not amps.empty()) {
         ranges::for_each(amps, [&signal](IntCode& amp) {
@@ -35,9 +35,7 @@ auto run(const auto& program, ranges::input_range auto&& phase_set, Mode mode) {
             amps.clear();
           } break;
           case Mode::stateful: {
-            const auto rm{ranges::remove_if(amps, [](const IntCode& amp) { return amp.is_done(); })
-            };
-            amps.erase(rm.begin(), rm.end());
+            std::erase_if(amps, [](const IntCode& amp) { return amp.is_done(); });
           } break;
         }
       }
