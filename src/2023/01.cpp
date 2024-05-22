@@ -4,6 +4,8 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::is_digit;
+
 constexpr int char2num(const auto ch) {
   return ch - '0';
 }
@@ -34,16 +36,14 @@ const int find_str_digit(const It begin, const It end) {
 int main() {
   std::istringstream input{aoc::slurp_file("/dev/stdin")};
 
-  const auto isdigit{[](unsigned char ch) { return std::isdigit(ch); }};
-
   int part1{}, part2{};
 
   for (std::string line; std::getline(input, line);) {
-    const auto lhs1{ranges::find_if(line, isdigit)};
+    const auto lhs1{ranges::find_if(line, is_digit)};
     if (lhs1 == line.end()) {
       continue;
     }
-    const auto rhs1{ranges::find_if(views::reverse(line), isdigit).base() - 1};
+    const auto rhs1{ranges::find_if(views::reverse(line), is_digit).base() - 1};
     const auto lhs_val1{char2num(*lhs1) * 10};
     const auto rhs_val1{char2num(*rhs1)};
     part1 += lhs_val1 + rhs_val1;

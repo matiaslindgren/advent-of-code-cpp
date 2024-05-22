@@ -4,6 +4,10 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::is_alpha;
+using aoc::is_lower;
+using aoc::skip;
+using std::operator""s;
 using Units = std::vector<std::string>;
 
 struct Replacement {
@@ -12,11 +16,10 @@ struct Replacement {
 };
 
 Units split_molecule(const std::string& molecule) {
-  const auto islower{[](unsigned char ch) { return std::islower(ch); }};
   Units units;
   std::string unit;
   for (auto ch : molecule) {
-    if (not islower(ch) and not unit.empty()) {
+    if (not is_lower(ch) and not unit.empty()) {
       units.push_back(unit);
       unit.clear();
     }
@@ -26,28 +29,12 @@ Units split_molecule(const std::string& molecule) {
   return units;
 }
 
-std::istream& operator>>(std::istream& is, Replacement& r) {
-  std::string tmp;
-  std::string src;
-  std::string dst;
-  const auto isalpha{[](unsigned char ch) { return std::isalpha(ch); }};
-  if (is >> src and ranges::all_of(src, isalpha) and is >> tmp and tmp == "=>" and is >> dst
-      and ranges::all_of(dst, isalpha)) {
-    r = {split_molecule(src), split_molecule(dst)};
-    return is;
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Replacement");
-}
-
-std::vector<Units> replace(const Units& molecule, const Replacement& repl) {
+auto replace(const Units& molecule, const Replacement& repl) {
   std::vector<Units> new_molecules;
   const auto begin{molecule.begin()};
   const auto end{molecule.end()};
   for (auto it{begin}; it != end;) {
-    const auto [match_begin, match_end] = ranges::search(ranges::subrange(it, end), repl.src);
+    const auto [match_begin, match_end]{ranges::search(ranges::subrange(it, end), repl.src)};
     if (match_begin != end) {
       const auto back_inserter{std::back_inserter(new_molecules.emplace_back())};
       ranges::copy(begin, match_begin, back_inserter);
@@ -59,8 +46,7 @@ std::vector<Units> replace(const Units& molecule, const Replacement& repl) {
   return new_molecules;
 }
 
-std::vector<Units>
-replace_all(const Units& molecule, const std::vector<Replacement>& replacements) {
+auto replace_all(const Units& molecule, const std::vector<Replacement>& replacements) {
   std::vector<Units> new_molecules;
   for (const auto& r : replacements) {
     ranges::copy(replace(molecule, r), std::back_inserter(new_molecules));
@@ -72,7 +58,7 @@ replace_all(const Units& molecule, const std::vector<Replacement>& replacements)
 }
 
 std::size_t count_shortest_path_to(
-    Units molecule,
+    const Units& molecule,
     const std::vector<Replacement>& replacements,
     const Units& target,
     std::size_t step = 0
@@ -95,27 +81,36 @@ std::size_t count_shortest_path_to(
   return count_shortest_path_to(new_molecule, replacements, target, step + 1);
 }
 
-auto parse_input(std::istream& is) {
-  std::vector<Replacement> replacements;
-  std::string medicine;
-  for (std::string line; std::getline(is, line) and not line.empty();) {
-    std::istringstream ls{line};
-    ls >> replacements.emplace_back();
+auto parse_input(std::string_view path) {
+  const auto lines{aoc::slurp_lines(path)};
+  if (lines.size() < 3) {
+    throw std::runtime_error("expected at least 3 lines");
   }
-  std::getline(is, medicine);
-  return std::make_pair(replacements, split_molecule(medicine));
+
+  std::vector<Replacement> replacements;
+  for (auto line : lines | views::take(lines.size() - 2)) {
+    std::istringstream ls{line};
+    if (std::string src, dst; ls >> src and ranges::all_of(src, is_alpha)
+                              and ls >> std::ws >> skip("=>"s) >> dst
+                              and ranges::all_of(dst, is_alpha)) {
+      replacements.emplace_back(split_molecule(src), split_molecule(dst));
+    }
+    if (not ls.eof()) {
+      throw std::runtime_error(std::format("failed parsing line '{}'", line));
+    }
+  }
+
+  const auto& medicine{lines.back()};
+  return std::pair{replacements, split_molecule(medicine)};
 }
 
 int main() {
-  using std::operator""s;
-
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto [replacements, medicine] = parse_input(input);
+  const auto [replacements, medicine]{parse_input("/dev/stdin")};
 
   const auto part1{replace_all(medicine, replacements).size()};
 
   auto reverse_replacements{
-      views::transform(replacements, [](const auto& r) -> Replacement { return {r.dst, r.src}; })
+      views::transform(replacements, [](const auto& r) { return Replacement{r.dst, r.src}; })
       | ranges::to<std::vector>()
   };
   ranges::sort(reverse_replacements, ranges::greater{}, [](const auto& r) { return r.src.size(); });

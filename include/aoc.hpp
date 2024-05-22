@@ -11,6 +11,28 @@ using std::operator""sv;
 
 namespace aoc {
 
+struct is_digit_fn {
+  constexpr bool operator()(unsigned char ch) const noexcept {
+    return std::isdigit(ch) != 0;
+  }
+};
+inline constexpr auto is_digit = is_digit_fn{};
+
+struct is_alpha_fn {
+  constexpr bool operator()(unsigned char ch) const noexcept {
+    return std::isalpha(ch) != 0;
+  }
+};
+inline constexpr auto is_alpha = is_alpha_fn{};
+
+struct is_lower_fn {
+  constexpr bool operator()(unsigned char ch) const noexcept {
+    return std::islower(ch) != 0;
+  }
+};
+inline constexpr auto is_lower = is_lower_fn{};
+
+
 std::string slurp_file(std::string_view path) {
   std::ios::sync_with_stdio(false);
 
@@ -43,10 +65,10 @@ std::vector<std::string> slurp_lines(std::string_view path) {
 }
 
 template <typename T>
-std::vector<T> parse_items(std::string_view path, const char sep = 0) {
+std::vector<T> parse_items(std::string_view path, std::optional<char> sep = std::nullopt) {
   auto input{slurp_file(path)};
   if (sep) {
-    ranges::replace(input, sep, ' ');
+    ranges::replace(input, sep.value(), ' ');
   }
   std::istringstream is{input};
   std::vector<T> items;

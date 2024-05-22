@@ -4,121 +4,73 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Edge {
   std::string src;
   std::string dst;
-  std::size_t dist;
+  int len{};
 };
 
-std::istream& operator>>(std::istream& is, Edge& edge) {
-  using aoc::skip;
-  using std::operator""s;
+struct Graph {
+  std::unordered_map<std::string, std::unordered_map<std::string, int>> edges;
 
-  std::string src, dst;
-  std::size_t dist;
-  if (is >> src >> std::ws >> skip("to"s) >> dst >> std::ws >> skip("="s) >> dist) {
-    edge = {src, dst, dist};
-    return is;
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Edge");
-}
-
-class Graph {
-  std::size_t node_count_;
-  std::vector<std::size_t> distances;
-
- public:
-  auto&& distance(this auto&& self, auto n1, auto n2) {
-    return self.distances[n1 + n2 * self.node_count()];
-  }
-
-  constexpr explicit Graph(const std::vector<Edge>& edges) {
-    std::vector<std::string> nodes;
-    for (const auto& edge : edges) {
-      nodes.push_back(edge.src);
-      nodes.push_back(edge.dst);
-    }
-    {
-      ranges::sort(nodes);
-      const auto duplicates{ranges::unique(nodes)};
-      nodes.erase(duplicates.begin(), duplicates.end());
-    }
-    node_count_ = nodes.size();
-
-    distances.resize(node_count() * node_count(), max_distance());
-    for (auto n : views::iota(0UZ, node_count())) {
-      distance(n, n) = 0;
-    }
-
-    const auto find_node_index{[&nodes](const auto& name) {
-      return ranges::distance(nodes.begin(), ranges::find(nodes, name));
-    }};
-    for (const auto& e : edges) {
-      const auto n1{find_node_index(e.src)};
-      const auto n2{find_node_index(e.dst)};
-      distance(n1, n2) = distance(n2, n1) = e.dist;
+  explicit Graph(const std::vector<Edge>& init_edges) {
+    for (auto&& [src, dst, len] : init_edges) {
+      edges[src][dst] = edges[dst][src] = len;
     }
   }
 
-  constexpr std::size_t node_count() const {
-    return node_count_;
-  }
-
-  constexpr std::size_t max_distance() const {
-    return std::numeric_limits<std::size_t>::max();
-  }
-
-  template <std::size_t max_node_count>
-  constexpr auto find_all_hamiltonian_path_lengths() const {
-    if (max_node_count < node_count()) {
-      throw std::runtime_error("too many nodes");
+  [[nodiscard]]
+  auto get_dist(const auto& src, const auto& dst) const {
+    if (edges.contains(src) and edges.at(src).contains(dst)) {
+      return edges.at(src).at(dst);
     }
-    std::vector<std::size_t> lengths;
+    return std::numeric_limits<int>::max();
+  }
+
+  [[nodiscard]]
+  auto find_all_hamiltonian_path_lengths() const {
+    std::vector<int> lengths;
+
     struct State {
-      std::bitset<max_node_count> visited;
-      std::size_t node;
-      std::size_t path_length;
+      std::unordered_set<std::string> visited;
+      std::string node;
+      int path_length;
     };
-    for (auto start : views::iota(0UZ, node_count())) {
+
+    for (const auto& start : edges | views::keys) {
       for (std::vector q{State{{}, start, {}}}; not q.empty();) {
-        auto current{q.back()};
+        State s{q.back()};
         q.pop_back();
-        if (current.visited[current.node]) {
+        if (auto [_, is_new]{s.visited.insert(s.node)}; not is_new) {
           continue;
         }
-        current.visited[current.node] = true;
-        if (current.visited.count() == node_count()) {
-          lengths.push_back(current.path_length);
+        if (s.visited.size() == edges.size()) {
+          lengths.push_back(s.path_length);
           continue;
         }
-        for (auto node : views::iota(0UZ, node_count())) {
-          const auto edge_length{distance(current.node, node)};
-          q.emplace_back(
-              current.visited,
-              node,
-              aoc::saturating_add(current.path_length, edge_length)
-          );
+        for (const auto& dst : edges | views::keys) {
+          q.emplace_back(s.visited, dst, aoc::saturating_add(s.path_length, get_dist(s.node, dst)));
         }
       }
     }
+
     return lengths;
   }
 };
 
+std::istream& operator>>(std::istream& is, Edge& edge) {
+  if (Edge e; is >> e.src >> std::ws >> skip("to"s) >> e.dst >> std::ws >> skip("="s) >> e.len) {
+    edge = e;
+  }
+  return is;
+}
+
 int main() {
-  const auto edges{aoc::parse_items<Edge>("/dev/stdin")};
-
-  Graph g{edges};
-  const auto hamiltonian_path_lengths{g.find_all_hamiltonian_path_lengths<8>()};
-  const auto [shortest_path, longest_path]{ranges::minmax_element(hamiltonian_path_lengths)};
-
-  const auto part1{*shortest_path};
-  const auto part2{*longest_path};
-
+  Graph g{aoc::parse_items<Edge>("/dev/stdin")};
+  const auto [part1, part2]{ranges::minmax(g.find_all_hamiltonian_path_lengths())};
   std::println("{} {}", part1, part2);
-
   return 0;
 }

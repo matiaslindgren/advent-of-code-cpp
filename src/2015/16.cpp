@@ -4,39 +4,29 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Aunt {
-  using Items = std::unordered_map<std::string, int>;
-  std::size_t id;
-  Items items;
+  std::size_t id{};
+  std::unordered_map<std::string, int> items;
 };
 
-std::istream& operator>>(std::istream& is, Aunt& aunt) {
-  std::string tmp;
-  std::size_t id;
-  if (is >> tmp and tmp == "Sue" and is >> id >> tmp and tmp == ":") {
-    Aunt::Items items;
-    {
-      std::string key;
-      int value;
-      while (is >> key and key.ends_with(":") and is >> value) {
-        key.pop_back();
-        items[key] = value;
-        if (not(is.peek() == ',' and is.get())) {
-          break;
-        }
-      }
-    }
-    aunt = {id, items};
-    return is;
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Aunt");
-}
+static const std::unordered_map target_items{
+    std::pair{"children"s, 3},
+    std::pair{"cats"s, 7},
+    std::pair{"samoyeds"s, 2},
+    std::pair{"pomeranians"s, 3},
+    std::pair{"akitas"s, 0},
+    std::pair{"vizslas"s, 0},
+    std::pair{"goldfish"s, 5},
+    std::pair{"trees"s, 3},
+    std::pair{"cars"s, 2},
+    std::pair{"perfumes"s, 1}
+};
 
-Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
-  for (const auto& [k, v] : target.items) {
+Aunt find_target_aunt(std::vector<Aunt> aunts, auto comp) {
+  for (const auto& [k, v] : target_items) {
     const auto is_mismatch{[&](const auto& aunt) {
       return aunt.items.contains(k) and not comp(k, aunt.items.at(k), v);
     }};
@@ -46,27 +36,26 @@ Aunt find_aunt(std::vector<Aunt> aunts, const Aunt& target, auto comp) {
   return aunts.front();
 }
 
+std::istream& operator>>(std::istream& is, Aunt& aunt) {
+  if (Aunt a; is >> std::ws >> skip("Sue"s) >> a.id >> std::ws >> skip(":"s)) {
+    for (auto [key, val]{std::pair{""s, int{}}}; is >> key and key.ends_with(":") and is >> val;) {
+      key.pop_back();
+      a.items[key] = val;
+      if (is.peek() != ',' or is.get() == 0) {
+        break;
+      }
+    }
+    if (is or is.eof()) {
+      aunt = a;
+    }
+  }
+  return is;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto aunts = views::istream<Aunt>(input) | ranges::to<std::vector>();
-
-  const Aunt target{
-      .items
-      = {{"children", 3},
-         {"cats", 7},
-         {"samoyeds", 2},
-         {"pomeranians", 3},
-         {"akitas", 0},
-         {"vizslas", 0},
-         {"goldfish", 5},
-         {"trees", 3},
-         {"cars", 2},
-         {"perfumes", 1}}
-  };
+  const auto aunts{aoc::parse_items<Aunt>("/dev/stdin")};
 
   const auto equal_compare{[](const auto&, int lhs, int rhs) { return lhs == rhs; }};
-
   const auto fancy_compare{[](const auto& key, int lhs, int rhs) {
     if (key == "cats" or key == "trees") {
       return lhs > rhs;
@@ -77,8 +66,8 @@ int main() {
     return lhs == rhs;
   }};
 
-  const auto aunt1{find_aunt(aunts, target, equal_compare)};
-  const auto aunt2{find_aunt(aunts, target, fancy_compare)};
+  const auto aunt1{find_target_aunt(aunts, equal_compare)};
+  const auto aunt2{find_target_aunt(aunts, fancy_compare)};
 
   std::println("{} {}", aunt1.id, aunt2.id);
 

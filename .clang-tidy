@@ -11,7 +11,13 @@ Checks: >
   -bugprone-switch-missing-default-case,
   -modernize-use-trailing-return-type,
   -readability-identifier-length,
-  -bugprone-assignment-in-if-condition
+  -bugprone-assignment-in-if-condition,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-do-while,
+  -readability-named-parameter,
+  -performance-unnecessary-value-param,
+  -bugprone-easily-swappable-parameters
 WarningsAsErrors: '*'
 FormatStyle: none
 HeaderFilterRegex: ''

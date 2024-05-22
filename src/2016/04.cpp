@@ -4,6 +4,8 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::is_digit;
+
 struct Room {
   std::string name;
   std::string checksum;
@@ -45,14 +47,10 @@ struct Room {
   }
 };
 
-bool isdigit(unsigned char ch) {
-  return std::isdigit(ch);
-}
-
 std::istream& operator>>(std::istream& is, Room& room) {
   {
     Room r;
-    for (char ch; not isdigit(is.peek()) and is.get(ch);) {
+    for (char ch; not is_digit(is.peek()) and is.get(ch);) {
       r.name.push_back(ch);
     }
     if (is >> r.id) {

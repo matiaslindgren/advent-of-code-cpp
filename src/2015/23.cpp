@@ -4,8 +4,9 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-// TODO(reinterpret 3chars to fixed width type)
-enum Code {
+using aoc::is_alpha;
+
+enum Code : unsigned char {
   half,
   triple,
   increment,
@@ -14,98 +15,39 @@ enum Code {
   jump_if_one,
 };
 
-std::istream& operator>>(std::istream& is, Code& code) {
-  std::string id;
-  if (is >> id) {
-    if (id == "hlf") {
-      code = Code::half;
-      return is;
-    }
-    if (id == "tpl") {
-      code = Code::triple;
-      return is;
-    }
-    if (id == "inc") {
-      code = Code::increment;
-      return is;
-    }
-    if (id == "jmp") {
-      code = Code::jump;
-      return is;
-    }
-    if (id == "jie") {
-      code = Code::jump_if_even;
-      return is;
-    }
-    if (id == "jio") {
-      code = Code::jump_if_one;
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Code");
-}
-
 struct Instruction {
-  Code code;
-  int addr;
-  int jmp;
+  Code code{};
+  int addr{};
+  int jmp{};
 };
-
-bool isalpha(unsigned char ch) {
-  return std::isalpha(ch);
-}
-
-std::istream& operator>>(std::istream& is, Instruction& ins) {
-  Code code;
-  if (is >> code) {
-    int jmp{};
-    if (code == Code::jump and is >> jmp) {
-      ins = {code, -1, jmp};
-      return is;
-    }
-    std::string addr;
-    if (is >> addr and not addr.empty() and isalpha(addr.front())
-        and (not(code == Code::jump_if_one or code == Code::jump_if_even) or is >> jmp)) {
-      ins = {code, addr.front() - 'a', jmp};
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Instruction");
-}
 
 using Memory = std::array<int, 8>;
 using Program = std::vector<Instruction>;
 
 void run(Memory& memory, const Program& program) {
   for (int i{}; 0 <= i and i < program.size();) {
-    const Instruction ins = program[i];
+    const Instruction ins{program[i]};
     int jump{1};
     switch (ins.code) {
       case Code::half: {
-        memory[ins.addr] /= 2;
+        memory.at(ins.addr) /= 2;
       } break;
       case Code::triple: {
-        memory[ins.addr] *= 3;
+        memory.at(ins.addr) *= 3;
       } break;
       case Code::increment: {
-        memory[ins.addr] += 1;
+        memory.at(ins.addr) += 1;
       } break;
       case Code::jump: {
         jump = ins.jmp;
       } break;
       case Code::jump_if_even: {
-        if (memory[ins.addr] % 2 == 0) {
+        if (memory.at(ins.addr) % 2 == 0) {
           jump = ins.jmp;
         }
       } break;
       case Code::jump_if_one: {
-        if (memory[ins.addr] == 1) {
+        if (memory.at(ins.addr) == 1) {
           jump = ins.jmp;
         }
       } break;
@@ -114,12 +56,50 @@ void run(Memory& memory, const Program& program) {
   }
 }
 
+std::istream& operator>>(std::istream& is, Code& code) {
+  if (std::string op{}; is >> op) {
+    if (op == "hlf") {
+      code = Code::half;
+    } else if (op == "tpl") {
+      code = Code::triple;
+    } else if (op == "inc") {
+      code = Code::increment;
+    } else if (op == "jmp") {
+      code = Code::jump;
+    } else if (op == "jie") {
+      code = Code::jump_if_even;
+    } else if (op == "jio") {
+      code = Code::jump_if_one;
+    } else {
+      throw std::runtime_error(std::format("unknown opcode '{}'", op));
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Instruction& ins) {
+  if (Code code{}; is >> code) {
+    int jmp{};
+    if (code == Code::jump and is >> jmp) {
+      ins = {code, -1, jmp};
+      return is;
+    }
+    std::string addr;
+    if ((is >> addr and not addr.empty() and is_alpha(addr.front()) and code != Code::jump_if_one
+         and code != Code::jump_if_even)
+        or is >> jmp) {
+      ins = {code, addr.front() - 'a', jmp};
+      return is;
+    }
+  }
+  return is;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto program{aoc::parse_items<Instruction>("/dev/stdin")};
 
   Memory memory;
   memory.fill(0);
-  const auto program{views::istream<Instruction>(input) | ranges::to<Program>()};
 
   run(memory, program);
   const auto part1{memory[1]};

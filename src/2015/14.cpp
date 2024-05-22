@@ -3,69 +3,68 @@
 
 namespace ranges = std::ranges;
 namespace views = std::views;
-using std::operator""sv;
 
 struct Reindeer {
   std::string name;
-  int speed;
-  int stamina;
-  int rest_need;
+  int speed{};
+  int stamina{};
+  int rest_need{};
 };
 
-std::istream& operator>>(std::istream& is, Reindeer& r) {
+struct ReindeerState {
+  bool resting{};
+  int distance{};
+  int fly_time{};
+  int rest_time{};
+  int points{};
+};
+
+auto run_race(const auto& herd) {
+  std::vector<ReindeerState> race_state(herd.size());
+  for (int t{1}; t <= 2503; ++t) {
+    for (auto&& [deer, state] : views::zip(herd, race_state)) {
+      if (state.resting) {
+        state.rest_time += 1;
+        if (state.rest_time >= deer.rest_need) {
+          state.rest_time = 0;
+          state.resting = false;
+        }
+      } else {
+        state.distance += deer.speed;
+        state.fly_time += 1;
+        if (state.fly_time >= deer.stamina) {
+          state.fly_time = 0;
+          state.resting = true;
+        }
+      }
+    }
+    ranges::for_each(
+        race_state,
+        [leader = ranges::max(race_state, {}, &ReindeerState::distance)](auto& state) {
+          state.points += int{state.distance == leader.distance};
+        }
+    );
+  }
+  return race_state;
+}
+
+std::istream& operator>>(std::istream& is, Reindeer& reindeer) {
   using std::operator""s;
   using aoc::skip;
-  if (is >> r.name >> skip(" can fly"s) >> r.speed >> skip(" km/s for"s) >> r.stamina
-      >> skip(" seconds, but then must rest for"s) >> r.rest_need >> skip(" seconds."s)) {
-    return is;
+  if (Reindeer r; is >> r.name >> std::ws >> skip("can fly"s) >> r.speed >> std::ws
+                  >> skip("km/s for"s) >> r.stamina >> std::ws
+                  >> skip("seconds, but then must rest for"s) >> r.rest_need >> std::ws
+                  >> skip("seconds."s)) {
+    reindeer = r;
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Reindeer");
+  return is;
 }
 
 int main() {
   const auto herd{aoc::parse_items<Reindeer>("/dev/stdin")};
 
-  struct ReindeerState {
-    bool resting;
-    int distance;
-    int fly_time;
-    int rest_time;
-    int points;
-  };
-  std::vector<ReindeerState> race_state(herd.size());
-  const auto find_leader{[&race_state](const auto& state_accessor) {
-    return ranges::max(race_state, {}, state_accessor);
-  }};
-
-  for (int t{1}; t <= 2503; ++t) {
-    for (const auto& p : views::zip(herd, race_state)) {
-      const auto& [r, s] = p;
-      if (s.resting) {
-        s.rest_time += 1;
-        if (s.rest_time >= r.rest_need) {
-          s.rest_time = 0;
-          s.resting = false;
-        }
-      } else {
-        s.distance += r.speed;
-        s.fly_time += 1;
-        if (s.fly_time >= r.stamina) {
-          s.fly_time = 0;
-          s.resting = true;
-        }
-      }
-    }
-    const auto leader_state{find_leader(&ReindeerState::distance)};
-    for (auto& s : race_state) {
-      s.points += (s.distance == leader_state.distance);
-    }
-  }
-
-  const auto part1{find_leader(&ReindeerState::distance).distance};
-  const auto part2{find_leader(&ReindeerState::points).points};
+  const auto part1{ranges::max(views::transform(run_race(herd), &ReindeerState::distance))};
+  const auto part2{ranges::max(views::transform(run_race(herd), &ReindeerState::points))};
 
   std::println("{} {}", part1, part2);
 

@@ -4,15 +4,14 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+signed char char2digit(char ch) {
+  return static_cast<signed char>(ch - 'a');
+}
+char digit2char(signed char x) {
+  return static_cast<char>(x + 'a');
+}
+
 constexpr static auto alphabet_size{'z' - 'a' + 1};
-
-constexpr int char2digit(char ch) {
-  return ch - 'a';
-}
-constexpr char digit2char(int x) {
-  return x + 'a';
-}
-
 constexpr static auto forbidden_chars{views::transform("iol", char2digit)};
 
 bool valid(const auto& password) {
@@ -47,39 +46,30 @@ bool valid(const auto& password) {
   );
 }
 
-template <auto base>
-auto increment(const auto& input) {
-  std::vector<int> result(input.size());
-  int carry{1};
-  for (const auto& t : views::reverse(views::zip(result, input))) {
-    auto& [dst, src] = t;
-    dst = src + carry;
-    carry = dst == base;
-    dst %= base;
-  }
-  return result;
-}
-
-auto to_string(const auto& password) {
+std::string search(auto& password) {
+  do {
+    std::vector<signed char> result(password.size());
+    signed char carry{1};
+    for (auto&& [dst, src] : views::reverse(views::zip(result, password))) {
+      dst = src + carry;
+      carry = dst == alphabet_size;
+      dst %= alphabet_size;
+    }
+    password = result;
+  } while (not valid(password));
   return views::transform(password, digit2char) | ranges::to<std::string>();
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
   auto password{
-      views::istream<char>(input) | views::transform(char2digit) | ranges::to<std::vector>()
+      aoc::parse_items<char>("/dev/stdin") | views::transform(char2digit)
+      | ranges::to<std::vector>()
   };
 
-  std::string parts[2];
-  for (auto& part : parts) {
-    do {
-      password = increment<alphabet_size>(password);
-    } while (not valid(password));
-    part = to_string(password);
-  }
+  const auto part1{search(password)};
+  const auto part2{search(password)};
 
-  std::println("{} {}", parts[0], parts[1]);
+  std::println("{} {}", part1, part2);
 
   return 0;
 }

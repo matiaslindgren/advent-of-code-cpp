@@ -5,6 +5,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::is_digit;
 using Vec2 = ndvec::vec2<int>;
 using Vec3 = ndvec::vec3<int>;
 
@@ -139,21 +140,17 @@ auto search(Grid grid, const auto& moves, WrapType wrap) {
   return pos_value + dir_value;
 }
 
-bool isdigit(unsigned char ch) {
-  return std::isdigit(ch);
-}
-
 std::istream& operator>>(std::istream& is, Move& m) {
   if (char ch; is >> ch) {
     if (ch == 'R') {
       m = Move{.direction = Move::right};
     } else if (ch == 'L') {
       m = Move{.direction = Move::left};
-    } else if (isdigit(ch)) {
+    } else if (is_digit(ch)) {
       m = Move{.direction = Move::forward};
       do {
         m.steps = 10 * m.steps + (ch - '0');
-      } while (isdigit(is.peek()) and is >> ch);
+      } while (is_digit(is.peek()) and is >> ch);
     } else {
       throw std::runtime_error(std::format("invalid move '{}'", ch));
     }

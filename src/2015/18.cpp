@@ -1,8 +1,11 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
 
 enum class Light : char {
   on = '#',
@@ -10,108 +13,96 @@ enum class Light : char {
   stuck = 'S',
 };
 
-std::istream& operator>>(std::istream& is, Light& light) {
-  std::underlying_type_t<Light> ch;
-  if (is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Light::on):
-      case std::to_underlying(Light::off):
-      case std::to_underlying(Light::stuck):
-        light = {ch};
-        return is;
+struct Grid {
+  std::unordered_map<Vec2, Light> lights;
+  int width{};
+
+  [[nodiscard]]
+  Grid with_stuck_corners() const {
+    Grid g{*this};
+    auto n{width - 1};
+    for (auto p : {Vec2(0, 0), Vec2(0, n), Vec2(n, 0), Vec2(n, n)}) {
+      g.lights.at(p) = Light::stuck;
     }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Light");
-}
-
-struct Grid2D {
-  std::vector<Light> grid;
-  std::size_t size;
-
-  explicit Grid2D(const std::vector<Light>& lights)
-      : grid{lights}, size{static_cast<std::size_t>(std::sqrt(lights.size()))} {
+    return g;
   }
 
-  auto&& get(this auto&& self, std::size_t row, std::size_t col) {
-    return self.grid.at(row * self.size + col);
+  [[nodiscard]]
+  bool is_on(Vec2 p) const {
+    return lights.contains(p) and lights.at(p) != Light::off;
   }
 
-  bool is_on(const Light l) const {
-    return l == Light::on or l == Light::stuck;
-  }
-  bool is_on(const std::size_t row, const std::size_t col) const {
-    return is_on(get(row, col));
-  }
-
-  int count_adjacent_on(const std::size_t row, const std::size_t col) const {
-    int n{};
-    for (auto r{row - 1}; r <= row + 1; ++r) {
-      for (auto c{col - 1}; c <= col + 1; ++c) {
-        if (not(r == row and c == col) and is_on(r, c)) {
-          ++n;
-        }
+  [[nodiscard]]
+  int count_adjacent_on(Vec2 pos) const {
+    int n_on{};
+    for (Vec2 d(-1, -1); d.y() <= 1; d.y() += 1) {
+      for (d.x() = -1; d.x() <= 1; d.x() += 1) {
+        n_on += int{d != Vec2() and is_on(pos + d)};
       }
     }
-    return n;
+    return n_on;
   }
 
-  Grid2D pad() const {
-    Grid2D padded{decltype(grid)((size + 2) * (size + 2), Light::off)};
-    for (auto row{0UZ}; row < size; ++row) {
-      for (auto col{0UZ}; col < size; ++col) {
-        padded.get(row + 1, col + 1) = get(row, col);
+  void step() {
+    Grid next{*this};
+    for (auto [pos, light] : lights) {
+      if (light == Light::stuck) {
+        continue;
+      }
+      const auto on_count{count_adjacent_on(pos)};
+      if (is_on(pos) and on_count != 2 and on_count != 3) {
+        next.lights.at(pos) = Light::off;
+      }
+      if (not is_on(pos) and on_count == 3) {
+        next.lights.at(pos) = Light::on;
       }
     }
-    return padded;
-  }
-
-  Grid2D step() const {
-    Grid2D next_grid{*this};
-    for (auto row{1UZ}; row < size - 1; ++row) {
-      for (auto col{1UZ}; col < size - 1; ++col) {
-        if (get(row, col) == Light::stuck) {
-          continue;
-        }
-        const auto on_count{count_adjacent_on(row, col)};
-        if (is_on(row, col) and not(on_count == 2 or on_count == 3)) {
-          next_grid.get(row, col) = Light::off;
-        }
-        if (not is_on(row, col) and on_count == 3) {
-          next_grid.get(row, col) = Light::on;
-        }
-      }
-    }
-    return next_grid;
-  }
-
-  std::size_t count_on() const {
-    return ranges::count_if(grid, [&](Light l) { return is_on(l); });
+    lights = next.lights;
   }
 };
 
-Grid2D simulate(Grid2D grid, int steps) {
-  for (int step{}; step < steps; ++step) {
-    grid = grid.step();
+auto search(Grid grid) {
+  for (int step{}; step < 100; ++step) {
+    grid.step();
   }
-  return grid;
+  return ranges::count_if(views::values(grid.lights), [](Light l) { return l != Light::off; });
+}
+
+Grid parse_grid(std::string_view path) {
+  Grid g;
+  Vec2 p;
+  std::istringstream is{aoc::slurp_file(path)};
+  for (std::string line; std::getline(is, line) and not line.empty(); p.y() += 1) {
+    if (g.width == 0) {
+      g.width = static_cast<int>(line.size());
+    } else if (line.size() != g.width) {
+      throw std::runtime_error("every row must be of same width");
+    }
+    p.x() = 0;
+    for (char ch : line) {
+      switch (ch) {
+        case std::to_underlying(Light::on):
+        case std::to_underlying(Light::off):
+        case std::to_underlying(Light::stuck): {
+          g.lights[p] = Light{ch};
+        } break;
+        default:
+          throw std::runtime_error(std::format("unknown light state {}", ch));
+      }
+      p.x() += 1;
+    }
+  }
+  if (g.width == 0) {
+    throw std::runtime_error("empty input");
+  }
+  return g;
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const Grid grid{parse_grid("/dev/stdin")};
 
-  const Grid2D grid0{views::istream<Light>(input) | ranges::to<std::vector>()};
-  Grid2D grid1{grid0.pad()};
-  Grid2D grid2{grid1};
-  {
-    const auto n{grid2.size - 2};
-    grid2.get(1, 1) = grid2.get(1, n) = grid2.get(n, 1) = grid2.get(n, n) = Light::stuck;
-  }
-
-  const auto part1{simulate(grid1, 100).count_on()};
-  const auto part2{simulate(grid2, 100).count_on()};
+  const auto part1{search(grid)};
+  const auto part2{search(grid.with_stuck_corners())};
 
   std::println("{} {}", part1, part2);
 

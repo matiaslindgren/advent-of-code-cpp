@@ -42,8 +42,8 @@ auto search(std::string_view msg) {
 
   ThreadPool pool(aoc::cpu_count());
 
-  for (int part1{std::numeric_limits<int>::max()}, i{}; i < max_iterations;
-       i += pool.results.size()) {
+  int part1{std::numeric_limits<int>::max()};
+  for (std::size_t i{}; i < max_iterations; i += pool.results.size()) {
     for (auto&& [t, th] : my_std::views::enumerate(pool.threads)) {
       th = std::thread(&ThreadPool::md5sum_32bit, &pool, msg, i, t);
     }

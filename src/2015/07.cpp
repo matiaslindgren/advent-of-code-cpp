@@ -4,11 +4,13 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::is_digit;
+
 struct Statement {
   std::string lhs0;
   std::string lhs1;
   std::string dst;
-  enum {
+  enum : unsigned char {
     Unknown,
     Assign,
     Not,
@@ -16,7 +18,7 @@ struct Statement {
     Or,
     LShift,
     RShift,
-  } gate;
+  } gate{};
 };
 
 std::istream& operator>>(std::istream& is, Statement& s) {
@@ -25,7 +27,7 @@ std::istream& operator>>(std::istream& is, Statement& s) {
   while (is >> str and str != "->") {
     lhs.push_back(str);
   }
-  if (0 < lhs.size() and lhs.size() < 4 and str == "->" and is >> str) {
+  if (not lhs.empty() and lhs.size() < 4 and str == "->" and is >> str) {
     auto gate{Statement::Unknown};
     switch (lhs.size()) {
       case 1: {
@@ -65,7 +67,7 @@ std::istream& operator>>(std::istream& is, Statement& s) {
 }
 
 bool is_literal(const std::string& s) {
-  return not s.empty() and std::isdigit(static_cast<unsigned char>(s.front()));
+  return not s.empty() and is_digit(s.front());
 }
 
 uint16_t parse_literal(const std::string& s) {

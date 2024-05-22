@@ -5,6 +5,8 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::is_digit;
+
 constexpr auto yx_range(auto y0, auto y1, auto x0, auto x1) {
   return my_std::views::cartesian_product(views::iota(y0, y1), views::iota(x0, x1));
 }
@@ -35,7 +37,7 @@ struct Grid {
   }
 
   constexpr bool is_symbol(const Cell c) const {
-    return c != '.' and not std::isdigit(c);
+    return c != '.' and not is_digit(c);
   }
 
   constexpr bool is_gear(const Cell c) const {
@@ -44,7 +46,7 @@ struct Grid {
 
   constexpr int parse_int(auto y, auto x) const {
     int num{};
-    for (; std::isdigit(get(y, x)); ++x) {
+    for (; is_digit(get(y, x)); ++x) {
       num = (num * 10) + (get(y, x) - '0');
     }
     return num;
@@ -55,8 +57,8 @@ struct Grid {
     std::vector<int> numbers;
     for (const auto& [dy, dx] : yx_range(-1, 2, -1, 2)) {
       const auto [y, x] = center;
-      if (auto y2{y + dy}, x2{x + dx}; std::isdigit(get(y2, x2))) {
-        while (std::isdigit(get(y2, x2 - 1))) {
+      if (auto y2{y + dy}, x2{x + dx}; is_digit(get(y2, x2))) {
+        while (is_digit(get(y2, x2 - 1))) {
           --x2;
         }
         if (const Point adj{y2, x2}; ranges::find(points, adj) == points.end()) {

@@ -20,7 +20,7 @@ std::istream& operator>>(std::istream&, Key&);
 std::istream& operator>>(std::istream&, Value&);
 
 std::istream& operator>>(std::istream& is, Object& o) {
-  enum class State {
+  enum class State : unsigned char {
     init,
     end,
     object,
@@ -28,7 +28,7 @@ std::istream& operator>>(std::istream& is, Object& o) {
     invalid,
   };
   auto state{State::init};
-  for (char ch; is and state != State::end and state != State::invalid;) {
+  for (int ch{}; is and state != State::end and state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -60,11 +60,12 @@ std::istream& operator>>(std::istream& is, Object& o) {
             state = State::items;
           } break;
           case '"': {
-            Key k;
-            Value v;
-            if (is >> k and is >> ch and ch == ':' and is >> v) {
+            Key k{};
+            Value v{};
+            if (int c{}; is >> k and ((c = is.get()) == ':') and is >> v) {
               o.values[k] = v;
               state = State::items;
+              ch = c;
             }
           } break;
         }
@@ -82,14 +83,14 @@ std::istream& operator>>(std::istream& is, Object& o) {
 }
 
 std::istream& operator>>(std::istream& is, Array& array) {
-  enum class State {
+  enum class State : unsigned char {
     init,
     end,
     items,
     invalid,
   };
   auto state{State::init};
-  for (char ch; is and state != State::end and state != State::invalid;) {
+  for (int ch{}; is and state != State::end and state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
@@ -111,7 +112,7 @@ std::istream& operator>>(std::istream& is, Array& array) {
             state = State::items;
           } break;
           default: {
-            Value v;
+            Value v{};
             if (is >> v) {
               array.values.push_back(v);
               state = State::items;
@@ -132,8 +133,7 @@ std::istream& operator>>(std::istream& is, Array& array) {
 }
 
 std::istream& operator>>(std::istream& is, Key& key) {
-  char ch;
-  if (is >> ch and ch == '"') {
+  if (char ch{}; is >> ch and ch == '"') {
     std::string k;
     while (is >> ch and ch != '"') {
       k.push_back(ch);
@@ -145,33 +145,33 @@ std::istream& operator>>(std::istream& is, Key& key) {
 }
 
 std::istream& operator>>(std::istream& is, Value& value) {
-  enum class State {
+  enum class State : unsigned char {
     init,
     end,
     invalid,
   };
   auto state{State::init};
-  for (char ch; is and state != State::end and state != State::invalid;) {
+  for (int ch{}; is and state != State::end and state != State::invalid;) {
     ch = is.peek();
     switch (std::exchange(state, State::invalid)) {
       case State::init: {
         switch (ch) {
           case '{': {
-            Object o;
+            Object o{};
             if (is >> o) {
               value = o;
               state = State::end;
             }
           } break;
           case '[': {
-            Array a;
+            Array a{};
             if (is >> a) {
               value = a;
               state = State::end;
             }
           } break;
           case '"': {
-            Key k;
+            Key k{};
             if (is >> k) {
               value = k;
               state = State::end;
@@ -188,7 +188,7 @@ std::istream& operator>>(std::istream& is, Value& value) {
           case '8':
           case '9':
           case '-': {
-            Number n;
+            Number n{};
             if (is >> n) {
               value = n;
               state = State::end;

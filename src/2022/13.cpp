@@ -5,6 +5,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::is_digit;
 using std::operator""s;
 
 struct Packet {
@@ -15,7 +16,7 @@ struct Packet {
   }
 
   bool is_numeric() const {
-    return ranges::all_of(str, [](unsigned char ch) { return std::isdigit(ch); });
+    return ranges::all_of(str, [=](unsigned char ch) { return is_digit(ch); });
   }
 
   std::vector<Packet> split() const {

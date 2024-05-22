@@ -4,14 +4,13 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-std::vector<std::vector<int>>
-find_all_combinations(const int init_target, const std::vector<int>& all_containers) {
+auto find_all_combinations(const int init_target, const std::vector<int>& all_containers) {
   std::vector<std::vector<int>> results;
   [&](this auto&& self,
       int target,
       std::vector<int> available,
       std::vector<int> used = {},
-      std::size_t pos = {}) {
+      long pos = 0) {
     if (target == 0) {
       results.push_back(used);
       return;

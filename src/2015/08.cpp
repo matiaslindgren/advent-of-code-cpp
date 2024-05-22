@@ -4,7 +4,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum class State {
+enum class State : unsigned char {
   Init,
   Literal,
   Escaping,
@@ -80,8 +80,7 @@ auto escape(const std::string& s) {
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
-  std::ios::sync_with_stdio(false);
-  const auto lines{views::istream<std::string>(std::cin) | ranges::to<std::vector>()};
+  const auto lines{aoc::parse_items<std::string>("/dev/stdin")};
 
   const auto part1{sum(lines | views::transform(count_bytes))};
   const auto part2{sum(lines | views::transform(escape) | views::transform(count_bytes))};
