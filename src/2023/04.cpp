@@ -12,7 +12,7 @@ std::istream& operator>>(std::istream& is, Wins& w) {
   using aoc::skip;
   using std::operator""s;
 
-  if (unsigned id; is >> skip("Card"s) >> id >> skip(":"s)) {
+  if (unsigned id{}; is >> skip("Card"s) >> id >> skip(":"s)) {
     if (std::string tmp; std::getline(is, tmp, '|') and not tmp.empty()) {
       std::istringstream win_str{tmp};
       const auto win{views::istream<int>(win_str) | ranges::to<std::unordered_set>()};
@@ -36,8 +36,8 @@ std::istream& operator>>(std::istream& is, Wins& w) {
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& wins) {
-  auto points{wins | views::filter(std::identity{}) | views::transform([](const auto w) {
-                return 1 << (w - 1);
+  auto points{wins | views::filter([](long wc) { return wc > 0; }) | views::transform([](long wc) {
+                return 1 << (wc - 1);
               })};
   return sum(points);
 }
@@ -45,7 +45,7 @@ auto find_part1(const auto& wins) {
 auto find_part2(const auto& wins) {
   std::vector<long> cards(wins.size(), 1);
   auto card{cards.begin()};
-  for (auto win_count : wins) {
+  for (long win_count : wins) {
     ranges::transform(
         views::repeat(*card, win_count),
         ranges::subrange(++card, cards.end()),
@@ -57,10 +57,9 @@ auto find_part2(const auto& wins) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
   const auto wins{
-      views::istream<Wins>(input) | views::transform(&Wins::count) | ranges::to<std::vector>()
+      aoc::parse_items<Wins>("/dev/stdin") | views::transform(&Wins::count)
+      | ranges::to<std::vector>()
   };
 
   const auto part1{find_part1(wins)};

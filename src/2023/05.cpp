@@ -4,6 +4,7 @@
 
 using aoc::skip;
 using std::operator""s;
+using std::operator""sv;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -13,20 +14,27 @@ using Seeds = std::vector<long>;
 struct Range {
   long idx;
   long len;
-  constexpr auto operator<=>(const Range&) const = default;
-  constexpr auto lhs() const {
+
+  auto operator<=>(const Range&) const = default;
+
+  [[nodiscard]]
+  auto lhs() const {
     return idx;
   }
-  constexpr auto rhs() const {
+
+  [[nodiscard]]
+  auto rhs() const {
     return idx + len;
   }
 };
+
 using Ranges = std::vector<Range>;
 
 struct Map {
   Range dst;
   Range src;
 };
+
 using MapGroups = std::vector<std::vector<Map>>;
 
 std::istream& operator>>(std::istream& is, Seeds& ss) {
@@ -38,36 +46,35 @@ std::istream& operator>>(std::istream& is, Seeds& ss) {
   throw std::runtime_error("failed parsing Seeds");
 }
 
+constexpr std::array map_names{
+    "seed-to-soil"sv,
+    "soil-to-fertilizer"sv,
+    "fertilizer-to-water"sv,
+    "water-to-light"sv,
+    "light-to-temperature"sv,
+    "temperature-to-humidity"sv,
+    "humidity-to-location"sv,
+};
+
 std::istream& operator>>(std::istream& is, MapGroups& mg) {
-  const std::array names{
-      "seed-to-soil"s,
-      "soil-to-fertilizer"s,
-      "fertilizer-to-water"s,
-      "water-to-light"s,
-      "light-to-temperature"s,
-      "temperature-to-humidity"s,
-      "humidity-to-location"s,
-  };
-  for (const auto& map_name : names) {
+  for (const auto& map_name : map_names) {
     mg.emplace_back();
-    if (std::string tmp; is >> tmp and tmp == map_name and is >> skip(" map:\n"s)) {
+    if (std::string tmp;
+        is >> tmp and tmp == map_name and is >> std::ws >> skip("map:"s) >> std::ws) {
       for (std::string line; std::getline(is, line) and not line.empty();) {
         std::istringstream ls{line};
-        if (long dst, src, len; ls >> dst >> src >> len) {
+        if (long dst{}, src{}, len{}; ls >> dst >> src >> len) {
           mg.back().push_back({.dst = {dst, len}, .src = {src, len}});
         } else {
-          is.setstate(std::ios_base::failbit);
+          throw std::runtime_error(std::format("failed parsing line {}", line));
         }
       }
     }
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing MapGroups");
+  return is;
 }
 
-constexpr void prune(Ranges& rs) {
+void prune(Ranges& rs) {
   std::erase_if(rs, [](const auto& r) { return r.len <= 0; });
   ranges::sort(rs);
   const auto dup{ranges::unique(rs)};

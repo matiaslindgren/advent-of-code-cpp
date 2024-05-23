@@ -1,120 +1,94 @@
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 using aoc::is_digit;
+using Vec2 = ndvec::vec2<int>;
+using Cell = unsigned char;
 
-constexpr auto yx_range(auto y0, auto y1, auto x0, auto x1) {
-  return my_std::views::cartesian_product(views::iota(y0, y1), views::iota(x0, x1));
+bool is_symbol(Cell c) {
+  return c != '.' and not is_digit(c);
+}
+
+bool is_gear(Cell c) {
+  return c == '*';
 }
 
 struct Grid {
-  using Point = std::pair<std::size_t, std::size_t>;
-  using Cell = unsigned char;
-  std::vector<Cell> cells;
-  std::size_t width{};
-  std::size_t height{};
+  std::unordered_map<Vec2, Cell> cells;
 
-  constexpr auto&& get(this auto&& self, auto y, auto x) {
-    return self.cells[y * self.width + x];
+  [[nodiscard]]
+  auto get(Vec2 p) const {
+    return cells.contains(p) ? cells.at(p) : 0;
   }
 
-  constexpr auto iter_yx_with_padding(const std::size_t pad) const {
-    return yx_range(pad, height - pad, pad, width - pad);
-  }
-
-  constexpr Grid pad() const {
-    const auto w{width + 2};
-    const auto h{height + 2};
-    Grid out = {std::vector<Cell>(w * h, '.'), w, h};
-    for (const auto& [y, x] : iter_yx_with_padding(0)) {
-      out.get(y + 1, x + 1) = get(y, x);
-    }
-    return out;
-  }
-
-  constexpr bool is_symbol(const Cell c) const {
-    return c != '.' and not is_digit(c);
-  }
-
-  constexpr bool is_gear(const Cell c) const {
-    return c == '*';
-  }
-
-  constexpr int parse_int(auto y, auto x) const {
+  [[nodiscard]]
+  int parse_number_at(Vec2 p) const {
     int num{};
-    for (; is_digit(get(y, x)); ++x) {
-      num = (num * 10) + (get(y, x) - '0');
+    for (; is_digit(get(p)); p.x() += 1) {
+      num = (num * 10) + (get(p) - '0');
     }
     return num;
   }
 
-  constexpr auto adjacent_numbers(const Point& center) const {
-    std::vector<Point> points;
-    std::vector<int> numbers;
-    for (const auto& [dy, dx] : yx_range(-1, 2, -1, 2)) {
-      const auto [y, x] = center;
-      if (auto y2{y + dy}, x2{x + dx}; is_digit(get(y2, x2))) {
-        while (is_digit(get(y2, x2 - 1))) {
-          --x2;
-        }
-        if (const Point adj{y2, x2}; ranges::find(points, adj) == points.end()) {
-          points.push_back(adj);
-          numbers.push_back(parse_int(y2, x2));
+  [[nodiscard]]
+  auto adjacent_numbers(Vec2 center) const {
+    std::unordered_set<Vec2> visited;
+    for (Vec2 d(-1, -1); d.y() <= 1; d.y() += 1) {
+      for (d.x() = -1; d.x() <= 1; d.x() += 1) {
+        if (Vec2 p{center + d}; is_digit(cells.at(p))) {
+          while (is_digit(get(p - Vec2(1, 0)))) {
+            p.x() -= 1;
+          }
+          visited.insert(p);
         }
       }
     }
-    return numbers;
+    return views::transform(visited, [&](Vec2 p) { return parse_number_at(p); })
+           | ranges::to<std::vector>();
   }
 };
 
-std::istream& operator>>(std::istream& is, Grid& grid) {
-  Grid g{};
-  for (std::string line; std::getline(is, line); ++g.height) {
-    g.width = line.size();
-    for (std::istringstream ls{line}; ls;) {
-      if (Grid::Cell c; ls >> c) {
-        g.cells.push_back(c);
-      }
-    }
-  }
-  if (is or is.eof()) {
-    grid = g.pad();
-    return is;
-  }
-  throw std::runtime_error("failed parsing Grid");
-}
-
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto product{std::__bind_back(ranges::fold_left, 1, std::multiplies{})};
 
-constexpr std::pair<int, int> search(const Grid& grid) {
+auto search(const Grid& grid) {
   int part1{};
   int part2{};
-  for (const auto& p : grid.iter_yx_with_padding(1UZ)) {
-    const auto& [y, x] = p;
-    if (const auto cell{grid.get(y, x)}; grid.is_symbol(cell)) {
-      if (const auto adj{grid.adjacent_numbers(p)}; not adj.empty()) {
+  for (auto&& [pos, cell] : grid.cells) {
+    if (is_symbol(cell)) {
+      if (const auto adj{grid.adjacent_numbers(pos)}; not adj.empty()) {
         part1 += sum(adj);
-        if (grid.is_gear(cell) and adj.size() == 2) {
-          part2 += adj[0] * adj[1];
+        if (is_gear(cell) and adj.size() == 2) {
+          part2 += product(views::take(adj, 2));
         }
       }
     }
   }
-  return {part1, part2};
+  return std::pair{part1, part2};
+}
+
+Grid parse_grid(std::string_view path) {
+  Grid grid;
+  {
+    Vec2 p;
+    for (const auto& line : aoc::slurp_lines(path)) {
+      p.x() = 0;
+      for (char ch : line) {
+        grid.cells[p] = ch;
+        p.x() += 1;
+      }
+      p.y() += 1;
+    }
+  }
+  return grid;
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  Grid grid;
-  input >> grid;
-
-  const auto [part1, part2] = search(grid);
+  const auto [part1, part2]{search(parse_grid("/dev/stdin"))};
   std::println("{} {}", part1, part2);
-
   return 0;
 }

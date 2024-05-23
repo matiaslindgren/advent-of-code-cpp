@@ -17,7 +17,8 @@ Checks: >
   -cppcoreguidelines-avoid-do-while,
   -readability-named-parameter,
   -performance-unnecessary-value-param,
-  -bugprone-easily-swappable-parameters
+  -bugprone-easily-swappable-parameters,
+  -readability-qualified-auto
 WarningsAsErrors: '*'
 FormatStyle: none
 HeaderFilterRegex: ''

@@ -16,7 +16,7 @@ Ints parse_input(std::istream& is, std::string&& prefix) {
   return {};
 }
 
-inline auto count_ways_to_win{[](auto time, auto dist) {
+inline constexpr auto count_ways_to_win{[](auto time, auto dist) {
   return ranges::count_if(views::iota(0, time), [=](auto t_press) {
     return t_press * (time - t_press) > dist;
   });

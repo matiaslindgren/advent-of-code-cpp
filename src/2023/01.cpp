@@ -4,60 +4,50 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using aoc::is_digit;
-
-constexpr int char2num(const auto ch) {
-  return ch - '0';
-}
-
-template <std::input_or_output_iterator It>
-  requires std::random_access_iterator<It>
-const int find_str_digit(const It begin, const It end) {
-  static const std::unordered_map<std::string, int> str2num{
-      {{"one", 1},
-       {"two", 2},
-       {"three", 3},
-       {"four", 4},
-       {"five", 5},
-       {"six", 6},
-       {"seven", 7},
-       {"eight", 8},
-       {"nine", 9}}
-  };
-  for (auto n{3UZ}; n <= 5UZ; ++n) {
-    const std::string s{begin, ranges::next(begin, n, end)};
-    if (const auto num{str2num.find(s)}; num != str2num.end()) {
-      return num->second;
+void replace(std::string& s, std::string_view pat, std::string_view sub) {
+  for (std::string::size_type i{}; i != std::string::npos;) {
+    i = s.find(pat, i);
+    if (i != std::string::npos) {
+      s.erase(i, pat.size());
+      s.insert(i, sub);
+      i += sub.size();
     }
   }
-  return 0;
+}
+
+auto prepare_part2(const auto& lines) {
+  return views::transform(
+             lines,
+             [&](std::string line) {
+               replace(line, "one", "one1one");
+               replace(line, "two", "two2two");
+               replace(line, "three", "three3three");
+               replace(line, "four", "four4four");
+               replace(line, "five", "five5five");
+               replace(line, "six", "six6six");
+               replace(line, "seven", "seven7seven");
+               replace(line, "eight", "eight8eight");
+               replace(line, "nine", "nine9nine");
+               return line;
+             }
+         )
+         | ranges::to<std::vector>();
+}
+
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+
+auto calibrate(const auto& lines) {
+  return sum(views::transform(lines, [&](std::string_view line) {
+    auto nums{views::filter(line, aoc::is_digit) | ranges::to<std::vector>()};
+    return 10 * (nums.front() - '0') + (nums.back() - '0');
+  }));
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto lines{aoc::slurp_lines("/dev/stdin")};
 
-  int part1{}, part2{};
-
-  for (std::string line; std::getline(input, line);) {
-    const auto lhs1{ranges::find_if(line, is_digit)};
-    if (lhs1 == line.end()) {
-      continue;
-    }
-    const auto rhs1{ranges::find_if(views::reverse(line), is_digit).base() - 1};
-    const auto lhs_val1{char2num(*lhs1) * 10};
-    const auto rhs_val1{char2num(*rhs1)};
-    part1 += lhs_val1 + rhs_val1;
-
-    int lhs_val2{};
-    for (auto lhs2{line.begin()}; lhs2 < lhs1 and not lhs_val2; ++lhs2) {
-      lhs_val2 = find_str_digit(lhs2, lhs1) * 10;
-    }
-    int rhs_val2{};
-    for (auto rhs2{ranges::prev(line.end(), 1, rhs1)}; rhs1 < rhs2 and not rhs_val2; --rhs2) {
-      rhs_val2 = find_str_digit(rhs2, line.end());
-    }
-    part2 += (lhs_val2 ? lhs_val2 : lhs_val1) + (rhs_val2 ? rhs_val2 : rhs_val1);
-  }
+  const auto part1{calibrate(lines)};
+  const auto part2{calibrate(prepare_part2(lines))};
 
   std::println("{} {}", part1, part2);
 

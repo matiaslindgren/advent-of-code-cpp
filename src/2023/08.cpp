@@ -13,23 +13,6 @@ struct Step {
   std::string rhs;
 };
 
-std::istream& operator>>(std::istream& is, Step& step) {
-  if (std::string src; is >> src >> skip(" = "s)) {
-    if (std::string lhs; is >> skip("("s) >> lhs and lhs.ends_with(","s)) {
-      lhs.pop_back();
-      if (std::string rhs; is >> rhs and rhs.ends_with(")"s)) {
-        rhs.pop_back();
-        step = {src, lhs, rhs};
-        return is;
-      }
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Step");
-}
-
 using Steps = std::unordered_map<std::string, Step>;
 
 constexpr auto count_length(
@@ -40,40 +23,63 @@ constexpr auto count_length(
 ) {
   long n{};
   std::string current{start};
-  for (auto i{0UZ}; not is_end(current); i = (i + 1) % loop.size()) {
-    const auto step{steps.at(current)};
+  for (std::size_t i{}; not is_end(current); i = (i + 1) % loop.size()) {
+    const auto& step{steps.at(current)};
     current = (loop[i] == 'L' ? step.lhs : step.rhs);
     ++n;
   }
   return n;
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+auto find_part1(std::string_view loop, const Steps& steps) {
+  return count_length(loop, steps, "AAA"s, [](auto s) { return s == "ZZZ"s; });
+}
 
-  std::string loop;
-  input >> loop;
-
-  if (not ranges::all_of(loop, [](auto ch) { return ch == 'L' or ch == 'R'; })) {
-    throw std::runtime_error("loop must consist of only L or R");
-  }
-
-  const auto steps{
-      views::istream<Step>(input)
-      | views::transform([](const auto& step) { return std::pair{step.src, step}; })
-      | ranges::to<Steps>()
-  };
-
-  const auto starts{
+auto find_part2(std::string_view loop, const Steps& steps) {
+  auto starts{
       steps | views::keys | views::filter([](const auto& s) { return s.back() == 'A'; })
       | ranges::to<std::vector>()
   };
-
-  const auto part1{count_length(loop, steps, "AAA"s, [](auto s) { return s == "ZZZ"s; })};
-  const auto part2{ranges::fold_left(starts, 1L, [&](auto lcm, auto start) {
+  return ranges::fold_left(starts, 1L, [&](auto lcm, auto start) {
     auto n{count_length(loop, steps, start, [](auto s) { return s.back() == 'Z'; })};
     return std::lcm(lcm, n);
-  })};
+  });
+}
+
+std::istream& operator>>(std::istream& is, Step& step) {
+  if (Step s; is >> std::ws >> s.src >> s.lhs >> s.rhs) {
+    step = s;
+  }
+  return is;
+}
+
+auto parse_input(std::string_view path) {
+  auto input{aoc::slurp_file(path)};
+  ranges::replace(input, '=', ' ');
+  ranges::replace(input, '(', ' ');
+  ranges::replace(input, ',', ' ');
+  ranges::replace(input, ')', ' ');
+  std::istringstream is{input};
+  if (std::string loop; is >> loop and not loop.empty()
+                        and ranges::all_of(loop, [](auto ch) { return ch == 'L' or ch == 'R'; })) {
+    auto steps{
+        views::istream<Step>(is)
+        | views::transform([](const auto& step) { return std::pair{step.src, step}; })
+        | ranges::to<Steps>()
+    };
+    if (is.eof()) {
+      return std::pair{loop, steps};
+    }
+    throw std::runtime_error("failed parsing steps");
+  }
+  throw std::runtime_error("loop must be [LR]+");
+}
+
+int main() {
+  auto [loop, steps]{parse_input("/dev/stdin")};
+
+  const auto part1{find_part1(loop, steps)};
+  const auto part2{find_part2(loop, steps)};
 
   std::println("{} {}", part1, part2);
 
