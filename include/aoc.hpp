@@ -1,36 +1,94 @@
 #ifndef AOC_HEADER_INCLUDED
 #define AOC_HEADER_INCLUDED
 
+#include <array>
+#include <cctype>
+#include <fstream>
+#include <ios>
+#include <iostream>
+#include <iterator>
+#include <limits>
+#include <optional>
+#include <ranges>
+#include <sstream>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include "ndvec.hpp"
-#include "std.hpp"
-
-namespace ranges = std::ranges;
-namespace views = std::views;
-
-using std::operator""sv;
 
 namespace aoc {
+
+namespace detail {
 
 struct is_digit_fn {
   constexpr bool operator()(unsigned char ch) const noexcept {
     return std::isdigit(ch) != 0;
   }
 };
-inline constexpr auto is_digit = is_digit_fn{};
 
 struct is_alpha_fn {
   constexpr bool operator()(unsigned char ch) const noexcept {
     return std::isalpha(ch) != 0;
   }
 };
-inline constexpr auto is_alpha = is_alpha_fn{};
 
 struct is_lower_fn {
   constexpr bool operator()(unsigned char ch) const noexcept {
     return std::islower(ch) != 0;
   }
 };
-inline constexpr auto is_lower = is_lower_fn{};
+
+using std::operator""sv;
+
+constexpr std::array ocr_letter_rows{
+    // 6-pixel character map adapted from
+    // https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
+    // Accessed 2023-11-20
+    std::pair{".##.#..##..######..##..#"sv, 'A'},
+    std::pair{"###.#..####.#..##..####."sv, 'B'},
+    std::pair{".##.#..##...#...#..#.##."sv, 'C'},
+    std::pair{"#####...###.#...#...####"sv, 'E'},
+    std::pair{"#####...###.#...#...#..."sv, 'F'},
+    std::pair{".##.#..##...#.###..#.###"sv, 'G'},
+    std::pair{"#..##..######..##..##..#"sv, 'H'},
+    std::pair{".###..#...#...#...#..###"sv, 'I'},
+    std::pair{"..##...#...#...##..#.##."sv, 'J'},
+    std::pair{"#..##.#.##..#.#.#.#.#..#"sv, 'K'},
+    std::pair{"#...#...#...#...#...####"sv, 'L'},
+    std::pair{".##.#..##..##..##..#.##."sv, 'O'},
+    std::pair{"###.#..##..####.#...#..."sv, 'P'},
+    std::pair{"###.#..##..####.#.#.#..#"sv, 'R'},
+    std::pair{".####...#....##....####."sv, 'S'},
+    std::pair{"#..##..##..##..##..#.##."sv, 'U'},
+    std::pair{"#...#....#.#..#...#...#."sv, 'Y'},
+    std::pair{"####...#..#..#..#...####"sv, 'Z'},
+    // 10-pixel character map adapted from
+    // https://gist.github.com/usbpc/5fa0be48ad7b4b0594b3b8b029bc47b4
+    // Accessed 2024-01-29
+    std::pair{"..##...#..#.#....##....##....########....##....##....##....#"sv, 'A'},
+    std::pair{"#####.#....##....##....######.#....##....##....##....######."sv, 'B'},
+    std::pair{".####.#....##.....#.....#.....#.....#.....#.....#....#.####."sv, 'C'},
+    std::pair{"#######.....#.....#.....#####.#.....#.....#.....#.....######"sv, 'E'},
+    std::pair{"#######.....#.....#.....#####.#.....#.....#.....#.....#....."sv, 'F'},
+    std::pair{".####.#....##.....#.....#.....#..####....##....##...##.###.#"sv, 'G'},
+    std::pair{"#....##....##....##....########....##....##....##....##....#"sv, 'H'},
+    std::pair{"...###....#.....#.....#.....#.....#.....#.#...#.#...#..###.."sv, 'J'},
+    std::pair{"#....##...#.#..#..#.#...##....##....#.#...#..#..#...#.#....#"sv, 'K'},
+    std::pair{"#.....#.....#.....#.....#.....#.....#.....#.....#.....######"sv, 'L'},
+    std::pair{"#....###...###...##.#..##.#..##..#.##..#.##...###...###....#"sv, 'N'},
+    std::pair{"#####.#....##....##....######.#.....#.....#.....#.....#....."sv, 'P'},
+    std::pair{"#####.#....##....##....######.#..#..#...#.#...#.#....##....#"sv, 'R'},
+    std::pair{"#....##....#.#..#..#..#...##....##...#..#..#..#.#....##....#"sv, 'X'},
+    std::pair{"######.....#.....#....#....#....#....#....#.....#.....######"sv, 'Z'},
+};
+}  // namespace detail
+
+inline constexpr auto is_digit{detail::is_digit_fn{}};
+inline constexpr auto is_alpha{detail::is_alpha_fn{}};
+inline constexpr auto is_lower{detail::is_lower_fn{}};
 
 std::string slurp_file(std::string_view path) {
   std::ios::sync_with_stdio(false);
@@ -39,9 +97,9 @@ std::string slurp_file(std::string_view path) {
   is.exceptions(std::ifstream::badbit);
 
   std::string data;
-  for (std::array<char, 1024> buffer; is;) {
+  for (std::array<char, 256> buffer; is;) {
     is.read(buffer.data(), buffer.size());
-    ranges::copy(buffer | views::take(is.gcount()), std::back_inserter(data));
+    std::ranges::copy(buffer | std::views::take(is.gcount()), std::back_inserter(data));
   }
   return data;
 }
@@ -67,7 +125,7 @@ template <typename T>
 std::vector<T> parse_items(std::string_view path, std::optional<char> sep = std::nullopt) {
   auto input{slurp_file(path)};
   if (sep) {
-    ranges::replace(input, sep.value(), ' ');
+    std::ranges::replace(input, sep.value(), ' ');
   }
   std::istringstream is{input};
   std::vector<T> items;
@@ -82,10 +140,6 @@ std::vector<T> parse_items(std::string_view path, std::optional<char> sep = std:
   }
   return items;
 }
-
-auto cpu_count() {
-  return std::max(1u, std::thread::hardware_concurrency());
-};
 
 template <typename... Patterns>
 class skip {
@@ -143,52 +197,12 @@ constexpr Int saturating_add(Int a, Int b) {
   return a + b;
 }
 
-constexpr std::array ocr_letter_rows{
-    // 6-pixel character map adapted from
-    // https://github.com/bsoyka/advent-of-code-ocr/blob/aae11d40720f0b681f2684b7aa4d25e3e0956b11/advent_of_code_ocr/characters.py
-    // Accessed 2023-11-20
-    std::pair{".##.#..##..######..##..#"sv, 'A'},
-    std::pair{"###.#..####.#..##..####."sv, 'B'},
-    std::pair{".##.#..##...#...#..#.##."sv, 'C'},
-    std::pair{"#####...###.#...#...####"sv, 'E'},
-    std::pair{"#####...###.#...#...#..."sv, 'F'},
-    std::pair{".##.#..##...#.###..#.###"sv, 'G'},
-    std::pair{"#..##..######..##..##..#"sv, 'H'},
-    std::pair{".###..#...#...#...#..###"sv, 'I'},
-    std::pair{"..##...#...#...##..#.##."sv, 'J'},
-    std::pair{"#..##.#.##..#.#.#.#.#..#"sv, 'K'},
-    std::pair{"#...#...#...#...#...####"sv, 'L'},
-    std::pair{".##.#..##..##..##..#.##."sv, 'O'},
-    std::pair{"###.#..##..####.#...#..."sv, 'P'},
-    std::pair{"###.#..##..####.#.#.#..#"sv, 'R'},
-    std::pair{".####...#....##....####."sv, 'S'},
-    std::pair{"#..##..##..##..##..#.##."sv, 'U'},
-    std::pair{"#...#....#.#..#...#...#."sv, 'Y'},
-    std::pair{"####...#..#..#..#...####"sv, 'Z'},
-    // 10-pixel character map adapted from
-    // https://gist.github.com/usbpc/5fa0be48ad7b4b0594b3b8b029bc47b4
-    // Accessed 2024-01-29
-    std::pair{"..##...#..#.#....##....##....########....##....##....##....#"sv, 'A'},
-    std::pair{"#####.#....##....##....######.#....##....##....##....######."sv, 'B'},
-    std::pair{".####.#....##.....#.....#.....#.....#.....#.....#....#.####."sv, 'C'},
-    std::pair{"#######.....#.....#.....#####.#.....#.....#.....#.....######"sv, 'E'},
-    std::pair{"#######.....#.....#.....#####.#.....#.....#.....#.....#....."sv, 'F'},
-    std::pair{".####.#....##.....#.....#.....#..####....##....##...##.###.#"sv, 'G'},
-    std::pair{"#....##....##....##....########....##....##....##....##....#"sv, 'H'},
-    std::pair{"...###....#.....#.....#.....#.....#.....#.#...#.#...#..###.."sv, 'J'},
-    std::pair{"#....##...#.#..#..#.#...##....##....#.#...#..#..#...#.#....#"sv, 'K'},
-    std::pair{"#.....#.....#.....#.....#.....#.....#.....#.....#.....######"sv, 'L'},
-    std::pair{"#....###...###...##.#..##.#..##..#.##..#.##...###...###....#"sv, 'N'},
-    std::pair{"#####.#....##....##....######.#.....#.....#.....#.....#....."sv, 'P'},
-    std::pair{"#####.#....##....##....######.#..#..#...#.#...#.#....##....#"sv, 'R'},
-    std::pair{"#....##....#.#..#..#..#...##....##...#..#..#..#.#....##....#"sv, 'X'},
-    std::pair{"######.....#.....#....#....#....#....#....#.....#.....######"sv, 'Z'},
-};
-
 constexpr char ocr(std::string_view rows) {
-  if (const auto it{ranges::find_if(ocr_letter_rows, [&rows](auto&& p) { return p.first == rows; })
-      };
-      it != ocr_letter_rows.end()) {
+  if (const auto it{std::ranges::find_if(
+          detail::ocr_letter_rows,
+          [&rows](auto&& p) { return p.first == rows; }
+      )};
+      it != detail::ocr_letter_rows.end()) {
     return it->second;
   }
   return ' ';

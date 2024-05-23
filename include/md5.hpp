@@ -1,14 +1,17 @@
 #ifndef MD5_HEADER_INCLUDED
 #define MD5_HEADER_INCLUDED
 
-#include "std.hpp"
+#include <algorithm>
+#include <array>
+#include <bit>
+#include <cmath>
+#include <cstdint>
+#include <format>
+#include <ranges>
 
 // MD5 algorithm references (accessed 2024-01-11)
 // 1. https://datatracker.ietf.org/doc/html/rfc1321
 // 2. https://en.wikipedia.org/wiki/MD5
-
-namespace ranges = std::ranges;
-namespace views = std::views;
 
 namespace md5 {
 
@@ -23,15 +26,18 @@ void compute_chunk(const Input& input, State& state) {
   static std::array<Chunk, 64> T{};
   static std::array<Chunk, 64> rotations{};
 
+  using std::views::iota;
+  using std::views::zip;
+
   if (first_call) {
     first_call = false;
 
-    for (auto&& [i, t] : views::zip(views::iota(1UZ), T)) {
+    for (auto&& [i, t] : zip(iota(1UZ), T)) {
       t = static_cast<Chunk>((1LL << 32) * std::abs(std::sin(i)));
     }
 
     constexpr std::array<Chunk, 16> rot{7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21};
-    for (auto&& [i, s] : views::zip(views::iota(0UZ), rotations)) {
+    for (auto&& [i, s] : zip(iota(0UZ), rotations)) {
       s = rot[4 * (i / 16) + i % 4];
     }
   }
@@ -72,7 +78,7 @@ void compute_chunk(const Input& input, State& state) {
   state[3] += d;
 }
 
-State sum(ranges::range auto&& msg) {
+State sum(std::ranges::range auto&& msg) {
   State state{
       std::byteswap(0x01234567),
       std::byteswap(0x89abcdef),
@@ -118,13 +124,13 @@ State sum(ranges::range auto&& msg) {
   return state;
 }
 
-Chunk sum32bit(ranges::range auto&& msg) {
+Chunk sum32bit(std::ranges::range auto&& msg) {
   return std::byteswap(sum(msg)[0]);
 }
 
 std::string hexdigest(const State& state) {
-  return std::accumulate(state.begin(), state.end(), std::string{}, [](auto&& res, auto&& chunk) {
-    return res + std::format("{:08x}", std::byteswap(chunk));
+  return std::ranges::fold_left(state, std::string{}, [](auto&& res, auto&& chunk) {
+    return std::format("{}{:08x}", res, std::byteswap(chunk));
   });
 }
 

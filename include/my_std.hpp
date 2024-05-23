@@ -2,7 +2,10 @@
 #define MY_STD_HEADER_INCLUDED
 // oversimplified C++23 stuff until libc++ implements these
 
-#include "std.hpp"
+#include <functional>
+#include <iterator>
+#include <ranges>
+#include <utility>
 
 namespace my_std {
 namespace ranges {
@@ -323,7 +326,7 @@ class cartesian_product_view<First, Vs...>::iterator {
 
 namespace views {
 // TODO(llvm19?) P1899R3
-struct _stride_fn : public std::__range_adaptor_closure<_stride_fn> {
+struct stride_fn : public std::__range_adaptor_closure<stride_fn> {
   template <class Range, class Step>
   constexpr auto operator()(Range&& r, Step&& step) const {
     return my_std::ranges::stride_view(std::forward<Range>(r), std::forward<Step>(step));
@@ -335,10 +338,10 @@ struct _stride_fn : public std::__range_adaptor_closure<_stride_fn> {
   }
 };
 
-inline constexpr auto stride = _stride_fn{};
+inline constexpr auto stride = stride_fn{};
 
 // TODO P2164R9 properly (or wait for libc++...)
-struct _enumerate_fn : public std::__range_adaptor_closure<_enumerate_fn> {
+struct enumerate_fn : public std::__range_adaptor_closure<enumerate_fn> {
   template <std::ranges::viewable_range R>
   constexpr decltype(auto) operator()(R&& r, std::ranges::range_difference_t<R> start) const {
     if constexpr (std::ranges::sized_range<R>) {
@@ -354,31 +357,31 @@ struct _enumerate_fn : public std::__range_adaptor_closure<_enumerate_fn> {
   }
 };
 
-inline constexpr auto enumerate = _enumerate_fn{};
+inline constexpr auto enumerate = enumerate_fn{};
 
-struct _cartesian_product_fn {
+struct cartesian_product_fn {
   template <std::ranges::range... Rs>
   constexpr auto operator()(Rs&&... rs) const {
     return my_std::ranges::cartesian_product_view(std::forward<Rs>(rs)...);
   }
 };
 
-inline constexpr auto cartesian_product = _cartesian_product_fn{};
+inline constexpr auto cartesian_product = cartesian_product_fn{};
 
 }  // namespace views
 
-struct _apply_fn {
+namespace util {
+struct apply_fn {
   template <class Fn>
   constexpr auto operator()(Fn&& f) const {
     return [&f]<class Tuple>(Tuple&& t) {
       return std::apply(std::forward<Fn>(f), std::forward<Tuple>(t));
     };
-    // TODO why not this:
-    // return std::bind_front(std::apply, std::forward<Fn>(f));
   }
 };
+}  // namespace util
 
-inline constexpr auto apply_fn = _apply_fn{};
+inline constexpr auto apply_fn = util::apply_fn{};
 
 }  // namespace my_std
 

@@ -1,7 +1,18 @@
 #ifndef INTCODE_HEADER_INCLUDED
 #define INTCODE_HEADER_INCLUDED
 
-#include "std.hpp"
+#include <array>
+#include <cstdlib>
+#include <deque>
+#include <format>
+#include <limits>
+#include <optional>
+#include <ranges>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace intcode {
 

@@ -20,7 +20,7 @@ struct Result {
 };
 
 constexpr auto chunk_size{1UZ << 18};
-const auto n_threads{aoc::cpu_count()};
+const auto n_threads{std::max(1u, std::thread::hardware_concurrency())};
 std::vector<Result> results(n_threads);
 std::vector<std::thread> threads(n_threads);
 

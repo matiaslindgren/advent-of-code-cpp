@@ -1,5 +1,10 @@
+#include <format>
+#include <functional>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "my_std.hpp"
-#include "std.hpp"
 
 void test_ranges_fold() {
   using std::operator""s;
@@ -71,26 +76,20 @@ void test_ranges_cartesian_product() {
       }
     }
 
-    // clang-format off
-    const auto v1{
-      std::views::iota(0)
-      | std::views::drop(1)
-      | std::views::take(n)
-      | std::ranges::to<std::vector>()
-    };
+    using std::views::drop;
+    using std::views::iota;
+    using std::views::take;
+    using std::views::transform;
+
+    const auto v1{iota(0) | drop(1) | take(n) | std::ranges::to<std::vector>()};
     const auto v2{
-      std::views::iota(0)
-      | std::views::transform([](auto&& b) -> double { return b / 10.0; })
-      | std::views::take(n + 1)
-      | std::ranges::to<std::vector>()
+        iota(0) | transform([](auto&& b) -> double { return b / 10.0; }) | take(n + 1)
+        | std::ranges::to<std::vector>()
     };
     const auto v3{
-      std::views::iota(0)
-      | std::views::transform([](auto&& c) -> char { return 'a' + c; })
-      | std::views::take(n + 2)
-      | std::ranges::to<std::vector>()
+        iota(0) | transform([](auto&& c) -> char { return 'a' + c; }) | take(n + 2)
+        | std::ranges::to<std::vector>()
     };
-    // clang-format on
 
     auto it{expect.begin()};
 

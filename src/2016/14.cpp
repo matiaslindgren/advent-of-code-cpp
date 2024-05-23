@@ -7,7 +7,7 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 constexpr auto chunk_size{512u};
-std::vector<std::thread> threads(aoc::cpu_count());
+std::vector<std::thread> threads(std::max(1u, std::thread::hardware_concurrency()));
 std::vector<std::string> checksums(threads.size() * chunk_size);
 
 struct md5sum_repeated {

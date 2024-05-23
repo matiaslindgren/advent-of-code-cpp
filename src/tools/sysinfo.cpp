@@ -18,7 +18,8 @@ void print_typeinfo(const auto name) {
 int main() {
   std::ios::sync_with_stdio(false);
 
-  std::print("{} cpus\n", aoc::cpu_count());
+  const auto cpu_count{std::max(1u, std::thread::hardware_concurrency())};
+  std::print("{} cpus\n", cpu_count);
   print_typeinfo<bool>("bool");
   print_typeinfo<char>("char");
   print_typeinfo<unsigned char>("unsigned char");

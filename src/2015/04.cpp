@@ -40,7 +40,7 @@ auto search(std::string_view msg) {
   constexpr int part1_limit{5};
   constexpr int part2_limit{6};
 
-  ThreadPool pool(aoc::cpu_count());
+  ThreadPool pool(std::max(1u, std::thread::hardware_concurrency()));
 
   int part1{std::numeric_limits<int>::max()};
   for (std::size_t i{}; i < max_iterations; i += pool.results.size()) {
