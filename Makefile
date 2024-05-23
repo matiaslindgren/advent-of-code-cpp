@@ -13,6 +13,7 @@ CXXFLAGS ?= \
 	-Wpedantic \
 	-Werror \
 	-pthread
+SANITIZE :=
 
 ifeq ($(shell uname), Darwin)
 	SDK_PATH := $(shell xcrun --show-sdk-path)
@@ -38,7 +39,8 @@ ifeq ($(FAST), 1)
 	CXXFLAGS += -O3 -march=native
 else
 	OUT_DIR  := $(OUT)/debug
-	CXXFLAGS += -g -O2 -fsanitize=address,undefined
+	CXXFLAGS += -g -O2
+	SANITIZE += -fsanitize=address,undefined
 endif
 
 YEARS     := $(subst $(SRC)/,,$(wildcard $(SRC)/20??))
@@ -141,7 +143,7 @@ $(OBJ_PATHS): $(OUT_DIR)/%.o: $(SRC)/%.cpp | $$(dir $(OUT_DIR)/%)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(OUT_PATHS): $(OUT_DIR)/%: $(OUT_DIR)/%.o
-	$(CXX) -fsanitize=address,undefined $< -o $@ $(LDFLAGS)
+	$(CXX) $(SANITIZE) $< -o $@ $(LDFLAGS)
 
 
 PERCENT := %
