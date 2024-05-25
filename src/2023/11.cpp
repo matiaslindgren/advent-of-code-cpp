@@ -1,99 +1,92 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Point2D {
-  using Int = std::size_t;
-  Int x;
-  Int y;
-};
+using Vec2 = ndvec::vec2<unsigned long>;
+using Points = std::vector<Vec2>;
+using Ints = std::unordered_set<Vec2::value_type>;
 
-constexpr auto l1_norm(const Point2D& lhs, const Point2D& rhs) {
-  const auto dx{std::max(lhs.x, rhs.x) - std::min(lhs.x, rhs.x)};
-  const auto dy{std::max(lhs.y, rhs.y) - std::min(lhs.y, rhs.y)};
-  return dx + dy;
+constexpr auto l1_norm(const Vec2& lhs, const Vec2& rhs) {
+  return (lhs.max(rhs) - lhs.min(rhs)).sum();
 }
 
-using Points = std::vector<Point2D>;
-using Ints = std::unordered_set<Point2D::Int>;
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 
 struct Space {
   Points galaxies;
   Ints galaxy_rows;
   Ints galaxy_cols;
 
-  explicit Space() = default;
   explicit Space(const Points& input) : galaxies{input} {
-    for (const auto& p : input) {
-      galaxy_rows.insert(p.y);
-      galaxy_cols.insert(p.x);
+    for (const Vec2& p : input) {
+      galaxy_rows.insert(p.y());
+      galaxy_cols.insert(p.x());
     }
   }
 
-  auto distance_sum(const auto expansion) const {
-    const auto n{galaxies.size()};
-    return ranges::fold_left(
-        views::iota(0UZ, n * n) | views::transform([=, this](const auto& i) -> long {
-          if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
-            const auto p1{this->galaxies[i1]};
-            const auto p2{this->galaxies[i2]};
-            return l1_norm(p1, p2) + (expansion - 1) * count_expansions(p1, p2);
-          }
-          return {};
-        }),
-        0L,
-        std::plus{}
-    );
-  }
-
- private:
-  long count_expansions(const Point2D& src, const Point2D& dst) const {
-    return count_expansions(src.x, dst.x, galaxy_cols)
-           + count_expansions(src.y, dst.y, galaxy_rows);
-  }
-
-  long count_expansions(const auto src, const auto dst, const auto& has_galaxy) const {
+  [[nodiscard]]
+  auto count_expansions(const auto src, const auto dst, const auto& has_galaxy) const {
     return ranges::count_if(
         views::iota(std::min(src, dst), std::max(src, dst) + 1),
         [&](const auto& i) { return not has_galaxy.contains(i); }
     );
   }
+
+  [[nodiscard]]
+  auto count_expansions(const Vec2& src, const Vec2& dst) const {
+    return count_expansions(src.x(), dst.x(), galaxy_cols)
+           + count_expansions(src.y(), dst.y(), galaxy_rows);
+  }
+
+  [[nodiscard]]
+  auto distance_sum(long expansion) const {
+    const auto n{galaxies.size()};
+    return sum(views::transform(
+        views::iota(0UZ, n * n),
+        [n, expansion, this](const auto& i) -> Vec2::value_type {
+          if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
+            const Vec2& p1{galaxies.at(i1)};
+            const Vec2& p2{galaxies.at(i2)};
+            return l1_norm(p1, p2) + (expansion - 1) * count_expansions(p1, p2);
+          }
+          return 0;
+        }
+    ));
+  }
 };
 
-std::istream& operator>>(std::istream& is, Space& space) {
+Space parse_space(std::string_view path) {
   Points galaxies;
-  for (auto [ch, y, x] = std::make_tuple('\0', 0UZ, 0UZ); is.get(ch);) {
-    switch (ch) {
-      case '\n':
-        x = 0;
-        y += 1;
-        break;
-      case '#':
-        galaxies.push_back(Point2D{x, y});
-      case '.':
-        x += 1;
-        break;
-      default:
-        is.setstate(std::ios_base::failbit);
+  Vec2 p;
+  std::size_t width{};
+  std::istringstream is{aoc::slurp_file(path)};
+  for (std::string line; std::getline(is, line) and not line.empty(); p.y() += 1) {
+    if (width == 0U) {
+      width = line.size();
+    } else if (width != line.size()) {
+      throw std::runtime_error("every row must be of equal length");
+    }
+    p.x() = 0;
+    for (char ch : line) {
+      if (ch == '#') {
+        galaxies.push_back(p);
+      } else if (ch != '.') {
+        throw std::runtime_error(std::format("unknown tile '{}'", ch));
+      }
+      p.x() += 1;
     }
   }
-  if (is.eof()) {
-    space = Space{galaxies};
-    return is;
-  }
-  throw std::runtime_error("invalid input galaxy, must contain only # or .");
+  return Space(galaxies);
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const Space s{parse_space("/dev/stdin")};
 
-  Space space;
-  input >> space;
-
-  const auto part1{space.distance_sum(2)};
-  const auto part2{space.distance_sum(1'000'000)};
+  const auto part1{s.distance_sum(2)};
+  const auto part2{s.distance_sum(1'000'000)};
 
   std::println("{} {}", part1, part2);
 

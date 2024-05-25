@@ -1,7 +1,24 @@
 #include "aoc.hpp"
+#include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
+namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
+
+enum class Direction : unsigned char {
+  N,
+  E,
+  S,
+  W,
+};
+
+struct Beam {
+  Direction dir;
+  Vec2 pos;
+};
 
 enum class Tile : char {
   split_NS = '|',
@@ -11,86 +28,34 @@ enum class Tile : char {
   empty = '.',
 };
 
-struct Grid2D {
-  std::vector<Tile> tiles;
-  std::size_t width{};
-  std::size_t height{};
-
-  bool is_inside(const auto y, const auto x) const {
-    return y < height and x < width;
-  }
-  auto index(const auto y, const auto x) const {
-    return y * width + x;
-  }
-  const auto& get(const auto y, const auto x) const {
-    return tiles[index(y, x)];
-  }
+struct Grid {
+  std::unordered_map<Vec2, Tile> tiles;
+  int width{};
+  int height{};
 };
 
-std::istream& operator>>(std::istream& is, Grid2D& g) {
-  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
-    if (not g.width) {
-      g.width = line.size();
-    } else if (line.size() != g.width) {
-      is.setstate(std::ios_base::failbit);
-      break;
-    }
-    for (std::istringstream ls{line}; is and ls;) {
-      if (std::underlying_type_t<Tile> ch; ls >> ch) {
-        switch (ch) {
-          case std::to_underlying(Tile::split_NS):
-          case std::to_underlying(Tile::split_EW):
-          case std::to_underlying(Tile::mirror_NE):
-          case std::to_underlying(Tile::mirror_NW):
-          case std::to_underlying(Tile::empty): {
-            g.tiles.push_back(Tile{ch});
-          } break;
-          default: {
-            is.setstate(std::ios_base::failbit);
-          } break;
-        }
-      }
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing grid");
-}
-
-struct Beam {
-  enum class Direction { N, E, S, W } dir;
-  std::size_t y;
-  std::size_t x;
-};
-
-auto count_energized(const Grid2D& grid, const Beam entry) {
-  std::unordered_map<std::size_t, Beam::Direction> energized;
+auto count_energized(const Grid& grid, const Beam entry) {
+  std::unordered_map<Vec2, Direction> energized;
   for (std::deque<Beam> q{{entry}}; not q.empty(); q.pop_front()) {
-    const auto [dir, y, x] = q.front();
-    if (not grid.is_inside(y, x)) {
+    Beam b{q.front()};
+    if (not grid.tiles.contains(b.pos)) {
       continue;
     }
-    {
-      const auto pos{grid.index(y, x)};
-      if (const auto it{energized.find(pos)}; it != energized.end()) {
-        if (const auto old_beam_dir{it->second}; dir == old_beam_dir) {
-          continue;
-        }
-      }
-      energized[pos] = dir;
+
+    if (energized.contains(b.pos) and b.dir == energized.at(b.pos)) {
+      continue;
     }
+    energized[b.pos] = b.dir;
 
-    const auto tile{grid.get(y, x)};
+    Tile tile{grid.tiles.at(b.pos)};
 
-    const Beam n_beam{Beam::Direction::N, y - 1, x + 0};
-    const Beam e_beam{Beam::Direction::E, y + 0, x + 1};
-    const Beam s_beam{Beam::Direction::S, y + 1, x + 0};
-    const Beam w_beam{Beam::Direction::W, y + 0, x - 1};
+    const Beam n_beam{Direction::N, b.pos - Vec2(0, 1)};
+    const Beam e_beam{Direction::E, b.pos + Vec2(1, 0)};
+    const Beam s_beam{Direction::S, b.pos + Vec2(0, 1)};
+    const Beam w_beam{Direction::W, b.pos - Vec2(1, 0)};
 
-    // TODO vec2 arithmetic
-    switch (dir) {
-      case Beam::Direction::N: {
+    switch (b.dir) {
+      case Direction::N: {
         switch (tile) {
           case Tile::split_EW: {
             q.push_back(e_beam);
@@ -108,7 +73,7 @@ auto count_energized(const Grid2D& grid, const Beam entry) {
           } break;
         }
       } break;
-      case Beam::Direction::E: {
+      case Direction::E: {
         switch (tile) {
           case Tile::split_NS: {
             q.push_back(n_beam);
@@ -126,7 +91,7 @@ auto count_energized(const Grid2D& grid, const Beam entry) {
           } break;
         }
       } break;
-      case Beam::Direction::S: {
+      case Direction::S: {
         switch (tile) {
           case Tile::split_EW: {
             q.push_back(e_beam);
@@ -144,7 +109,7 @@ auto count_energized(const Grid2D& grid, const Beam entry) {
           } break;
         }
       } break;
-      case Beam::Direction::W: {
+      case Direction::W: {
         switch (tile) {
           case Tile::split_NS: {
             q.push_back(n_beam);
@@ -167,33 +132,62 @@ auto count_energized(const Grid2D& grid, const Beam entry) {
   return energized.size();
 }
 
-auto find_part1(const Grid2D& grid) {
-  return count_energized(grid, {Beam::Direction::E, 0, 0});
+auto find_part1(const Grid& grid) {
+  return count_energized(grid, Beam{Direction::E, Vec2()});
 }
 
-auto find_part2(const Grid2D& grid) {
-  const auto w{grid.width};
-  const auto h{grid.height};
-  auto max{0UZ};
-  for (const auto y : views::iota(1UZ, h - 1)) {
-    max = std::max(max, count_energized(grid, {Beam::Direction::E, y, 0}));
-    max = std::max(max, count_energized(grid, {Beam::Direction::W, y, w - 1}));
+auto find_part2(const Grid& grid) {
+  return ranges::max(views::transform(
+      views::iota(0, std::max(grid.width, grid.height)),
+      [&grid](int i) {
+        return std::max({
+            count_energized(grid, Beam{Direction::S, Vec2(i, 0)}),
+            count_energized(grid, Beam{Direction::N, Vec2(i, grid.height)}),
+            count_energized(grid, Beam{Direction::E, Vec2(0, i)}),
+            count_energized(grid, Beam{Direction::W, Vec2(grid.width, i)}),
+        });
+      }
+  ));
+}
+
+auto parse_grid(std::string_view path) {
+  Grid g{};
+  Vec2 p;
+  std::istringstream is{aoc::slurp_file(path)};
+  for (std::string line; std::getline(is, line) and not line.empty(); p.y() += 1) {
+    p.x() = 0;
+    for (char ch : line) {
+      switch (ch) {
+        case std::to_underlying(Tile::split_NS):
+        case std::to_underlying(Tile::split_EW):
+        case std::to_underlying(Tile::mirror_NE):
+        case std::to_underlying(Tile::mirror_NW):
+        case std::to_underlying(Tile::empty): {
+          g.tiles[p] = {ch};
+        } break;
+        default:
+          throw std::runtime_error(std::format("unknown tile '{}'", ch));
+      }
+      p.x() += 1;
+    }
+    if (g.width == 0) {
+      g.width = p.x();
+    } else if (g.width != p.x()) {
+      throw std::runtime_error("every row must be of equal length");
+    }
   }
-  for (const auto x : views::iota(1UZ, w - 1)) {
-    max = std::max(max, count_energized(grid, {Beam::Direction::S, 0, x}));
-    max = std::max(max, count_energized(grid, {Beam::Direction::N, h - 1, x}));
+  if (p == Vec2()) {
+    throw std::runtime_error("empty input");
   }
-  return max;
+  g.height = p.y();
+  return g;
 }
 
 int main() {
-  std::ios::sync_with_stdio(false);
+  const Grid g{parse_grid("/dev/stdin")};
 
-  Grid2D grid;
-  std::cin >> grid;
-
-  const auto part1{find_part1(grid)};
-  const auto part2{find_part2(grid)};
+  const auto part1{find_part1(g)};
+  const auto part2{find_part2(g)};
 
   std::println("{} {}", part1, part2);
 

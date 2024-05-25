@@ -1,8 +1,14 @@
+// TODO slow
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using aoc::skip;
+using std::operator""s;
+using Vec2 = ndvec::vec2<int>;
 
 enum class Tile : char {
   round = 'O',
@@ -10,40 +16,44 @@ enum class Tile : char {
   ground = '.',
 };
 
-struct Grid2D {
-  std::vector<Tile> tiles;
-  std::size_t width{};
-  std::size_t height{};
+template <std::integral Int>
+auto bidirectional_iota(Int begin, Int end) {
+  auto v{views::iota(begin, end)};
+  return views::zip(v, views::reverse(v));
+}
+
+struct Grid {
+  std::map<Vec2, Tile> tiles;
+  int width{};
+  int height{};
+
+  [[nodiscard]]
+  Tile get(const Vec2& p) const {
+    return tiles.contains(p) ? tiles.at(p) : Tile::pound;
+  }
 
  private:
-  auto bidirectional_range(const auto begin, const auto end) const {
-    const auto v{views::iota(begin, end)};
-    return views::zip(v, views::reverse(v));
-  }
-  auto y_range() const {
-    return bidirectional_range(1UZ, height - 1);
-  }
+  [[nodiscard]]
   auto x_range() const {
-    return bidirectional_range(1UZ, width - 1);
+    return bidirectional_iota(0, width);
+  }
+  [[nodiscard]]
+  auto y_range() const {
+    return bidirectional_iota(0, height);
   }
 
  public:
-  void append_padding() {
-    tiles.append_range(views::repeat(Tile::pound, width));
-    ++height;
-  }
-
   void tilt_up() {
-    tilt(-width);
+    tilt(Vec2(0, -1));
   }
   void tilt_left() {
-    tilt(-1);
+    tilt(Vec2(-1, 0));
   }
   void tilt_down() {
-    tilt(width);
+    tilt(Vec2(0, 1));
   }
   void tilt_right() {
-    tilt(1);
+    tilt(Vec2(1, 0));
   }
 
   void cycle() {
@@ -53,113 +63,104 @@ struct Grid2D {
     tilt_right();
   }
 
+  [[nodiscard]]
   auto load() const {
     long l{};
-    for (const auto [y, y_rev] : y_range()) {
+    for (const auto [y, y_back] : y_range()) {
       for (const auto [x, _] : x_range()) {
-        if (tiles[y * width + x] == Tile::round) {
-          l += y_rev;
+        if (get(Vec2(x, y)) == Tile::round) {
+          l += y_back + 1;
         }
       }
     }
     return l;
   }
 
-  constexpr auto operator==(const Grid2D& other) const {
-    return ranges::equal(tiles, other.tiles);
-  }
-  constexpr auto operator<(const Grid2D& other) const {
-    return ranges::lexicographical_compare(tiles, other.tiles);
-  }
+  auto operator<=>(const Grid&) const = default;
 
  private:
-  std::size_t roll(auto i1, const auto delta) const {
-    for (auto i2{i1 + delta}; i2 < tiles.size() and tiles[i2] == Tile::ground; i2 += delta) {
-      i1 = i2;
+  [[nodiscard]]
+  auto roll(Vec2 p, const Vec2& delta) const {
+    while (get(p + delta) == Tile::ground) {
+      p += delta;
     }
-    return i1;
+    return p;
   }
 
-  void tilt(const auto delta) {
-    for (const auto [y_fwd, y_rev] : y_range()) {
-      for (const auto [x_fwd, x_rev] : x_range()) {
-        const auto y{delta == width ? y_rev : y_fwd};
-        const auto x{delta == 1 ? x_rev : x_fwd};
-        const auto i{y * width + x};
-        if (tiles[i] == Tile::round) {
-          std::swap(tiles[i], tiles[roll(i, delta)]);
+  void tilt(const Vec2& delta) {
+    for (const auto [y_forward, y_back] : y_range()) {
+      for (const auto [x_forward, x_back] : x_range()) {
+        const auto x{delta == Vec2(1, 0) ? x_back : x_forward};
+        const auto y{delta == Vec2(0, 1) ? y_back : y_forward};
+        if (Vec2 p(x, y); get(p) == Tile::round) {
+          std::swap(tiles.at(p), tiles.at(roll(p, delta)));
         }
       }
     }
   }
 };
 
-std::istream& operator>>(std::istream& is, Grid2D& g) {
-  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
-    line = "#" + line + "#";
-    if (not g.width) {
-      g.width = line.size();
-      g.append_padding();
-    } else if (line.size() != g.width) {
-      is.setstate(std::ios_base::failbit);
-      break;
-    }
-    for (std::istringstream ls{line}; is and ls;) {
-      if (std::underlying_type_t<Tile> ch; ls >> ch) {
-        switch (ch) {
-          case std::to_underlying(Tile::round):
-          case std::to_underlying(Tile::pound):
-          case std::to_underlying(Tile::ground): {
-            g.tiles.push_back(Tile{ch});
-          } break;
-          default: {
-            is.setstate(std::ios_base::failbit);
-          } break;
-        }
+auto find_part1(Grid g) {
+  g.tilt_up();
+  return g.load();
+}
+
+auto find_part2(Grid g1) {
+  Grid g2{g1};
+
+  std::set<Grid> seen;
+  while (not seen.contains(g2)) {
+    seen.insert(g2);
+    g2.cycle();
+  }
+
+  std::vector<Grid> repeating;
+  for (g1 = g2; repeating.empty() or g2 != g1;) {
+    seen.erase(g1);
+    repeating.push_back(g1);
+    g1.cycle();
+  }
+
+  g1 = repeating.at((1'000'000'000UZ - seen.size()) % repeating.size());
+  return g1.load();
+}
+
+auto parse_grid(std::string_view path) {
+  Grid g{};
+  Vec2 p;
+  std::istringstream is{aoc::slurp_file(path)};
+  for (std::string line; std::getline(is, line) and not line.empty(); p.y() += 1) {
+    p.x() = 0;
+    for (char ch : line) {
+      switch (ch) {
+        case std::to_underlying(Tile::round):
+        case std::to_underlying(Tile::pound):
+        case std::to_underlying(Tile::ground): {
+          g.tiles[p] = {ch};
+        } break;
+        default:
+          throw std::runtime_error(std::format("unknown tile '{}'", ch));
       }
+      p.x() += 1;
+    }
+    if (g.width == 0) {
+      g.width = p.x();
+    } else if (g.width != p.x()) {
+      throw std::runtime_error("every row must be of equal length");
     }
   }
-  if (g.width and g.height) {
-    g.append_padding();
+  if (p == Vec2()) {
+    throw std::runtime_error("empty input");
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing grid");
-}
-
-auto find_part1(Grid2D grid) {
-  grid.tilt_up();
-  return grid.load();
-}
-
-auto find_part2(Grid2D grid) {
-  std::set<Grid2D> seen;
-  auto grid2{grid};
-  while (not seen.contains(grid2)) {
-    seen.insert(grid2);
-    grid2.cycle();
-  }
-
-  std::vector<Grid2D> repeating;
-  for (grid = grid2; repeating.empty() or grid2 != grid;) {
-    seen.erase(grid);
-    repeating.push_back(grid);
-    grid.cycle();
-  }
-
-  const auto i{(1'000'000'000UZ - seen.size()) % repeating.size()};
-  return repeating[i].load();
+  g.height = p.y();
+  return g;
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const Grid g{parse_grid("/dev/stdin")};
 
-  Grid2D grid;
-  input >> grid;
-
-  const auto part1{find_part1(grid)};
-  const auto part2{find_part2(grid)};
+  const auto part1{find_part1(g)};
+  const auto part2{find_part2(g)};
 
   std::println("{} {}", part1, part2);
 

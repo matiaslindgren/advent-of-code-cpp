@@ -11,20 +11,19 @@ enum class Spring : char {
 };
 
 std::istream& operator>>(std::istream& is, Spring& spring) {
-  if (char ch; is >> ch) {
+  if (char ch{}; is >> ch) {
     switch (ch) {
       case std::to_underlying(Spring::normal):
       case std::to_underlying(Spring::damaged):
       case std::to_underlying(Spring::unknown): {
         spring = {ch};
-        return is;
+      } break;
+      default: {
+        throw std::runtime_error(std::format("unknown tile '{}'", ch));
       }
     }
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Spring status");
+  return is;
 }
 
 struct Springs {
@@ -33,22 +32,23 @@ struct Springs {
 };
 
 std::istream& operator>>(std::istream& is, Springs& springs) {
-  if (std::string lhs, rhs; is >> lhs and not lhs.empty() and is >> rhs and not rhs.empty()) {
+  if (std::string lhs, rhs;
+      is >> std::ws >> lhs and not lhs.empty() and is >> rhs and not rhs.empty()) {
     ranges::replace(rhs, ',', ' ');
-    std::istringstream lhs_s{lhs}, rhs_s{rhs};
+    std::istringstream lhs_s{lhs};
+    std::istringstream rhs_s{rhs};
     springs = {
         .status = views::istream<Spring>(lhs_s) | ranges::to<std::vector>(),
         .counts = views::istream<int>(rhs_s) | ranges::to<std::vector>(),
     };
-    return is;
+    if (not lhs_s.eof() or not rhs_s.eof()) {
+      throw std::runtime_error("failed parsing line");
+    }
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Springs");
+  return is;
 }
 
-static constexpr auto no_value{std::numeric_limits<std::size_t>::max()};
+constexpr auto no_value{std::numeric_limits<std::size_t>::max()};
 
 auto count_valid(const auto& springs, const auto& cache, const auto i, const auto c, const auto n) {
   const auto i_end{cache.extent(0) - 1};
@@ -95,7 +95,7 @@ auto count_valid(const auto& springs) {
 auto repeat_and_count_valid(ranges::range auto&& springs, const auto repeats) {
   return views::transform(springs, [=](auto s) {
     auto [status, counts]{s};
-    for (auto r{1}; r < repeats; ++r) {
+    for (int r{1}; r < repeats; ++r) {
       s.status.push_back(Spring::unknown);
       s.status.append_range(status);
       s.counts.append_range(counts);

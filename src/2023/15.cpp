@@ -7,11 +7,11 @@ namespace views = std::views;
 struct Step {
   std::string str;
   std::string label;
-  int lens;
-  enum {
+  int lens{};
+  enum : unsigned char {
     add,
     rm,
-  } command;
+  } command{};
 };
 
 std::istream& operator>>(std::istream& is, Step& step) {
@@ -20,7 +20,7 @@ std::istream& operator>>(std::istream& is, Step& step) {
       s.str.pop_back();
     }
     std::istringstream ls{s.str};
-    char ch;
+    char ch{};
     while (ls.get(ch) and ch != '=' and ch != '-') {
       s.label.push_back(ch);
     }
@@ -43,30 +43,31 @@ std::istream& operator>>(std::istream& is, Step& step) {
 }
 
 uint8_t hash(std::string_view s) {
-  return ranges::fold_left(s, uint8_t{}, [](const uint8_t h, const char ch) {
-    return 17u * (h + ch);
-  });
+  return ranges::fold_left(s, uint8_t{}, [](uint8_t h, char ch) { return 17U * (h + ch); });
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0u, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0U, std::plus{})};
 
 auto find_part1(const auto& steps) {
   return sum(steps | views::transform([](auto step) { return hash(step.str); }));
 }
 
 // TODO (llvm19) ranges::adjacent
-constexpr decltype(auto) window2(ranges::range auto&& r) {
+decltype(auto) window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }
 
 struct Lens {
-  int box;
-  int seq_no;
-  int lens;
-  constexpr auto operator<=>(const Lens&) const = default;
-  constexpr auto power(const int slot = 1) const {
+  int box{};
+  int seq_no{};
+  int lens{};
+
+  [[nodiscard]]
+  auto power(const int slot = 1) const {
     return (box + 1) * slot * lens;
   }
+
+  auto operator<=>(const Lens&) const = default;
 };
 
 auto find_part2(const auto& steps) {
@@ -78,7 +79,7 @@ auto find_part2(const auto& steps) {
         if (const auto it{lenses.find(step.label)}; it != lenses.end()) {
           it->second.lens = step.lens;
         } else {
-          lenses[step.label] = {hash(step.label), seq_no++, step.lens};
+          lenses[step.label] = Lens{hash(step.label), seq_no++, step.lens};
         }
       } break;
       case Step::rm: {
@@ -92,7 +93,7 @@ auto find_part2(const auto& steps) {
 
   return ranges::fold_left(
       window2(ordered) | views::transform([slot = 1](const auto& w) mutable {
-        const auto& [l1, l2] = w;
+        auto&& [l1, l2]{w};
         if (l1.box != l2.box) {
           slot = 0;
         }
@@ -104,10 +105,7 @@ auto find_part2(const auto& steps) {
 }
 
 int main() {
-  using std::operator""s;
-
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto steps{views::istream<Step>(input) | ranges::to<std::vector>()};
+  const auto steps{aoc::parse_items<Step>("/dev/stdin")};
 
   const auto part1{find_part1(steps)};
   const auto part2{find_part2(steps)};
