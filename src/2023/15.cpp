@@ -14,34 +14,6 @@ struct Step {
   } command{};
 };
 
-std::istream& operator>>(std::istream& is, Step& step) {
-  if (Step s{}; std::getline(is, s.str, ',') and not s.str.empty()) {
-    if (s.str.back() == '\n') {
-      s.str.pop_back();
-    }
-    std::istringstream ls{s.str};
-    char ch{};
-    while (ls.get(ch) and ch != '=' and ch != '-') {
-      s.label.push_back(ch);
-    }
-    if (ch == '=') {
-      s.command = Step::add;
-      if (ls >> s.lens and s.lens > 0) {
-        step = s;
-        return is;
-      }
-    } else if (ch == '-') {
-      s.command = Step::rm;
-      step = s;
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Step");
-}
-
 uint8_t hash(std::string_view s) {
   return ranges::fold_left(s, uint8_t{}, [](uint8_t h, char ch) { return 17U * (h + ch); });
 }
@@ -102,6 +74,34 @@ auto find_part2(const auto& steps) {
       ordered.front().power(),
       std::plus{}
   );
+}
+
+std::istream& operator>>(std::istream& is, Step& step) {
+  if (Step s{}; std::getline(is, s.str, ',') and not s.str.empty()) {
+    if (s.str.back() == '\n') {
+      s.str.pop_back();
+    }
+    std::istringstream ls{s.str};
+    char ch{};
+    while (ls.get(ch) and ch != '=' and ch != '-') {
+      s.label.push_back(ch);
+    }
+    if (ch == '=') {
+      s.command = Step::add;
+      if (ls >> s.lens and s.lens > 0) {
+        step = s;
+        return is;
+      }
+    } else if (ch == '-') {
+      s.command = Step::rm;
+      step = s;
+      return is;
+    }
+  }
+  if (is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Step");
 }
 
 int main() {

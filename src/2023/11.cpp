@@ -9,10 +9,6 @@ using Vec2 = ndvec::vec2<unsigned long>;
 using Points = std::vector<Vec2>;
 using Ints = std::unordered_set<Vec2::value_type>;
 
-constexpr auto l1_norm(const Vec2& lhs, const Vec2& rhs) {
-  return (lhs.max(rhs) - lhs.min(rhs)).sum();
-}
-
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 
 struct Space {
@@ -50,7 +46,7 @@ struct Space {
           if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
             const Vec2& p1{galaxies.at(i1)};
             const Vec2& p2{galaxies.at(i2)};
-            return l1_norm(p1, p2) + (expansion - 1) * count_expansions(p1, p2);
+            return (p1.max(p2) - p1.min(p2)).sum() + (expansion - 1) * count_expansions(p1, p2);
           }
           return 0;
         }

@@ -10,43 +10,10 @@ enum class Spring : char {
   unknown = '?',
 };
 
-std::istream& operator>>(std::istream& is, Spring& spring) {
-  if (char ch{}; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Spring::normal):
-      case std::to_underlying(Spring::damaged):
-      case std::to_underlying(Spring::unknown): {
-        spring = {ch};
-      } break;
-      default: {
-        throw std::runtime_error(std::format("unknown tile '{}'", ch));
-      }
-    }
-  }
-  return is;
-}
-
 struct Springs {
   std::vector<Spring> status;
   std::vector<int> counts;
 };
-
-std::istream& operator>>(std::istream& is, Springs& springs) {
-  if (std::string lhs, rhs;
-      is >> std::ws >> lhs and not lhs.empty() and is >> rhs and not rhs.empty()) {
-    ranges::replace(rhs, ',', ' ');
-    std::istringstream lhs_s{lhs};
-    std::istringstream rhs_s{rhs};
-    springs = {
-        .status = views::istream<Spring>(lhs_s) | ranges::to<std::vector>(),
-        .counts = views::istream<int>(rhs_s) | ranges::to<std::vector>(),
-    };
-    if (not lhs_s.eof() or not rhs_s.eof()) {
-      throw std::runtime_error("failed parsing line");
-    }
-  }
-  return is;
-}
 
 constexpr auto no_value{std::numeric_limits<std::size_t>::max()};
 
@@ -106,6 +73,39 @@ auto repeat_and_count_valid(ranges::range auto&& springs, const auto repeats) {
 };
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+
+std::istream& operator>>(std::istream& is, Spring& spring) {
+  if (char ch{}; is >> ch) {
+    switch (ch) {
+      case std::to_underlying(Spring::normal):
+      case std::to_underlying(Spring::damaged):
+      case std::to_underlying(Spring::unknown): {
+        spring = {ch};
+      } break;
+      default: {
+        throw std::runtime_error(std::format("unknown tile '{}'", ch));
+      }
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Springs& springs) {
+  if (std::string lhs, rhs;
+      is >> std::ws >> lhs and not lhs.empty() and is >> rhs and not rhs.empty()) {
+    ranges::replace(rhs, ',', ' ');
+    std::istringstream lhs_s{lhs};
+    std::istringstream rhs_s{rhs};
+    springs = {
+        .status = views::istream<Spring>(lhs_s) | ranges::to<std::vector>(),
+        .counts = views::istream<int>(rhs_s) | ranges::to<std::vector>(),
+    };
+    if (not lhs_s.eof() or not rhs_s.eof()) {
+      throw std::runtime_error("failed parsing line");
+    }
+  }
+  return is;
+}
 
 int main() {
   const auto springs{aoc::parse_items<Springs>("/dev/stdin")};
