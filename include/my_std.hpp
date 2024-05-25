@@ -325,6 +325,7 @@ class cartesian_product_view<First, Vs...>::iterator {
 }  // namespace ranges
 
 namespace views {
+namespace detail {
 // TODO(llvm19?) P1899R3
 struct stride_fn : public std::__range_adaptor_closure<stride_fn> {
   template <class Range, class Step>
@@ -337,8 +338,6 @@ struct stride_fn : public std::__range_adaptor_closure<stride_fn> {
     return std::__range_adaptor_closure_t(std::__bind_back(*this, std::forward<Step>(step)));
   }
 };
-
-inline constexpr auto stride = stride_fn{};
 
 // TODO P2164R9 properly (or wait for libc++...)
 struct enumerate_fn : public std::__range_adaptor_closure<enumerate_fn> {
@@ -357,8 +356,6 @@ struct enumerate_fn : public std::__range_adaptor_closure<enumerate_fn> {
   }
 };
 
-inline constexpr auto enumerate = enumerate_fn{};
-
 struct cartesian_product_fn {
   template <std::ranges::range... Rs>
   constexpr auto operator()(Rs&&... rs) const {
@@ -366,7 +363,11 @@ struct cartesian_product_fn {
   }
 };
 
-inline constexpr auto cartesian_product = cartesian_product_fn{};
+}  // namespace detail
+
+inline constexpr auto stride{detail::stride_fn{}};
+inline constexpr auto enumerate{detail::enumerate_fn{}};
+inline constexpr auto cartesian_product{detail::cartesian_product_fn{}};
 
 }  // namespace views
 
@@ -381,7 +382,7 @@ struct apply_fn {
 };
 }  // namespace util
 
-inline constexpr auto apply_fn = util::apply_fn{};
+inline constexpr auto apply_fn{util::apply_fn{}};
 
 }  // namespace my_std
 
