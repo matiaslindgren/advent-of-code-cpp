@@ -11,14 +11,15 @@ struct ThreadPool {
   std::vector<std::thread> threads;
   std::vector<std::string> results;
 
-  explicit ThreadPool(unsigned n_threads) : threads(n_threads), results(chunk_size * n_threads) {
+  explicit ThreadPool(unsigned n_threads)
+      : threads(n_threads), results(1UZ * chunk_size * n_threads) {
   }
 
   void join() {
     ranges::for_each(threads, [](auto& t) { t.join(); });
   }
 
-  void md5stretch(std::string_view salt, int index, int thread_id, int stretch_count) {
+  void md5stretch(std::string_view salt, std::size_t index, int thread_id, int stretch_count) {
     const auto offset{thread_id * chunk_size};
     for (unsigned i{}; i < chunk_size; ++i) {
       auto checksum{std::format("{:s}{:d}", salt, index + offset + i)};
@@ -29,7 +30,7 @@ struct ThreadPool {
     }
   }
 
-  void submit(std::string_view salt, int index, int stretch_count) {
+  void submit(std::string_view salt, std::size_t index, int stretch_count) {
     for (auto&& [t, th] : my_std::views::enumerate(threads)) {
       th = std::thread(&ThreadPool::md5stretch, this, salt, index, t, stretch_count);
     }
@@ -53,13 +54,11 @@ inline std::optional<char> find_triple(std::string_view s) {
   return std::nullopt;
 }
 
-inline bool has_quint(std::string_view s, char first) {
-  for (auto&& [a, b, c, d, e] : window5(s)) {
-    if (a == first and a == b and b == c and c == d and d == e) {
-      return true;
-    }
-  }
-  return false;
+inline bool has_quint(std::string_view s, char target) {
+  return ranges::any_of(window5(s), [target](auto&& w) {
+    auto&& [a, b, c, d, e]{w};
+    return a == target and a == b and b == c and c == d and d == e;
+  });
 }
 
 auto stretch_search(std::string_view salt, const int stretch_count = 0) {

@@ -47,11 +47,12 @@ struct Gate {
 constexpr auto product{std::__bind_back(ranges::fold_left, 1, std::multiplies{})};
 
 auto search(const auto& instructions) {
-  std::array<Gate, 512> mem{};
+  constexpr int mem_size{512};
+  std::array<Gate, mem_size> mem{};
   mem.fill(Gate{-1, -1, -1, -1});
 
-  const auto bots{ranges::subrange(mem.begin(), mem.begin() + 256)};
-  const auto outputs{ranges::subrange(mem.begin() + 256, mem.end())};
+  auto bots{views::take(mem, mem_size / 2)};
+  auto outputs{views::drop(mem, mem_size / 2)};
 
   for (const Instruction& ins : instructions) {
     switch (ins.type) {
@@ -65,13 +66,13 @@ auto search(const auto& instructions) {
       } break;
       case Instruction::Type::lo_out_hi_bot: {
         auto& bot{bots[ins.input]};
-        bot.out_lo = 256 + ins.out1;
+        bot.out_lo = mem_size / 2 + ins.out1;
         bot.out_hi = ins.out2;
       } break;
       case Instruction::Type::lo_out_hi_out: {
         auto& bot{bots[ins.input]};
-        bot.out_lo = 256 + ins.out1;
-        bot.out_hi = 256 + ins.out2;
+        bot.out_lo = mem_size / 2 + ins.out1;
+        bot.out_hi = mem_size / 2 + ins.out2;
       } break;
     }
   }
@@ -103,15 +104,14 @@ auto search(const auto& instructions) {
           ranges::find_if(
               bots,
               [](const auto& b) {
-                const auto [lo, hi] = b.value();
+                const auto [lo, hi]{b.value()};
                 return lo == 17 and hi == 61;
               }
           )
       ),
-      product(
-          ranges::subrange(outputs.begin(), outputs.begin() + 3)
-          | views::transform([](const auto& out) { return out.value().second; })
-      ),
+      product(views::take(outputs, 3) | views::transform([](const auto& out) {
+                return out.value().second;
+              })),
   };
 }
 

@@ -35,7 +35,7 @@ std::string find_code(const Keypad& pad, const std::vector<Steps>& instructions)
              instructions,
              [&, p1 = pad.find_key('5')](const Steps& steps) mutable -> char {
                for (const Vec2& step : steps) {
-                 if (Vec2 p2{p1 + step}; pad.get(p2) != '0') {
+                 if (Vec2 p2{p1 + step}; pad.get(p2) != ' ') {
                    p1 = p2;
                  }
                }
@@ -73,22 +73,22 @@ int main() {
   const auto instructions{parse_instructions("/dev/stdin")};
 
   const Keypad keypad1{.rows={
-      "00000"s,
-      "01230"s,
-      "04560"s,
-      "07890"s,
-      "00000"s,
+      "     "s,
+      " 123 "s,
+      " 456 "s,
+      " 789 "s,
+      "     "s,
   }};
   const auto part1{find_code(keypad1, instructions)};
 
   const Keypad keypad2{.rows={
-      "0000000"s,
-      "0001000"s,
-      "0023400"s,
-      "0567890"s,
-      "00ABC00"s,
-      "000D000"s,
-      "0000000"s,
+      "       "s,
+      "   1   "s,
+      "  234  "s,
+      " 56789 "s,
+      "  ABC  "s,
+      "   D   "s,
+      "       "s,
   }};
   const auto part2{find_code(keypad2, instructions)};
 
