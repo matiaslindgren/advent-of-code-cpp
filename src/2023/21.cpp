@@ -86,22 +86,22 @@ auto search(Vec2 start, Grid grid) {
   };
 }
 
-auto repeat_grid(const auto& lines, const int n_repeats) {
-  std::vector<std::string> repeated;
+auto repeat_grid(const auto& input_lines, const int n_repeats) {
+  std::vector<std::string> lines;
   const int center{n_repeats / 2};
   for (int r1{}; r1 < n_repeats; ++r1) {
-    for (const std::string& original_line : lines) {
-      repeated.emplace_back();
+    for (const std::string& input_line : input_lines) {
+      lines.emplace_back();
       for (int r2{}; r2 < n_repeats; ++r2) {
-        std::string line{original_line};
+        std::string line{input_line};
         if (r1 != center or r2 != center) {
           ranges::replace(line, std::to_underlying(Tile::start), std::to_underlying(Tile::garden));
         }
-        repeated.back().append_range(line);
+        lines.back().append_range(line);
       }
     }
   }
-  return repeated;
+  return lines;
 }
 
 auto parse_input(std::string_view path) {

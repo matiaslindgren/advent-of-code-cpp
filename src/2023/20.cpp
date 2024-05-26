@@ -29,8 +29,7 @@ struct Module {
       case Type::FlipFlop: {
         if (not hi) {
           send_out = true;
-          high[id] = not high[id];
-          high_out = high[id];
+          high_out = (high[id] = not high[id]);
         }
       } break;
       case Type::Broadcaster: {
@@ -99,7 +98,7 @@ Module& find_rx_input(auto& modules) {
 }
 
 bool all_cycles_found(const auto& cycle_lengths) {
-  return ranges::any_of(cycle_lengths, [](const auto len) { return len < 2; });
+  return ranges::all_of(cycle_lengths, [](const auto len) { return len > 1; });
 }
 
 struct Signal {
@@ -115,7 +114,7 @@ auto search(auto modules) {
 
   auto& rx_input{find_rx_input(modules)};
 
-  for (auto press{1UL}; all_cycles_found(cycle_lengths); press += 1) {
+  for (auto press{1UL}; not all_cycles_found(cycle_lengths); press += 1) {
     const Signal init_signal{
         .src = "button"s,
         .dst = "broadcaster"s,
