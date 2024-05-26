@@ -1,4 +1,3 @@
-// TODO slow
 #include "aoc.hpp"
 #include "ndvec.hpp"
 #include "std.hpp"

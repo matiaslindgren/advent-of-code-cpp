@@ -10,71 +10,46 @@ namespace views = std::views;
 using Strings = std::vector<std::string>;
 
 struct Module {
-  enum class Type {
+  enum class Type : unsigned char {
     Broadcaster,
     FlipFlop,
     Conjunction,
     Output,
-  } type;
+  } type{};
   std::string id;
   Strings inputs;
   Strings outputs;
   std::unordered_map<std::string, bool> high;
+
+  [[nodiscard]]
+  auto compute_step(const std::string& src, bool hi) {
+    bool send_out{false};
+    bool high_out{false};
+    switch (type) {
+      case Type::FlipFlop: {
+        if (not hi) {
+          send_out = true;
+          high[id] = not high[id];
+          high_out = high[id];
+        }
+      } break;
+      case Type::Broadcaster: {
+        send_out = true;
+        high_out = false;
+      } break;
+      case Type::Conjunction: {
+        send_out = true;
+        high[src] = hi;
+        high_out = not ranges::all_of(high | views::values, std::identity{});
+      } break;
+      case Type::Output: {
+      } break;
+    }
+    return std::pair{send_out, high_out};
+  }
 };
 
 using Modules = std::unordered_map<std::string, Module>;
-
-std::istream& operator>>(std::istream& is, Module::Type& t) {
-  using Type = Module::Type;
-  const char ch = is.peek();
-  switch (ch) {
-    case 'b': {
-      t = Type::Broadcaster;
-      return is;
-    } break;
-    case '%': {
-      if (is.get() == ch) {
-        t = Type::FlipFlop;
-        return is;
-      }
-    } break;
-    case '&': {
-      if (is.get() == ch) {
-        t = Type::Conjunction;
-        return is;
-      }
-    } break;
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Module::Type");
-}
-
-std::istream& operator>>(std::istream& is, Module& m) {
-  if (std::string line; std::getline(is, line)) {
-    ranges::replace(line, ',', ' ');
-    std::istringstream ls{line};
-    if (Module::Type type; ls >> type) {
-      if (std::string id; ls >> id and not id.empty()) {
-        if (ls >> std::ws >> skip("->"s)) {
-          const auto outputs{views::istream<std::string>(ls) | ranges::to<Strings>()};
-          m = {.type = type, .id = id, .outputs = outputs};
-          return is;
-        }
-      }
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Module");
-}
-
-auto parse_input(std::istream& is) {
-  return views::istream<Module>(is) | views::transform([](auto&& m) { return std::pair{m.id, m}; })
-         | ranges::to<Modules>();
-}
 
 auto update_module_connections(auto modules) {
   std::unordered_map<std::string, Strings> all_inputs;
@@ -105,7 +80,7 @@ auto update_module_connections(auto modules) {
   return modules;
 }
 
-auto search(auto modules) {
+Module& find_rx_input(auto& modules) {
   const auto all_conjunctions{[&modules](const auto& ms) {
     return not ms.empty() and ranges::all_of(ms, [&modules](const auto& m) {
       return modules.at(m).type == Module::Type::Conjunction;
@@ -120,19 +95,27 @@ auto search(auto modules) {
   if (rx_inputs.size() != 4 or not all_conjunctions(rx_inputs)) {
     throw std::runtime_error("inputs to the input of rx should be 4 conjunctions");
   }
+  return rx_input;
+}
 
-  auto lo_count{0UZ};
-  auto hi_count{0UZ};
-  std::array<std::size_t, 4> cycle_lengths;
-  cycle_lengths.fill(1);
+bool all_cycles_found(const auto& cycle_lengths) {
+  return ranges::any_of(cycle_lengths, [](const auto len) { return len < 2; });
+}
 
-  struct Signal {
-    std::string src, dst;
-    bool high;
-  };
+struct Signal {
+  std::string src;
+  std::string dst;
+  bool high{false};
+};
 
-  for (auto press{1UZ}; ranges::any_of(cycle_lengths, [](const auto len) { return len < 2; });
-       ++press) {
+auto search(auto modules) {
+  auto lo_count{0UL};
+  auto hi_count{0UL};
+  std::array cycle_lengths{1UL, 1UL, 1UL, 1UL};
+
+  auto& rx_input{find_rx_input(modules)};
+
+  for (auto press{1UL}; all_cycles_found(cycle_lengths); press += 1) {
     const Signal init_signal{
         .src = "button"s,
         .dst = "broadcaster"s,
@@ -144,38 +127,13 @@ auto search(auto modules) {
           cycle_len = press;
         }
       }
-
       const auto [src, dst, hi]{q.front()};
       if (press <= 1000) {
         lo_count += not hi;
         hi_count += hi;
       }
-
-      auto& m{modules.at(dst)};
-      bool send_out{false}, high_out{false};
-
-      switch (m.type) {
-        case Module::Type::FlipFlop: {
-          if (not hi) {
-            send_out = true;
-            m.high[m.id] = not m.high[m.id];
-            high_out = m.high[m.id];
-          }
-        } break;
-        case Module::Type::Broadcaster: {
-          send_out = true;
-          high_out = false;
-        } break;
-        case Module::Type::Conjunction: {
-          send_out = true;
-          m.high[src] = hi;
-          high_out = not ranges::all_of(m.high | views::values, std::identity{});
-        } break;
-        case Module::Type::Output: {
-        } break;
-      }
-
-      if (send_out) {
+      Module& m{modules.at(dst)};
+      if (auto [send_out, high_out]{m.compute_step(src, hi)}; send_out) {
         for (const auto& out : m.outputs) {
           q.push_back({
               .src = dst,
@@ -188,20 +146,69 @@ auto search(auto modules) {
   }
 
   auto part1{lo_count * hi_count};
-  auto part2{ranges::fold_left(cycle_lengths, 1UZ, [](auto lcm, auto len) {
+  auto part2{ranges::fold_left(cycle_lengths, 1UL, [](auto lcm, auto len) {
     return std::lcm(lcm, len);
   })};
 
   return std::pair{part1, part2};
 }
 
+std::istream& operator>>(std::istream& is, Module::Type& t) {
+  using Type = Module::Type;
+  auto ch{is.peek()};
+  switch (ch) {
+    case 'b': {
+      t = Type::Broadcaster;
+      return is;
+    } break;
+    case '%': {
+      if (is.get() == ch) {
+        t = Type::FlipFlop;
+        return is;
+      }
+    } break;
+    case '&': {
+      if (is.get() == ch) {
+        t = Type::Conjunction;
+        return is;
+      }
+    } break;
+  }
+  if (is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Module::Type");
+}
+
+std::istream& operator>>(std::istream& is, Module& m) {
+  if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
+    if (Module::Type type{}; ls >> type) {
+      if (std::string id; ls >> id and not id.empty()) {
+        if (ls >> std::ws >> skip("->"s)) {
+          const auto outputs{views::istream<std::string>(ls) | ranges::to<Strings>()};
+          m = {.type = type, .id = id, .outputs = outputs};
+          return is;
+        }
+      }
+    }
+  }
+  if (is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Module");
+}
+
+auto parse_input(std::string_view path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  return views::istream<Module>(is) | views::transform([](auto&& m) { return std::pair{m.id, m}; })
+         | ranges::to<Modules>();
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const auto modules{update_module_connections(parse_input(input))};
+  const auto modules{update_module_connections(parse_input("/dev/stdin"))};
   const auto [part1, part2] = search(modules);
-
   std::println("{} {}", part1, part2);
-
   return 0;
 }

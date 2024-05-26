@@ -1,8 +1,13 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using aoc::skip;
+using std::operator""s;
+using Vec2 = ndvec::vec2<int>;
 
 enum class Tile : char {
   garden = '.',
@@ -10,100 +15,28 @@ enum class Tile : char {
   start = 'S',
 };
 
-struct Grid2D {
-  std::vector<Tile> tiles;
-  std::size_t width{};
+struct Grid {
+  std::unordered_map<Vec2, Tile> tiles;
+  int width{};
 
-  std::size_t start_index() const {
-    return ranges::find(tiles, Tile::start) - ranges::begin(tiles);
-  }
-
-  void append_padding() {
-    tiles.append_range(views::repeat(Tile::rock, width));
-  }
-
-  std::array<std::size_t, 4> adjacent(const auto i) const {
-    return {i - width, i + 1, i + width, i - 1};
+  [[nodiscard]]
+  Tile get(const Vec2& p) const {
+    return tiles.contains(p) ? tiles.at(p) : Tile::rock;
   }
 };
 
-std::istream& operator>>(std::istream& is, Tile& tile) {
-  if (std::underlying_type_t<Tile> ch; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Tile::garden):
-      case std::to_underlying(Tile::rock):
-      case std::to_underlying(Tile::start):
-        tile = {ch};
-        return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Tile");
-}
-
-std::istream& operator>>(std::istream& is, Grid2D& grid) {
-  Grid2D g;
-  for (std::string line; std::getline(is, line) and not line.empty();) {
-    line.insert(line.begin(), std::to_underlying(Tile::rock));
-    line.insert(line.end(), std::to_underlying(Tile::rock));
-    if (not g.width) {
-      g.width = line.size();
-      g.append_padding();
-    } else if (line.size() != g.width) {
-      is.setstate(std::ios_base::failbit);
-      break;
-    }
-    std::istringstream ls{line};
-    g.tiles.append_range(views::istream<Tile>(ls));
-  }
-  if (g.width and not g.tiles.empty()) {
-    g.append_padding();
-    grid = g;
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Grid2D");
-}
-
-Grid2D parse_and_repeat(std::istream& is, const auto repeat_count) {
-  std::vector<std::string> lines;
-  for (std::string line; std::getline(is, line);) {
-    lines.push_back(line);
-  }
-  std::stringstream input;
-  const auto center{repeat_count / 2};
-  for (int r1{}; r1 < repeat_count; ++r1) {
-    for (const auto& original_line : lines) {
-      for (int r2{}; r2 < repeat_count; ++r2) {
-        auto line{original_line};
-        if (not(r1 == center and r2 == center)) {
-          ranges::replace(line, std::to_underlying(Tile::start), std::to_underlying(Tile::garden));
+auto visit_until_limit(const Vec2& start, const Grid& grid, const int limit) {
+  std::vector<std::vector<bool>> visited(limit + 1, std::vector<bool>(grid.tiles.size()));
+  for (std::deque q{std::pair{0, start}}; not q.empty(); q.pop_front()) {
+    if (auto [step, pos]{q.front()}; step <= limit) {
+      auto i{pos.y() * grid.width + pos.x()};
+      if (not visited.at(step).at(i)) {
+        visited.at(step).at(i) = true;
+        for (const Vec2& adj : pos.adjacent()) {
+          if (grid.get(adj) == Tile::garden) {
+            q.emplace_back(step + 1, adj);
+          }
         }
-        input << line;
-      }
-      input << "\n";
-    }
-  }
-  Grid2D grid;
-  input >> grid;
-  return grid;
-}
-
-auto visit_until_limit(const Grid2D& grid, const auto limit) {
-  const auto n{grid.tiles.size()};
-  std::vector<bool> visited((limit + 1) * n);
-  for (std::deque q{std::pair{0, grid.start_index()}}; not q.empty(); q.pop_front()) {
-    const auto& [step, index] = q.front();
-    if (step > limit or visited.at(step * n + index)) {
-      continue;
-    }
-    visited.at(step * n + index) = true;
-    for (const auto& adj : grid.adjacent(index)) {
-      if (grid.tiles.at(adj) == Tile::garden) {
-        q.push_back({step + 1, adj});
       }
     }
   }
@@ -118,7 +51,7 @@ auto lagrange_interpolation(const long x, const Input& xs, const Input& ys) {
   const auto basis{[=](const long x0, const long x1, const long x2) {
     return ((x - x1) * (x - x2)) / ((x0 - x1) * (x0 - x2));
   }};
-  const Input l = {
+  const Input l{
       basis(xs[0], xs[1], xs[2]),
       basis(xs[1], xs[0], xs[2]),
       basis(xs[2], xs[0], xs[1]),
@@ -126,11 +59,7 @@ auto lagrange_interpolation(const long x, const Input& xs, const Input& ys) {
   return std::inner_product(l.begin(), l.end(), ys.begin(), 0L);
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  const Grid2D grid{parse_and_repeat(input, 5)};
-
+auto search(Vec2 start, Grid grid) {
   constexpr auto diamond_size{65};
   constexpr auto total_steps{26501365};
   constexpr auto repeat_count{total_steps - diamond_size};
@@ -139,25 +68,79 @@ int main() {
   constexpr auto radius{repeat_count / cycle_length};
   static_assert(radius == 202300);
 
-  const auto visited{visit_until_limit(grid, diamond_size + 2 * cycle_length)};
-
-  const auto count_reachable{[n = grid.tiles.size(), &visited](const auto steps) {
-    auto include_start{steps % 2 == 0};
-    auto reachable{visited | views::drop(steps * n) | views::take(n)};
-    return include_start + ranges::count_if(reachable, std::identity{});
+  const auto reachable{visit_until_limit(start, grid, diamond_size + 2 * cycle_length)};
+  const auto count_reachable{[&reachable](int steps) {
+    return int{steps % 2 == 0} + ranges::count_if(reachable.at(steps), std::identity{});
   }};
 
-  const auto part1{count_reachable(64)};
+  Input xs{};
+  Input ys{};
+  for (int i{}; i < xs.size(); ++i) {
+    xs.at(i) = i;
+    ys.at(i) = count_reachable(diamond_size + i * cycle_length);
+  }
 
-  const Input xs = {0, 1, 2};
-  const Input ys = {
-      count_reachable(diamond_size + xs[0] * cycle_length),
-      count_reachable(diamond_size + xs[1] * cycle_length),
-      count_reachable(diamond_size + xs[2] * cycle_length),
+  return std::pair{
+      count_reachable(64),
+      lagrange_interpolation(radius, xs, ys),
   };
-  const auto part2{lagrange_interpolation(radius, xs, ys)};
+}
 
+auto repeat_grid(const auto& lines, const int n_repeats) {
+  std::vector<std::string> repeated;
+  const int center{n_repeats / 2};
+  for (int r1{}; r1 < n_repeats; ++r1) {
+    for (const std::string& original_line : lines) {
+      repeated.emplace_back();
+      for (int r2{}; r2 < n_repeats; ++r2) {
+        std::string line{original_line};
+        if (r1 != center or r2 != center) {
+          ranges::replace(line, std::to_underlying(Tile::start), std::to_underlying(Tile::garden));
+        }
+        repeated.back().append_range(line);
+      }
+    }
+  }
+  return repeated;
+}
+
+auto parse_input(std::string_view path) {
+  Grid g{};
+  std::optional<Vec2> start;
+  for (Vec2 p; const std::string& line : repeat_grid(aoc::slurp_lines(path), 5)) {
+    p.x() = 0;
+    for (char ch : line) {
+      switch (ch) {
+        case std::to_underlying(Tile::garden):
+        case std::to_underlying(Tile::rock):
+        case std::to_underlying(Tile::start):
+          g.tiles[p] = {ch};
+          break;
+        default:
+          throw std::runtime_error(std::format("unknown tile '{}'", ch));
+      }
+      if (g.tiles.at(p) == Tile::start) {
+        start = p;
+      }
+      p.x() += 1;
+    }
+    if (g.width == 0U) {
+      g.width = p.x();
+    } else if (g.width != p.x()) {
+      throw std::runtime_error("every row must be of equal length");
+    }
+    p.y() += 1;
+  }
+
+  if (not start) {
+    throw std::runtime_error("grid does not contain a start tile S");
+  }
+  return std::pair{start.value(), g};
+}
+
+int main() {
+  const auto [start, grid]{parse_input("/dev/stdin")};
+  const auto [part1, part2]{search(start, grid)};
   std::println("{} {}", part1, part2);
-
   return 0;
 }

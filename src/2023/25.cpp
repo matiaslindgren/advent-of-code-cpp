@@ -12,8 +12,8 @@ struct Graph {
   using EdgeMap = std::unordered_map<std::string, std::unordered_map<std::string, Weight>>;
 
   std::size_t size{};
-  std::vector<std::vector<Weight>> edges{};
-  std::vector<std::unordered_set<Node>> adjacent{};
+  std::vector<std::vector<Weight>> edges;
+  std::vector<std::unordered_set<Node>> adjacent;
 
   explicit Graph() = default;
 
@@ -49,31 +49,11 @@ struct Graph {
     adjacent[n1].erase(n2);
   }
 
+  [[nodiscard]]
   auto nodes() const {
     return views::iota(Node{}, size) | ranges::to<std::vector>();
   }
 };
-
-std::istream& operator>>(std::istream& is, Graph& graph) {
-  Graph::EdgeMap edges;
-  for (std::string line; std::getline(is, line) and not line.empty();) {
-    std::istringstream ls{line};
-    if (std::string lhs; ls >> lhs and lhs.ends_with(":"s)) {
-      lhs.pop_back();
-      for (auto rhs : views::istream<std::string>(ls)) {
-        edges[lhs][rhs] = edges[rhs][lhs] = Graph::Weight{1};
-      }
-    } else {
-      is.setstate(std::ios_base::failbit);
-      break;
-    }
-  }
-  if (is.eof() and not edges.empty()) {
-    graph = Graph{edges};
-    return is;
-  }
-  throw std::runtime_error("failed parsing Graph");
-}
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
@@ -156,15 +136,30 @@ auto find_part1(Graph graph) {
   return best_cut * (graph_size - best_cut);
 }
 
+Graph parse_graph(std::string_view path) {
+  Graph::EdgeMap edges;
+  std::istringstream input{aoc::slurp_file(path)};
+  for (std::string line; std::getline(input, line) and not line.empty();) {
+    std::istringstream ls{line};
+    if (std::string lhs; ls >> lhs and lhs.ends_with(":"s)) {
+      lhs.pop_back();
+      for (const std::string& rhs : views::istream<std::string>(ls)) {
+        edges[lhs][rhs] = edges[rhs][lhs] = Graph::Weight{1};
+      }
+    }
+    if (not ls.eof()) {
+      throw std::runtime_error(std::format("failed parsing line '{}'", line));
+    }
+  }
+  if (edges.empty()) {
+    throw std::runtime_error("failed parsing Graph");
+  }
+  return Graph(edges);
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-
-  Graph graph;
-  input >> graph;
-
-  const auto part1{find_part1(graph)};
-
+  Graph g{parse_graph("/dev/stdin")};
+  const auto part1{find_part1(g)};
   std::print("{}\n", part1);
-
   return 0;
 }

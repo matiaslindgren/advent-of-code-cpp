@@ -1,8 +1,11 @@
 #include "aoc.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
 
 enum class Tile : char {
   forest = '#',
@@ -13,72 +16,47 @@ enum class Tile : char {
   left = '<',
 };
 
-std::istream& operator>>(std::istream& is, Tile& tile) {
-  if (std::underlying_type_t<Tile> ch; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Tile::forest):
-      case std::to_underlying(Tile::ground):
-      case std::to_underlying(Tile::up):
-      case std::to_underlying(Tile::right):
-      case std::to_underlying(Tile::down):
-      case std::to_underlying(Tile::left):
-        tile = {ch};
-        return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Tile");
-}
+struct Grid {
+  std::unordered_map<Vec2, Tile> tiles;
+  int width{};
+  int height{};
 
-struct Grid2D {
-  std::vector<Tile> tiles;
-  std::size_t width{};
-  std::size_t height{};
-
-  auto start_index() const {
-    return width + 2;
-  }
-  auto end_index() const {
-    return (width - 1) * height - 3;
+  [[nodiscard]]
+  Tile get(const Vec2& p) const {
+    return tiles.contains(p) ? tiles.at(p) : Tile::forest;
   }
 
-  void append_padding() {
-    tiles.append_range(views::repeat(Tile::forest, width));
-    ++height;
-  }
-
-  auto adjacent(const auto i) const {
-    std::vector<std::size_t> adj;
-    const auto t{tiles.at(i)};
+  [[nodiscard]]
+  auto adjacent(const Vec2& p) const {
+    std::vector<Vec2> adj;
+    Tile t{get(p)};
     if (t == Tile::ground or t == Tile::up) {
-      adj.push_back(i - width);
+      adj.push_back(p - Vec2(0, 1));
     }
     if (t == Tile::ground or t == Tile::right) {
-      adj.push_back(i + 1);
+      adj.push_back(p + Vec2(1, 0));
     }
     if (t == Tile::ground or t == Tile::down) {
-      adj.push_back(i + width);
+      adj.push_back(p + Vec2(0, 1));
     }
     if (t == Tile::ground or t == Tile::left) {
-      adj.push_back(i - 1);
+      adj.push_back(p - Vec2(1, 0));
     }
     return adj;
   }
 
+  [[nodiscard]]
   auto compress_edges() const {
-    std::unordered_map<std::size_t, std::unordered_map<std::size_t, int>> edges;
-    for (std::vector q{start_index()}; not q.empty();) {
-      const auto src{q.back()};
+    std::unordered_map<Vec2, std::unordered_map<Vec2, int>> edges;
+    for (std::vector q{Vec2(1, 0)}; not q.empty();) {
+      Vec2 src{q.back()};
       q.pop_back();
-      for (const auto& dst : adjacent(src)) {
-        if (tiles.at(dst) == Tile::forest) {
-          continue;
-        }
-        if (not edges[src].contains(dst)) {
-          edges[src][dst] = 1;
-          q.push_back(dst);
+      for (Vec2 dst : adjacent(src)) {
+        if (get(dst) != Tile::forest) {
+          if (not edges[src].contains(dst)) {
+            edges[src][dst] = 1;
+            q.push_back(dst);
+          }
         }
       }
     }
@@ -86,64 +64,41 @@ struct Grid2D {
     while (true) {
       const auto redundant_node{ranges::find_if(edges, has_2_edges)};
       if (redundant_node == edges.end()) {
-        return edges;
+        break;
       }
-      const auto [node, adj] = *redundant_node;
+      const auto [node, adj]{*redundant_node};
       auto it{adj.begin()};
-      const auto [adj1, dist1] = *it;
-      const auto [adj2, dist2] = *(++it);
+      const auto [adj1, dist1]{*it};
+      const auto [adj2, dist2]{*(++it)};
       edges[adj1][adj2] = edges[adj2][adj1] = dist1 + dist2;
       edges[adj1].erase(node);
       edges[adj2].erase(node);
       edges.erase(node);
     }
+    return edges;
   }
 };
 
-std::istream& operator>>(std::istream& is, Grid2D& grid) {
-  Grid2D g;
-  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
-    line.insert(line.begin(), std::to_underlying(Tile::forest));
-    line.insert(line.end(), std::to_underlying(Tile::forest));
-    if (not g.width) {
-      g.width = line.size();
-      g.append_padding();
-    } else if (line.size() != g.width) {
-      is.setstate(std::ios_base::failbit);
-      break;
-    }
-    std::istringstream ls{line};
-    g.tiles.append_range(views::istream<Tile>(ls));
-  }
-  if (g.width and g.height) {
-    g.append_padding();
-    grid = g;
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Grid");
-}
-
 struct Graph {
-  std::unordered_map<std::size_t, std::size_t> nodes;
-  std::vector<std::vector<std::pair<std::size_t, int>>> edges;
+  using Node = std::size_t;
+  std::unordered_map<Vec2, Node> node_ids;
+  std::vector<std::vector<std::pair<Node, int>>> edges;
 
-  explicit Graph(const Grid2D& grid) {
+  explicit Graph(const Grid& grid) {
     const auto all_edges{grid.compress_edges()};
-    nodes = views::zip(all_edges | views::keys, views::iota(0UZ, all_edges.size()))
-            | ranges::to<std::unordered_map>();
-    edges.resize(nodes.size());
+    node_ids = views::zip(all_edges | views::keys, views::iota(Node{0}, all_edges.size()))
+               | ranges::to<std::unordered_map>();
+    edges.resize(node_ids.size());
     for (const auto& [node1, adjacent] : all_edges) {
       for (const auto& [node2, dist] : adjacent) {
-        edges[nodes.at(node1)].emplace_back(nodes.at(node2), dist);
+        edges[node_ids.at(node1)].emplace_back(node_ids.at(node2), dist);
       }
     }
   }
 };
 
-template <std::size_t max_node_count>
-auto find_longest_path(const Grid2D& grid) {
+template <unsigned max_node_count>
+auto find_longest_path(const Grid& grid) {
   Graph graph(grid);
 
   if (graph.edges.size() > max_node_count) {
@@ -151,50 +106,49 @@ auto find_longest_path(const Grid2D& grid) {
   }
 
   struct State {
-    std::size_t current;
+    Graph::Node current{};
     int distance{};
     std::bitset<max_node_count> visited{};
   };
 
-  const auto start{graph.nodes.at(grid.start_index())};
-  const auto end{graph.nodes.at(grid.end_index())};
+  const Graph::Node start{graph.node_ids.at(Vec2(1, 0))};
+  const Graph::Node end{graph.node_ids.at(Vec2(grid.width - 2, grid.height - 1))};
   int max_dist{};
 
   for (std::vector q{State{.current = start}}; not q.empty();) {
-    auto [curr, dist_total, visited] = q.back();
+    auto [curr, dist_total, visited]{q.back()};
     q.pop_back();
     if (curr == end) {
       max_dist = std::max(max_dist, dist_total);
       continue;
     }
-    if (visited[curr]) {
-      continue;
-    }
-    visited[curr] = true;
-    for (const auto& [next, dist] : graph.edges.at(curr)) {
-      q.push_back(State{
-          .current = next,
-          .distance = dist_total + dist,
-          .visited = visited,
-      });
+    if (not visited.test(curr)) {
+      visited.set(curr);
+      for (auto&& [next, dist] : graph.edges.at(curr)) {
+        q.push_back(State{
+            .current = next,
+            .distance = dist_total + dist,
+            .visited = visited,
+        });
+      }
     }
   }
 
   return max_dist;
 }
 
-auto find_part1(const Grid2D& grid) {
+auto find_part1(const Grid& grid) {
   return find_longest_path<128>(grid);
 }
 
-auto find_part2(Grid2D grid) {
-  for (auto& tile : grid.tiles) {
-    switch (tile) {
+auto find_part2(Grid grid) {
+  for (Tile& t : grid.tiles | views::values) {
+    switch (t) {
       case Tile::up:
       case Tile::right:
       case Tile::down:
       case Tile::left:
-        tile = Tile::ground;
+        t = Tile::ground;
       default:
         break;
     }
@@ -202,14 +156,42 @@ auto find_part2(Grid2D grid) {
   return find_longest_path<36>(grid);
 }
 
+auto parse_grid(std::string_view path) {
+  Grid g{};
+  Vec2 p;
+  for (const std::string& line : aoc::slurp_lines(path)) {
+    p.x() = 0;
+    for (char ch : line) {
+      switch (ch) {
+        case std::to_underlying(Tile::forest):
+        case std::to_underlying(Tile::ground):
+        case std::to_underlying(Tile::up):
+        case std::to_underlying(Tile::right):
+        case std::to_underlying(Tile::down):
+        case std::to_underlying(Tile::left):
+          g.tiles[p] = {ch};
+          break;
+        default:
+          throw std::runtime_error(std::format("unknown tile '{}'", ch));
+      }
+      p.x() += 1;
+    }
+    if (g.width == 0) {
+      g.width = p.x();
+    } else if (g.width != p.x()) {
+      throw std::runtime_error("every row must be of equal length");
+    }
+    p.y() += 1;
+  }
+  g.height = p.y();
+  return g;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const Grid g{parse_grid("/dev/stdin")};
 
-  Grid2D grid;
-  input >> grid;
-
-  const auto part1{find_part1(grid)};
-  const auto part2{find_part2(grid)};
+  const auto part1{find_part1(g)};
+  const auto part2{find_part2(g)};
 
   std::println("{} {}", part1, part2);
 

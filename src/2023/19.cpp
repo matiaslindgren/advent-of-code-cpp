@@ -2,15 +2,24 @@
 #include "my_std.hpp"
 #include "std.hpp"
 
-using std::operator""s;
-
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using std::operator""s;
+using aoc::skip;
+
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0UL, std::plus{})};
+constexpr auto product{std::__bind_back(ranges::fold_left, 1UL, std::multiplies{})};
+
+enum struct Comparison : char {
+  less = '<',
+  greater = '>',
+};
+
 struct Rule {
-  std::size_t i;
-  char op;
-  unsigned rhs;
+  std::size_t i{};
+  Comparison comp{};
+  unsigned rhs{};
   std::string next;
 };
 
@@ -19,119 +28,36 @@ struct Workflow {
   std::vector<Rule> rules;
 };
 
-using Rating = std::array<unsigned, 4>;
+struct Rating {
+  std::array<unsigned, 4> xmas{};
+
+  [[nodiscard]]
+  auto combination_count(const Rating& rhs) const {
+    return product(views::transform(
+        views::zip(xmas, rhs.xmas),
+        my_std::apply_fn([](auto lo, auto up) { return up - lo - 1; })
+    ));
+  }
+
+  bool operator<(const Rating& rhs) const {
+    return ranges::all_of(views::zip(xmas, rhs.xmas), my_std::apply_fn(std::less{}));
+  }
+};
 
 struct RatingBound {
   Rating lower{{0, 0, 0, 0}};
   Rating upper{{4001, 4001, 4001, 4001}};
 
-  constexpr bool contains(const Rating& r) const {
-    auto less{my_std::apply_fn(ranges::less{})};
-    return ranges::all_of(views::zip(lower, r), less)
-           and ranges::all_of(views::zip(r, upper), less);
+  [[nodiscard]]
+  bool contains(const Rating& r) const {
+    return lower < r and r < upper;
   }
 
-  constexpr auto combination_count() const {
-    return ranges::fold_left(
-        views::zip(lower, upper)
-            | views::transform(my_std::apply_fn([](auto&& lo, auto&& up) { return up - lo - 1; })),
-        1UZ,
-        std::multiplies{}
-    );
+  [[nodiscard]]
+  auto combination_count() const {
+    return lower.combination_count(upper);
   }
 };
-
-std::istream& operator>>(std::istream& is, Rule& rule) {
-  if (std::string line; std::getline(is, line, ',') and not line.empty()) {
-    if (not line.contains(':')) {
-      line = "x<4001:" + line;
-    }
-    ranges::replace(line, ':', ' ');
-    std::istringstream ls{line};
-    if (char var; ls >> var and "xmas"s.contains(var)) {
-      const auto i{var == 'x' ? 0u : var == 'm' ? 1u : var == 'a' ? 2u : 3u};
-      if (char op; ls >> op and "<>"s.contains(op)) {
-        if (unsigned rhs; ls >> rhs) {
-          if (std::string next; ls >> next) {
-            rule = {i, op, rhs, next};
-            return is;
-          }
-        }
-      }
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Rule");
-}
-
-std::istream& operator>>(std::istream& is, Workflow& workflow) {
-  if (std::string line; std::getline(is, line) and not line.empty()) {
-    ranges::replace(line, '{', ' ');
-    ranges::replace(line, '}', ' ');
-    std::istringstream ls{line};
-    if (std::string id; ls >> id) {
-      workflow = {
-          .id = id,
-          .rules = views::istream<Rule>(ls) | ranges::to<std::vector>(),
-      };
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Workflow");
-}
-
-auto parse_workflows(std::istream& is) {
-  std::unordered_map<std::string, Workflow> workflows;
-  for (std::string line; std::getline(is, line) and not line.empty();) {
-    std::istringstream ls{line};
-    if (Workflow wf; ls >> wf) {
-      workflows[wf.id] = wf;
-    } else {
-      is.setstate(std::ios_base::failbit);
-    }
-  }
-  if (is or is.eof()) {
-    return workflows;
-  }
-  throw std::runtime_error("failed parsing workflows");
-}
-
-auto parse_ratings(std::istream& is) {
-  using aoc::skip;
-  std::vector<Rating> ratings;
-  for (std::string line; std::getline(is, line) and not line.empty();) {
-    std::istringstream ls{line};
-    if (ls >> skip("{"s)) {
-      if (unsigned x, m, a, s;
-          ls >> skip("x="s) >> x >> skip(",m="s) >> m >> skip(",a="s) >> a >> skip(",s="s) >> s) {
-        if (ls >> skip("}"s)) {
-          ratings.push_back({x, m, a, s});
-        }
-      }
-    }
-    if (not ls) {
-      throw std::runtime_error("failed parsing Rating");
-    }
-  }
-  if (is or is.eof()) {
-    return ratings;
-  }
-  throw std::runtime_error("failed parsing ratings");
-}
-
-auto parse_input(std::istream& is) {
-  auto workflows{parse_workflows(is)};
-  auto ratings{parse_ratings(is)};
-  if (is.eof()) {
-    return std::pair(workflows, ratings);
-  }
-  throw std::runtime_error("failed parsing input");
-}
 
 auto find_bounds(const auto& workflows) {
   std::vector<RatingBound> bounds;
@@ -150,12 +76,15 @@ auto find_bounds(const auto& workflows) {
       const auto rhs{rule.rhs};
       auto branch_true{bound};
       auto branch_false{bound};
-      if (rule.op == '<') {
-        branch_true.upper[i] = std::min(branch_true.upper[i], rhs);
-        branch_false.lower[i] = std::max(branch_false.lower[i], rhs - 1);
-      } else {
-        branch_true.lower[i] = std::max(branch_true.lower[i], rhs);
-        branch_false.upper[i] = std::min(branch_false.upper[i], rhs + 1);
+      switch (rule.comp) {
+        case Comparison::less: {
+          branch_true.upper.xmas.at(i) = std::min(branch_true.upper.xmas.at(i), rhs);
+          branch_false.lower.xmas.at(i) = std::max(branch_false.lower.xmas.at(i), rhs - 1);
+        } break;
+        case Comparison::greater: {
+          branch_true.lower.xmas.at(i) = std::max(branch_true.lower.xmas.at(i), rhs);
+          branch_false.upper.xmas.at(i) = std::min(branch_false.upper.xmas.at(i), rhs + 1);
+        } break;
       }
       q.emplace_back(branch_true, rule.next, 0UZ);
       q.emplace_back(branch_false, workflow, i_rule + 1);
@@ -164,17 +93,15 @@ auto find_bounds(const auto& workflows) {
   return bounds;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0UZ, std::plus{})};
-
 auto find_part1(const auto& bounds, const auto& ratings) {
   return sum(
       views::filter(
           ratings,
-          [&](const auto& r) {
-            return ranges::any_of(bounds, [&r](const auto& b) { return b.contains(r); });
+          [&](const Rating& r) {
+            return ranges::any_of(bounds, [&r](const RatingBound& b) { return b.contains(r); });
           }
       )
-      | views::transform([](const auto& r) { return sum(r); })
+      | views::transform([&](const Rating& r) { return sum(r.xmas); })
   );
 }
 
@@ -182,9 +109,118 @@ auto find_part2(const auto& bounds) {
   return sum(views::transform(bounds, [](const auto& b) { return b.combination_count(); }));
 }
 
+enum struct Variable : unsigned char {
+  x = 0,
+  m,
+  a,
+  s,
+};
+
+std::istream& operator>>(std::istream& is, Variable& var) {
+  if (char ch{}; is >> ch) {
+    switch (ch) {
+      case 'x': {
+        var = Variable::x;
+      } break;
+      case 'm': {
+        var = Variable::m;
+      } break;
+      case 'a': {
+        var = Variable::a;
+      } break;
+      case 's': {
+        var = Variable::s;
+      } break;
+      default:
+        throw std::runtime_error(std::format("unknown variable '{}'", ch));
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Comparison& comp) {
+  if (char ch{}; is >> ch) {
+    if ("<>"s.contains(ch)) {
+      comp = {ch};
+    } else {
+      throw std::runtime_error(std::format("unknown comparison '{}'", ch));
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Rule& rule) {
+  if (std::string line; std::getline(is, line, ',') and not line.empty()) {
+    if (not line.contains(':')) {
+      line = "x<4001:" + line;
+    }
+    ranges::replace(line, ':', ' ');
+    std::istringstream ls{line};
+    if (auto [var, comp, rhs, next]{std::tuple{Variable{}, Comparison{}, 0U, ""s}};
+        ls >> var >> comp >> rhs >> next) {
+      rule = {std::to_underlying(var), comp, rhs, next};
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Workflow& workflow) {
+  if (std::string line; std::getline(is, line) and not line.empty()) {
+    ranges::replace(line, '{', ' ');
+    ranges::replace(line, '}', ' ');
+    std::istringstream ls{line};
+    if (std::string id; ls >> id) {
+      workflow = {
+          .id = id,
+          .rules = views::istream<Rule>(ls) | ranges::to<std::vector>(),
+      };
+      return is;
+    }
+  }
+  throw std::runtime_error("failed parsing Workflow");
+}
+
+std::istream& operator>>(std::istream& is, Rating& r) {
+  if (unsigned x{}, m{}, a{}, s{}; is >> std::ws >> skip("{"s) >> skip("x="s) >> x >> skip(",m="s)
+                                   >> m >> skip(",a="s) >> a >> skip(",s="s) >> s >> skip("}"s)) {
+    std::array xmas{x, m, a, s};
+    if (0 <= ranges::min(xmas) and ranges::max(xmas) <= 4001) {
+      r.xmas = xmas;
+    } else {
+      throw std::runtime_error("all xmas values must be in [0, 4001]");
+    }
+  } else if (not is.eof()) {
+    throw std::runtime_error("failed parsing Rating");
+  }
+  return is;
+}
+
+auto parse_input(std::string_view path) {
+  std::istringstream is{aoc::slurp_file(path)};
+
+  std::unordered_map<std::string, Workflow> workflows;
+  for (std::string line; std::getline(is, line) and not line.empty();) {
+    std::istringstream ls{line};
+    if (Workflow wf; ls >> wf) {
+      workflows[wf.id] = wf;
+    } else {
+      throw std::runtime_error(std::format("failed parsing workflow from line '{}'", line));
+    }
+  }
+  if (is.eof()) {
+    throw std::runtime_error("input is missing the ratings section");
+  }
+
+  auto ratings{views::istream<Rating>(is) | ranges::to<std::vector>()};
+
+  if (is.eof()) {
+    return std::pair{workflows, ratings};
+  }
+  throw std::runtime_error("failed parsing input");
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto [workflows, ratings]{parse_input(input)};
+  const auto [workflows, ratings]{parse_input("/dev/stdin")};
 
   const auto bounds{find_bounds(workflows)};
 

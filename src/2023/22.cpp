@@ -5,16 +5,20 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
 using Vec3 = ndvec::vec3<int>;
 
 struct Brick {
-  Vec3 begin, end;
+  Vec3 begin;
+  Vec3 end;
   std::size_t index{};
 
+  [[nodiscard]]
   bool intersects(const Brick& rhs) const {
-    const auto x{begin.x() < rhs.end.x() and rhs.begin.x() < end.x()};
-    const auto y{begin.y() < rhs.end.y() and rhs.begin.y() < end.y()};
-    const auto z{begin.z() < rhs.end.z() and rhs.begin.z() < end.z()};
+    bool x{begin.x() < rhs.end.x() and rhs.begin.x() < end.x()};
+    bool y{begin.y() < rhs.end.y() and rhs.begin.y() < end.y()};
+    bool z{begin.z() < rhs.end.z() and rhs.begin.z() < end.z()};
     return x and y and z;
   }
 };
@@ -52,23 +56,6 @@ struct SupportGraph {
   }
 };
 
-std::istream& operator>>(std::istream& is, Brick& brick) {
-  using aoc::skip;
-  using std::operator""s;
-  if (std::string line; std::getline(is, line)) {
-    ranges::replace(line, ',', ' ');
-    std::istringstream ls{line};
-    if (Vec3 begin, end; ls >> begin >> skip("~"s) >> end) {
-      brick = {begin, end + Vec3(1, 1, 1)};
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Brick");
-}
-
 auto find_part1(const SupportGraph& sg) {
   return ranges::count_if(sg.bricks, [&sg](const Brick& b1) {
     return ranges::all_of(sg.supporting.at(b1.index), [&sg](const auto& b2) {
@@ -101,10 +88,21 @@ auto find_part2(const SupportGraph& sg) {
   }));
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+std::istream& operator>>(std::istream& is, Brick& brick) {
+  if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
+    if (Vec3 begin, end; ls >> begin >> skip("~"s) >> end) {
+      brick = {begin, end + Vec3(1, 1, 1)};
+    } else {
+      throw std::runtime_error(std::format("failed parsing Brick from line '{}'", line));
+    }
+  }
+  return is;
+}
 
-  const SupportGraph sg{views::istream<Brick>(input) | ranges::to<std::vector>()};
+int main() {
+  const SupportGraph sg{aoc::parse_items<Brick>("/dev/stdin")};
 
   const auto part1{find_part1(sg)};
   const auto part2{find_part2(sg)};

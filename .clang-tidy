@@ -18,7 +18,8 @@ Checks: >
   -readability-named-parameter,
   -performance-unnecessary-value-param,
   -bugprone-easily-swappable-parameters,
-  -readability-qualified-auto
+  -readability-qualified-auto,
+  -bugprone-unchecked-optional-access
 WarningsAsErrors: '*'
 FormatStyle: none
 HeaderFilterRegex: ''

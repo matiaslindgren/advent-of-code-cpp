@@ -15,35 +15,25 @@ constexpr auto max_coord{400000000000000L};
 constexpr auto distance_epsilon{20.0};
 
 struct Stone {
-  Vec3 p, v;
+  Vec3 p;
+  Vec3 v;
 
+  [[nodiscard]]
   auto slope() const {
     return v.y() / v.x();
   }
 
+  [[nodiscard]]
   auto intersect() const {
     return p.y() - slope() * p.x();
   }
 
+  [[nodiscard]]
   auto is_past_point(const Vec3& pp) const {
-    return v.x() * (pp.x() - p.x()) < 0 or v.y() * (pp.y() - p.y()) < 0;
+    Vec3 t{v * (pp - p)};
+    return t.x() < 0 or t.y() < 0;
   }
 };
-
-std::istream& operator>>(std::istream& is, Stone& stone) {
-  if (std::string line; std::getline(is, line)) {
-    ranges::replace(line, ',', ' ');
-    std::istringstream ls{line};
-    if (Vec3 p, v; ls >> p >> std::ws >> skip("@"s) >> v) {
-      stone = {p, v};
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Stone");
-}
 
 bool is_inside_square(const Vec3& v, const auto lo, const auto hi) {
   return lo <= std::min(v.x(), v.y()) and std::max(v.x(), v.y()) <= hi;
@@ -74,9 +64,8 @@ auto find_part1(const auto& stones) {
 }
 
 auto infer_collision_time(const Vec3& p, const Stone& s) {
-  const auto tx{(p.x() - s.p.x()) / s.v.x()};
-  const auto ty{(p.y() - s.p.y()) / s.v.y()};
-  return std::min(std::abs(tx), std::abs(ty));
+  Vec3 t{((p - s.p) / s.v).abs()};
+  return std::min(t.x(), t.y());
 }
 
 auto find_part2(const auto& stones) {
@@ -111,12 +100,23 @@ auto find_part2(const auto& stones) {
   throw std::runtime_error("search space exhausted");
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+std::istream& operator>>(std::istream& is, Stone& stone) {
+  if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
+    if (Vec3 p, v; ls >> p >> std::ws >> skip("@"s) >> v) {
+      stone = {p, v};
+    } else {
+      throw std::runtime_error(std::format("failed parsing Stone from line '{}'", line));
+    }
+  }
+  return is;
+}
 
-  const auto stones{views::istream<Stone>(input) | ranges::to<std::vector>()};
+int main() {
+  const auto stones{aoc::parse_items<Stone>("/dev/stdin")};
   if (stones.size() < 3) {
-    throw std::runtime_error("too few hailstones in input");
+    throw std::runtime_error("input must contain at least 3 hailstones");
   }
 
   const auto part1{find_part1(stones)};

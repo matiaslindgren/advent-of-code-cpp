@@ -1,122 +1,93 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
-
-using std::operator""s;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum class Direction : char {
-  right = 'R',
-  down = 'D',
-  left = 'L',
-  up = 'U',
-};
-
-std::istream& operator>>(std::istream& is, Direction& dir) {
-  if (std::underlying_type_t<Direction> ch; is >> ch) {
-    if ('0' <= ch and ch <= '3') {
-      ch = "RDLU"s[ch - '0'];
-    }
-    switch (ch) {
-      case std::to_underlying(Direction::right):
-      case std::to_underlying(Direction::down):
-      case std::to_underlying(Direction::left):
-      case std::to_underlying(Direction::up):
-        dir = {ch};
-        return is;
-      default:
-        is.setstate(std::ios_base::failbit);
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Direction");
-}
+using aoc::skip;
+using std::operator""s;
+using Vec2 = ndvec::vec2<long>;
 
 struct Step {
-  Direction dir;
-  int len;
-};
-using Steps = std::pair<Step, Step>;
+  Vec2 delta;
 
-std::istream& operator>>(std::istream& is, Steps& steps) {
-  using aoc::skip;
-  if (auto [dir1, len1, colour] = std::tuple{Direction{}, int{}, ""s};
-      is >> dir1 >> len1 >> colour) {
-    std::istringstream ls{colour};
-    int len2{};
-    if (ls >> skip("(#"s)) {
-      for (char i{}, ch; i < 5 and ls >> ch; ++i) {
-        len2 = 16 * len2 + std::stoi(""s + ch, nullptr, 16);
-      }
-      if (Direction dir2; ls >> dir2 >> skip(")"s)) {
-        steps = {{dir1, len1}, {dir2, len2}};
-        return is;
-      }
+  Step() = default;
+  explicit Step(char direction, int length) {
+    switch (direction) {
+      case '0':
+      case 'R': {
+        delta = Vec2(length, 0);
+      } break;
+      case '1':
+      case 'D': {
+        delta = Vec2(0, length);
+      } break;
+      case '2':
+      case 'L': {
+        delta = Vec2(-length, 0);
+      } break;
+      case '3':
+      case 'U': {
+        delta = Vec2(0, -length);
+      } break;
+      default:
+        throw std::runtime_error(std::format("unknown direction '{}'", direction));
     }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Steps");
-}
-
-struct Point2D {
-  using Int = long;
-  Int x;
-  Int y;
-  constexpr Point2D operator+(const Point2D& rhs) const {
-    return {x + rhs.x, y + rhs.y};
   }
 };
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
 
 // TODO (llvm19?) ranges::adjacent
-constexpr decltype(auto) window2(ranges::range auto&& r) {
+decltype(auto) window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }
 
+auto trapezoid_area(const Vec2& p1, const Vec2& p2) {
+  return (p1.y() + p2.y()) * (p1.x() - p2.x());
+}
+
 auto dig(ranges::view auto&& steps) {
-  std::vector trench{{Point2D{}}};
-  auto trench_len{0UZ};
-  for (const auto& step : steps) {
-    Point2D delta{};
-    switch (step.dir) {
-      case Direction::right: {
-        delta.x += step.len;
-      } break;
-      case Direction::down: {
-        delta.y += step.len;
-      } break;
-      case Direction::left: {
-        delta.x -= step.len;
-      } break;
-      case Direction::up: {
-        delta.y -= step.len;
-      } break;
-    }
-    trench.push_back(trench.back() + delta);
-    trench_len += step.len;
+  std::vector trench{Vec2()};
+  long trench_len{};
+  for (const Step& s : steps) {
+    trench.push_back(trench.back() + s.delta);
+    trench_len += s.delta.abs().sum();
   }
-  const auto trapezoid_area{[](const auto& p1, const auto& p2) {
-    return (p1.y + p2.y) * (p1.x - p2.x);
-  }};
   const auto areas{views::transform(window2(trench), my_std::apply_fn(trapezoid_area))};
   const auto trench_area{std::abs(sum(areas)) / 2};
   return trench_len / 2 + trench_area + 1;
 }
 
+using StepsPair = std::pair<Step, Step>;
+
+std::istream& operator>>(std::istream& is, StepsPair& sp) {
+  if (auto [dir1, len1, colour]{std::tuple{char{}, int{}, ""s}};
+      is >> std::ws >> dir1 >> len1 >> colour) {
+    std::istringstream ls{colour};
+    int len2{};
+    if (ls >> skip("(#"s)) {
+      for (char i{}, ch{}; i < 5 and ls >> ch; ++i) {
+        len2 = 16 * len2 + std::stoi(""s + ch, nullptr, 16);
+      }
+      if (char dir2{}; ls >> dir2 >> skip(")"s) >> std::ws) {
+        sp = {Step(dir1, len1), Step(dir2, len2)};
+      }
+    }
+    if (not ls.eof()) {
+      throw std::runtime_error("failed parsing StepsPair");
+    }
+  }
+  return is;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto step_pairs{aoc::parse_items<StepsPair>("/dev/stdin")};
 
-  const auto steps{views::istream<Steps>(input) | ranges::to<std::vector>()};
-
-  const auto part1{dig(views::elements<0>(steps))};
-  const auto part2{dig(views::elements<1>(steps))};
+  const auto part1{dig(views::elements<0>(step_pairs))};
+  const auto part2{dig(views::elements<1>(step_pairs))};
 
   std::println("{} {}", part1, part2);
 
