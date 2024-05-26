@@ -23,7 +23,7 @@ auto bidirectional_iota(Int begin, Int end) {
 }
 
 struct Grid {
-  std::map<Vec2, Tile> tiles;
+  std::unordered_map<Vec2, Tile> tiles;
   int width{};
   int height{};
 
@@ -76,7 +76,9 @@ struct Grid {
     return l;
   }
 
-  auto operator<=>(const Grid&) const = default;
+  bool operator==(const Grid& rhs) const {
+    return tiles == rhs.tiles;
+  }
 
  private:
   [[nodiscard]]
@@ -108,20 +110,21 @@ auto find_part1(Grid g) {
 auto find_part2(Grid g1) {
   Grid g2{g1};
 
-  std::set<Grid> seen;
-  while (not seen.contains(g2)) {
-    seen.insert(g2);
+  std::vector<Grid> seen;
+  while (not ranges::contains(seen, g2)) {
+    seen.push_back(g2);
     g2.cycle();
   }
 
+  auto tail_size{seen.size()};
   std::vector<Grid> repeating;
   for (g1 = g2; repeating.empty() or g2 != g1;) {
-    seen.erase(g1);
+    tail_size -= 1;
     repeating.push_back(g1);
     g1.cycle();
   }
 
-  g1 = repeating.at((1'000'000'000UZ - seen.size()) % repeating.size());
+  g1 = repeating.at((1'000'000'000UZ - tail_size) % repeating.size());
   return g1.load();
 }
 
