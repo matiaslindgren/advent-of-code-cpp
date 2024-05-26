@@ -5,86 +5,92 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Instruction {
-  enum class Type {
+  enum class Type : unsigned char {
     rect,
     rotate_row,
     rotate_col,
-  } type;
-  int a;
-  int b;
+  } type{};
+  int a{};
+  int b{};
 };
 
 std::istream& operator>>(std::istream& is, Instruction::Type& ins_type) {
   using Type = Instruction::Type;
+  bool ok{false};
   if (std::string type; is >> type) {
     if (type == "rect") {
       ins_type = Type::rect;
-      return is;
-    }
-    if (type == "rotate" and is >> type) {
+      ok = true;
+    } else if (type == "rotate" and is >> type) {
       if (type == "row") {
         ins_type = Type::rotate_row;
-        return is;
-      }
-      if (type == "column") {
+        ok = true;
+      } else if (type == "column") {
         ins_type = Type::rotate_col;
-        return is;
+        ok = true;
       }
     }
   }
-  if (is.eof()) {
-    return is;
+  if (not is.eof() and not ok) {
+    throw std::runtime_error("failed parsing Instruction::Type");
   }
-  throw std::runtime_error("failed parsing Instruction::Type");
+  return is;
 }
 
 std::istream& operator>>(std::istream& is, Instruction& ins) {
   using Type = Instruction::Type;
-  if (Type type; is >> type) {
+  bool ok{false};
+  if (Type type{}; is >> type) {
     switch (type) {
       case Type::rect: {
-        if (int a, b; is >> a and is.ignore(1, 'x') and is >> b) {
+        if (int a{}, b{}; is >> a >> skip("x"s) >> b) {
           ins = {type, a, b};
-          return is;
+          ok = true;
         }
       } break;
-      case Type::rotate_row:
+      case Type::rotate_row: {
+        if (int y{}, by{}; is >> std::ws >> skip("y="s) >> y >> std::ws >> skip("by"s) >> by) {
+          ins = {type, y, by};
+          ok = true;
+        }
+      } break;
       case Type::rotate_col: {
-        if (is.ignore(3, '=')) {
-          if (int a, b; is >> a and is.ignore(3, 'y') and is >> b) {
-            ins = {type, a, b};
-            return is;
-          }
+        if (int x{}, by{}; is >> std::ws >> skip("x="s) >> x >> std::ws >> skip("by"s) >> by) {
+          ins = {type, x, by};
+          ok = true;
         }
       } break;
     }
+    if (not ok) {
+      throw std::runtime_error("failed parsing Instruction");
+    }
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Instruction");
+  return is;
 }
 
-static constexpr auto width{50};
-static constexpr auto height{6};
+static constexpr int width{50};
+static constexpr int height{6};
 using Screen = std::vector<bool>;
 
 Screen run_instructions(const auto& instructions) {
-  Screen screen(width * height, false);
+  Screen screen(1UZ * width * height, false);
   for (const auto& ins : instructions) {
     switch (ins.type) {
       case Instruction::Type::rect: {
         for (int y{}; y < ins.b; ++y) {
           for (int x{}; x < ins.a; ++x) {
-            screen[y * width + x] = true;
+            screen.at(y * width + x) = true;
           }
         }
       } break;
       case Instruction::Type::rotate_row: {
         if (const int n{ins.b % width}; n) {
           const int y{ins.a};
-          auto lhs{screen.begin() + (y * width)};
+          auto lhs{screen.begin() + 1UZ * y * width};
           auto rhs{lhs + width};
           auto mid{rhs - n};
           ranges::rotate(lhs, mid, rhs);
@@ -105,10 +111,6 @@ Screen run_instructions(const auto& instructions) {
     }
   }
   return screen;
-}
-
-int count_on(const Screen& screen) {
-  return ranges::count_if(screen, std::identity{});
 }
 
 std::string decode_ascii(const Screen& screen) {
@@ -133,12 +135,13 @@ std::string decode_ascii(const Screen& screen) {
   // clang-format on
 }
 
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto instructions{views::istream<Instruction>(input) | ranges::to<std::vector>()};
+  const auto instructions{aoc::parse_items<Instruction>("/dev/stdin")};
   const auto screen{run_instructions(instructions)};
 
-  const auto part1{count_on(screen)};
+  const auto part1{sum(screen)};
   const auto part2{decode_ascii(screen)};
 
   std::println("{} {}", part1, part2);

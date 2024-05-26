@@ -2,28 +2,13 @@
 #include "ndvec.hpp"
 #include "std.hpp"
 
-namespace ranges = std::ranges;
-namespace views = std::views;
-
 struct Move {
-  enum {
+  enum : unsigned char {
     Left,
     Right,
-  } direction;
-  int steps;
+  } direction{};
+  int steps{};
 };
-
-std::istream& operator>>(std::istream& is, Move& move) {
-  if (char dir; is >> dir and (dir == 'L' or dir == 'R')) {
-    if (int steps; is >> steps and is.ignore(1, ',')) {
-      move = {(dir == 'L' ? Move::Left : Move::Right), steps};
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Move");
-}
 
 using Vec2 = ndvec::vec2<int>;
 using Path = std::vector<Vec2>;
@@ -32,14 +17,11 @@ using Moves = std::vector<Move>;
 Path walk(const Moves& moves) {
   std::vector path{Vec2{}};
   Vec2 facing(1, 0);
-  for (const auto& move : moves) {
-    switch (move.direction) {
-      case Move::Left: {
-        facing.rotate_left();
-      } break;
-      case Move::Right: {
-        facing.rotate_right();
-      } break;
+  for (const Move& move : moves) {
+    if (move.direction == Move::Left) {
+      facing.rotate_left();
+    } else {
+      facing.rotate_right();
     }
     for (int n{}; n < move.steps; ++n) {
       path.push_back(path.back() + facing);
@@ -54,16 +36,33 @@ int find_part1(const Path& path) {
 
 int find_part2(const Path& path) {
   for (auto it{path.begin()}; it != path.end(); ++it) {
-    if (ranges::find(it + 1, path.end(), *it) != path.end()) {
+    if (std::ranges::find(it + 1, path.end(), *it) != path.end()) {
       return it->distance(Vec2{});
     }
   }
   throw std::runtime_error("oh no");
 }
 
+std::istream& operator>>(std::istream& is, Move& move) {
+  bool ok{};
+  if (char dir{}; is >> dir) {
+    if (dir != ',' or is >> dir) {
+      if (dir == 'L' or dir == 'R') {
+        if (int steps{}; is >> steps) {
+          move = {(dir == 'L' ? Move::Left : Move::Right), steps};
+          ok = true;
+        }
+      }
+    }
+  }
+  if (not ok and not is.eof()) {
+    throw std::runtime_error("failed parsing Move");
+  }
+  return is;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto moves{views::istream<Move>(input) | ranges::to<std::vector>()};
+  const auto moves{aoc::parse_items<Move>("/dev/stdin")};
   const auto path{walk(moves)};
 
   const auto part1{find_part1(path)};

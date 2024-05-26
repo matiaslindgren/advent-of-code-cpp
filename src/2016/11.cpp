@@ -5,91 +5,38 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using std::operator""s;
+using aoc::skip;
+
 struct Item {
-  enum {
+  enum : unsigned char {
     Microchip,
     Generator,
-  } type;
+  } type{};
   std::string element;
 };
 
-std::istream& operator>>(std::istream& is, Item& item) {
-  using std::operator""s;
-  using aoc::skip;
-  if (std::string elem; is >> elem) {
-    if (elem.ends_with("-compatible") and is >> skip(" microchip"s)) {
-      elem = {elem.begin(), ranges::find(elem, '-')};
-      item = {Item::Microchip, elem};
-      return is;
-    }
-    if (not elem.empty() and is >> skip(" generator"s)) {
-      item = {Item::Generator, elem};
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Item");
-}
+using Items = std::vector<Item>;
 
 struct FloorItems {
-  int floor;
-  std::vector<Item> items;
+  int floor{};
+  Items items;
 };
 
-std::istream& operator>>(std::istream& is, FloorItems& fi) {
-  using std::operator""s;
-  using aoc::skip;
-  static const std::unordered_map<std::string, int> floor_numbers{
-      {"first", 1},
-      {"second", 2},
-      {"third", 3},
-      {"fourth", 4},
-  };
-  int floor;
-  std::vector<Item> items;
-  if (std::string line; std::getline(is, line)) {
-    std::istringstream ls{line};
-    if (std::string fname; ls >> skip("The"s) >> std::ws >> fname and floor_numbers.contains(fname)
-                           and ls >> std::ws >> skip("floor contains"s)) {
-      floor = floor_numbers.find(fname)->second;
-      while (ls) {
-        if (std::string s; ls >> s) {
-          if (s == "nothing" and ls >> std::ws >> skip("relevant"s)) {
-          } else if (Item item;
-                     ((s == "and" and ls >> s and s == "a") or s == "a") and ls >> item) {
-            items.push_back(item);
-          } else {
-            is.setstate(std::ios_base::failbit);
-            ls.setstate(std::ios_base::failbit);
-          }
-        }
-        if (ls) {
-          if (auto ch{ls.peek()}; ch == ',' or ch == '.') {
-            ls.get();
-          }
-        }
-      }
-    }
-    if (ls.eof() and is) {
-      fi = {floor, items};
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing FloorItems");
-}
+const std::unordered_map floor_numbers{
+    std::pair{"first"s, 1},
+    std::pair{"second"s, 2},
+    std::pair{"third"s, 3},
+    std::pair{"fourth"s, 4},
+};
 
 auto encode_element_names(const auto& floor_items) {
   std::unordered_map<std::string, std::size_t> encoding;
   // TODO(views::join)
   {
     std::size_t id{};
-    for (const auto& fi : floor_items) {
-      for (const auto& item : fi.items) {
+    for (const FloorItems& fi : floor_items) {
+      for (const Item& item : fi.items) {
         if (not encoding.contains(item.element)) {
           encoding[item.element] = id++;
         }
@@ -150,59 +97,38 @@ constexpr std::size_t elevator_floor(const FloorState& fs) {
 template <>
 struct std::hash<FloorState> {
   std::size_t operator()(const FloorState& fs) const noexcept {
-    enum Type {
+    enum Type : unsigned char {
       generator = 0,
       unpowered_chip = 1,
       powered_chip = 2,
       N = 3,
     };
-    std::size_t item_counts[N_FLOORS][Type::N] = {};
-    for (const auto f : floor_indexes()) {
-      for (const auto [g, c] : powering_pair_indexes(fs, f)) {
-        item_counts[f][Type::generator] += fs[g];
-        item_counts[f][Type::unpowered_chip] += not fs[g] and fs[c];
-        item_counts[f][Type::powered_chip] += fs[g] and fs[c];
+    std::array<std::array<std::size_t, Type::N>, N_FLOORS> item_counts{};
+    for (auto&& f : floor_indexes()) {
+      for (auto&& [g, c] : powering_pair_indexes(fs, f)) {
+        item_counts.at(f).at(Type::generator) += int{fs[g]};
+        item_counts.at(f).at(Type::unpowered_chip) += int{not fs[g] and fs[c]};
+        item_counts.at(f).at(Type::powered_chip) += int{fs[g] and fs[c]};
       }
     }
     std::size_t h{elevator_floor(fs)};
-    for (const auto f : floor_indexes()) {
+    for (auto&& f : floor_indexes()) {
       for (std::size_t i{}; i < Type::N; ++i) {
-        h = (h << 3) | item_counts[f][i];
+        h = (h << 3) | item_counts.at(f).at(i);
       }
     }
     return std::hash<std::size_t>{}(h);
   }
 };
 
-FloorState parse_init_state(std::istream& is) {
-  const auto all_floor_items{views::istream<FloorItems>(is) | ranges::to<std::vector>()};
-  const auto element_ids{encode_element_names(all_floor_items)};
-  FloorState fs;
-  // elevator
-  fs[0] = true;
-  for (const auto& floor_items : all_floor_items) {
-    for (const auto& item : floor_items.items) {
-      const auto item_id{element_ids.find(item.element)->second};
-      const auto item_bit{N_FLOORS * (1 + 2 * item_id + (item.type == Item::Microchip))};
-      const auto floor_bit{floor_items.floor - 1};
-      const auto bit{item_bit + floor_bit};
-      if (bit >= fs.size()) {
-        throw std::runtime_error("too many unique input elements");
-      }
-      fs[bit] = true;
-    }
-  }
-  return fs;
-}
-
-constexpr bool is_frying_chips(const FloorState& fs) {
-  for (const auto f : floor_indexes()) {
+bool is_frying_chips(const FloorState& fs) {
+  for (auto&& f : floor_indexes()) {
     int generators{};
     int unpowered_chips{};
-    for (const auto [g, c] : powering_pair_indexes(fs, f)) {
-      generators += fs[g];
-      unpowered_chips += not fs[g] and fs[c];
-      if (generators and unpowered_chips) {
+    for (auto&& [g, c] : powering_pair_indexes(fs, f)) {
+      generators += int{fs[g]};
+      unpowered_chips += int{not fs[g] and fs[c]};
+      if (std::min(generators, unpowered_chips) > 0) {
         return true;
       }
     }
@@ -210,21 +136,21 @@ constexpr bool is_frying_chips(const FloorState& fs) {
   return false;
 }
 
-constexpr FloorState move(const int step, FloorState fs, auto&&... bits) {
+FloorState move(const int step, FloorState fs, auto&&... bits) {
   (std::invoke(
        [&fs, &step](const auto& bit) {
-         fs[bit] = false;
-         fs[bit + step] = true;
+         fs.set(bit, false);
+         fs.set(bit + step, true);
        },
        bits
    ),
    ...);
   return fs;
 }
-constexpr FloorState move_up(auto&&... args) {
+FloorState move_up(auto&&... args) {
   return move(1, args...);
 }
-constexpr FloorState move_down(auto&&... args) {
+FloorState move_down(auto&&... args) {
   return move(-1, args...);
 }
 
@@ -235,37 +161,22 @@ class AStar {
         m_q{{start}},
         m_frontier{{start}},
         m_g_score{{start, 0}},
-        m_f_score{{start, h(start)}} {
+        m_f_score{{start, AStar::heuristic(start)}} {
   }
 
-  constexpr bool is_end_state(const FloorState& fs) const noexcept {
-    return fs == m_end_state;
-  }
-
-  auto reconstruct_path(const FloorState& end) const {
-    std::vector<FloorState> path;
-    for (auto it{m_parents.find(end)}; it != m_parents.end(); it = m_parents.find(it->second)) {
-      path.push_back(it->second);
-    }
-    return path | views::reverse | ranges::to<std::vector>();
-  }
-
-  constexpr explicit operator bool() const noexcept {
-    return not m_frontier.empty();
-  }
-
-  constexpr int h(const FloorState& fs) const noexcept {
+  [[nodiscard]]
+  static int heuristic(const FloorState& fs) {
     constexpr int low_floor_penalty{2};
     constexpr int generator_factor{4};
     int total_cost{};
-    for (const auto f : floor_indexes()) {
+    for (auto&& f : floor_indexes()) {
       const int floor_cost{low_floor_penalty * static_cast<int>(N_FLOORS - (f + 1))};
-      for (const auto g : generator_indexes(fs, f)) {
+      for (auto&& g : generator_indexes(fs, f)) {
         if (fs[g]) {
           total_cost += generator_factor * floor_cost;
         }
       }
-      for (const auto c : microchip_indexes(fs, f)) {
+      for (auto&& c : microchip_indexes(fs, f)) {
         if (fs[c]) {
           total_cost += floor_cost;
         }
@@ -274,9 +185,29 @@ class AStar {
     return total_cost;
   }
 
+  [[nodiscard]]
+  bool is_end_state(const FloorState& fs) const noexcept {
+    return fs == m_end_state;
+  }
+
+  [[nodiscard]]
+  auto reconstruct_path(const FloorState& end) const {
+    std::vector<FloorState> path;
+    for (auto it{m_parents.find(end)}; it != m_parents.end(); it = m_parents.find(it->second)) {
+      path.push_back(it->second);
+    }
+    return path | views::reverse | ranges::to<std::vector>();
+  }
+
+  [[nodiscard]]
+  explicit operator bool() const noexcept {
+    return not m_frontier.empty();
+  }
+  [[nodiscard]]
   int f_score(const FloorState& fs) const {
     return score_or_max(m_f_score, fs);
   }
+  [[nodiscard]]
   int g_score(const FloorState& fs) const {
     return score_or_max(m_g_score, fs);
   }
@@ -299,17 +230,15 @@ class AStar {
   }
 
   auto push_state(const FloorState& fs) {
-    if (const auto [_, is_unique] = m_frontier.insert(fs); is_unique) {
+    if (auto&& [_, is_unique] = m_frontier.insert(fs); is_unique) {
       push_min_f_score_heap(fs);
     }
   }
 
  private:
+  [[nodiscard]]
   int score_or_max(const auto& map, const FloorState& fs) const {
-    if (const auto it{map.find(fs)}; it != map.end()) {
-      return it->second;
-    }
-    return std::numeric_limits<int>::max() - 1;
+    return map.contains(fs) ? map.at(fs) : std::numeric_limits<int>::max() - 1;
   }
 
   void set_score(auto& map, const auto& fs, const auto& score) {
@@ -317,7 +246,7 @@ class AStar {
   }
 
   FloorState pop_min_f_score_heap() {
-    ranges::pop_heap(m_q, ranges::greater{}, [=, this](const auto& fs) { return f_score(fs); });
+    ranges::pop_heap(m_q, ranges::greater{}, [this](const auto& fs) { return f_score(fs); });
     FloorState fs{m_q.back()};
     m_q.pop_back();
     return fs;
@@ -325,7 +254,7 @@ class AStar {
 
   void push_min_f_score_heap(const FloorState& fs) {
     m_q.push_back(fs);
-    ranges::push_heap(m_q, ranges::greater{}, [=, this](const auto& fs) { return f_score(fs); });
+    ranges::push_heap(m_q, ranges::greater{}, [this](const auto& fs) { return f_score(fs); });
   }
 
   FloorState m_end_state;
@@ -351,7 +280,7 @@ bool a_star_step(auto& a_star) {
   const auto elevator{elevator_floor(state)};
   const bool can_go_up{elevator < N_FLOORS - 1};
   const bool can_go_down{elevator > 0};
-  for (const auto i : item_indexes(state, elevator)) {
+  for (auto&& i : item_indexes(state, elevator)) {
     if (not state[i]) {
       continue;
     }
@@ -361,7 +290,7 @@ bool a_star_step(auto& a_star) {
     if (can_go_down) {
       adjacent_states.push_back(move_down(state, elevator, i));
     }
-    for (const auto j : item_indexes(state, elevator)) {
+    for (auto&& j : item_indexes(state, elevator)) {
       if (j < i or not state[j]) {
         continue;
       }
@@ -374,12 +303,12 @@ bool a_star_step(auto& a_star) {
     }
   }
 
-  for (FloorState adj_state : adjacent_states) {
-    if (const auto g_score{a_star.g_score(state) + 1}; g_score < a_star.g_score(adj_state)) {
-      a_star.set_edge(adj_state, state);
-      a_star.set_g_score(adj_state, g_score);
-      a_star.set_f_score(adj_state, g_score + a_star.h(adj_state));
-      a_star.push_state(adj_state);
+  for (FloorState adj : adjacent_states) {
+    if (auto&& g_score{a_star.g_score(state) + 1}; g_score < a_star.g_score(adj)) {
+      a_star.set_edge(adj, state);
+      a_star.set_g_score(adj, g_score);
+      a_star.set_f_score(adj, g_score + AStar::heuristic(adj));
+      a_star.push_state(adj);
     }
   }
 
@@ -388,7 +317,7 @@ bool a_star_step(auto& a_star) {
 
 auto a_star_search(FloorState begin, FloorState end) {
   for (AStar a_star(begin, end); a_star;) {
-    if (const auto done{a_star_step(a_star)}; done) {
+    if (auto&& done{a_star_step(a_star)}; done) {
       const auto solution{a_star.reconstruct_path(end)};
       return solution.size();
     }
@@ -401,16 +330,78 @@ FloorState as_end_state(FloorState begin) {
   FloorState end;
   // elevator
   end[top_floor] = true;
-  for (const auto i : item_indexes(begin, top_floor)) {
+  for (auto&& i : item_indexes(begin, top_floor)) {
     end[i] = true;
   }
   return end;
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+std::istream& operator>>(std::istream& is, Item& item) {
+  if (std::string elem; is >> elem) {
+    if (elem.ends_with("-compatible") and is >> std::ws >> skip("microchip"s)) {
+      elem = {elem.begin(), ranges::find(elem, '-')};
+      item = {Item::Microchip, elem};
+      return is;
+    }
+    if (not elem.empty() and is >> std::ws >> skip("generator"s)) {
+      item = {Item::Generator, elem};
+      return is;
+    }
+  }
+  throw std::runtime_error("failed parsing Item");
+}
 
-  const FloorState init_state{parse_init_state(input)};
+std::istream& operator>>(std::istream& is, Items& items) {
+  for (std::string s; is >> std::ws >> s and s != "."s;) {
+    if (s == "nothing" and is >> std::ws >> skip("relevant"s)) {
+    } else if (Item item; ((s == "and" and is >> s and s == "a") or s == "a") and is >> item) {
+      items.push_back(item);
+    } else {
+      throw std::runtime_error(std::format("unknown item '{}'", s));
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, FloorItems& fi) {
+  if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
+    if (auto [fname, items]{std::pair{""s, Items{}}};
+        ls >> skip("The"s) >> std::ws >> fname and floor_numbers.contains(fname)
+        and ls >> std::ws >> skip("floor contains"s) >> items) {
+      fi = FloorItems{floor_numbers.at(fname), items};
+    } else {
+      throw std::runtime_error(std::format("invalid line '{}'", line));
+    }
+  }
+  return is;
+}
+
+FloorState parse_init_state(std::string_view path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  const auto all_floor_items{views::istream<FloorItems>(is) | ranges::to<std::vector>()};
+  const auto element_ids{encode_element_names(all_floor_items)};
+  FloorState fs;
+  // elevator
+  fs[0] = true;
+  for (const auto& floor_items : all_floor_items) {
+    for (const auto& item : floor_items.items) {
+      const auto item_id{element_ids.find(item.element)->second};
+      const auto item_bit{N_FLOORS * (1 + 2 * item_id + int{item.type == Item::Microchip})};
+      const auto floor_bit{floor_items.floor - 1};
+      const auto bit{item_bit + floor_bit};
+      if (bit >= fs.size()) {
+        throw std::runtime_error("too many unique input elements");
+      }
+      fs[bit] = true;
+    }
+  }
+  return fs;
+}
+
+int main() {
+  const FloorState init_state{parse_init_state("/dev/stdin")};
 
   FloorState begin1{init_state};
   const auto part1{a_star_search(begin1, as_end_state(begin1))};

@@ -4,87 +4,56 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using std::operator""s;
+using aoc::skip;
+
 struct Instruction {
-  enum class Type {
+  enum class Type : unsigned char {
     set_value,
     lo_bot_hi_bot,
     lo_out_hi_bot,
     lo_out_hi_out,
-  } type;
-  int input;
-  int out1;
-  int out2;
+  } type{};
+  int input{};
+  int out1{};
+  int out2{};
 };
 
-std::istream& operator>>(std::istream& is, Instruction& ins) {
-  using std::operator""s;
-  using Type = Instruction::Type;
-  using aoc::skip;
-
-  if (auto [cmd, num] = std::tuple(std::string{}, int{}); is >> cmd >> num) {
-    if (cmd == "value") {
-      if (int bot; is >> skip(" goes to bot"s) >> bot) {
-        ins = {Type::set_value, num, bot};
-        return is;
-      }
-    }
-    if (cmd == "bot" and is >> skip(" gives low to"s) >> cmd) {
-      if (cmd == "bot") {
-        if (int out1, out2; is >> out1 >> skip(" and high to bot"s) >> out2) {
-          ins = {Type::lo_bot_hi_bot, num, out1, out2};
-          return is;
-        }
-      }
-      if (cmd == "output") {
-        if (int out1, out2; is >> out1 >> skip(" and high to"s) >> cmd >> out2) {
-          if (cmd == "bot") {
-            ins = {Type::lo_out_hi_bot, num, out1, out2};
-            return is;
-          }
-          if (cmd == "output") {
-            ins = {Type::lo_out_hi_out, num, out1, out2};
-            return is;
-          }
-        }
-      }
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Instruction");
-}
-
 struct Gate {
-  int out_lo;
-  int out_hi;
-  int input1;
-  int input2;
-  constexpr void set(int value) {
+  int out_lo{};
+  int out_hi{};
+  int input1{};
+  int input2{};
+
+  void set(int value) {
     if (input1 < 0) {
       input1 = value;
     } else {
       input2 = value;
     }
   }
-  constexpr std::pair<int, int> value() const {
-    return {std::min(input1, input2), std::max(input1, input2)};
+
+  [[nodiscard]]
+  auto value() const {
+    return std::pair{std::min(input1, input2), std::max(input1, input2)};
   }
-  constexpr bool is_full() const {
-    return not(out_lo < 0 or out_hi < 0 or input1 < 0 or input2 < 0);
+
+  [[nodiscard]]
+  bool is_full() const {
+    return std::min({out_lo, out_hi, input1, input2}) >= 0;
   }
 };
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+constexpr auto product{std::__bind_back(ranges::fold_left, 1, std::multiplies{})};
 
-  std::array<Gate, 512> mem;
-  mem.fill({-1, -1, -1, -1});
+auto search(const auto& instructions) {
+  std::array<Gate, 512> mem{};
+  mem.fill(Gate{-1, -1, -1, -1});
 
   const auto bots{ranges::subrange(mem.begin(), mem.begin() + 256)};
   const auto outputs{ranges::subrange(mem.begin() + 256, mem.end())};
 
-  for (Instruction ins : views::istream<Instruction>(input)) {
+  for (const Instruction& ins : instructions) {
     switch (ins.type) {
       case Instruction::Type::set_value: {
         bots[ins.out1].set(ins.input);
@@ -128,17 +97,76 @@ int main() {
     }
   }
 
-  const auto part1{ranges::distance(bots.begin(), ranges::find_if(bots, [](const auto& b) {
-                                      const auto [lo, hi] = b.value();
-                                      return lo == 17 and hi == 61;
-                                    }))};
-  const auto part2{ranges::fold_left(
-      ranges::subrange(outputs.begin(), outputs.begin() + 3)
-          | views::transform([](const auto& out) { return out.value().second; }),
-      1,
-      std::multiplies{}
-  )};
-  std::println("{} {}", part1, part2);
+  return std::pair{
+      ranges::distance(
+          bots.begin(),
+          ranges::find_if(
+              bots,
+              [](const auto& b) {
+                const auto [lo, hi] = b.value();
+                return lo == 17 and hi == 61;
+              }
+          )
+      ),
+      product(
+          ranges::subrange(outputs.begin(), outputs.begin() + 3)
+          | views::transform([](const auto& out) { return out.value().second; })
+      ),
+  };
+}
 
+struct GiveBot {
+  Instruction::Type type{};
+  int out1{};
+  int out2{};
+};
+
+std::istream& operator>>(std::istream& is, GiveBot& gb) {
+  using Type = Instruction::Type;
+  if (std::string cmd; is >> std::ws >> skip("gives low to"s) >> cmd) {
+    if (cmd == "bot") {
+      if (int out1{}, out2{}; is >> out1 >> std::ws >> skip("and high to bot"s) >> out2) {
+        gb = {Type::lo_bot_hi_bot, out1, out2};
+      }
+    } else if (cmd == "output") {
+      if (int out1{}, out2{}; is >> out1 >> std::ws >> skip("and high to"s) >> cmd >> out2) {
+        if (cmd == "bot") {
+          gb = {Type::lo_out_hi_bot, out1, out2};
+        } else if (cmd == "output") {
+          gb = {Type::lo_out_hi_out, out1, out2};
+        }
+      }
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Instruction& ins) {
+  using Type = Instruction::Type;
+
+  bool ok{false};
+  if (auto [cmd, num]{std::tuple(""s, int{})}; is >> cmd >> num) {
+    if (cmd == "value") {
+      if (int bot{}; is >> std::ws >> skip("goes to bot"s) >> bot) {
+        ins = {Type::set_value, num, bot};
+        ok = true;
+      }
+    } else if (cmd == "bot") {
+      if (GiveBot gb; is >> gb) {
+        ins = {gb.type, num, gb.out1, gb.out2};
+        ok = true;
+      }
+    }
+  }
+  if (not is.eof() and not ok) {
+    throw std::runtime_error("failed parsing Instruction");
+  }
+  return is;
+}
+
+int main() {
+  const auto instructions{aoc::parse_items<Instruction>("/dev/stdin")};
+  const auto [part1, part2]{search(instructions)};
+  std::println("{} {}", part1, part2);
   return 0;
 }

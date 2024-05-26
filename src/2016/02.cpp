@@ -1,116 +1,94 @@
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum class Step : char {
-  up = 'U',
-  left = 'L',
-  down = 'D',
-  right = 'R',
+using std::operator""s;
+using Vec2 = ndvec::vec2<int>;
+using Steps = std::vector<Vec2>;
+
+struct Keypad {
+  std::vector<std::string> rows;
+
+  [[nodiscard]]
+  char get(const Vec2& p) const {
+    return rows.at(p.y()).at(p.x());
+  }
+
+  [[nodiscard]]
+  Vec2 find_key(char key) const {
+    for (Vec2 p; p.y() < rows.size(); p.y() += 1) {
+      for (p.x() = 0; p.x() < rows.at(p.y()).size(); p.x() += 1) {
+        if (get(p) == key) {
+          return p;
+        }
+      }
+    }
+    throw std::runtime_error(std::format("keypad has no {}", key));
+  }
 };
 
-std::istream& operator>>(std::istream& is, Step& step) {
-  if (std::underlying_type_t<Step> ch; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Step::up):
-      case std::to_underlying(Step::left):
-      case std::to_underlying(Step::down):
-      case std::to_underlying(Step::right):
-        step = {ch};
-        return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Step");
+std::string find_code(const Keypad& pad, const std::vector<Steps>& instructions) {
+  return views::transform(
+             instructions,
+             [&, p1 = pad.find_key('5')](const Steps& steps) mutable -> char {
+               for (const Vec2& step : steps) {
+                 if (Vec2 p2{p1 + step}; pad.get(p2) != '0') {
+                   p1 = p2;
+                 }
+               }
+               return pad.get(p1);
+             }
+         )
+         | ranges::to<std::string>();
 }
 
-using Steps = std::vector<Step>;
-
-std::istream& operator>>(std::istream& is, Steps& steps) {
-  if (std::string line; is >> line) {
-    std::istringstream line_stream{line};
-    steps = {views::istream<Step>(line_stream) | ranges::to<Steps>()};
-    return is;
+Vec2 parse_step(char ch) {
+  switch (ch) {
+    case 'U':
+      return Vec2(0, -1);
+    case 'L':
+      return Vec2(-1, 0);
+    case 'D':
+      return Vec2(0, 1);
+    case 'R':
+      return Vec2(1, 0);
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Steps");
+  throw std::runtime_error(std::format("unknown step '{}'", ch));
 }
 
-using Keypad = std::vector<std::string>;
-
-std::pair<unsigned, unsigned> find(const Keypad& keypad, char key) {
-  const auto axis{views::iota(0UZ, keypad.size())};
-  for (auto&& [y, x] : my_std::views::cartesian_product(axis, axis)) {
-    if (keypad[y][x] == key) {
-      return {y, x};
-    }
-  }
-  throw std::runtime_error(std::format("keypad has no {}", key));
-}
-
-std::string find_code(const Keypad& keypad, const std::vector<Steps>& instructions) {
-  auto [y, x] = find(keypad, '5');
-  return (
-      views::transform(
-          instructions,
-          [&](const auto& steps) mutable -> char {
-            for (const auto& step : steps) {
-              unsigned y2{y}, x2{x};
-              switch (step) {
-                case Step::up: {
-                  y2 = y - 1;
-                } break;
-                case Step::left: {
-                  x2 = x - 1;
-                } break;
-                case Step::down: {
-                  y2 = y + 1;
-                } break;
-                case Step::right: {
-                  x2 = x + 1;
-                } break;
-              }
-              if (keypad[y2][x2]) {
-                y = y2;
-                x = x2;
-              }
-            }
-            return keypad[y][x];
-          }
-      )
-      | ranges::to<std::string>()
-  );
+auto parse_instructions(std::string_view path) {
+  return views::transform(
+             aoc::slurp_lines(path),
+             [](const std::string& line) {
+               return views::transform(line, parse_step) | ranges::to<std::vector>();
+             }
+         )
+         | ranges::to<std::vector>();
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto instructions{parse_instructions("/dev/stdin")};
 
-  const auto instructions{views::istream<Steps>(input) | ranges::to<std::vector>()};
-
-  const Keypad keypad1{{
-      {'\0', '\0', '\0', '\0', '\0'},
-      {'\0', '1', '2', '3', '\0'},
-      {'\0', '4', '5', '6', '\0'},
-      {'\0', '7', '8', '9', '\0'},
-      {'\0', '\0', '\0', '\0', '\0'},
+  const Keypad keypad1{.rows={
+      "00000"s,
+      "01230"s,
+      "04560"s,
+      "07890"s,
+      "00000"s,
   }};
   const auto part1{find_code(keypad1, instructions)};
 
-  const Keypad keypad2{{
-      {'\0', '\0', '\0', '\0', '\0', '\0', '\0'},
-      {'\0', '\0', '\0', '1', '\0', '\0', '\0'},
-      {'\0', '\0', '2', '3', '4', '\0', '\0'},
-      {'\0', '5', '6', '7', '8', '9', '\0'},
-      {'\0', '\0', 'A', 'B', 'C', '\0', '\0'},
-      {'\0', '\0', '\0', 'D', '\0', '\0', '\0'},
-      {'\0', '\0', '\0', '\0', '\0', '\0', '\0'},
+  const Keypad keypad2{.rows={
+      "0000000"s,
+      "0001000"s,
+      "0023400"s,
+      "0567890"s,
+      "00ABC00"s,
+      "000D000"s,
+      "0000000"s,
   }};
   const auto part2{find_code(keypad2, instructions)};
 
