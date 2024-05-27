@@ -1,9 +1,6 @@
 #include "aoc.hpp"
 #include "std.hpp"
 
-namespace ranges = std::ranges;
-namespace views = std::views;
-
 auto find_exit(auto jumps, int limit = std::numeric_limits<int>::max()) {
   int jump_count{};
   for (auto j{0UZ}; 0 <= j and j < jumps.size(); ++jump_count) {

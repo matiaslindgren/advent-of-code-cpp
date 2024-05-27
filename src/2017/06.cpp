@@ -6,6 +6,7 @@ namespace views = std::views;
 
 struct Bank {
   std::vector<int> v;
+
   bool operator==(const Bank& bank) const {
     return ranges::equal(v, bank.v);
   }
@@ -25,10 +26,10 @@ auto find_loop(Bank bank) {
     seen[bank] = cycle;
 
     const auto begin{ranges::max_element(bank.v)};
-    auto blocks{std::exchange(*begin, 0u)};
+    auto blocks{std::exchange(*begin, 0U)};
 
     const auto n{bank.v.size()};
-    for (auto i{((begin - bank.v.begin()) + 1) % n}; blocks; i = (i + 1) % n) {
+    for (auto i{((begin - bank.v.begin()) + 1) % n}; blocks != 0; i = (i + 1) % n) {
       bank.v[i] += 1;
       blocks -= 1;
     }
@@ -44,7 +45,7 @@ int main() {
     );
   }
 
-  const auto [part1, part2] = find_loop(Bank{bank});
+  const auto [part1, part2]{find_loop(Bank{bank})};
   std::println("{} {}", part1, part2);
 
   return 0;

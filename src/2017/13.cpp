@@ -4,31 +4,25 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Scanner {
-  int depth{}, range{};
+using aoc::skip;
+using std::operator""s;
 
-  bool is_at_top(const auto t) const {
-    const auto n{2 * (range - 1)};
-    const auto layer{std::abs(t - n * static_cast<int>(std::round(t / n)))};
+struct Scanner {
+  int depth{};
+  int range{};
+
+  [[nodiscard]]
+  bool is_at_top(int t) const {
+    auto n{2 * (range - 1)};
+    auto layer{std::abs(t - n * (t / n))};
     return layer == 0;
   }
 
-  auto severity() const {
+  [[nodiscard]]
+  int severity() const {
     return depth * range;
   }
 };
-
-std::istream& operator>>(std::istream& is, Scanner& scanner) {
-  using aoc::skip;
-  using std::operator""s;
-  if (int depth, range; is >> depth and depth >= 0 and is >> skip(":"s) >> range and range > 1) {
-    scanner = {depth, range};
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Scanner");
-}
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
@@ -44,6 +38,17 @@ auto find_part2(const auto& scanners) {
       return t;
     }
   }
+}
+
+std::istream& operator>>(std::istream& is, Scanner& scanner) {
+  if (int depth{}, range{};
+      is >> depth and depth >= 0 and is >> skip(":"s) >> range and range > 1) {
+    scanner = {depth, range};
+  }
+  if (is or is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Scanner");
 }
 
 int main() {

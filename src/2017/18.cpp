@@ -5,16 +5,16 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Operand {
-  enum {
+  enum : unsigned char {
     address,
     literal,
-  } type;
+  } type{};
   std::size_t index{};
   long value{};
 };
 
 struct Instruction {
-  enum struct Type {
+  enum struct Type : unsigned char {
     add,
     jump_if_gt_zero,
     modulo,
@@ -22,78 +22,16 @@ struct Instruction {
     receive,
     set,
     send,
-  } type;
+  } type{};
   Operand lhs;
   Operand rhs;
 };
 
-std::istream& operator>>(std::istream& is, Instruction::Type& t) {
-  if (std::string type; is >> type and not type.empty()) {
-    using Type = Instruction::Type;
-    if (type == "add") {
-      t = Type::add;
-    } else if (type == "jgz") {
-      t = Type::jump_if_gt_zero;
-    } else if (type == "mod") {
-      t = Type::modulo;
-    } else if (type == "mul") {
-      t = Type::multiply;
-    } else if (type == "rcv") {
-      t = Type::receive;
-    } else if (type == "set") {
-      t = Type::set;
-    } else if (type == "snd") {
-      t = Type::send;
-    } else {
-      is.setstate(std::ios_base::failbit);
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing instruction type");
-}
-
-std::istream& operator>>(std::istream& is, Operand& op) {
-  if (std::string s; is >> s and not s.empty()) {
-    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'z') {
-      op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
-    } else {
-      op = {.type = Operand::literal, .value = std::stoi(s)};
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Operand");
-}
-
-std::istream& operator>>(std::istream& is, Instruction& ins) {
-  if (std::string line; std::getline(is, line)) {
-    std::istringstream ls{line};
-    using Type = Instruction::Type;
-    if (Type type; ls >> type) {
-      if (type == Type::send or type == Type::receive) {
-        if (Operand idx; ls >> idx) {
-          ins = {type, idx};
-        }
-      } else {
-        if (Operand idx, value; ls >> idx >> value) {
-          ins = {type, idx, value};
-        }
-      }
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Instruction");
-}
-
 struct Program {
-  long loc{}, sent_count{};
+  long loc{};
+  long sent_count{};
   std::array<long, ('p' - 'a') + 1> memory{};
-  std::deque<long> pipe{};
+  std::deque<long> pipe;
   bool blocked{false};
 
   Program(const int id) {
@@ -101,12 +39,12 @@ struct Program {
     memory['p' - 'a'] = id;
   }
 
+  [[nodiscard]]
   auto read(const Operand& op) const {
     if (op.type == Operand::address) {
       return memory.at(op.index);
-    } else {
-      return op.value;
     }
+    return op.value;
   }
 
   void write(const Operand& op, auto value) {
@@ -164,16 +102,18 @@ struct Program {
   }
 };
 
-int run_part1(const auto& instructions) {
-  Program p0(0), p1(1);
+auto run_part1(const auto& instructions) {
+  Program p0(0);
+  Program p1(1);
   while (not p0.blocked) {
     p0.execute(instructions[p0.loc], p1.pipe);
   }
   return p1.pipe.back();
 }
 
-int run_part2(const auto& instructions) {
-  Program p0(0), p1(1);
+auto run_part2(const auto& instructions) {
+  Program p0(0);
+  Program p1(1);
   while (not(p0.blocked and p1.blocked)) {
     p0.execute(instructions[p0.loc], p1.pipe);
     p1.execute(instructions[p1.loc], p0.pipe);
@@ -181,9 +121,64 @@ int run_part2(const auto& instructions) {
   return p1.sent_count;
 }
 
+std::istream& operator>>(std::istream& is, Instruction::Type& t) {
+  if (std::string type; is >> type and not type.empty()) {
+    using Type = Instruction::Type;
+    if (type == "add") {
+      t = Type::add;
+    } else if (type == "jgz") {
+      t = Type::jump_if_gt_zero;
+    } else if (type == "mod") {
+      t = Type::modulo;
+    } else if (type == "mul") {
+      t = Type::multiply;
+    } else if (type == "rcv") {
+      t = Type::receive;
+    } else if (type == "set") {
+      t = Type::set;
+    } else if (type == "snd") {
+      t = Type::send;
+    } else {
+      is.setstate(std::ios_base::failbit);
+    }
+  }
+  if (is or is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing instruction type");
+}
+
+std::istream& operator>>(std::istream& is, Operand& op) {
+  if (std::string s; is >> s and not s.empty()) {
+    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'z') {
+      op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
+    } else {
+      op = {.type = Operand::literal, .value = std::stoi(s)};
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Instruction& ins) {
+  if (std::string line; std::getline(is, line)) {
+    std::istringstream ls{line};
+    using Type = Instruction::Type;
+    if (Type type{}; ls >> type) {
+      if (Operand idx; (type == Type::send or type == Type::receive) and ls >> idx) {
+        ins = {type, idx};
+      } else if (Operand idx, value; ls >> idx >> value) {
+        ins = {type, idx, value};
+      }
+    }
+    if (not ls.eof()) {
+      throw std::runtime_error(std::format("failed parsing instruction from line '{}'", line));
+    }
+  }
+  return is;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto instructions{views::istream<Instruction>(input) | ranges::to<std::vector>()};
+  const auto instructions{aoc::parse_items<Instruction>("/dev/stdin")};
 
   const auto part1{run_part1(instructions)};
   const auto part2{run_part2(instructions)};

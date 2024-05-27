@@ -9,9 +9,10 @@ namespace views = std::views;
 
 struct Node {
   std::string id;
-  int weight;
+  int weight{};
   std::vector<std::string> children;
 
+  [[nodiscard]]
   bool is_leaf() const {
     return children.empty();
   }
@@ -22,29 +23,28 @@ std::istream& operator>>(std::istream& is, Node& node) {
     ranges::replace(line, ',', ' ');
     std::istringstream ls{line};
     if (std::string id; ls >> id) {
-      if (int weight; ls >> std::ws >> skip("("s) >> weight >> skip(")"s)) {
+      if (int weight{}; ls >> std::ws >> skip("("s) >> weight >> skip(")"s)) {
         if (ls >> std::ws >> skip("->"s)) {
           node = {id, weight, views::istream<std::string>(ls) | ranges::to<std::vector>()};
         } else {
           node = {id, weight};
         }
-        return is;
       }
     }
+    if (not ls.eof()) {
+      throw std::runtime_error(std::format("failed parsing line {}", line));
+    }
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Node");
+  return is;
 }
 
 auto find_parents(const auto& nodes) {
   auto parent{
       views::zip(views::keys(nodes), views::repeat(""s)) | ranges::to<std::unordered_map>()
   };
-  for (const auto& n : nodes | views::values) {
-    for (const auto& ch : n.children) {
-      parent[ch] = n.id;
+  for (const Node& n : nodes | views::values) {
+    for (const auto& child : n.children) {
+      parent[child] = n.id;
     }
   }
   return parent;
@@ -52,7 +52,7 @@ auto find_parents(const auto& nodes) {
 
 auto find_root(const auto& nodes) {
   const auto parent{find_parents(nodes)};
-  for (const auto& n : nodes | views::values) {
+  for (const Node& n : nodes | views::values) {
     if (parent.at(n.id).empty()) {
       return n;
     }
@@ -78,16 +78,16 @@ auto find_balance_weight(const auto& nodes) {
 
   const auto parent{find_parents(nodes)};
 
-  auto res{std::numeric_limits<int>::max()};
-  auto minw{std::numeric_limits<int>::max()};
+  int res{std::numeric_limits<int>::max()};
+  int minw{std::numeric_limits<int>::max()};
 
   for (const auto& leaf :
        nodes | views::values | views::filter([](const auto& n) { return n.is_leaf(); })) {
     for (auto id{parent.at(leaf.id)}; not id.empty(); id = parent.at(id)) {
       const auto& n{nodes.at(id)};
       std::unordered_map<int, int> wfreq;
-      for (const auto& ch : n.children) {
-        wfreq[weight.at(ch)] += 1;
+      for (const auto& child : n.children) {
+        wfreq[weight.at(child)] += 1;
       }
       if (wfreq.size() == 1) {
         continue;
@@ -100,8 +100,8 @@ auto find_balance_weight(const auto& nodes) {
       const auto w_ub{unbalanced->first};
       const auto w_b{balanced->first};
       if (w_ub < minw) {
-        const auto n_ub{*ranges::find_if(n.children, [&](const auto& ch) {
-          return weight.at(ch) == w_ub;
+        const auto n_ub{*ranges::find_if(n.children, [&](const auto& child) {
+          return weight.at(child) == w_ub;
         })};
         minw = w_ub;
         res = nodes.at(n_ub).weight + (w_b - w_ub);
@@ -113,9 +113,8 @@ auto find_balance_weight(const auto& nodes) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
   const auto nodes{
-      views::istream<Node>(input)
+      aoc::parse_items<Node>("/dev/stdin")
       | views::transform([](const auto& n) { return std::pair{n.id, n}; })
       | ranges::to<std::unordered_map>()
   };

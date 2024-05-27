@@ -10,15 +10,17 @@ HashState compute_hash(const auto& input, int rounds) {
   HashState state;
   // TODO (llvm19?) ranges::iota(state, 0u);
   for (unsigned x{}; x < state.size(); ++x) {
-    state[x] = x;
+    state.at(x) = x;
   }
-  std::size_t n{state.size()}, pos{}, skip{};
+  unsigned long n{state.size()};
+  unsigned long pos{};
+  unsigned long skip{};
   for (int r{}; r < rounds; ++r) {
     for (auto len : input) {
       auto lhs{pos};
       auto rhs{(pos + len + n - 1) % n};
       for (int i{}; i < (len + 1) / 2; ++i) {
-        std::swap(state[lhs], state[rhs]);
+        std::swap(state.at(lhs), state.at(rhs));
         lhs = (lhs + 1) % n;
         rhs = (rhs + n - 1) % n;
       }
@@ -45,7 +47,7 @@ auto compute_part2(std::string input) {
   for (auto begin{0UZ}; begin < state.size(); begin += 16) {
     const auto chunk{ranges::fold_left(
         state | views::drop(begin + 1) | views::take(15),
-        state[begin],
+        state.at(begin),
         std::bit_xor{}
     )};
     res += std::format("{:02x}", chunk);
@@ -55,14 +57,12 @@ auto compute_part2(std::string input) {
 
 int main() {
   std::ios::sync_with_stdio(false);
-
-  std::string input;
-  std::cin >> input;
-
-  const auto part1{compute_part1(input)};
-  const auto part2{compute_part2(input)};
-
-  std::println("{} {}", part1, part2);
-
-  return 0;
+  if (std::string input; std::cin >> input) {
+    const auto part1{compute_part1(input)};
+    const auto part2{compute_part2(input)};
+    std::println("{} {}", part1, part2);
+    return 0;
+  }
+  throw std::runtime_error("failed parsing input");
+  ;
 }

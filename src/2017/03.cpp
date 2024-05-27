@@ -1,49 +1,54 @@
+#include "ndvec.hpp"
 #include "std.hpp"
 
-int main() {
-  std::ios::sync_with_stdio(false);
+using Vec2 = ndvec::vec2<int>;
 
-  int n;
-  std::cin >> n;
+auto search(int n) {
+  std::unordered_map<Vec2, int> grid;
 
-  std::unordered_map<int, std::unordered_map<int, std::size_t>> grid;
-
-  const auto adjacent_sum{[&grid](int x, int y) {
-    auto sum{0UZ};
-    for (int dx{-1}; dx <= 1; ++dx) {
-      for (int dy{-1}; dy <= 1; ++dy) {
-        if (not(dx == 0 and dy == 0)) {
-          sum += grid[x + dx][y + dy];
+  const auto adjacent_sum{[&grid](const Vec2& p) {
+    int sum{};
+    for (Vec2 d(-1, -1); d.x() <= 1; d.x() += 1) {
+      for (d.y() = -1; d.y() <= 1; d.y() += 1) {
+        if (d != Vec2()) {
+          sum += grid[p + d];
         }
       }
     }
     return sum;
   }};
 
-  std::size_t part1{}, part2{};
+  int part1{};
+  int part2{};
 
-  int i{1}, x{}, y{}, len{1}, dy{}, dx{1};
-
-  while (not part1 or not part2) {
-    for (int k{}; k < 2; ++k) {
-      for (int j{}; j < len; ++j) {
-        const auto sum{adjacent_sum(x, y)};
-        if (not part2 and sum > n) {
+  for (auto [n_steps, len, p, d]{std::tuple{1, 1, Vec2(), Vec2(1, 0)}}; std::min(part1, part2) == 0;
+       len += 1) {
+    for (int turn{}; turn < 2; ++turn) {
+      for (int step{}; step < len; ++step) {
+        const auto sum{adjacent_sum(p)};
+        if (part2 == 0 and sum > n) {
           part2 = sum;
         }
-        grid[x][y] = std::max(1UZ, sum);
-        x += dx;
-        y += dy;
-        if ((i += 1) == n) {
-          part1 = std::abs(x) + std::abs(y);
+        grid[p] = std::max(1, sum);
+        p += d;
+        n_steps += 1;
+        if (n_steps == n) {
+          part1 = p.abs().sum();
         }
       }
-      dy = -std::exchange(dx, dy);
+      d.rotate_left();
     }
-    len += 1;
   }
 
-  std::println("{} {}", part1, part2);
+  return std::pair{part1, part2};
+}
 
-  return 0;
+int main() {
+  std::ios::sync_with_stdio(false);
+  if (int n{}; std::cin >> n and n > 0) {
+    const auto [part1, part2]{search(n)};
+    std::println("{} {}", part1, part2);
+    return 0;
+  }
+  throw std::runtime_error("failed parsing input, it should be a single positive integer");
 }

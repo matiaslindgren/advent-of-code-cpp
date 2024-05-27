@@ -6,6 +6,8 @@ namespace views = std::views;
 
 using Strings = std::vector<std::string>;
 
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+
 bool is_valid(const Strings& passphrases) {
   std::unordered_map<std::string, int> freq;
   for (const auto& pp : passphrases) {
@@ -14,20 +16,37 @@ bool is_valid(const Strings& passphrases) {
   return ranges::all_of(freq | views::values, [](int f) { return f == 1; });
 }
 
+auto find_part1(const auto& rows) {
+  return sum(views::transform(rows, is_valid));
+}
+
+auto find_part2(const auto& rows) {
+  return sum(views::transform(rows, [](Strings row) {
+    ranges::for_each(row, [](auto& pp) { ranges::sort(pp); });
+    return is_valid(row);
+  }));
+}
+
+auto parse_rows(std::string_view path) {
+  return views::transform(
+             aoc::slurp_lines(path),
+             [](const std::string& line) {
+               std::istringstream ls{line};
+               auto row{views::istream<std::string>(ls) | ranges::to<std::vector>()};
+               if (ls.eof()) {
+                 return row;
+               }
+               throw std::runtime_error(std::format("failed parsing strings from line '{}'", line));
+             }
+         )
+         | ranges::to<std::vector>();
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
+  const auto rows{parse_rows("/dev/stdin")};
 
-  int part1{}, part2{};
-
-  for (std::string line; std::getline(input, line);) {
-    std::istringstream ls{line};
-    Strings passphrases{views::istream<std::string>(ls) | ranges::to<Strings>()};
-
-    part1 += is_valid(passphrases);
-
-    ranges::for_each(passphrases, [](auto& pp) { ranges::sort(pp); });
-    part2 += is_valid(passphrases);
-  }
+  const auto part1{find_part1(rows)};
+  const auto part2{find_part2(rows)};
 
   std::println("{} {}", part1, part2);
 

@@ -1,10 +1,14 @@
 #include "aoc.hpp"
+#include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum class Tile {
+using Vec2 = ndvec::vec2<int>;
+
+enum class Tile : unsigned char {
   bend_north_east,
   bend_east_south,
   bend_south_west,
@@ -15,121 +19,116 @@ enum class Tile {
   empty,
 };
 
-struct Grid2D {
-  std::size_t height{};
-  std::size_t width{};
-  std::vector<Tile> tiles;
-  std::unordered_map<std::size_t, char> letters;
+struct Grid {
+  std::unordered_map<Vec2, Tile> tiles;
+  std::unordered_map<Vec2, char> letters;
 
-  explicit Grid2D(const auto h, const auto w) : height{h}, width{w}, tiles(h * w, Tile::empty) {
+  auto& get_tile(const Vec2& p) {
+    return tiles[p];
+  }
+  [[nodiscard]]
+  const auto& get_tile(const Vec2& p) const {
+    return tiles.at(p);
   }
 
-  auto start_state() const {
-    const auto i{ranges::find(tiles, Tile::pipe_vertical) - tiles.begin()};
-    const auto [y, x]{std::lldiv(i, width)};
-    return std::tuple{y, x, 1, 0};
+  auto& get_letter(const Vec2& p) {
+    return letters[p];
+  }
+  [[nodiscard]]
+  const auto& get_letter(const Vec2& p) const {
+    return letters.at(p);
   }
 
-  auto index(const auto y, const auto x) const {
-    return y * width + x;
-  }
-
-  auto&& get(this auto&& self, const auto y, const auto x) {
-    return self.tiles.at(self.index(y, x));
-  }
-
-  const char& get_letter(const auto y, const auto x) const {
-    return letters.at(index(y, x));
-  }
-  char& get_letter(const auto y, const auto x) {
-    return letters[index(y, x)];
+  [[nodiscard]]
+  Vec2 find_entrance() const {
+    auto top_row{
+        tiles | views::keys | views::filter([](const Vec2& p) { return p.y() == 0; })
+        | ranges::to<std::vector>()
+    };
+    ranges::sort(top_row);
+    for (const Vec2& p : top_row) {
+      if (get_tile(p) == Tile::pipe_vertical) {
+        return p;
+      }
+    }
+    throw std::runtime_error("top row does not contain a vertical pipe");
   }
 };
 
-auto parse_lines(std::istream& is) {
-  using std::operator""s;
-  std::vector<std::string> lines;
-  for (std::string line; std::getline(is, line) and not line.empty();) {
-    line = " "s + line + " "s;
-    if (lines.empty()) {
-      lines.emplace_back(line.size(), ' ');
+auto traverse_diagram(Grid grid) {
+  std::string seen;
+  int steps{};
+  for (Vec2 p{grid.find_entrance()}, d(0, 1); grid.get_tile(p) != Tile::empty; ++steps) {
+    Tile t{grid.get_tile(p)};
+    if (t == Tile::bend_north_east or t == Tile::bend_south_west) {
+      d.y() = std::exchange(d.x(), d.y());
+    } else if (t == Tile::bend_west_north or t == Tile::bend_east_south) {
+      d.y() = -std::exchange(d.x(), -d.y());
+    } else if (t == Tile::letter) {
+      seen.push_back(grid.get_letter(p));
     }
-    lines.push_back(line);
+    p += d;
   }
-  if (not lines.empty() and (is or is.eof())) {
-    lines.emplace_back(lines.front().size(), ' ');
-    return lines;
-  }
-  throw std::runtime_error("failed parsing lines");
+  return std::pair{seen, steps};
 }
 
-Tile parse_tile(const auto& lines, const auto y, const auto x) {
-  const char t{lines[y][x]};
-  if (t == '+') {
-    const char n{lines[y - 1][x]};
-    const char e{lines[y][x + 1]};
-    const char s{lines[y + 1][x]};
-    const char w{lines[y][x - 1]};
-    if (n != ' ' and e != ' ' and n != '-' and e != '|') {
-      return Tile::bend_north_east;
-    }
-    if (e != ' ' and s != ' ' and e != '|' and s != '-') {
-      return Tile::bend_east_south;
-    }
-    if (s != ' ' and w != ' ' and s != '-' and w != '|') {
-      return Tile::bend_south_west;
-    }
-    if (w != ' ' and n != ' ' and w != '|' and n != '-') {
-      return Tile::bend_west_north;
-    }
-  } else if (t == '|') {
-    return Tile::pipe_vertical;
-  } else if (t == '-') {
-    return Tile::pipe_horizontal;
-  } else if (t != ' ') {
-    return Tile::letter;
+std::optional<Tile> parse_bend(char n, char e, char s, char w) {
+  if (n != ' ' and e != ' ' and n != '-' and e != '|') {
+    return Tile::bend_north_east;
   }
-  return Tile::empty;
+  if (e != ' ' and s != ' ' and e != '|' and s != '-') {
+    return Tile::bend_east_south;
+  }
+  if (s != ' ' and w != ' ' and s != '-' and w != '|') {
+    return Tile::bend_south_west;
+  }
+  if (w != ' ' and n != ' ' and w != '|' and n != '-') {
+    return Tile::bend_west_north;
+  }
+  return std::nullopt;
 }
 
-Grid2D parse_grid(const auto& lines) {
-  Grid2D g(lines.size(), lines.front().size());
-  for (auto y{1UZ}; y < g.height - 1; ++y) {
-    for (auto x{1UZ}; x < g.width - 1; ++x) {
-      const auto tile{parse_tile(lines, y, x)};
-      if (tile == Tile::letter) {
-        g.get_letter(y, x) = lines[y][x];
+auto parse_grid(std::string_view path) {
+  const auto lines{aoc::slurp_lines(path)};
+
+  const auto get_char{[&lines](int x, int y) { return lines.at(y).at(x); }};
+
+  const auto parse_tile{[&get_char](int x, int y) {
+    char t{get_char(x, y)};
+    if (t == '+') {
+      char n{get_char(x, y - 1)};
+      char e{get_char(x + 1, y)};
+      char s{get_char(x, y + 1)};
+      char w{get_char(x - 1, y)};
+      if (auto bend{parse_bend(n, e, s, w)}) {
+        return bend.value();
       }
-      g.get(y, x) = tile;
+    } else if (t == '|') {
+      return Tile::pipe_vertical;
+    } else if (t == '-') {
+      return Tile::pipe_horizontal;
+    } else if (t != ' ') {
+      return Tile::letter;
+    }
+    return Tile::empty;
+  }};
+
+  Grid g{};
+  for (Vec2 p; p.y() < lines.size(); p.y() += 1) {
+    for (p.x() = 0; p.x() < lines.at(p.y()).size(); p.x() += 1) {
+      Tile t{parse_tile(p.x(), p.y())};
+      if (t == Tile::letter) {
+        g.get_letter(p) = get_char(p.x(), p.y());
+      }
+      g.get_tile(p) = t;
     }
   }
   return g;
 }
 
-auto traverse_diagram(const Grid2D& grid) {
-  std::string seen;
-  int steps{};
-  for (auto [y, x, dy, dx] = grid.start_state(); grid.get(y, x) != Tile::empty; ++steps) {
-    const auto tile{grid.get(y, x)};
-    if (tile == Tile::bend_north_east or tile == Tile::bend_south_west) {
-      dy = std::exchange(dx, dy);
-    } else if (tile == Tile::bend_west_north or tile == Tile::bend_east_south) {
-      dy = -std::exchange(dx, -dy);
-    } else if (tile == Tile::letter) {
-      seen.push_back(grid.get_letter(y, x));
-    }
-    x += dx;
-    y += dy;
-  }
-  return std::pair{seen, steps};
-}
-
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const Grid2D grid{parse_grid(parse_lines(input))};
-
-  const auto [part1, part2] = traverse_diagram(grid);
+  const Grid g{parse_grid("/dev/stdin")};
+  const auto [part1, part2]{traverse_diagram(g)};
   std::println("{} {}", part1, part2);
-
   return 0;
 }

@@ -5,71 +5,24 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Operand {
-  enum {
+  enum : unsigned char {
     address,
     literal,
-  } type;
+  } type{};
   std::size_t index{};
   int value{};
 };
 
 struct Instruction {
-  enum struct Type {
+  enum struct Type : unsigned char {
     set,
     sub,
     mul,
     jnz,
-  } type;
+  } type{};
   Operand lhs;
   Operand rhs;
 };
-
-std::istream& operator>>(std::istream& is, Operand& op) {
-  if (std::string s; is >> s and not s.empty()) {
-    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'h') {
-      op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
-    } else {
-      op = {.type = Operand::literal, .value = std::stoi(s)};
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Operand");
-}
-
-std::istream& operator>>(std::istream& is, Instruction::Type& type) {
-  if (std::string s; is >> s) {
-    using Type = Instruction::Type;
-    if (s == "set") {
-      type = Type::set;
-    } else if (s == "sub") {
-      type = Type::sub;
-    } else if (s == "mul") {
-      type = Type::mul;
-    } else if (s == "jnz") {
-      type = Type::jnz;
-    } else {
-      is.setstate(std::ios_base::failbit);
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Instruction::Type");
-}
-
-std::istream& operator>>(std::istream& is, Instruction& ins) {
-  if (Instruction::Type type; is >> type) {
-    if (Operand idx, val; is >> idx >> val) {
-      ins = {type, idx, val};
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Instruction");
-}
 
 int find_part1(const auto& instructions) {
   const auto i0{instructions[0]};
@@ -110,9 +63,46 @@ int find_part2(const auto& instructions) {
   return not_prime_count;
 }
 
+std::istream& operator>>(std::istream& is, Operand& op) {
+  if (std::string s; is >> s and not s.empty()) {
+    if (const char reg_ch{s.front()}; 'a' <= reg_ch and reg_ch <= 'h') {
+      op = {.type = Operand::address, .index = static_cast<unsigned>(reg_ch - 'a')};
+    } else {
+      op = {.type = Operand::literal, .value = std::stoi(s)};
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Instruction::Type& type) {
+  if (std::string s; is >> s) {
+    using Type = Instruction::Type;
+    if (s == "set") {
+      type = Type::set;
+    } else if (s == "sub") {
+      type = Type::sub;
+    } else if (s == "mul") {
+      type = Type::mul;
+    } else if (s == "jnz") {
+      type = Type::jnz;
+    } else {
+      throw std::runtime_error(std::format("unknown instruction '{}'", s));
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Instruction& ins) {
+  if (Instruction::Type type{}; is >> type) {
+    if (Operand idx, val; is >> idx >> val) {
+      ins = {type, idx, val};
+    }
+  }
+  return is;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto instructions{std::views::istream<Instruction>(input) | ranges::to<std::vector>()};
+  const auto instructions{aoc::parse_items<Instruction>("/dev/stdin")};
 
   const auto part1{find_part1(instructions)};
   const auto part2{find_part2(instructions)};

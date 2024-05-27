@@ -1,7 +1,7 @@
 #include "std.hpp"
 
-std::pair<int, int> parse_garbage(std::string_view s) {
-  enum class State {
+auto parse_garbage(std::string_view s) {
+  enum class State : unsigned char {
     group,
     garbage,
     cancel,
@@ -9,7 +9,9 @@ std::pair<int, int> parse_garbage(std::string_view s) {
     invalid,
   };
 
-  int depth{}, score{}, garbage_count{};
+  int depth{};
+  int score{};
+  int garbage_count{};
 
   auto state{State::group};
 
@@ -76,17 +78,15 @@ std::pair<int, int> parse_garbage(std::string_view s) {
     throw std::runtime_error("invalid final state");
   }
 
-  return {score, garbage_count};
+  return std::pair{score, garbage_count};
 }
 
 int main() {
   std::ios::sync_with_stdio(false);
-
-  std::string input;
-  std::cin >> input;
-
-  const auto [part1, part2] = parse_garbage(input);
-  std::println("{} {}", part1, part2);
-
-  return 0;
+  if (std::string input; std::cin >> input) {
+    const auto [part1, part2]{parse_garbage(input)};
+    std::println("{} {}", part1, part2);
+    return 0;
+  }
+  throw std::runtime_error("failed parsing input");
 }

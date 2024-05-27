@@ -5,28 +5,13 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum struct State {
+using Vec2 = ndvec::vec2<int>;
+
+enum struct State : unsigned char {
   weakened,
   infected,
   flagged,
 };
-
-using Vec2 = ndvec::vec2<int>;
-
-auto parse_grid(const auto& lines) {
-  std::unordered_map<Vec2, State> grid;
-  const int row_count = lines.size();
-  const int col_count = lines.front().size();
-  for (int row{}; row < row_count; ++row) {
-    for (int col{}; col < col_count; ++col) {
-      if (lines[row][col] == '#') {
-        grid[Vec2(col, row)] = State::infected;
-      }
-    }
-  }
-  Vec2 begin(col_count / 2, row_count / 2);
-  return std::pair{grid, begin};
-}
 
 auto count_part1(auto grid, Vec2 virus, const auto bursts) {
   int count{};
@@ -75,13 +60,26 @@ auto count_part2(auto grid, Vec2 virus, const auto bursts) {
   return count;
 }
 
+auto parse_grid(std::string_view path) {
+  std::unordered_map<Vec2, State> grid;
+  const auto lines{aoc::parse_items<std::string>(path)};
+  for (int row{}; row < lines.size(); ++row) {
+    for (int col{}; col < lines.at(row).size(); ++col) {
+      if (lines.at(row).at(col) == '#') {
+        grid[Vec2(col, row)] = State::infected;
+      }
+    }
+  }
+  Vec2 begin{ranges::max(grid | views::keys) / Vec2(2, 2)};
+  return std::pair{grid, begin};
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto lines{views::istream<std::string>(input) | ranges::to<std::vector>()};
-  const auto [grid, begin] = parse_grid(lines);
+  const auto [grid, begin]{parse_grid("/dev/stdin")};
 
   const auto part1{count_part1(grid, begin, 10'000)};
   const auto part2{count_part2(grid, begin, 10'000'000)};
+
   std::println("{} {}", part1, part2);
 
   return 0;

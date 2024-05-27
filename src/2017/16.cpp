@@ -1,53 +1,53 @@
 #include "aoc.hpp"
 #include "std.hpp"
 
-using aoc::skip;
-using std::operator""s;
-
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Move {
-  enum {
+  enum : unsigned char {
     spin,
     exchange,
     partner,
-  } type;
-  int a{}, b{};
+  } type{};
+  int a{};
+  int b{};
 };
 
 std::istream& operator>>(std::istream& is, Move& move) {
-  if (char type; is >> type) {
-    if (int s; type == 's' and is >> s) {
+  if (char type{}; is >> type) {
+    if (int s{}; type == 's' and is >> s) {
       move = {Move::spin, s};
-    } else if (int a, b; type == 'x' and is >> a >> skip("/"s) >> b) {
+    } else if (int a{}, b{}; type == 'x' and is >> a >> skip("/"s) >> b) {
       move = {Move::exchange, a, b};
-    } else if (char a, b; type == 'p' and is >> a >> skip("/"s) >> b) {
+    } else if (char a{}, b{}; type == 'p' and is >> a >> skip("/"s) >> b) {
       move = {Move::partner, a, b};
     } else {
-      is.setstate(std::ios_base::failbit);
+      throw std::runtime_error("failed parsing move type");
     }
   }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Move");
+  return is;
 }
 
 std::string dance(const auto& moves, const int rounds) {
   std::vector<std::string> seen;
   for (auto s{"abcdefghijklmnop"s}; ranges::find(seen, s) == seen.end();) {
     seen.push_back(s);
-    for (const auto& move : moves) {
+    for (const Move& move : moves) {
       switch (move.type) {
         case Move::spin: {
-          ranges::rotate(s, s.end() - (move.a % s.size()));
+          ranges::rotate(s, s.end() - (move.a % ranges::ssize(s)));
         } break;
         case Move::exchange: {
           std::swap(s.at(move.a), s.at(move.b));
         } break;
         case Move::partner: {
-          std::swap(s.at(s.find(move.a)), s.at(s.find(move.b)));
+          auto a{static_cast<char>(move.a)};
+          auto b{static_cast<char>(move.b)};
+          std::swap(s.at(s.find(a)), s.at(s.find(b)));
         } break;
       }
     }

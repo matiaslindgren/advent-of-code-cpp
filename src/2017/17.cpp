@@ -1,8 +1,8 @@
 #include "std.hpp"
 
-int find_part1(const auto steps) {
-  std::vector<int> buf{0};
-  auto i{0UZ};
+auto find_part1(const auto steps) {
+  std::vector<unsigned long> buf{0};
+  long i{};
   while (buf.size() < 2018) {
     i = 1 + (i + steps) % buf.size();
     buf.insert(buf.begin() + i, buf.size());
@@ -10,9 +10,9 @@ int find_part1(const auto steps) {
   return buf.at(i + 1);
 }
 
-int find_part2(const auto steps) {
-  auto value{0UZ};
-  for (auto i{0UZ}, n{1UZ}; n < 50'000'000; ++n) {
+auto find_part2(const auto steps) {
+  auto value{0UL};
+  for (auto i{0UL}, n{1UL}; n < 50'000'000; ++n) {
     i = 1 + (i + steps) % n;
     if (i == 1) {
       value = n;
@@ -23,14 +23,11 @@ int find_part2(const auto steps) {
 
 int main() {
   std::ios::sync_with_stdio(false);
-
-  int steps;
-  std::cin >> steps;
-
-  const auto part1{find_part1(steps)};
-  const auto part2{find_part2(steps)};
-
-  std::println("{} {}", part1, part2);
-
-  return 0;
+  if (int steps{}; std::cin >> steps and steps > 0) {
+    const auto part1{find_part1(steps)};
+    const auto part2{find_part2(steps)};
+    std::println("{} {}", part1, part2);
+    return 0;
+  }
+  throw std::runtime_error("failed parsing input, it should be a single positive integer");
 }
