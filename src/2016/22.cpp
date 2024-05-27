@@ -1,98 +1,58 @@
 #include "aoc.hpp"
 #include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 using std::operator""s;
 using aoc::skip;
+using Vec2 = ndvec::vec2<int>;
 
 namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Node {
-  int x, y, size, used;
+  Vec2 pos;
+  int size{};
+  int used{};
+
   auto operator<=>(const Node&) const = default;
 };
-
-std::istream& operator>>(std::istream& is, Node& node) {
-  if (std::string line; std::getline(is, line)) {
-    std::istringstream ls{line};
-    if (int x, y; ls >> skip("/dev/grid/node-x"s) >> x >> skip("-y"s) >> y) {
-      if (int size; ls >> std::ws >> size >> skip("T"s)) {
-        if (int used; ls >> std::ws >> used >> skip("T"s)) {
-          if (int avail; ls >> std::ws >> avail >> skip("T"s)) {
-            if (size > 0 and used <= size and avail + used == size) {
-              node = {.x = x, .y = y, .size = size, .used = used};
-              return is;
-            }
-          }
-        }
-      }
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Node");
-}
-
-auto parse_nodes(std::istream& is) {
-  if (is >> skip("root@ebhq-gridcenter#"s, "df"s, "-h"s)) {
-    if (is >> std::ws >> skip("Filesystem"s, "Size"s, "Used"s, "Avail"s, "Use%"s) >> std::ws) {
-      return views::istream<Node>(is) | ranges::to<std::vector>();
-    }
-  }
-  throw std::runtime_error("input has an unexpected header");
-}
 
 auto count_viable_pairs(const auto& nodes) {
   return ranges::count_if(
       my_std::views::cartesian_product(nodes, nodes),
-      my_std::apply_fn([](const auto& na, const auto& nb) {
+      my_std::apply_fn([](const Node& na, const Node& nb) {
         return (na != nb) and (na.used > 0) and (na.used + nb.used <= nb.size);
       })
   );
 }
 
 auto find_shortest_path(const auto& nodes) {
-  const auto x_max{ranges::max_element(nodes, {}, &Node::x)->x};
-  const auto y_max{ranges::max_element(nodes, {}, &Node::y)->y};
+  const auto x_max{ranges::max(views::transform(nodes, [](const Node& n) { return n.pos.x(); }))};
 
-  const auto width{3u + x_max};
-  const auto height{3u + y_max};
-  const auto grid_size{width * height};
+  std::unordered_map<Vec2, std::unordered_set<Vec2>> visited;
+  std::unordered_map<Vec2, int> used;
+  std::unordered_map<Vec2, int> size;
 
-  std::vector<int> used(grid_size, 0), size(grid_size, 0);
-  unsigned free_node{};
-  for (const auto& n : nodes) {
-    const auto index{(n.y + 1) * width + (n.x + 1)};
+  Vec2 free_pos;
+  for (const Node& n : nodes) {
     if (n.used == 0) {
-      free_node = index;
+      free_pos = n.pos;
     }
-    used[index] = n.used;
-    size[index] = n.size;
+    used[n.pos] = n.used;
+    size[n.pos] = n.size;
   }
 
-  unsigned target{width + 1};
-  unsigned data_begin{2 * width - 2};
-
-  std::vector<bool> visited(grid_size * grid_size, false);
-
-  for (std::deque q{std::tuple{data_begin, free_node, 0u}}; not q.empty(); q.pop_front()) {
-    const auto& [data, f, steps] = q.front();
-    if (data == target) {
+  for (std::deque q{std::tuple{Vec2(x_max, 0), free_pos, 0U}}; not q.empty(); q.pop_front()) {
+    auto [data_pos, free_pos, steps]{q.front()};
+    if (data_pos == Vec2()) {
       return steps;
     }
-    if (visited.at(data * grid_size + f)) {
-      continue;
-    }
-    visited[data * grid_size + f] = true;
-    const std::array adjacent{f + 1, f + width, f - 1, f - width};
-    for (const auto adj : adjacent) {
-      if (not size[adj]) {
-        continue;
-      }
-      if (used[adj] <= size[f]) {
-        q.emplace_back(data == adj ? f : data, adj, steps + 1);
+    if (auto [_, is_new]{visited[data_pos].insert(free_pos)}; is_new) {
+      for (Vec2 adj : free_pos.adjacent()) {
+        if (size[adj] > 0 and used[adj] <= size[free_pos]) {
+          q.emplace_back(data_pos == adj ? free_pos : data_pos, adj, steps + 1);
+        }
       }
     }
   }
@@ -100,9 +60,40 @@ auto find_shortest_path(const auto& nodes) {
   throw std::runtime_error("search space exhausted, no answer found");
 }
 
+std::istream& operator>>(std::istream& is, Node& node) {
+  if (std::string line; std::getline(is, line)) {
+    std::istringstream ls{line};
+    if (int x{}, y{}; ls >> skip("/dev/grid/node-x"s) >> x >> skip("-y"s) >> y) {
+      if (int size{}; ls >> std::ws >> size >> skip("T"s)) {
+        if (int used{}; ls >> std::ws >> used >> skip("T"s)) {
+          if (int avail{}; ls >> std::ws >> avail >> skip("T"s)) {
+            if (size > 0 and used <= size and avail + used == size) {
+              node = {.pos = Vec2(x, y), .size = size, .used = used};
+              return is;
+            }
+          }
+        }
+      }
+    }
+    throw std::runtime_error(std::format("failed parsing Node from line '{}'", line));
+  }
+  return is;
+}
+
+auto parse_nodes(std::string_view path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  if (is >> skip("root@ebhq-gridcenter#"s, "df"s, "-h"s)) {
+    if (is >> std::ws >> skip("Filesystem"s, "Size"s, "Used"s, "Avail"s, "Use%"s) >> std::ws) {
+      if (auto nodes{views::istream<Node>(is) | ranges::to<std::vector>()}; is.eof()) {
+        return nodes;
+      }
+    }
+  }
+  throw std::runtime_error("input has an unexpected header");
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto nodes{parse_nodes(input)};
+  const auto nodes{parse_nodes("/dev/stdin")};
 
   const auto part1{count_viable_pairs(nodes)};
   const auto part2{find_shortest_path(nodes)};

@@ -1,40 +1,38 @@
 #include "std.hpp"
 
-int josephus(const auto n) {
-  int res{};
-  for (int i{1}; i <= n; ++i) {
+long josephus(const auto n) {
+  // https://en.wikipedia.org/wiki/Josephus_problem
+  long res{};
+  for (long i{1}; i <= n; ++i) {
     res = res % i + 1;
     res += res > (i + 1) / 2;
   }
   return res - 1;
 }
 
-long pow2(int x) {
-  auto p{1L};
+long ipow2(int x) {
+  long p{1};
   for (int i{}; i < x; ++i) {
     p *= 2;
   }
   return p;
 }
 
-int log2(long x) {
+int ilog2(long x) {
   int l{};
-  while (x >>= 1) {
-    ++l;
+  while ((x /= 2) > 0) {
+    l += 1;
   }
   return l;
 }
 
 int main() {
   std::ios::sync_with_stdio(false);
-
-  int elf_count;
-  std::cin >> elf_count;
-
-  const auto part1{1 + 2 * (elf_count - pow2(log2(elf_count)))};
-  const auto part2{josephus(elf_count)};
-
-  std::println("{} {}", part1, part2);
-
-  return 0;
+  if (int n_elves{}; std::cin >> n_elves and n_elves > 0) {
+    const auto part1{1 + 2 * (n_elves - ipow2(ilog2(n_elves)))};
+    const auto part2{josephus(n_elves)};
+    std::println("{} {}", part1, part2);
+    return 0;
+  }
+  throw std::runtime_error("failed parsing input, it should be a single positive integer");
 }

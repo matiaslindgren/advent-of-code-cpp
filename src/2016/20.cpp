@@ -4,32 +4,20 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 using UInt = uint32_t;
-static_assert(std::numeric_limits<UInt>::max() == 4294967295);
+constexpr auto uint_max{std::numeric_limits<UInt>::max()};
+static_assert(uint_max == 4294967295);
 
 struct Range {
   UInt begin;
   UInt end;
 };
 
-std::istream& operator>>(std::istream& is, Range& range) {
-  using aoc::skip;
-  using std::operator""s;
-  if (std::string line; std::getline(is, line)) {
-    std::istringstream ls{line};
-    if (UInt begin, end; ls >> begin >> skip("-"s) >> end and begin < end) {
-      range = {begin, end};
-      return is;
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Range");
-}
-
 auto find_allowed(const auto& excluded) {
-  std::vector allowed{Range{0u, std::numeric_limits<UInt>::max()}};
+  std::vector allowed{Range{0U, uint_max}};
   for (const Range& exclude : excluded) {
     for (const Range& allow : std::exchange(allowed, {})) {
       if (allow.end < exclude.begin or exclude.end < allow.begin) {
@@ -48,6 +36,18 @@ auto find_allowed(const auto& excluded) {
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
+std::istream& operator>>(std::istream& is, Range& range) {
+  if (std::string line; std::getline(is, line)) {
+    std::istringstream ls{line};
+    if (UInt begin{}, end{}; ls >> begin >> skip("-"s) >> end and begin < end) {
+      range = {begin, end};
+    } else {
+      throw std::runtime_error(std::format("failed parsing line {}", line));
+    }
+  }
+  return is;
+}
+
 int main() {
   const auto excluded_ranges{aoc::parse_items<Range>("/dev/stdin")};
 
@@ -56,7 +56,7 @@ int main() {
     throw std::runtime_error("entire range is excluded");
   }
 
-  const auto part1{ranges::min_element(allowed, {}, &Range::begin)->begin};
+  const auto part1{ranges::min(views::transform(allowed, &Range::begin))};
   const auto part2{sum(views::transform(allowed, [](const auto& r) { return r.end - r.begin + 1; }))
   };
 

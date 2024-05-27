@@ -5,18 +5,18 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using std::operator""s;
+
 bool is_open(auto h) {
   return 0xb <= h and h <= 0xf;
 }
 
-std::pair<std::string, std::string> search(const std::string& passcode) {
-  using std::operator""s;
-
-  std::string part1{}, part2{};
-
+auto search(const std::string& passcode) {
+  std::string part1{};
+  std::string part2{};
   for (std::deque q{std::tuple{0, 0, ""s}}; not q.empty(); q.pop_front()) {
-    const auto& [x, y, path] = q.front();
-    if (not(0 <= x and x <= 3 and 0 <= y and y <= 3)) {
+    auto [x, y, path]{q.front()};
+    if (std::min(x, y) < 0 or std::max(x, y) > 3) {
       continue;
     }
     if (x == 3 and y == 3) {
@@ -42,19 +42,15 @@ std::pair<std::string, std::string> search(const std::string& passcode) {
       q.emplace_back(x + 1, y, path + "R"s);
     }
   }
-
-  return {part1, part2};
+  return std::pair{part1, part2};
 }
 
 int main() {
   std::ios::sync_with_stdio(false);
-
-  std::string passcode;
-  std::cin >> passcode;
-
-  const auto [part1, part2] = search(passcode);
-
-  std::println("{} {}", part1, part2.size());
-
-  return 0;
+  if (std::string passcode; std::cin >> passcode and ranges::all_of(passcode, aoc::is_lower)) {
+    const auto [part1, part2]{search(passcode)};
+    std::println("{} {}", part1, part2.size());
+    return 0;
+  }
+  throw std::runtime_error("failed parsing ascii input password");
 }

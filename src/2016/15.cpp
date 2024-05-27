@@ -5,42 +5,40 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Disc {
-  int pos;
-  int mod;
+  int pos{};
+  int mod{};
 };
 
 std::istream& operator>>(std::istream& is, Disc& disc) {
-  using aoc::skip;
-  using std::operator""s;
   if (std::string line; std::getline(is, line)) {
     std::istringstream ls{line};
-    if (int id, mod, time, pos;
-        ls >> skip("Disc #"s) >> id and id > 0
-        and ls >> skip(" has"s) >> mod >> skip(" positions;"s) >> skip(" at time="s) >> time
-        and time == 0 and ls >> skip(", it is at position"s) >> pos >> skip("."s)) {
-      disc = {pos, mod};
-      return is;
+    if (int id{}, mod{}, time{}, pos{}; ls >> skip("Disc #"s) >> id >> std::ws >> skip("has"s)
+                                        >> mod >> std::ws >> skip("positions; at time="s) >> time
+                                        >> skip(", it is at position"s) >> pos >> skip("."s)) {
+      if (id > 0 and time == 0 and (ls >> std::ws).eof()) {
+        disc = {pos, mod};
+      } else {
+        throw std::runtime_error(std::format("failed parsing line '{}'", line));
+      }
     }
   }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Disc");
+  return is;
 }
 
 auto find_time_to_press(const auto& discs) {
-  // TODO no loop, find common multiple/divisor
-  for (auto t{0UZ}; t < 100'000'000; ++t) {
-    const auto has_open_slot{[=](const auto& p) {
-      const auto& [i, disc] = p;
-      return ((disc.pos + t + i + 1) % disc.mod) == 0;
+  for (auto t{0UL}; t < 100'000'000; ++t) {
+    const auto has_open_slot{[=](auto i, const Disc& d) {
+      return ((d.pos + t + i + 1) % d.mod) == 0;
     }};
-    if (ranges::all_of(my_std::views::enumerate(discs), has_open_slot)) {
+    if (ranges::all_of(my_std::views::enumerate(discs), my_std::apply_fn(has_open_slot))) {
       return t;
     }
   }
-  return std::numeric_limits<std::size_t>::max();
+  throw std::runtime_error("search space exhausted, no answer found");
 }
 
 int main() {
