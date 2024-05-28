@@ -9,64 +9,21 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Rule {
-  unsigned src;
-  bool dst;
+  unsigned src{};
+  bool dst{};
 };
 
 using Pots = std::vector<bool>;
 
-constexpr auto bools2int{std::__bind_back(ranges::fold_left, 0u, [](auto x, bool b) {
+constexpr auto bools2int{std::__bind_back(ranges::fold_left, 0U, [](auto x, bool b) {
   return (x << 1) | b;
 })};
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
-std::istream& operator>>(std::istream& is, Pots& pots) {
-  Pots p;
-  if (std::string s; is >> s) {
-    for (char c : s) {
-      if (c == '#' or c == '.') {
-        p.push_back(c == '#');
-      } else {
-        is.setstate(std::ios_base::failbit);
-        break;
-      }
-    }
-  }
-  if (is or is.eof()) {
-    pots = p;
-    return is;
-  }
-  throw std::runtime_error("failed parsing Pots");
-}
-
-std::istream& operator>>(std::istream& is, Rule& rule) {
-  if (Pots src; is >> src >> std::ws >> skip("=>"s)) {
-    if (Pots dst; is >> std::ws >> dst and dst.size() == 1) {
-      rule = {bools2int(src), dst.front()};
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Rule");
-}
-
-auto parse_input(std::string path) {
-  std::istringstream is{aoc::slurp_file(path)};
-  if (Pots state; is >> skip("initial state:"s) >> state) {
-    std::vector<int> rules(0b11111 + 1, 0);
-    for (Rule r : views::istream<Rule>(is)) {
-      if (r.dst) {
-        rules.at(r.src) = r.dst + 1;
-      }
-    }
-    return std::pair{state, rules};
-  }
-  throw std::runtime_error("failed parsing input state");
-}
-
 auto generate_plants(auto state, const auto& rules, const auto n_iter) {
-  long zero{}, plants{}, delta{};
+  long zero{};
+  long plants{};
+  long delta{};
   for (int iter{}; iter < n_iter; ++iter) {
     while (ranges::any_of(state | views::take(5), std::identity{})) {
       zero -= 1;
@@ -93,6 +50,46 @@ auto generate_plants(auto state, const auto& rules, const auto n_iter) {
     delta = plants - prev_plants;
   }
   return plants;
+}
+
+std::istream& operator>>(std::istream& is, Pots& pots) {
+  Pots p;
+  if (std::string s; is >> s) {
+    for (char c : s) {
+      if (c == '#' or c == '.') {
+        p.push_back(c == '#');
+      } else {
+        is.setstate(std::ios_base::failbit);
+        break;
+      }
+    }
+  }
+  if (is or is.eof()) {
+    pots = p;
+    return is;
+  }
+  throw std::runtime_error("failed parsing Pots");
+}
+
+std::istream& operator>>(std::istream& is, Rule& rule) {
+  if (Pots src, dst; is >> src >> std::ws >> skip("=>"s) >> std::ws >> dst and dst.size() == 1) {
+    rule = {bools2int(src), dst.front()};
+  }
+  return is;
+}
+
+auto parse_input(std::string path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  if (Pots state; is >> skip("initial state:"s) >> state) {
+    std::vector<int> rules(0b11111 + 1, 0);
+    for (Rule r : views::istream<Rule>(is)) {
+      if (r.dst) {
+        rules.at(r.src) = 2;
+      }
+    }
+    return std::pair{state, rules};
+  }
+  throw std::runtime_error("failed parsing input state");
 }
 
 int main() {

@@ -7,20 +7,12 @@ namespace views = std::views;
 
 using Ints = std::vector<int>;
 
-Ints parse_input(std::istream& is, std::string&& prefix) {
-  using aoc::skip;
-  if (std::string line; is >> skip(std::move(prefix)) and std::getline(is, line)) {
-    std::istringstream ls{line};
-    return views::istream<int>(ls) | ranges::to<Ints>();
-  }
-  return {};
-}
-
 inline constexpr auto count_ways_to_win{[](auto time, auto dist) {
   return ranges::count_if(views::iota(0, time), [=](auto t_press) {
     return t_press * (time - t_press) > dist;
   });
 }};
+
 constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 auto find_part1(const Ints& times, const Ints& dists) {
@@ -43,6 +35,15 @@ auto find_part2(const Ints& times, const Ints& dists) {
   const auto t{concat_digits(times)};
   const auto d{concat_digits(dists)};
   return count_ways_to_win(t, d);
+}
+
+Ints parse_input(std::istream& is, std::string&& prefix) {
+  using aoc::skip;
+  if (std::string line; is >> skip(std::move(prefix)) and std::getline(is, line)) {
+    std::istringstream ls{line};
+    return views::istream<int>(ls) | ranges::to<Ints>();
+  }
+  return {};
 }
 
 int main() {

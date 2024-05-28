@@ -5,36 +5,23 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 using Vec2 = ndvec::vec2<int>;
-
-auto parse_input(std::string path) {
-  using aoc::skip;
-  using std::operator""s;
-
-  std::istringstream is{aoc::slurp_file(path)};
-  if (int depth; is >> skip("depth:"s) >> depth) {
-    if (int x, y; is >> std::ws >> skip("target:"s) >> x >> skip(","s) >> y) {
-      if (is or is.eof()) {
-        return std::pair{depth, Vec2(x, y)};
-      }
-    }
-  }
-
-  throw std::runtime_error("failed parsing input");
-}
 
 auto get_erosion(const auto depth, const Vec2& target, const Vec2& p) {
   static std::unordered_map<Vec2, int> erosion;
   if (auto it{erosion.find(p)}; it != erosion.end()) {
     return it->second;
   }
-  long index;
+  long index{};
   if ((p.x() == 0 and p.y() == 0) or p == target) {
     index = 0;
   } else if (p.x() == 0) {
-    index = p.y() * 48'271;
+    index = p.y() * 48'271L;
   } else if (p.y() == 0) {
-    index = p.x() * 16'807;
+    index = p.x() * 16'807L;
   } else {
     index = get_erosion(depth, target, p - Vec2(0, 1)) * get_erosion(depth, target, p - Vec2(1, 0));
   }
@@ -52,8 +39,9 @@ auto find_part1(const auto depth, const Vec2 target) {
 }
 
 struct State {
-  Vec2 pos{};
+  Vec2 pos;
   int tool{};
+
   auto operator<=>(const State&) const = default;
 };
 
@@ -87,7 +75,9 @@ auto find_part2(const auto depth, const Vec2 target) {
     return state;
   }};
 
-  const State begin{}, end{.pos = target};
+  const State begin{};
+  const State end{.pos = target};
+
   q.push_back(begin);
   time[begin] = 0;
 
@@ -125,6 +115,18 @@ auto find_part2(const auto depth, const Vec2 target) {
   }
 
   return time_to_reach(end);
+}
+
+auto parse_input(std::string path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  if (int depth{}; is >> skip("depth:"s) >> depth) {
+    if (int x{}, y{}; is >> std::ws >> skip("target:"s) >> x >> skip(","s) >> y) {
+      if (is or is.eof()) {
+        return std::pair{depth, Vec2(x, y)};
+      }
+    }
+  }
+  throw std::runtime_error("failed parsing input");
 }
 
 int main() {

@@ -15,7 +15,9 @@ int get_digit(auto a, const auto k) {
 
 struct Result {
   long power{};
-  std::size_t x{}, y{}, size{};
+  std::size_t x{};
+  std::size_t y{};
+  std::size_t size{};
 };
 
 auto search(const int serial) {
@@ -49,19 +51,14 @@ auto search(const int serial) {
 
 int main() {
   std::ios::sync_with_stdio(false);
-
-  int serial;
-  std::cin >> serial;
-
-  const auto results{search(serial)};
-
-  const auto sq_3{results[2]};
-  const auto part1{std::format("{},{}", sq_3.x, sq_3.y)};
-
-  const auto sq_max{ranges::max_element(results, ranges::less{}, &Result::power)};
-  const auto part2{std::format("{},{},{}", sq_max->x, sq_max->y, sq_max->size)};
-
-  std::println("{} {}", part1, part2);
-
-  return 0;
+  if (int serial{}; std::cin >> serial and serial > 0) {
+    const auto results{search(serial)};
+    const auto sq_3{results[2]};
+    const auto part1{std::format("{},{}", sq_3.x, sq_3.y)};
+    const auto sq_max{ranges::max_element(results, ranges::less{}, &Result::power)};
+    const auto part2{std::format("{},{},{}", sq_max->x, sq_max->y, sq_max->size)};
+    std::println("{} {}", part1, part2);
+    return 0;
+  }
+  throw std::runtime_error("failed parsing input, it should be a single positive integer");
 }

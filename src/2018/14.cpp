@@ -1,3 +1,4 @@
+#include "aoc.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
@@ -8,7 +9,8 @@ auto search_for_recipes(const int target, const auto& digits) {
   std::ptrdiff_t part2{};
   {
     std::vector<int> r{3, 7};
-    auto i1{0UZ}, i2{1UZ};
+    auto i1{0UL};
+    auto i2{1UL};
     while (part1.empty() or part2 == 0) {
       const auto x1{r[i1]};
       const auto x2{r[i2]};
@@ -42,20 +44,23 @@ auto search_for_recipes(const int target, const auto& digits) {
   return std::pair{part1, part2};
 }
 
-int main() {
-  std::ios::sync_with_stdio(false);
-
-  int target;
-  std::vector<int> digits;
-  {
-    std::string input;
-    std::cin >> input;
-    std::istringstream{input} >> target;
-    digits = views::transform(input, [](char ch) { return ch - '0'; }) | ranges::to<std::vector>();
+auto parse_input(std::string_view path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  if (int target{}; is >> target and target > 0) {
+    std::vector<int> digits;
+    for (auto x{target}; x > 0;) {
+      auto [p, q]{std::div(x, 10)};
+      digits.insert(digits.begin(), q);
+      x = p;
+    }
+    return std::pair{target, digits};
   }
+  throw std::runtime_error("input should be a single positive integer");
+}
 
+int main() {
+  const auto [target, digits]{parse_input("/dev/stdin")};
   const auto [part1, part2]{search_for_recipes(target, digits)};
   std::println("{} {}", part1, part2);
-
   return 0;
 }

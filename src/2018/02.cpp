@@ -7,10 +7,9 @@ namespace views = std::views;
 
 auto count_repeating(const auto& lines, const int r) {
   return ranges::count_if(lines, [&r](const auto& line) {
-    std::array<int, 'z' - 'a' + 1> freq;
-    freq.fill(0);
+    std::array<int, 'z' - 'a' + 1> freq{};
     for (char ch : line) {
-      ++freq[ch - 'a'];
+      ++freq.at(ch - 'a');
     }
     return ranges::find(freq, r) != freq.end();
   });
@@ -43,8 +42,7 @@ auto find_part2(const auto& lines) {
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto lines{views::istream<std::string>(input) | ranges::to<std::vector>()};
+  const auto lines{aoc::parse_items<std::string>("/dev/stdin")};
 
   const auto part1{find_part1(lines)};
   const auto part2{find_part2(lines)};

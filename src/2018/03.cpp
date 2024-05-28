@@ -5,33 +5,21 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-struct Claim {
-  int id{}, left{}, top{}, width{}, height{};
+using aoc::skip;
+using std::operator""s;
 
+struct Claim {
+  int id{};
+  int left{};
+  int top{};
+  int width{};
+  int height{};
+
+  [[nodiscard]]
   auto iter_yx() const {
     return my_std::views::cartesian_product(views::iota(0, height), views::iota(0, width));
   }
 };
-
-std::istream& operator>>(std::istream& is, Claim& claim) {
-  using aoc::skip;
-  using std::operator""s;
-  if (int id; is >> std::ws >> skip("#"s) >> id) {
-    if (int left; is >> std::ws >> skip("@"s) >> left) {
-      if (int top; is >> skip(","s) >> top) {
-        if (int width; is >> skip(":"s) >> width) {
-          if (int height; is >> skip("x"s) >> height) {
-            claim = {id, left, top, width, height};
-          }
-        }
-      }
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Claim");
-}
 
 auto max_value(const auto& claims, int Claim::*const begin, int Claim::*const len) {
   const auto max_claim{ranges::max(claims, {}, [&](const Claim& c) { return c.*begin + c.*len; })};
@@ -44,8 +32,8 @@ auto count_squares(const auto& claims) {
 
   std::vector<int> claim_counts(width * height, 0);
 
-  for (const auto& c : claims) {
-    for (const auto& [y, x] : c.iter_yx()) {
+  for (const Claim& c : claims) {
+    for (auto&& [y, x] : c.iter_yx()) {
       claim_counts[(y + c.top) * width + x + c.left] += 1;
     }
   }
@@ -53,7 +41,7 @@ auto count_squares(const auto& claims) {
   const auto overlapping_count{ranges::count_if(claim_counts, [](auto n) { return n > 1; })};
 
   const auto intact_claim{ranges::find_if(claims, [&](const auto& c) {
-    for (const auto& [y, x] : c.iter_yx()) {
+    for (auto&& [y, x] : c.iter_yx()) {
       if (claim_counts[(y + c.top) * width + x + c.left] != 1) {
         return false;
       }
@@ -64,12 +52,24 @@ auto count_squares(const auto& claims) {
   return std::pair{overlapping_count, intact_claim->id};
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto claims{views::istream<Claim>(input) | ranges::to<std::vector>()};
+std::istream& operator>>(std::istream& is, Claim& claim) {
+  if (int id{}; is >> std::ws >> skip("#"s) >> id) {
+    if (int left{}; is >> std::ws >> skip("@"s) >> left) {
+      if (int top{}; is >> skip(","s) >> top) {
+        if (int width{}; is >> skip(":"s) >> width) {
+          if (int height{}; is >> skip("x"s) >> height) {
+            claim = {id, left, top, width, height};
+          }
+        }
+      }
+    }
+  }
+  return is;
+}
 
+int main() {
+  const auto claims{aoc::parse_items<Claim>("/dev/stdin")};
   const auto [part1, part2]{count_squares(claims)};
   std::println("{} {}", part1, part2);
-
   return 0;
 }

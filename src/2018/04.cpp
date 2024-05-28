@@ -4,41 +4,18 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Event {
-  enum {
+  enum : unsigned char {
     shift_begin,
     fall_asleep,
     wake_up,
-  } type;
+  } type{};
   int minute{};
   int guard{};
 };
-
-std::istream& operator>>(std::istream& is, Event& event) {
-  using aoc::skip;
-  using std::operator""s;
-  if (int m, d, h, minute; is >> std::ws >> skip("[1518-"s) >> m >> skip("-"s) >> d >> h
-                           >> skip(":"s) >> minute >> skip("]"s)) {
-    if (std::string type; is >> type) {
-      if (type == "Guard") {
-        if (int guard; is >> std::ws >> skip("#"s) >> guard >> std::ws >> skip("begins shift"s)) {
-          event = {Event::shift_begin, minute, guard};
-        }
-      } else if (type == "falls") {
-        if (is >> std::ws >> skip("asleep"s)) {
-          event = {Event::fall_asleep, minute};
-        }
-      } else if (type == "wakes") {
-        if (is >> std::ws >> skip("up"s)) {
-          event = {Event::wake_up, minute};
-        }
-      } else {
-        is.setstate(std::ios_base::failbit);
-      }
-    }
-  }
-  return is;
-}
 
 auto find_max(const auto& all_naps, const auto& f) {
   const auto [guard, naps]{*ranges::max_element(all_naps, ranges::less{}, [&](const auto& kv) {
@@ -48,15 +25,15 @@ auto find_max(const auto& all_naps, const auto& f) {
 }
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
-constexpr auto max{std::__bind_back(ranges::fold_left, 0, ranges::max)};
 
 auto find_sleepy_guards(const auto& events) {
   std::unordered_map<int, std::array<int, 60>> naps;
   for (const auto& e : events) {
     naps[e.guard].fill(0);
   }
-  int nap_begin{}, guard{};
-  for (const auto& e : events) {
+  int nap_begin{};
+  int guard{};
+  for (const Event& e : events) {
     switch (e.type) {
       case Event::shift_begin: {
         guard = e.guard;
@@ -66,12 +43,32 @@ auto find_sleepy_guards(const auto& events) {
       } break;
       case Event::wake_up: {
         for (int t{nap_begin}; t < e.minute; ++t) {
-          naps[guard][t] += 1;
+          naps.at(guard).at(t) += 1;
         }
       } break;
     }
   }
-  return std::pair{find_max(naps, sum), find_max(naps, max)};
+  return std::pair{find_max(naps, sum), find_max(naps, ranges::max)};
+}
+
+std::istream& operator>>(std::istream& is, Event& event) {
+  if (int m{}, d{}, h{}, minute{}; is >> std::ws >> skip("[1518-"s) >> m >> skip("-"s) >> d >> h
+                                   >> skip(":"s) >> minute >> skip("]"s)) {
+    if (std::string type; is >> type) {
+      if (int guard{};
+          type == "Guard"
+          and is >> std::ws >> skip("#"s) >> guard >> std::ws >> skip("begins shift"s)) {
+        event = {Event::shift_begin, minute, guard};
+      } else if (type == "falls" and is >> std::ws >> skip("asleep"s)) {
+        event = {Event::fall_asleep, minute};
+      } else if (type == "wakes" and is >> std::ws >> skip("up"s)) {
+        event = {Event::wake_up, minute};
+      } else {
+        throw std::runtime_error(std::format("failed parsing event of invalid type '{}'", type));
+      }
+    }
+  }
+  return is;
 }
 
 auto parse_events(std::string path) {

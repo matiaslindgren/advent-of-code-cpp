@@ -1,6 +1,9 @@
 #include "aoc.hpp"
 #include "std.hpp"
 
+using aoc::skip;
+using std::operator""s;
+
 void left_rotate(auto& q, const auto n) {
   for (int i{}; i < n; ++i) {
     q.push_back(q.front());
@@ -34,14 +37,11 @@ auto find_winning_score(const auto n_players, const auto max_marble) {
 }
 
 auto parse_input(std::string path) {
-  using aoc::skip;
-  using std::operator""s;
   std::istringstream is{aoc::slurp_file(path)};
-  if (int n_players; is >> n_players >> std::ws >> skip("players;"s)) {
-    if (int max_marble; is >> std::ws >> skip("last marble is worth"s) >> max_marble >> std::ws
-                        >> skip("points"s)) {
-      return std::pair{n_players, max_marble};
-    }
+  if (int n_players{}, max_marble{}; is >> n_players >> std::ws >> skip("players;"s) >> std::ws
+                                     >> skip("last marble is worth"s) >> max_marble >> std::ws
+                                     >> skip("points"s)) {
+    return std::pair{n_players, max_marble};
   }
   throw std::runtime_error("failed parsing input state");
 }

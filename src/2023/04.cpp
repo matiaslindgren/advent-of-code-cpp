@@ -4,34 +4,12 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Wins {
-  long count;
+  long count{};
 };
-
-std::istream& operator>>(std::istream& is, Wins& w) {
-  using aoc::skip;
-  using std::operator""s;
-
-  if (unsigned id{}; is >> skip("Card"s) >> id >> skip(":"s)) {
-    if (std::string tmp; std::getline(is, tmp, '|') and not tmp.empty()) {
-      std::istringstream win_str{tmp};
-      const auto win{views::istream<int>(win_str) | ranges::to<std::unordered_set>()};
-
-      if (std::getline(is, tmp) and not tmp.empty()) {
-        std::istringstream given_str{tmp};
-        const auto count{ranges::count_if(views::istream<int>(given_str), [&win](const auto c) {
-          return win.contains(c);
-        })};
-        w = {count};
-        return is;
-      }
-    }
-  }
-  if (is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Wins");
-}
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
@@ -54,6 +32,28 @@ auto find_part2(const auto& wins) {
     );
   }
   return sum(cards);
+}
+
+std::istream& operator>>(std::istream& is, Wins& w) {
+  if (unsigned id{}; is >> skip("Card"s) >> id >> skip(":"s)) {
+    if (std::string tmp; std::getline(is, tmp, '|') and not tmp.empty()) {
+      std::istringstream win_str{tmp};
+      const auto win{views::istream<int>(win_str) | ranges::to<std::unordered_set>()};
+
+      if (std::getline(is, tmp) and not tmp.empty()) {
+        std::istringstream given_str{tmp};
+        const auto count{ranges::count_if(views::istream<int>(given_str), [&win](const auto c) {
+          return win.contains(c);
+        })};
+        w = {count};
+        return is;
+      }
+    }
+  }
+  if (is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Wins");
 }
 
 int main() {

@@ -14,29 +14,11 @@ enum class Tile : char {
   elf = 'E',
 };
 
-std::istream& operator>>(std::istream& is, Tile& tile) {
-  if (std::underlying_type_t<Tile> ch; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Tile::wall):
-      case std::to_underlying(Tile::open):
-      case std::to_underlying(Tile::goblin):
-      case std::to_underlying(Tile::elf): {
-        tile = {ch};
-      } break;
-      default: {
-        is.setstate(std::ios_base::failbit);
-      } break;
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Tile");
-}
-
 struct Unit {
   Tile type;
-  int id{}, power{}, hp{};
+  int id{};
+  int power{};
+  int hp{};
 };
 
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
@@ -47,10 +29,12 @@ struct Cave {
   std::vector<Unit> units;
   std::vector<Vec2> state;
 
+  [[nodiscard]]
   auto size() const {
     return walls.size();
   }
 
+  [[nodiscard]]
   auto index(const Vec2& p) const {
     return p.y() * width + p.x();
   }
@@ -59,6 +43,7 @@ struct Cave {
     return self.state.at(u.id);
   }
 
+  [[nodiscard]]
   bool is_wall(const Vec2& p) const {
     return walls.at(index(p));
   }
@@ -140,48 +125,6 @@ struct Cave {
   }
 };
 
-Cave parse_cave(std::string path) {
-  Cave g{};
-  std::istringstream is{aoc::slurp_file(path)};
-  {
-    Vec2 p(0, 0);
-    int unit_id{};
-    for (std::string line; std::getline(is, line) and not line.empty(); ++p.y()) {
-      if (not g.width) {
-        g.width = line.size();
-      } else if (line.size() != g.width) {
-        is.setstate(std::ios_base::failbit);
-        break;
-      }
-
-      std::istringstream ls{line};
-      p.x() = 0;
-      for (Tile t : views::istream<Tile>(ls)) {
-        g.walls.push_back(t == Tile::wall);
-        if (t == Tile::goblin or t == Tile::elf) {
-          g.units.push_back(Unit{
-              .type = t,
-              .id = unit_id++,
-              .power = 3,
-              .hp = 200,
-          });
-          g.state.push_back(p);
-        }
-        ++p.x();
-      }
-
-      if (not ls.eof()) {
-        is.setstate(std::ios_base::failbit);
-      }
-    }
-  }
-  if (is.eof()) {
-    return g;
-  }
-
-  throw std::runtime_error("failed parsing Cave");
-}
-
 std::optional<int> simulate(Cave cave, const bool is_part2 = false) {
   const auto unit_priority{[&cave](const Unit& u) {
     const auto& pos{cave.get_pos(u)};
@@ -247,6 +190,55 @@ auto find_part2(Cave cave) {
       return *outcome;
     }
   }
+}
+
+std::istream& operator>>(std::istream& is, Tile& tile) {
+  if (std::underlying_type_t<Tile> ch{}; is >> ch) {
+    switch (ch) {
+      case std::to_underlying(Tile::wall):
+      case std::to_underlying(Tile::open):
+      case std::to_underlying(Tile::goblin):
+      case std::to_underlying(Tile::elf): {
+        tile = {ch};
+      } break;
+      default:
+        throw std::runtime_error(std::format("unknown tile '{}'", ch));
+    }
+  }
+  return is;
+}
+
+Cave parse_cave(std::string path) {
+  Cave g{};
+  Vec2 p(0, 0);
+  int unit_id{};
+  for (std::string line : aoc::slurp_lines(path)) {
+    std::istringstream ls{line};
+    p.x() = 0;
+    for (Tile t : views::istream<Tile>(ls)) {
+      g.walls.push_back(t == Tile::wall);
+      if (t == Tile::goblin or t == Tile::elf) {
+        g.units.push_back(Unit{
+            .type = t,
+            .id = unit_id++,
+            .power = 3,
+            .hp = 200,
+        });
+        g.state.push_back(p);
+      }
+      ++p.x();
+    }
+    if (not ls.eof()) {
+      throw std::runtime_error(std::format("failed parsing line '{}'", line));
+    }
+    if (g.width == 0) {
+      g.width = p.x();
+    } else if (g.width != p.x()) {
+      throw std::runtime_error("every line must be of equal width");
+    }
+    p.y() += 1;
+  }
+  return g;
 }
 
 int main() {

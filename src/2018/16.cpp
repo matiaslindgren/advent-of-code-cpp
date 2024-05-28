@@ -8,53 +8,19 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Instruction {
-  int op_id{}, a{}, b{}, c{};
+  int op_id{};
+  int a{};
+  int b{};
+  int c{};
 };
 
 using Memory = std::array<int, 4>;
 
 struct Sample {
-  Memory before, after;
+  Memory before{};
+  Memory after{};
   Instruction ins;
 };
-
-std::istream& operator>>(std::istream& is, Memory& memory) {
-  if (Memory m{}; is >> std::ws >> skip("["s)) {
-    for (auto i{0UZ}; i < m.size() - 1 and is >> m[i] >> skip(","s); ++i) {
-    }
-    if (is >> m.back() >> skip("]"s)) {
-      memory = m;
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Memory");
-}
-
-std::istream& operator>>(std::istream& is, Instruction& instruction) {
-  if (Instruction ins; is >> ins.op_id >> ins.a >> ins.b >> ins.c) {
-    instruction = ins;
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Instruction");
-}
-
-std::istream& operator>>(std::istream& is, Sample& sample) {
-  if (Memory before; is >> std::ws >> skip("Before:"s) >> before) {
-    if (Instruction ins; is >> ins) {
-      if (Memory after; is >> std::ws >> skip("After:"s) >> after) {
-        sample = {before, after, ins};
-      }
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Sample");
-}
 
 const std::array opcodes{
     "addi"s,
@@ -77,15 +43,15 @@ const std::array opcodes{
 
 inline constexpr auto update{
     [](auto& mem, const Instruction& ins, const bool immediate, auto&& binop) {
-      mem[ins.c] = binop(mem[ins.a], immediate ? ins.b : mem[ins.b]);
+      mem.at(ins.c) = binop(mem.at(ins.a), immediate ? ins.b : mem.at(ins.b));
     }
 };
 
 auto compute(Memory mem, const Instruction& ins, const auto& op) {
   if (op == "setr"s) {
-    mem[ins.c] = mem[ins.a];
+    mem.at(ins.c) = mem.at(ins.a);
   } else if (op == "seti"s) {
-    mem[ins.c] = ins.a;
+    mem.at(ins.c) = ins.a;
   } else if (op.starts_with("add"s)) {
     update(mem, ins, op[3] == 'i', std::plus{});
   } else if (op.starts_with("mul"s)) {
@@ -163,6 +129,36 @@ auto find_part2(const auto& samples, const auto& instructions) {
   return mem.front();
 }
 
+std::istream& operator>>(std::istream& is, Memory& memory) {
+  if (Memory m{}; is >> std::ws >> skip("["s)) {
+    for (auto i{0UZ}; i < m.size() - 1 and is >> m.at(i) >> skip(","s);) {
+      ++i;
+    }
+    if (is >> m.back() >> skip("]"s)) {
+      memory = m;
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Instruction& instruction) {
+  if (Instruction ins; is >> ins.op_id >> ins.a >> ins.b >> ins.c) {
+    instruction = ins;
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Sample& sample) {
+  if (Memory before; is >> std::ws >> skip("Before:"s) >> before) {
+    if (Instruction ins; is >> ins) {
+      if (Memory after; is >> std::ws >> skip("After:"s) >> after) {
+        sample = {before, after, ins};
+      }
+    }
+  }
+  return is;
+}
+
 auto parse_input(std::string path) {
   const auto input{aoc::slurp_file(path)};
   const auto sections{
@@ -176,11 +172,14 @@ auto parse_input(std::string path) {
 
   std::istringstream is{sections[0]};
   const auto samples{views::istream<Sample>(is) | ranges::to<std::vector>()};
-
-  is = std::istringstream(sections[1]);
-  const auto instructions{views::istream<Instruction>(is) | ranges::to<std::vector>()};
-
-  return std::pair{samples, instructions};
+  if (is or is.eof()) {
+    is = std::istringstream(sections[1]);
+    const auto instructions{views::istream<Instruction>(is) | ranges::to<std::vector>()};
+    if (is or is.eof()) {
+      return std::pair{samples, instructions};
+    }
+  }
+  throw std::runtime_error("failed parsing input");
 }
 
 int main() {

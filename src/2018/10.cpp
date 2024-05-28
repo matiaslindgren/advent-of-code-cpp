@@ -10,21 +10,17 @@ using aoc::skip;
 using std::operator""s;
 
 struct Light {
-  Vec2 p, v;
+  Vec2 p;
+  Vec2 v;
 };
 
 auto find_grid_corners(const auto& lights) {
-  constexpr auto intmin{std::numeric_limits<int>::min()};
-  constexpr auto intmax{std::numeric_limits<int>::max()};
   return ranges::fold_left(
       lights,
-      std::pair{Vec2(intmax, intmax), Vec2(intmin, intmin)},
-      [](const auto& corners, const auto& l) {
-        auto [tl, br] = corners;
-        return std::pair{
-            Vec2(std::min(tl.x(), l.p.x()), std::min(tl.y(), l.p.y())),
-            Vec2(std::max(br.x(), l.p.x()), std::max(br.y(), l.p.y()))
-        };
+      std::pair{lights.at(0).p, lights.at(0).p},
+      [](const auto& corners, const Light& l) {
+        auto&& [tl, br]{corners};
+        return std::pair{tl.min(l.p), br.max(l.p)};
       }
   );
 }

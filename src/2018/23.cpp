@@ -13,24 +13,11 @@ struct Bot {
   Vec3 p;
   long r{};
 
+  [[nodiscard]]
   bool in_range(const Bot& rhs) const {
     return p.distance(rhs.p) <= r;
   }
 };
-
-std::istream& operator>>(std::istream& is, Bot& bot) {
-  if (std::string line; std::getline(is, line)) {
-    ranges::replace(line, ',', ' ');
-    std::istringstream ls{line};
-    if (Bot b; ls >> std::ws >> skip("pos=<"s) >> b.p >> skip(">"s, "r="s) >> b.r) {
-      bot = b;
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Bot");
-}
 
 auto find_part1(const auto& bots) {
   const auto b1{ranges::max(bots, {}, &Bot::r)};
@@ -48,7 +35,7 @@ auto find_part2(const auto& bots) {
   // (2024-02-19)
   //
   using P2 = std::pair<long, long>;
-  std::priority_queue<P2, std::vector<P2>, std::greater<P2>> q;
+  std::priority_queue<P2, std::vector<P2>, std::greater<>> q;
   for (const auto& bot : bots) {
     const auto d{bot.p.distance(Vec3{})};
     // begin line
@@ -56,7 +43,9 @@ auto find_part2(const auto& bots) {
     // end line
     q.emplace(d + bot.r + 1, -1);
   }
-  long count{}, max_count{}, result{};
+  long count{};
+  long max_count{};
+  long result{};
   for (; not q.empty(); q.pop()) {
     const auto [dist, n]{q.top()};
     count += n;
@@ -67,6 +56,20 @@ auto find_part2(const auto& bots) {
     }
   }
   return result + 1;
+}
+
+std::istream& operator>>(std::istream& is, Bot& bot) {
+  if (std::string line; std::getline(is, line)) {
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
+    if (Bot b; ls >> std::ws >> skip("pos=<"s) >> b.p >> skip(">"s, "r="s) >> b.r) {
+      bot = b;
+    }
+  }
+  if (is or is.eof()) {
+    return is;
+  }
+  throw std::runtime_error("failed parsing Bot");
 }
 
 int main() {

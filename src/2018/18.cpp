@@ -1,9 +1,11 @@
 #include "aoc.hpp"
-#include "my_std.hpp"
+#include "ndvec.hpp"
 #include "std.hpp"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+
+using Vec2 = ndvec::vec2<int>;
 
 enum class Tile : char {
   open = '.',
@@ -11,119 +13,96 @@ enum class Tile : char {
   yard = '#',
 };
 
-std::istream& operator>>(std::istream& is, Tile& tile) {
-  if (std::underlying_type_t<Tile> ch; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Tile::open):
-      case std::to_underlying(Tile::tree):
-      case std::to_underlying(Tile::yard): {
-        tile = {ch};
-      } break;
-      default: {
-        is.setstate(std::ios_base::failbit);
-      } break;
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Tile");
-}
+using TileMap = std::map<Vec2, Tile>;
 
-constexpr auto square_points(const auto begin, const auto end) {
-  auto&& side{views::iota(begin, end)};
-  return my_std::views::cartesian_product(side, side);
-}
+struct Grid {
+  TileMap tiles;
 
-struct Grid2D {
-  std::vector<Tile> tiles;
-  std::size_t width{};
-  std::size_t height{};
-
-  void append_padding() {
-    tiles.append_range(views::repeat(Tile::open, width));
-    ++height;
+  [[nodiscard]]
+  auto count(Tile t) const {
+    return ranges::count(tiles | views::values, t);
   }
 
-  auto&& get(this auto&& self, auto y, auto x) {
-    return self.tiles.at(y * self.width + x);
-  }
-
-  Grid2D step() const {
-    Grid2D g{*this};
-    for (auto [y, x] : square_points(1UZ, width - 1)) {
-      int trees{}, yards{};
-      for (auto [dy, dx] : square_points(-1, 2)) {
-        if (dy == 0 and dx == 0) {
-          continue;
+  [[nodiscard]]
+  int count_adjacent(const Vec2& center, Tile t) const {
+    int n{};
+    for (Vec2 d(-1, -1); d.x() <= 1; d.x() += 1) {
+      for (d.y() = -1; d.y() <= 1; d.y() += 1) {
+        if (Vec2 p{center + d}; p != center and tiles.contains(p) and tiles.at(p) == t) {
+          n += 1;
         }
-        const auto tile{get(y + dy, x + dx)};
-        trees += tile == Tile::tree;
-        yards += tile == Tile::yard;
       }
-      switch (get(y, x)) {
+    }
+    return n;
+  }
+
+  [[nodiscard]]
+  Grid step() const {
+    Grid after{*this};
+    for (auto&& [p, tile] : tiles) {
+      const auto n_trees{count_adjacent(p, Tile::tree)};
+      const auto n_yards{count_adjacent(p, Tile::yard)};
+      switch (tile) {
         case Tile::open: {
-          if (trees >= 3) {
-            g.get(y, x) = Tile::tree;
+          if (n_trees >= 3) {
+            after.tiles[p] = Tile::tree;
           }
         } break;
         case Tile::tree: {
-          if (yards >= 3) {
-            g.get(y, x) = Tile::yard;
+          if (n_yards >= 3) {
+            after.tiles[p] = Tile::yard;
           }
         } break;
         case Tile::yard: {
-          if (yards > 0 and trees > 0) {
-            g.get(y, x) = Tile::yard;
+          if (n_yards > 0 and n_trees > 0) {
+            after.tiles[p] = Tile::yard;
           } else {
-            g.get(y, x) = Tile::open;
+            after.tiles[p] = Tile::open;
           }
         } break;
       }
     }
-    return g;
+    return after;
   }
 };
 
-Grid2D parse_grid(std::istream& is) {
-  Grid2D g;
-  for (std::string line; std::getline(is, line) and not line.empty(); ++g.height) {
-    line.insert(line.begin(), std::to_underlying(Tile::open));
-    line.insert(line.end(), std::to_underlying(Tile::open));
-    if (not g.width) {
-      g.width = line.size();
-      g.append_padding();
-    } else if (line.size() != g.width) {
-      is.setstate(std::ios_base::failbit);
-      break;
-    }
-    std::istringstream ls{line};
-    g.tiles.append_range(views::istream<Tile>(ls));
-  }
-  if (is or is.eof()) {
-    g.append_padding();
-    return g;
-  }
-  throw std::runtime_error("failed parsing Grid");
-}
-
-auto simulate(Grid2D grid, const auto t_limit) {
-  std::vector<decltype(grid.tiles)> seen;
+auto simulate(Grid grid, const auto t_limit) {
+  std::vector<TileMap> seen;
   for (int t{}; t < t_limit; ++t) {
     if (const auto prev{ranges::find(seen, grid.tiles)}; prev != seen.end()) {
       const auto cycle_len{ranges::distance(prev, seen.end())};
-      grid.tiles = *ranges::next(prev, (t_limit - t) % cycle_len);
+      grid.tiles = prev[(t_limit - t) % cycle_len];
       break;
     }
     seen.push_back(grid.tiles);
     grid = grid.step();
   }
-  return ranges::count(grid.tiles, Tile::tree) * ranges::count(grid.tiles, Tile::yard);
+  return grid.count(Tile::tree) * grid.count(Tile::yard);
+}
+
+Grid parse_grid(std::string_view path) {
+  Grid g;
+  for (Vec2 p; const std::string& line : aoc::slurp_lines(path)) {
+    p.x() = 0;
+    for (char ch : line) {
+      switch (ch) {
+        case std::to_underlying(Tile::open):
+        case std::to_underlying(Tile::tree):
+        case std::to_underlying(Tile::yard): {
+          g.tiles[p] = {ch};
+        } break;
+        default:
+          throw std::runtime_error(std::format("unknown tile '{}'", ch));
+      }
+      p.x() += 1;
+    }
+    p.y() += 1;
+  }
+  return g;
 }
 
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto grid{parse_grid(input)};
+  const auto grid{parse_grid("/dev/stdin")};
 
   const auto part1{simulate(grid, 10)};
   const auto part2{simulate(grid, 1'000'000'000)};

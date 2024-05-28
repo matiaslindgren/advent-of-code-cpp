@@ -55,6 +55,6 @@ auto find_part1(const Points& points) {
 
 int main() {
   const auto points{aoc::parse_items<Vec4>("/dev/stdin", ',')};
-  std::print("{}\n", find_part1(points));
+  std::println("{}", find_part1(points));
   return 0;
 }

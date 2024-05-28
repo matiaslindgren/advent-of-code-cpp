@@ -4,35 +4,28 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 struct Step {
-  char a{}, b{};
+  char a{};
+  char b{};
 };
 
-std::istream& operator>>(std::istream& is, Step& step) {
-  using aoc::skip;
-  using std::operator""s;
-  if (char a; is >> std::ws >> skip("Step"s) >> a) {
-    if (char b; is >> std::ws >> skip("must be finished before step"s) >> b >> std::ws
-                >> skip("can begin."s)) {
-      step = {a, b};
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Step");
-}
-
 auto run_tasks(const auto& steps, const auto n_workers) {
-  std::unordered_map<char, std::unordered_set<char>> before, after;
-  for (const auto& step : steps) {
+  using Char2Chars = std::unordered_map<char, std::unordered_set<char>>;
+  Char2Chars before;
+  Char2Chars after;
+  for (const Step& step : steps) {
     before[step.a];
     before[step.b].insert(step.a);
     after[step.b];
     after[step.a].insert(step.b);
   }
 
-  std::vector<std::pair<int, int>> todo, doing;
+  using IntPairs = std::vector<std::pair<int, int>>;
+  IntPairs todo;
+  IntPairs doing;
 
   const auto push_min_heap{[](auto& q, int a, int b = 0) {
     q.emplace_back(a, b);
@@ -80,9 +73,17 @@ auto run_tasks(const auto& steps, const auto n_workers) {
   return std::pair{completed, t - 1};
 }
 
+std::istream& operator>>(std::istream& is, Step& step) {
+  if (char a{}, b{}; is >> std::ws >> skip("Step"s) >> a >> std::ws
+                     >> skip("must be finished before step"s) >> b >> std::ws
+                     >> skip("can begin."s)) {
+    step = {a, b};
+  }
+  return is;
+}
+
 int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto steps{views::istream<Step>(input) | ranges::to<std::vector>()};
+  const auto steps{aoc::parse_items<Step>("/dev/stdin")};
 
   const auto part1{run_tasks(steps, 1).first};
   const auto part2{run_tasks(steps, 5).second};

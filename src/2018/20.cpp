@@ -20,31 +20,6 @@ enum class Token : char {
   end = '$',
 };
 
-std::istream& operator>>(std::istream& is, Token& token) {
-  if (std::underlying_type_t<Token> ch; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Token::north):
-      case std::to_underlying(Token::east):
-      case std::to_underlying(Token::south):
-      case std::to_underlying(Token::west):
-      case std::to_underlying(Token::lpar):
-      case std::to_underlying(Token::rpar):
-      case std::to_underlying(Token::pipe):
-      case std::to_underlying(Token::begin):
-      case std::to_underlying(Token::end): {
-        token = {ch};
-      } break;
-      default: {
-        is.setstate(std::ios_base::failbit);
-      } break;
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Token");
-}
-
 auto find_shortest_paths(const Steps& steps) {
   std::unordered_map<Vec2, std::unordered_set<Vec2>> edges;
   for (auto&& [src, dst] : steps) {
@@ -134,12 +109,30 @@ auto search_paths(const auto& tokens) {
   };
 }
 
-int main() {
-  std::istringstream input{aoc::slurp_file("/dev/stdin")};
-  const auto tokens{views::istream<Token>(input) | ranges::to<std::vector>()};
+std::istream& operator>>(std::istream& is, Token& token) {
+  if (std::underlying_type_t<Token> ch{}; is >> ch) {
+    switch (ch) {
+      case std::to_underlying(Token::north):
+      case std::to_underlying(Token::east):
+      case std::to_underlying(Token::south):
+      case std::to_underlying(Token::west):
+      case std::to_underlying(Token::lpar):
+      case std::to_underlying(Token::rpar):
+      case std::to_underlying(Token::pipe):
+      case std::to_underlying(Token::begin):
+      case std::to_underlying(Token::end): {
+        token = {ch};
+      } break;
+      default:
+        throw std::runtime_error(std::format("unknown token '{}'", ch));
+    }
+  }
+  return is;
+}
 
+int main() {
+  const auto tokens{aoc::parse_items<Token>("/dev/stdin")};
   const auto [part1, part2]{search_paths(tokens)};
   std::println("{} {}", part1, part2);
-
   return 0;
 }

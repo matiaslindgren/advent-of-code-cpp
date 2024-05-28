@@ -9,40 +9,25 @@ struct Unit {
   bool polarity{false};
   bool alive{true};
 
+  [[nodiscard]]
   bool destroys(const Unit& rhs) const {
     return type == rhs.type and polarity != rhs.polarity;
   }
 };
 
-std::istream& operator>>(std::istream& is, Unit& unit) {
-  if (char ch; is >> ch) {
-    if ('a' <= ch and ch <= 'z') {
-      unit = {ch - 'a', false};
-    } else if ('A' <= ch and ch <= 'Z') {
-      unit = {ch - 'A', true};
-    } else {
-      is.setstate(std::ios_base::failbit);
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Unit");
-}
-
 std::size_t react(auto polymer) {
   for (auto alive{ranges::subrange(polymer)};;) {
     // TODO (llvm19?) std adjacent
-    for (const auto [lhs, rhs] : views::zip(alive, views::drop(alive, 1))) {
+    for (auto&& [lhs, rhs] : views::zip(alive, views::drop(alive, 1))) {
       if (lhs.alive and rhs.alive and lhs.destroys(rhs)) {
         lhs.alive = rhs.alive = false;
       }
     }
-    if (const auto dead{ranges::remove_if(alive, std::not_fn(&Unit::alive))}; dead.empty()) {
+    const auto dead{ranges::remove_if(alive, std::not_fn(&Unit::alive))};
+    if (dead.empty()) {
       return alive.size();
-    } else {
-      alive = ranges::subrange(alive.begin(), dead.begin());
     }
+    alive = ranges::subrange(alive.begin(), dead.begin());
   }
 }
 
@@ -58,6 +43,19 @@ auto find_part2(const auto& polymer) {
         );
       }
   );
+}
+
+std::istream& operator>>(std::istream& is, Unit& unit) {
+  if (char ch{}; is >> ch) {
+    if ('a' <= ch and ch <= 'z') {
+      unit = {ch - 'a', false};
+    } else if ('A' <= ch and ch <= 'Z') {
+      unit = {ch - 'A', true};
+    } else {
+      throw std::runtime_error("invalid input, every char must be in [a-zA-Z]");
+    }
+  }
+  return is;
 }
 
 int main() {

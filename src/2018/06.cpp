@@ -10,17 +10,12 @@ using Vec2 = ndvec::vec2<int>;
 using Points = std::vector<Vec2>;
 
 auto find_grid_corners(const Points& points) {
-  constexpr auto intmin{std::numeric_limits<int>::min()};
-  constexpr auto intmax{std::numeric_limits<int>::max()};
   return ranges::fold_left(
       points,
-      std::pair{Vec2(intmax, intmax), Vec2(intmin, intmin)},
-      [](const auto& corners, const auto& p) {
-        auto [tl, br] = corners;
-        return std::pair{
-            Vec2(std::min(tl.x(), p.x()), std::min(tl.y(), p.y())),
-            Vec2(std::max(br.x(), p.x()), std::max(br.y(), p.y()))
-        };
+      std::pair{points.at(0), points.at(0)},
+      [](const auto& corners, const Vec2& p) {
+        auto&& [tl, br]{corners};
+        return std::pair{tl.min(p), br.max(p)};
       }
   );
 }
@@ -29,6 +24,7 @@ auto find_areas(const Points& points) {
   std::vector<Points> cells(points.size());
   std::unordered_map<Vec2, std::size_t> total_dist;
   const auto [top_left, bottom_right]{find_grid_corners(points)};
+
   {
     std::unordered_map<Vec2, std::vector<std::size_t>> claims;
     for (Vec2 p(0, top_left.y() - 1); p.y() < bottom_right.y() + 1; ++p.y()) {
@@ -51,11 +47,13 @@ auto find_areas(const Points& points) {
       }
     }
   }
+
   const auto is_finite{[&](const auto& p) -> bool {
     const auto y_finite{top_left.y() < p.y() and p.y() < bottom_right.y()};
     const auto x_finite{top_left.x() < p.x() and p.x() < bottom_right.x()};
     return y_finite and x_finite;
   }};
+
   return std::pair{
       ranges::max(cells | views::transform([&](const auto& cell) {
                     return ranges::all_of(cell, is_finite) ? static_cast<int>(cell.size()) : 0;

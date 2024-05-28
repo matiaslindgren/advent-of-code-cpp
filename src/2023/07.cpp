@@ -99,6 +99,19 @@ struct Card {
   }
 };
 
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+
+using Cards = std::vector<Card>;
+
+auto total_winnings(ranges::random_access_range auto&& r) {
+  Cards cards{r | ranges::to<Cards>()};
+  std::sort(cards.begin(), cards.end());
+  const auto bids{views::transform(cards, &Card::bid)};
+  return sum(
+      my_std::views::enumerate(bids, 1) | views::transform(my_std::apply_fn(std::multiplies{}))
+  );
+}
+
 std::istream& operator>>(std::istream& is, Card& card) {
   if (std::string line; std::getline(is, line)) {
     std::istringstream ls{line};
@@ -115,19 +128,6 @@ std::istream& operator>>(std::istream& is, Card& card) {
     return is;
   }
   throw std::runtime_error("failed parsing Card");
-}
-
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
-
-using Cards = std::vector<Card>;
-
-auto total_winnings(ranges::random_access_range auto&& r) {
-  Cards cards{r | ranges::to<Cards>()};
-  std::sort(cards.begin(), cards.end());
-  const auto bids{views::transform(cards, &Card::bid)};
-  return sum(
-      my_std::views::enumerate(bids, 1) | views::transform(my_std::apply_fn(std::multiplies{}))
-  );
 }
 
 int main() {
