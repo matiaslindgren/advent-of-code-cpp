@@ -5,7 +5,8 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 int find_part1(int earliest, const auto& ids) {
-  int res{}, min{std::numeric_limits<int>::max()};
+  int res{};
+  int min{std::numeric_limits<int>::max()};
   for (auto id : views::values(ids)) {
     if (auto x{id - earliest % id}; x < min) {
       min = x;
@@ -48,32 +49,31 @@ long find_part2(const auto& ids) {
   return sum;
 }
 
-auto parse_input() {
-  std::ios::sync_with_stdio(false);
-
-  int earliest;
-  std::cin >> earliest;
-
-  std::vector<std::pair<int, int>> ids;
-
-  if (std::string line; std::getline(std::cin >> std::ws, line)) {
-    ranges::replace(line, ',', ' ');
-    std::istringstream ls{line};
-    for (int i{}; ls >> line; ++i) {
-      if (line != "x") {
-        std::istringstream is{line};
-        int x;
-        is >> x;
-        ids.emplace_back(x - i, x);
+auto parse_input(std::string_view path) {
+  std::istringstream is{aoc::slurp_file(path)};
+  if (int earliest{}; is >> earliest) {
+    std::vector<std::pair<int, int>> ids;
+    if (std::string line; is >> std::ws and std::getline(is, line)) {
+      ranges::replace(line, ',', ' ');
+      std::istringstream ls{line};
+      for (int i{}; ls >> line; ++i) {
+        if (line != "x") {
+          std::istringstream is{line};
+          if (int x{}; is >> x) {
+            ids.emplace_back(x - i, x);
+          } else {
+            throw std::runtime_error(std::format("invalid value '{}'", line));
+          }
+        }
       }
     }
+    return std::pair{earliest, ids};
   }
-
-  return std::pair{earliest, ids};
+  throw std::runtime_error("failed parsing input");
 }
 
 int main() {
-  const auto [earliest, ids]{parse_input()};
+  const auto [earliest, ids]{parse_input("/dev/stdin")};
 
   const auto part1{find_part1(earliest, ids)};
   const auto part2{find_part2(ids)};

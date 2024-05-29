@@ -9,43 +9,20 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Shuffle {
-  enum {
+  enum : unsigned char {
     rotate_left,
     rotate_right,
     increment,
     into_new,
-  } type;
+  } type{};
   int n{};
 };
 
-std::istream& operator>>(std::istream& is, Shuffle& s) {
-  if (std::string tmp; is >> std::ws >> tmp) {
-    if (tmp == "cut") {
-      if (int n; is >> n) {
-        s = {n < 0 ? Shuffle::rotate_right : Shuffle::rotate_left, std::abs(n)};
-      }
-    } else if (tmp == "deal") {
-      if (is >> tmp >> std::ws) {
-        if (int n; tmp == "with" and is >> skip("increment"s) >> n) {
-          s = {Shuffle::increment, n};
-        } else if (tmp == "into" and is >> skip("new stack"s)) {
-          s = {Shuffle::into_new};
-        } else {
-          throw std::runtime_error("deal must be followed by 'with increment' or 'into new stack'");
-        }
-      }
-    } else {
-      throw std::runtime_error("first word must be cut or deal");
-    }
-  }
-  return is;
-}
-
 auto find_part1(const auto& shuffles) {
-  std::array<int, 10007> cards;
+  std::array<int, 10007> cards{};
   // todo ranges::iota
-  for (auto&& [i, c] : my_std::views::enumerate(cards)) {
-    c = i;
+  for (int i{}; i < cards.size(); ++i) {
+    cards.at(i) = i;
   }
   constexpr auto n{cards.size()};
   for (auto s : shuffles) {
@@ -59,7 +36,7 @@ auto find_part1(const auto& shuffles) {
       case Shuffle::increment: {
         const auto prev_cards{cards};
         for (auto&& [i, c] : my_std::views::enumerate(prev_cards)) {
-          cards[(i * s.n) % n] = c;
+          cards.at((i * s.n) % n) = c;
         }
       } break;
       case Shuffle::into_new: {
@@ -147,17 +124,31 @@ auto find_part2(const auto& shuffles) {
   return (res1 % n + res2 % n) % n;
 }
 
-auto parse_input(std::string_view path) {
-  std::istringstream is{aoc::slurp_file(path)};
-  auto shuffles{views::istream<Shuffle>(is) | ranges::to<std::vector>()};
-  if (is.eof()) {
-    return shuffles;
+std::istream& operator>>(std::istream& is, Shuffle& s) {
+  if (std::string tmp; is >> std::ws >> tmp) {
+    if (tmp == "cut") {
+      if (int n{}; is >> n) {
+        s = {n < 0 ? Shuffle::rotate_right : Shuffle::rotate_left, std::abs(n)};
+      }
+    } else if (tmp == "deal") {
+      if (is >> tmp >> std::ws) {
+        if (int n{}; tmp == "with" and is >> skip("increment"s) >> n) {
+          s = {Shuffle::increment, n};
+        } else if (tmp == "into" and is >> skip("new stack"s)) {
+          s = {Shuffle::into_new};
+        } else {
+          throw std::runtime_error("deal must be followed by 'with increment' or 'into new stack'");
+        }
+      }
+    } else {
+      throw std::runtime_error("first word must be cut or deal");
+    }
   }
-  throw std::runtime_error("invalid input, parsing failed");
+  return is;
 }
 
 int main() {
-  const auto shuffles{parse_input("/dev/stdin")};
+  const auto shuffles{aoc::parse_items<Shuffle>("/dev/stdin")};
 
   const auto part1{find_part1(shuffles)};
   const auto part2{find_part2(shuffles)};

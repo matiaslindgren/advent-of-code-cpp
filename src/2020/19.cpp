@@ -10,7 +10,8 @@ namespace views = std::views;
 
 struct Rule {
   std::vector<int> symbols;
-  bool a{}, b{};
+  bool a{};
+  bool b{};
 
   void add(int s) {
     symbols.push_back(s);
@@ -19,41 +20,12 @@ struct Rule {
 
 struct Statement {
   int key{};
-  std::vector<Rule> rules{};
+  std::vector<Rule> rules;
 
   void add(Rule r) {
     rules.push_back(r);
   }
 };
-
-std::istream& operator>>(std::istream& is, Statement& statement) {
-  if (std::string line; std::getline(is, line) and not line.empty()) {
-    Statement stmt;
-    std::istringstream ls{line + " | "s};
-    if (int key; ls >> key >> skip(":"s)) {
-      stmt.key = key;
-      if (line.contains("\"a\""s) and ls >> std::ws >> skip("\"a\" |"s)) {
-        stmt.add(Rule{.a = true});
-      } else if (line.contains("\"b\""s) and ls >> std::ws >> skip("\"b\" |"s)) {
-        stmt.add(Rule{.b = true});
-      } else {
-        for (Rule rule; ls;) {
-          if (ls >> std::ws and ls.peek() == '|' and ls.get()) {
-            stmt.add(rule);
-            rule = {};
-          } else if (int symbol; ls >> symbol) {
-            rule.add(symbol);
-          }
-        }
-      }
-    }
-    if (not(ls >> std::ws).eof()) {
-      throw std::runtime_error(std::format("failed parsing line {}", line));
-    }
-    statement = stmt;
-  }
-  return is;
-}
 
 std::string build_regex(const auto& statements, const std::size_t lineno, const bool part2) {
   // adapted from
@@ -95,12 +67,42 @@ auto search(auto statements, const auto& input) {
   ranges::sort(statements, {}, &Statement::key);
   std::regex re1{build_regex(statements, 0, false)};
   std::regex re2{build_regex(statements, 0, true)};
-  int part1{}, part2{};
+  int part1{};
+  int part2{};
   for (const auto& inp : input) {
     part1 += std::regex_match(inp, re1);
     part2 += std::regex_match(inp, re2);
   }
   return std::pair{part1, part2};
+}
+
+std::istream& operator>>(std::istream& is, Statement& statement) {
+  if (std::string line; std::getline(is, line) and not line.empty()) {
+    Statement stmt;
+    std::istringstream ls{line + " | "s};
+    if (int key{}; ls >> key >> skip(":"s)) {
+      stmt.key = key;
+      if (line.contains(R"("a")"s) and ls >> std::ws >> skip(R"("a" |)"s)) {
+        stmt.add(Rule{.a = true});
+      } else if (line.contains(R"("b")"s) and ls >> std::ws >> skip(R"("b" |)"s)) {
+        stmt.add(Rule{.b = true});
+      } else {
+        for (Rule rule; ls;) {
+          if (ls >> std::ws and ls.peek() == '|' and ls.get() != 0) {
+            stmt.add(rule);
+            rule = {};
+          } else if (int symbol{}; ls >> symbol) {
+            rule.add(symbol);
+          }
+        }
+      }
+    }
+    if (not(ls >> std::ws).eof()) {
+      throw std::runtime_error(std::format("failed parsing line {}", line));
+    }
+    statement = stmt;
+  }
+  return is;
 }
 
 auto parse_input(std::string path) {

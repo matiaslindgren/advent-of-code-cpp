@@ -7,7 +7,7 @@ using std::operator""s;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-enum class Op : int {
+enum class Op : signed char {
   addi = 0,
   addr,
   bani,

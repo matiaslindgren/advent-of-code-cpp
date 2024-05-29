@@ -9,7 +9,7 @@ using Vec2 = ndvec::vec2<int>;
 
 struct Step {
   Vec2 direction;
-  int count;
+  int count{};
 };
 
 // TODO (llvm19) ranges::pairwise
@@ -18,21 +18,20 @@ auto pairwise(ranges::range auto&& r) {
 }
 
 auto search(const auto& steps) {
-  std::unordered_set<Vec2> head, tail;
-  {
-    std::array<Vec2, 10> knots{};
-    for (Step s : steps) {
-      while (s.count-- > 0) {
-        knots.at(0) += s.direction;
-        for (auto&& [k1, k2] : pairwise(knots)) {
-          Vec2 d{k1 - k2};
-          if ((d / Vec2(2, 2)).abs().sum() > 0) {
-            k2 += d.signum();
-          }
+  std::unordered_set<Vec2> head;
+  std::unordered_set<Vec2> tail;
+  std::array<Vec2, 10> knots{};
+  for (Step s : steps) {
+    while (s.count-- > 0) {
+      knots.at(0) += s.direction;
+      for (auto&& [k1, k2] : pairwise(knots)) {
+        Vec2 d{k1 - k2};
+        if ((d / Vec2(2, 2)).abs().sum() > 0) {
+          k2 += d.signum();
         }
-        head.insert(knots.at(1));
-        tail.insert(knots.at(9));
       }
+      head.insert(knots.at(1));
+      tail.insert(knots.at(9));
     }
   }
   return std::pair{head.size(), tail.size()};
@@ -64,6 +63,7 @@ std::istream& operator>>(std::istream& is, Step& step) {
   }
   return is;
 }
+
 int main() {
   const auto steps{aoc::parse_items<Step>("/dev/stdin")};
   const auto [part1, part2]{search(steps)};

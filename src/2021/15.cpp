@@ -9,9 +9,10 @@ using Vec2 = ndvec::vec2<int>;
 
 struct Grid {
   std::unordered_map<Vec2, int> risk;
-  int width{}, height{};
+  int width{};
+  int height{};
 
-  void expand(const std::size_t n) {
+  void expand(const int n) {
     for (Vec2 p(width, 0); p.y() < height; p.y() += 1) {
       for (p.x() = width; p.x() < n * width; p.x() += 1) {
         risk[p] = risk[p - Vec2(width, 0)] % 9 + 1;
@@ -26,6 +27,7 @@ struct Grid {
     height *= n;
   }
 
+  [[nodiscard]]
   auto adjacent(Vec2 center) const {
     return center.adjacent() | views::filter([this](Vec2 p) { return this->risk.contains(p); });
   }
@@ -77,39 +79,21 @@ auto min_distance_to(const Grid& grid, Vec2 src, Vec2 dst) {
 
 Grid parse_grid(std::string_view path) {
   Grid g;
-  {
-    Vec2 p;
-    std::istringstream is{aoc::slurp_file(path)};
-    for (std::string line; std::getline(is, line) and not line.empty(); p.y() += 1) {
-      if (g.width and line.size() != g.width) {
-        throw std::runtime_error("every row must be of same length");
-      } else {
-        g.width = line.size();
-      }
-      p.x() = 0;
-      for (char ch : line) {
-        switch (ch) {
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
-            g.risk[p] = ch - '0';
-            p.x() += 1;
-            continue;
-        }
+  for (Vec2 p; const std::string& line : aoc::slurp_lines(path)) {
+    for (p.x() = 0; char ch : line) {
+      if (not aoc::is_digit(ch)) {
         throw std::runtime_error("all non-whitespace input must be digits");
       }
+      g.risk[p] = ch - '0';
+      p.x() += 1;
     }
-    g.height = p.y();
-    if (not g.width or not g.height or (not is and not is.eof())) {
-      throw std::runtime_error("unknown error while parsing grid");
+    if (g.width == 0) {
+      g.width = p.x();
+    } else if (g.width != p.x()) {
+      throw std::runtime_error("every row must be of equal length");
     }
+    p.y() += 1;
+    g.height += 1;
   }
   return g;
 }

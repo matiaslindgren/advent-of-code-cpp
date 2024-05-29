@@ -41,19 +41,14 @@ FileSystem parse_file_system(std::string_view path) {
   for (auto line : lines) {
     std::istringstream ls{line};
     if (line.at(0) == '$') {
-      if (std::string cmd; ls >> skip("$"s) >> cmd) {
-        if (cmd == "cd"s) {
-          if (std::string dir; ls >> dir) {
-            if (dir == ".."s) {
-              cwd = cwd.parent_path();
-            } else {
-              cwd /= dir;
-            }
-          }
-        } else if (cmd == "ls"s) {
+      if (std::string cmd, dir; ls >> skip("$"s) >> cmd and cmd == "cd"s and ls >> dir) {
+        if (dir == ".."s) {
+          cwd = cwd.parent_path();
         } else {
-          ls.setstate(std::ios_base::failbit);
+          cwd /= dir;
         }
+      } else if (cmd != "ls"s) {
+        ls.setstate(std::ios_base::failbit);
       }
     } else if (int size{}; (line.starts_with("dir"s) and ls >> skip("dir"s)) or ls >> size) {
       if (std::string file; ls >> file) {

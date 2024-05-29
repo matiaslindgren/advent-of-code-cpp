@@ -17,14 +17,17 @@ struct Grid {
   std::unordered_map<Vec2, Tile> tiles;
   std::size_t width{};
 
+  [[nodiscard]]
   auto count(Tile t) const {
     return ranges::count(tiles | views::values, t);
   }
 
+  [[nodiscard]]
   auto get(const Vec2& p) const {
     return tiles.contains(p) ? tiles.at(p) : Tile::floor;
   }
 
+  [[nodiscard]]
   auto count_adjacent(Vec2 p, Tile t) const {
     int n{};
     for (Vec2 d(-1, -1); d.y() <= 1; d.y() += 1) {
@@ -32,12 +35,13 @@ struct Grid {
         if (d == Vec2()) {
           continue;
         }
-        n += (get(p + d) == t);
+        n += int{get(p + d) == t};
       }
     }
     return n;
   }
 
+  [[nodiscard]]
   auto count_queen_path(Vec2 p, Tile t) const {
     int n{};
     for (Vec2 d(-1, -1); d.y() <= 1; d.y() += 1) {
@@ -49,7 +53,7 @@ struct Grid {
           if (get(p2) == Tile::floor) {
             continue;
           }
-          n += (get(p2) == t);
+          n += int{get(p2) == t};
           break;
         }
       }
@@ -122,32 +126,29 @@ auto search(const Grid& init_grid) {
 
 Grid parse_grid(std::string_view path) {
   Grid g;
-  {
-    std::istringstream is{aoc::slurp_file(path)};
-    Vec2 pos;
-    for (std::string line; std::getline(is, line) and not line.empty(); pos.y() += 1) {
-      if (not g.width) {
-        g.width = line.size();
-      } else if (line.size() != g.width) {
-        throw std::runtime_error("every line must be of same width");
-      }
-      pos.x() = 0;
-      for (char ch : line) {
-        Tile tile;
-        switch (ch) {
-          case std::to_underlying(Tile::floor):
-          case std::to_underlying(Tile::empty):
-          case std::to_underlying(Tile::taken): {
-            tile = {ch};
-          } break;
-          default: {
-            throw std::runtime_error(std::format("invalid line {}", line));
-          } break;
-        }
-        g.tiles[pos] = tile;
-        pos.x() += 1;
-      }
+  for (Vec2 pos; const std::string& line : aoc::slurp_lines(path)) {
+    if (g.width == 0) {
+      g.width = line.size();
+    } else if (line.size() != g.width) {
+      throw std::runtime_error("every line must be of same width");
     }
+    pos.x() = 0;
+    for (char ch : line) {
+      Tile tile{};
+      switch (ch) {
+        case std::to_underlying(Tile::floor):
+        case std::to_underlying(Tile::empty):
+        case std::to_underlying(Tile::taken): {
+          tile = {ch};
+        } break;
+        default: {
+          throw std::runtime_error(std::format("invalid line {}", line));
+        } break;
+      }
+      g.tiles[pos] = tile;
+      pos.x() += 1;
+    }
+    pos.y() += 1;
   }
   return g;
 }

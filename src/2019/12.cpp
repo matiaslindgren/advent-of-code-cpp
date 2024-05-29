@@ -6,11 +6,13 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
 using std::operator""s;
 using Vec3 = ndvec::vec3<int>;
 
 struct Moon {
-  Vec3 p, v;
+  Vec3 p;
+  Vec3 v;
 };
 
 using Moons = std::array<Moon, 4>;
@@ -23,57 +25,54 @@ auto hash_axis(const Moons& moons) {
   return std::hash<std::string>{}(state_str);
 }
 
-inline constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto search(Moons moons) {
-  long part1{}, part2{};
-  {
-    std::array<std::unordered_set<std::size_t>, Vec3::ndim> states;
-    std::array<long, Vec3::ndim> cycles;
-    states.fill({});
-    cycles.fill(0);
+  long part1{};
+  long part2{};
 
-    for (auto step{0UZ}; ranges::any_of(cycles, [](long c) { return c == 0; }); ++step) {
-      if (step == 1'000) {
-        part1 = sum(views::transform(moons, [](const Moon& m) {
-          return m.p.distance(Vec3()) * m.v.distance(Vec3());
-        }));
-      }
+  std::array<std::unordered_set<std::size_t>, Vec3::ndim> states{};
+  std::array<long, Vec3::ndim> cycles{};
 
-      [&]<std::size_t... axis>(std::index_sequence<axis...>) {
-        (
-            [&] {
-              if (not cycles[axis]) {
-                auto hash{hash_axis<axis>(moons)};
-                if (auto&& [_, unseen]{states[axis].insert(hash)}; not unseen) {
-                  cycles[axis] = step;
-                }
-              }
-            }(),
-            ...
-        );
-      }(std::make_index_sequence<Vec3::ndim>{});
-
-      for (auto&& [i, m1] : my_std::views::enumerate(moons)) {
-        for (auto& m2 : views::drop(moons, i + 1)) {
-          const Vec3 gravity{(m1.p - m2.p).signum()};
-          m1.v -= gravity;
-          m2.v += gravity;
-        }
-      }
-
-      ranges::for_each(moons, [](Moon& m) { m.p += m.v; });
+  for (long step{}; ranges::any_of(cycles, [](long c) { return c == 0; }); ++step) {
+    if (step == 1'000) {
+      part1 = sum(views::transform(moons, [](const Moon& m) {
+        return m.p.distance(Vec3()) * m.v.distance(Vec3());
+      }));
     }
 
-    part2 = std::lcm(cycles[0], std::lcm(cycles[1], cycles[2]));
+    [&]<std::size_t... axis>(std::index_sequence<axis...>) {
+      (
+          [&] {
+            if (not cycles[axis]) {
+              auto hash{hash_axis<axis>(moons)};
+              if (auto&& [_, unseen]{states[axis].insert(hash)}; not unseen) {
+                cycles[axis] = step;
+              }
+            }
+          }(),
+          ...
+      );
+    }(std::make_index_sequence<Vec3::ndim>{});
+
+    for (auto&& [i, m1] : my_std::views::enumerate(moons)) {
+      for (auto& m2 : views::drop(moons, i + 1)) {
+        const Vec3 gravity{(m1.p - m2.p).signum()};
+        m1.v -= gravity;
+        m2.v += gravity;
+      }
+    }
+
+    ranges::for_each(moons, [](Moon& m) { m.p += m.v; });
   }
+
+  part2 = std::lcm(cycles[0], std::lcm(cycles[1], cycles[2]));
   return std::pair{part1, part2};
 }
 
 std::istream& operator>>(std::istream& is, Moon& m) {
-  using aoc::skip;
-  if (int x, y, z; is >> std::ws >> skip("<x="s) >> x >> skip(","s, "y="s) >> y >> skip(","s, "z="s)
-                   >> z >> skip(">"s)) {
+  if (int x{}, y{}, z{}; is >> std::ws >> skip("<x="s) >> x >> skip(","s, "y="s) >> y
+                         >> skip(","s, "z="s) >> z >> skip(">"s)) {
     m = Moon{.p = Vec3(x, y, z), .v = Vec3()};
   }
   if (is or is.eof()) {

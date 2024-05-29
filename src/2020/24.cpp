@@ -9,7 +9,7 @@ using Vec2 = ndvec::vec2<int>;
 using aoc::skip;
 using std::operator""s;
 
-enum class Direction {
+enum class Direction : unsigned char {
   east,
   south_east,
   south_west,
@@ -49,34 +49,6 @@ const auto direction_deltas{
     )
     | ranges::to<std::vector>()
 };
-
-std::istream& operator>>(std::istream& is, Direction& dir) {
-  if (char c1; is >> c1) {
-    if (c1 == 'e') {
-      dir = Direction::east;
-    } else if (c1 == 'w') {
-      dir = Direction::west;
-    } else if (c1 == 'n') {
-      if (char c2; is >> c2 and (c2 == 'w' or c2 == 'e')) {
-        dir = (c2 == 'w') ? Direction::north_west : Direction::north_east;
-      } else {
-        throw std::runtime_error("n must be followed by w or e");
-      }
-    } else if (c1 == 's') {
-      if (char c2; is >> c2 and (c2 == 'w' or c2 == 'e')) {
-        dir = (c2 == 'w') ? Direction::south_west : Direction::south_east;
-      } else {
-        throw std::runtime_error("s must be followed by w or e");
-      }
-    } else {
-      throw std::runtime_error("unknown direction");
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Direction");
-}
 
 auto step(auto grid) {
   // https://github.com/sophiebits/adventofcode/blob/main/2020/day24.py
@@ -121,6 +93,23 @@ auto search(const auto& walks) {
   }
   auto part2{count_black(grid)};
   return std::pair{part1, part2};
+}
+
+std::istream& operator>>(std::istream& is, Direction& dir) {
+  if (char c1{}; is >> c1) {
+    if (c1 == 'e') {
+      dir = Direction::east;
+    } else if (c1 == 'w') {
+      dir = Direction::west;
+    } else if (char c2{}; c1 == 'n' and is >> c2 and (c2 == 'w' or c2 == 'e')) {
+      dir = (c2 == 'w') ? Direction::north_west : Direction::north_east;
+    } else if (char c2{}; c1 == 's' and is >> c2 and (c2 == 'w' or c2 == 'e')) {
+      dir = (c2 == 'w') ? Direction::south_west : Direction::south_east;
+    } else {
+      throw std::runtime_error(std::format("unknown direction '{}'", c1));
+    }
+  }
+  return is;
 }
 
 auto parse_walks(std::string_view path) {

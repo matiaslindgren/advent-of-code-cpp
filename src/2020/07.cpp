@@ -17,37 +17,6 @@ struct Rule {
   std::vector<Bag> inside;
 };
 
-std::istream& operator>>(std::istream& is, Bag& bag) {
-  if (std::string a, b, tmp; is >> a >> b >> tmp) {
-    if (not a.empty() and not b.empty() and tmp.starts_with("bag")) {
-      bag = {.id = a + " " + b};
-    }
-  }
-  return is;
-}
-
-std::istream& operator>>(std::istream& is, Rule& rule) {
-  if (std::string line; std::getline(is, line) and not line.empty()) {
-    std::istringstream ls{line};
-    if (Bag bag; ls >> bag >> std::ws >> skip("contain"s)) {
-      std::vector<Bag> inside;
-      while (ls) {
-        if (int count; ls >> count) {
-          if (Bag bag; ls >> bag) {
-            inside.emplace_back(bag.id, count);
-          }
-        }
-      }
-      if (ls.eof() or line.contains("no other bags")) {
-        rule = {bag, inside};
-      } else {
-        throw std::runtime_error(std::format("failed parsing line {}", line));
-      }
-    }
-  }
-  return is;
-}
-
 using Edges = std::unordered_map<std::string, std::unordered_map<std::string, int>>;
 
 auto find_part1(const auto& rules) {
@@ -87,6 +56,37 @@ auto find_part2(const auto& rules) {
     }
   }
   return count_bags("shiny gold"s, children);
+}
+
+std::istream& operator>>(std::istream& is, Bag& bag) {
+  if (std::string a, b, tmp; is >> a >> b >> tmp) {
+    if (not a.empty() and not b.empty() and tmp.starts_with("bag")) {
+      bag = {.id = a + " " + b};
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Rule& rule) {
+  if (std::string line; std::getline(is, line) and not line.empty()) {
+    std::istringstream ls{line};
+    if (Bag bag; ls >> bag >> std::ws >> skip("contain"s)) {
+      std::vector<Bag> inside;
+      while (ls) {
+        if (int count{}; ls >> count) {
+          if (Bag bag; ls >> bag) {
+            inside.emplace_back(bag.id, count);
+          }
+        }
+      }
+      if (ls.eof() or line.contains("no other bags")) {
+        rule = {bag, inside};
+      } else {
+        throw std::runtime_error(std::format("failed parsing line {}", line));
+      }
+    }
+  }
+  return is;
 }
 
 int main() {

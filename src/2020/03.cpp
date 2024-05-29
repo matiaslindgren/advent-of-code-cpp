@@ -15,7 +15,7 @@ struct Grid {
 auto slide_and_count(const Grid& g, const Vec2& d) {
   long n{};
   for (Vec2 p{}; p.y() < g.trees.size() / g.width; p += d) {
-    n += g.trees.at(p.y() * g.width + p.x() % g.width);
+    n += int{g.trees.at(p.y() * g.width + p.x() % g.width)};
   }
   return n;
 }
@@ -36,13 +36,13 @@ Grid parse_grid(std::string_view path) {
   {
     std::istringstream is{aoc::slurp_file(path)};
     for (std::string line; std::getline(is, line) and not line.empty();) {
-      if (not g.width) {
+      if (g.width == 0) {
         g.width = line.size();
       } else if (line.size() != g.width) {
         throw std::runtime_error("every row must be of same width");
       }
       for (char ch : line) {
-        if (not(ch == '#' or ch == '.')) {
+        if (ch != '#' and ch != '.') {
           throw std::runtime_error(std::format("input contains an unknown character {}", ch));
         }
         g.trees.push_back(ch == '#');

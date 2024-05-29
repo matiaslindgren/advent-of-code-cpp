@@ -9,7 +9,7 @@ namespace views = std::views;
 using intcode::IntCode;
 using Vec2 = ndvec::vec2<int>;
 
-enum class Tile : int {
+enum class Tile : unsigned char {
   white = 0,
   black = 1,
 };
@@ -54,11 +54,12 @@ Tiles paint(Tiles tiles, const auto& program) {
 
 std::string parse_identifier(const Tiles& tiles) {
   std::string id;
-  const std::size_t w{4}, h{6};
-  for (auto i_letter{0UZ}; i_letter < 8; ++i_letter) {
+  const int w{4};
+  const int h{6};
+  for (int i_letter{}; i_letter < 8; ++i_letter) {
     std::string letter;
-    for (auto y{0UZ}; y < h; ++y) {
-      for (auto x{0UZ}; x < w; ++x) {
+    for (int y{}; y < h; ++y) {
+      for (int x{}; x < w; ++x) {
         const Vec2 p(x + 1 + i_letter * (w + 1), y);
         letter.push_back(tiles.contains(p) and tiles.at(p) == Tile::white ? '#' : '.');
       }

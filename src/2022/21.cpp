@@ -10,9 +10,11 @@ struct Expression {
     prod = '*',
     minus = '-',
     divide = '/',
-  } op;
-  int lhs, rhs;
+  } op{};
+  int lhs{};
+  int rhs{};
 
+  [[nodiscard]]
   long eval(auto lhs, auto rhs) const {
     switch (op) {
       case BinOp::plus:
@@ -26,6 +28,7 @@ struct Expression {
     }
   }
 
+  [[nodiscard]]
   long eval_inverse(auto lhs, auto rhs) const {
     switch (op) {
       case BinOp::plus:
@@ -50,6 +53,7 @@ struct Program {
     });
   }
 
+  [[nodiscard]]
   std::optional<long> literal(const int id) const {
     if (literals.contains(id)) {
       return literals.at(id);
@@ -95,8 +99,8 @@ struct Program {
       return *lhs;
     }
 
-    double res;
-    Expression exp;
+    double res{};
+    Expression exp{};
     if (lhs) {
       res = lhs.value();
       exp = expressions.at(rhs_id);
@@ -155,7 +159,7 @@ Program parse_program(std::string_view path) {
     if (std::string key; ls >> key and key.size() == 4) {
       int job_id{Program::job_hash(key)};
       if (std::string lhs; ls >> lhs and not lhs.empty()) {
-        if (int literal;
+        if (int literal{};
             std::from_chars(lhs.c_str(), lhs.c_str() + lhs.size(), literal, 10).ec == std::errc{}) {
           prog.literals[job_id] = literal;
           ok = true;

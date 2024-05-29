@@ -15,6 +15,7 @@ struct Image {
   std::unordered_map<Vec2, int> pixels;
   std::vector<int> algorithm;
 
+  [[nodiscard]]
   std::size_t extract_index(const Vec2 mid, int default_px) const {
     auto idx{0UZ};
     auto i{0UZ};
@@ -28,6 +29,7 @@ struct Image {
     return idx;
   }
 
+  [[nodiscard]]
   Image enhance_step(const int default_px) const {
     Image img{*this};
     auto [top, bottom]{ranges::minmax(pixels | views::keys)};
@@ -41,6 +43,7 @@ struct Image {
     return img;
   }
 
+  [[nodiscard]]
   Image enhance(const int n_steps) const {
     Image img{*this};
     for (int step{}; step < n_steps; ++step) {
@@ -50,6 +53,7 @@ struct Image {
     return img;
   }
 
+  [[nodiscard]]
   auto count_light() const {
     return sum(pixels | views::values);
   }

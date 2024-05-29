@@ -14,15 +14,17 @@ using Vec3s = std::vector<Vec3>;
 using BeaconMap = std::unordered_map<Vec3, std::pair<Vec3s, Vec3s>>;
 
 struct Scanner {
-  int id;
+  int id{};
   Vec3 center;
   Vec3s beacons;
 
+  [[nodiscard]]
   auto beacon_pairs() const {
     return my_std::views::cartesian_product(beacons, beacons)
            | views::filter(my_std::apply_fn(std::not_equal_to<Vec3>{}));
   }
 
+  [[nodiscard]]
   BeaconMap make_beacon_map(BeaconMap map = {}) const {
     for (auto&& [b1, b2] : beacon_pairs()) {
       Vec3 delta{b1 - b2};
@@ -98,7 +100,7 @@ Scanner find_overlapping(const auto& locked, const auto& available) {
 
 auto recenter(auto scanners) {
   if (scanners.empty()) {
-    std::runtime_error("cannot recenter empty scanner list");
+    throw std::runtime_error("cannot recenter empty scanner list");
   }
 
   std::vector<Scanner> locked{{scanners.front()}};
@@ -111,16 +113,6 @@ auto recenter(auto scanners) {
   }
 
   return locked;
-}
-
-std::istream& operator>>(std::istream& is, Scanner& s) {
-  if (int id; is >> skip("--- scanner"s) >> id >> std::ws >> skip("---"s)) {
-    s.id = id;
-    for (Vec3 p; is >> p;) {
-      s.beacons.push_back(p);
-    }
-  }
-  return is;
 }
 
 auto find_part1(const auto& scanners) {
@@ -138,6 +130,16 @@ auto find_part2(const auto& scanners) {
         return s2.center.distance(s1.center);
       })
   );
+}
+
+std::istream& operator>>(std::istream& is, Scanner& s) {
+  if (int id{}; is >> skip("--- scanner"s) >> id >> std::ws >> skip("---"s)) {
+    s.id = id;
+    for (Vec3 p; is >> p;) {
+      s.beacons.push_back(p);
+    }
+  }
+  return is;
 }
 
 auto parse_scanners(std::string path) {

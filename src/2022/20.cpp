@@ -19,7 +19,7 @@ auto search(std::vector<long> input, long key, int n_iterations) {
   while (n_iterations-- > 0) {
     for (auto [i, num] : my_std::views::enumerate(input)) {
       auto src{ranges::find(index, i) - index.begin()};
-      auto dst{rem_euclid(src + num * key, index.size() - 1)};
+      auto dst{rem_euclid(src + num * key, ranges::ssize(index) - 1)};
       index.erase(index.begin() + src);
       index.insert(index.begin() + dst, i);
     }
@@ -28,7 +28,7 @@ auto search(std::vector<long> input, long key, int n_iterations) {
       ranges::find(index, (ranges::find(input, 0) - input.begin())) - index.begin()
   };
   return key * sum(views::transform(std::array{1000, 2000, 3000}, [&](int n) {
-           return input.at(index.at(rem_euclid(zero_pos + n, index.size())));
+           return input.at(index.at(rem_euclid(zero_pos + n, ranges::ssize(index))));
          }));
 }
 

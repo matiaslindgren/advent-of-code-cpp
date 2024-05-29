@@ -48,63 +48,8 @@ struct Burrow {
 
   Burrow() = default;
 
-  Position encode(Slot s) const {
-    return std::to_underlying(s) - std::to_underlying(Slot::amber);
-  }
-
-  Position encode(Position p, Slot s) const {
-    return (n_shrimps + 1) * p + encode(s);
-  }
-
-  bool is_hallway(Position p) const {
-    return 0 <= p and p < n_hallway_slots;
-  }
-
-  bool is_room(Position p) const {
-    return n_hallway_slots <= p and p < n_slots;
-  }
-
-  bool is_inside(Position p) const {
-    return is_hallway(p) or is_room(p);
-  }
-
-  bool contains(Position p, Slot s) const {
-    return is_inside(p) and state[encode(p, s)];
-  }
-
-  Slot at(Position p) const {
-    for (Slot s : {Slot::amber, Slot::bronze, Slot::copper, Slot::desert, Slot::empty}) {
-      if (contains(p, s)) {
-        return s;
-      }
-    }
-    throw std::runtime_error(std::format("unexpected empty state at {}", p));
-  }
-
-  bool is_vacant(Position p) const {
-    return contains(p, Slot::empty);
-  }
-
-  bool is_home_of(Position p, Slot s) const {
-    return s != Slot::empty and is_room(p) and (p - n_hallway_slots) % n_shrimps == encode(s);
-  }
-
-  bool is_above_home_of(Position p, Slot s) const {
-    return is_hallway(p) and p == 2 * (encode(s) + 1);
-  }
-
-  bool is_finalized(Position p) const {
-    if (not is_inside(p)) {
-      return true;
-    }
-    return is_home_of(p, at(p)) and is_finalized(p + n_shrimps);
-  }
-
-  Position hallway_above_room(Position p) const {
-    return (p % 10) * 2;
-  }
-
-  Energy energy_per_step(Slot s) const {
+  [[nodiscard]]
+  static Energy energy_per_step(Slot s) {
     switch (s) {
       case Slot::amber:
         return 1;
@@ -119,6 +64,75 @@ struct Burrow {
     }
   }
 
+  [[nodiscard]]
+  static Position encode(Slot s) {
+    return std::to_underlying(s) - std::to_underlying(Slot::amber);
+  }
+
+  [[nodiscard]]
+  static Position encode(Position p, Slot s) {
+    return (n_shrimps + 1) * p + encode(s);
+  }
+
+  [[nodiscard]]
+  static bool is_hallway(Position p) {
+    return 0 <= p and p < n_hallway_slots;
+  }
+
+  [[nodiscard]]
+  static bool is_above_home_of(Position p, Slot s) {
+    return is_hallway(p) and p == 2 * (encode(s) + 1);
+  }
+
+  [[nodiscard]]
+  static Position hallway_above_room(Position p) {
+    return (p % 10) * 2;
+  }
+
+  [[nodiscard]]
+  bool is_room(Position p) const {
+    return n_hallway_slots <= p and p < n_slots;
+  }
+
+  [[nodiscard]]
+  bool is_inside(Position p) const {
+    return is_hallway(p) or is_room(p);
+  }
+
+  [[nodiscard]]
+  bool contains(Position p, Slot s) const {
+    return is_inside(p) and state[encode(p, s)];
+  }
+
+  [[nodiscard]]
+  Slot at(Position p) const {
+    for (Slot s : {Slot::amber, Slot::bronze, Slot::copper, Slot::desert, Slot::empty}) {
+      if (contains(p, s)) {
+        return s;
+      }
+    }
+    throw std::runtime_error(std::format("unexpected empty state at {}", p));
+  }
+
+  [[nodiscard]]
+  bool is_vacant(Position p) const {
+    return contains(p, Slot::empty);
+  }
+
+  [[nodiscard]]
+  bool is_home_of(Position p, Slot s) const {
+    return s != Slot::empty and is_room(p) and (p - n_hallway_slots) % n_shrimps == encode(s);
+  }
+
+  [[nodiscard]]
+  bool is_finalized(Position p) const {
+    if (not is_inside(p)) {
+      return true;
+    }
+    return is_home_of(p, at(p)) and is_finalized(p + n_shrimps);
+  }
+
+  [[nodiscard]]
   std::optional<Move> find_home(Position begin, Slot s) const {
     std::vector<bool> visited(n_slots);
 
@@ -154,6 +168,7 @@ struct Burrow {
     return std::nullopt;
   }
 
+  [[nodiscard]]
   Moves find_hallway_slots(Position begin, Slot s) const {
     Moves moves;
     {
@@ -204,6 +219,7 @@ struct Burrow {
     }
   }
 
+  [[nodiscard]]
   Moves possible_moves(Position p, Slot s) const {
     if (is_hallway(p)) {
       if (auto home{find_home(p, s)}) {
@@ -215,6 +231,7 @@ struct Burrow {
     return {};
   }
 
+  [[nodiscard]]
   Moves possible_moves() const {
     return my_std::views::cartesian_product(
                views::iota(Position{}, n_slots),
@@ -226,6 +243,7 @@ struct Burrow {
            | views::join | ranges::to<Moves>();
   }
 
+  [[nodiscard]]
   Burrow move(Position src, Position dst, Slot s) const {
     Burrow next{*this};
 
@@ -295,7 +313,7 @@ auto search_min_energy(Burrow begin, Burrow end) {
 }
 
 std::istream& operator>>(std::istream& is, Slot& s) {
-  if (std::underlying_type_t<Slot> ch; is >> ch) {
+  if (std::underlying_type_t<Slot> ch{}; is >> ch) {
     switch (ch) {
       case std::to_underlying(Slot::empty):
       case std::to_underlying(Slot::amber):
@@ -342,38 +360,39 @@ Burrow parse_burrow(std::vector<std::string> lines) {
   return Burrow(slots);
 }
 
+auto find_part1(const auto& lines) {
+  Burrow begin{parse_burrow(lines)};
+  Burrow end{parse_burrow(std::vector{{
+      "#############"s,
+      "#...........#"s,
+      "###A#B#C#D###"s,
+      "  #A#B#C#D#"s,
+      "  #########"s,
+  }})};
+  return search_min_energy(begin, end);
+}
+
+auto find_part2(auto lines) {
+  lines.insert(lines.begin() + 3, "  #D#B#A#C#"s);
+  lines.insert(lines.begin() + 3, "  #D#C#B#A#"s);
+  Burrow begin{parse_burrow(lines)};
+  Burrow end{parse_burrow(std::vector{{
+      "#############"s,
+      "#...........#"s,
+      "###A#B#C#D###"s,
+      "  #A#B#C#D#"s,
+      "  #A#B#C#D#"s,
+      "  #A#B#C#D#"s,
+      "  #########"s,
+  }})};
+  return search_min_energy(begin, end);
+}
+
 int main() {
-  Burrow begin1, begin2;
-  {
-    auto lines{aoc::slurp_lines("/dev/stdin")};
-    begin1 = parse_burrow(lines);
-    lines.insert(lines.begin() + 3, "  #D#B#A#C#"s);
-    lines.insert(lines.begin() + 3, "  #D#C#B#A#"s);
-    begin2 = parse_burrow(lines);
-  }
+  const auto lines{aoc::slurp_lines("/dev/stdin")};
 
-  Burrow end1, end2;
-  {
-    end1 = parse_burrow(std::vector{{
-        "#############"s,
-        "#...........#"s,
-        "###A#B#C#D###"s,
-        "  #A#B#C#D#"s,
-        "  #########"s,
-    }});
-    end2 = parse_burrow(std::vector{{
-        "#############"s,
-        "#...........#"s,
-        "###A#B#C#D###"s,
-        "  #A#B#C#D#"s,
-        "  #A#B#C#D#"s,
-        "  #A#B#C#D#"s,
-        "  #########"s,
-    }});
-  }
-
-  const auto part1{search_min_energy(begin1, end1)};
-  const auto part2{search_min_energy(begin2, end2)};
+  const auto part1{find_part1(lines)};
+  const auto part2{find_part2(lines)};
 
   std::println("{} {}", part1, part2);
 

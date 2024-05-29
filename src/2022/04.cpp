@@ -33,7 +33,7 @@ auto parse_pairs(std::string_view path) {
     const auto lines{aoc::slurp_lines(path)};
     for (auto line : lines) {
       std::istringstream ls{line};
-      if (int l1, l2, r1, r2;
+      if (int l1{}, l2{}, r1{}, r2{};
           ls >> l1 >> skip("-"s) >> l2 >> skip(","s) >> r1 >> skip("-"s) >> r2) {
         pairs.emplace_back(Pair{l1, l2}, Pair{r1, r2});
       }

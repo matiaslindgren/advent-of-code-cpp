@@ -24,7 +24,7 @@ auto search(const Trees& trees) {
       any_visible |= visible;
       scenic_score *= score;
     }
-    part1 += any_visible;
+    part1 += int{any_visible};
     part2 = std::max(part2, scenic_score);
   }
   return std::pair{part1, part2};
@@ -32,31 +32,15 @@ auto search(const Trees& trees) {
 
 Trees parse_trees(std::string_view path) {
   Trees trees;
-  Vec2 p;
-  std::istringstream is{aoc::slurp_file(path)};
-  for (std::string row; is >> row; p.y() += 1) {
-    p.x() = 0;
-    for (char ch : row) {
-      switch (ch) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          trees[p] = ch - '0';
-          p.x() += 1;
-          continue;
+  for (Vec2 p; const std::string& line : aoc::slurp_lines(path)) {
+    for (p.x() = 0; char ch : line) {
+      if (not aoc::is_digit(ch)) {
+        throw std::runtime_error("all non-whitespace input must be digits");
       }
-      throw std::runtime_error("all non-whitespace input must be digits");
+      trees[p] = ch - '0';
+      p.x() += 1;
     }
-  }
-  if (trees.empty() or (is.fail() and not is.eof())) {
-    throw std::runtime_error("unknown error while parsing trees");
+    p.y() += 1;
   }
   return trees;
 }

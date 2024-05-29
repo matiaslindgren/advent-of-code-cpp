@@ -10,26 +10,6 @@ namespace views = std::views;
 
 using Cards = std::vector<int>;
 
-auto parse_input(std::string path) {
-  const auto sections{
-      views::split(aoc::slurp_file(path), "\n\n"s)
-      | views::transform([](auto&& s) { return ranges::to<std::string>(s); })
-      | ranges::to<std::vector>()
-  };
-  if (sections.size() == 2) {
-    if (std::istringstream is1{sections[0]}; is1 >> skip("Player 1:"s)) {
-      auto cards1{views::istream<int>(is1) | ranges::to<Cards>()};
-      if (std::istringstream is2{sections[1]}; is2 >> skip("Player 2:"s)) {
-        auto cards2{views::istream<int>(is2) | ranges::to<Cards>()};
-        if (is1.eof() and is2.eof()) {
-          return std::pair{cards1, cards2};
-        }
-      }
-    }
-  }
-  throw std::runtime_error("input must contain 2 sections separated by 2 newlines");
-}
-
 auto pop_front(Cards& cards1, Cards& cards2) {
   int c1{cards1.front()};
   int c2{cards2.front()};
@@ -85,6 +65,26 @@ auto play(Cards cards1, Cards cards2, bool recursive) {
 auto winner_score(const Cards& cards1, const Cards& cards2, bool recursive) {
   auto [score1, score2]{play(cards1, cards2, recursive)};
   return std::max(score1, score2);
+}
+
+auto parse_input(std::string path) {
+  const auto sections{
+      views::split(aoc::slurp_file(path), "\n\n"s)
+      | views::transform([](auto&& s) { return ranges::to<std::string>(s); })
+      | ranges::to<std::vector>()
+  };
+  if (sections.size() == 2) {
+    if (std::istringstream is1{sections[0]}; is1 >> skip("Player 1:"s)) {
+      auto cards1{views::istream<int>(is1) | ranges::to<Cards>()};
+      if (std::istringstream is2{sections[1]}; is2 >> skip("Player 2:"s)) {
+        auto cards2{views::istream<int>(is2) | ranges::to<Cards>()};
+        if (is1.eof() and is2.eof()) {
+          return std::pair{cards1, cards2};
+        }
+      }
+    }
+  }
+  throw std::runtime_error("input must contain 2 sections separated by 2 newlines");
 }
 
 int main() {

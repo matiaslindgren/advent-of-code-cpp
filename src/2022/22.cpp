@@ -18,11 +18,11 @@ enum struct Tile : char {
 };
 
 struct Move {
-  enum {
+  enum : unsigned char {
     left,
     right,
     forward,
-  } direction;
+  } direction{};
   int steps{};
 };
 
@@ -32,13 +32,18 @@ struct Face {
   Vec3 dy;
 };
 
+int wrap(int x, int n) {
+  return ((x % n) + n) % n;
+}
+
 struct Grid {
   std::unordered_map<Vec2, Tile> tiles;
   std::unordered_map<Vec2, Face> faces;
   std::unordered_map<Vec3, std::unordered_map<Vec3, Vec2>> edges;
-  std::size_t width{};
-  std::size_t height{};
+  int width{};
+  int height{};
 
+  [[nodiscard]]
   Tile get(const Vec2& p) const {
     if (tiles.contains(p)) {
       return tiles.at(p);
@@ -46,14 +51,12 @@ struct Grid {
     return Tile::empty;
   }
 
+  [[nodiscard]]
   bool is_inside(const Vec2& p) const {
     return get(p) != Tile::empty;
   }
 
-  int wrap(int x, int n) const {
-    return ((x % n) + n) % n;
-  }
-
+  [[nodiscard]]
   Vec2 walk_until_tile(Vec2 pos, Vec2 dir) const {
     if (dir != Vec2()) {
       for (Tile t{Tile::empty}; t == Tile::empty; t = get(pos)) {
@@ -105,12 +108,12 @@ struct Grid {
   }
 };
 
-enum struct WrapType {
+enum struct WrapType : unsigned char {
   square,
   cube,
 };
 
-auto search(Grid grid, const auto& moves, WrapType wrap) {
+auto search(Grid grid, const auto& moves, WrapType wrap_type) {
   Vec2 dir(1, 0);
   Vec2 pos{grid.walk_until_tile(Vec2(), dir)};
   for (Move m : moves) {
@@ -123,7 +126,7 @@ auto search(Grid grid, const auto& moves, WrapType wrap) {
       } break;
       case Move::forward: {
         for (int s{}; s < m.steps; ++s) {
-          switch (wrap) {
+          switch (wrap_type) {
             case WrapType::square: {
               grid.step_2d(pos, dir);
             } break;
@@ -141,7 +144,7 @@ auto search(Grid grid, const auto& moves, WrapType wrap) {
 }
 
 std::istream& operator>>(std::istream& is, Move& m) {
-  if (char ch; is >> ch) {
+  if (char ch{}; is >> ch) {
     if (ch == 'R') {
       m = Move{.direction = Move::right};
     } else if (ch == 'L') {
@@ -167,11 +170,10 @@ auto parse_input(std::string_view path) {
   Grid grid;
   {
     Vec2 p;
-    for (auto line : lines | views::take(lines.size() - 2)) {
-      grid.width = std::max(grid.width, line.size());
+    for (const std::string& line : lines | views::take(lines.size() - 2)) {
       p.x() = 0;
       for (char ch : line) {
-        Tile t;
+        Tile t{};
         switch (ch) {
           case std::to_underlying(Tile::empty):
           case std::to_underlying(Tile::floor):
@@ -184,6 +186,7 @@ auto parse_input(std::string_view path) {
         grid.tiles[p] = t;
         p.x() += 1;
       }
+      grid.width = std::max(grid.width, p.x());
       p.y() += 1;
     }
     grid.height = p.y();

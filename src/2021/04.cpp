@@ -4,6 +4,8 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using std::operator""s;
+
 auto int_sqrt(auto a) {
   std::size_t b{1};
   while (b * b < a) {
@@ -17,16 +19,18 @@ constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 class Board {
   std::vector<int> numbers;
   std::vector<bool> marks;
-  std::size_t width;
+  std::size_t width{};
 
  public:
   Board(auto nums) : numbers(nums), marks(nums.size(), false), width(int_sqrt(nums.size())) {
   }
 
+  [[nodiscard]]
   bool is_marked(auto y, auto x) const {
     return marks.at(y * width + x);
   }
 
+  [[nodiscard]]
   bool won() const {
     const auto idx{views::iota(0UZ, width)};
     bool won_row{ranges::any_of(idx, [&](auto y) {
@@ -38,10 +42,11 @@ class Board {
     return won_row or won_col;
   }
 
+  [[nodiscard]]
   int sum_of_unmarked() const {
     return sum(views::transform(views::zip(numbers, marks), [](auto&& nm) {
       auto [num, mark]{nm};
-      return num * (not mark);
+      return num * int{not mark};
     }));
   }
 
@@ -78,8 +83,6 @@ auto parse_numbers(const std::string& s) {
 }
 
 auto parse_input(std::string path) {
-  using std::operator""s;
-
   auto sections{
       aoc::slurp_file(path) | views::split("\n\n"s)
       | views::transform([](auto&& s) { return ranges::to<std::string>(s); })

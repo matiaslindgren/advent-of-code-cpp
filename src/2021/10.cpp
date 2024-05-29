@@ -49,7 +49,8 @@ int get_score(char c) {
 }
 
 auto parse_line(const std::string& line) {
-  std::string opened, invalid;
+  std::string opened;
+  std::string invalid;
   for (char lhs : line) {
     if (char rhs{get_right(lhs)}) {
       opened.push_back(lhs);
@@ -78,7 +79,8 @@ auto search(const auto& lines) {
       views::transform(
           lines,
           [](auto line) {
-            long score1{}, score2{};
+            long score1{};
+            long score2{};
             auto [opened, invalid]{parse_line(line)};
             if (not invalid.empty()) {
               score1 = get_score(invalid.front());

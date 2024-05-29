@@ -100,7 +100,7 @@ auto search(const Foods& foods) {
   Strings has_allergen;
   AllergenMap allergen2ingredients;
   for (auto [ag, food_ids] : allergen2foods) {
-    for (auto ig : intersect_ingredients(
+    for (const auto& ig : intersect_ingredients(
              views::transform(food_ids, [&](auto i) { return foods.at(i); }) | ranges::to<Foods>()
          )) {
       has_allergen.insert(ig);
@@ -111,7 +111,7 @@ auto search(const Foods& foods) {
   int part1{};
   for (const Food& f : foods) {
     for (const auto& ig : f.ingredients) {
-      part1 += not has_allergen.contains(ig);
+      part1 += int{not has_allergen.contains(ig)};
     }
   }
 
@@ -127,7 +127,7 @@ auto search(const Foods& foods) {
   ranges::sort(mapping);
   // TODO (llvm19?) views::join_with(mapping|views::values, ',')|ranges::to<std::string>()
   std::string part2;
-  for (auto ig : mapping | views::values) {
+  for (const auto& ig : mapping | views::values) {
     if (not part2.empty()) {
       part2.push_back(',');
     }

@@ -10,9 +10,11 @@ namespace views = std::views;
 using CharBits = std::bitset<'z' - 'a' + 1>;
 
 auto search(std::string_view path) {
-  int part1{}, part2{};
+  std::size_t part1{};
+  std::size_t part2{};
   for (auto&& section : views::split(aoc::slurp_file(path), "\n\n"s)) {
-    CharBits any, all;
+    CharBits any;
+    CharBits all;
     all.set();
     for (auto&& line : views::split(section, "\n"sv)) {
       if (not line.empty()) {

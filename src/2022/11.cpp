@@ -7,22 +7,17 @@ namespace views = std::views;
 using aoc::skip;
 using std::operator""s;
 
-enum struct BinOp {
+enum struct BinOp : unsigned char {
   multiply,
   add,
   square,
 };
 
-struct Monkey {
-  int id{};
-  BinOp op;
+struct Operation {
+  BinOp op{};
   int operand{};
-  int test_divisor{};
-  int true_dst{};
-  int false_dst{};
-  std::vector<int> items;
-  int n_inspected{};
 
+  [[nodiscard]]
   long compute(long old) const {
     switch (op) {
       case BinOp::multiply:
@@ -33,8 +28,21 @@ struct Monkey {
         return old * old;
     }
   }
+};
 
-  auto get_dst(int item) const {
+using Items = std::vector<int>;
+
+struct Monkey {
+  int id{};
+  Operation op;
+  int test_divisor{};
+  int true_dst{};
+  int false_dst{};
+  Items items;
+  std::size_t n_inspected{};
+
+  [[nodiscard]]
+  auto get_dst(auto item) const {
     return item % test_divisor == 0 ? true_dst : false_dst;
   }
 };
@@ -47,7 +55,7 @@ auto run_monkey_business(auto monkeys, int worry_divisor, int n_rounds) {
     for (Monkey& monkey : monkeys) {
       const auto new_items{
           monkey.items | views::transform([&](long item) {
-            return (monkey.compute(item) / worry_divisor) % test_divisors_lcm;
+            return (monkey.op.compute(item) / worry_divisor) % test_divisors_lcm;
           })
           | ranges::to<std::vector>()
       };
@@ -62,48 +70,58 @@ auto run_monkey_business(auto monkeys, int worry_divisor, int n_rounds) {
   return product(inspected | views::drop(inspected.size() - 2));
 }
 
+std::istream& operator>>(std::istream& is, Items& items) {
+  if (std::string line;
+      is >> std::ws >> skip("Starting items:"s) and std::getline(is, line) and not line.empty()) {
+    ranges::replace(line, ',', ' ');
+    std::istringstream ls{line};
+    items = views::istream<int>(ls) | ranges::to<std::vector>();
+    if (items.empty() or not ls.eof()) {
+      throw std::runtime_error(std::format("failed parsing items from line '{}'", line));
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Operation& operation) {
+  if (std::string opname, rhs; is >> std::ws >> skip("Operation: new = old"s) >> opname >> rhs) {
+    BinOp op{};
+    int operand{};
+    if (opname == "*"s and rhs == "old"s) {
+      op = BinOp::square;
+    } else if ((operand = std::atoi(rhs.c_str())) != 0 and opname == "+") {
+      op = BinOp::add;
+    } else if (operand != 0 and opname == "*") {
+      op = BinOp::multiply;
+    } else {
+      throw std::runtime_error(
+          std::format("invalid binary operation '{}' with rhs '{}'", opname, rhs)
+      );
+    }
+    operation = {op, operand};
+  }
+  return is;
+}
+
 std::istream& operator>>(std::istream& is, Monkey& monkey) {
   bool ok{false};
-  if (int id; is >> std::ws >> skip("Monkey"s) >> id >> skip(":"s) and id >= 0) {
-    if (is >> std::ws >> skip("Starting items:"s)) {
-      if (std::string line; std::getline(is, line) and not line.empty()) {
-        ranges::replace(line, ',', ' ');
-        std::istringstream ls{line};
-        if (auto items{views::istream<int>(ls) | ranges::to<std::vector>()};
-            not items.empty() and ls.eof()) {
-          if (std::string opname, rhs;
-              is >> std::ws >> skip("Operation: new = old"s) >> opname >> rhs) {
-            BinOp op;
-            int operand{};
-            if (opname == "*"s and rhs == "old"s) {
-              op = BinOp::square;
-            } else if ((operand = std::atoi(rhs.c_str())) and opname == "+") {
-              op = BinOp::add;
-            } else if (operand and opname == "*") {
-              op = BinOp::multiply;
-            } else {
-              throw std::runtime_error("invalid binary operation");
-            }
-            if (int test_divisor;
-                is >> std::ws >> skip("Test: divisible by"s) >> test_divisor and test_divisor > 0) {
-              if (int true_dst; is >> std::ws >> skip("If true: throw to monkey"s) >> true_dst
-                                and true_dst >= 0) {
-                if (int false_dst; is >> std::ws >> skip("If false: throw to monkey"s) >> false_dst
-                                   and false_dst >= 0) {
-                  monkey = Monkey{
-                      id,
-                      op,
-                      operand,
-                      test_divisor,
-                      true_dst,
-                      false_dst,
-                      items,
-                  };
-                  ok = true;
-                }
-              }
-            }
-          }
+  if (auto [id, items, op]{std::tuple{int{}, Items{}, Operation{}}};
+      is >> std::ws >> skip("Monkey"s) >> id >> skip(":"s) and id >= 0 and is >> items >> op) {
+    if (int test_divisor{};
+        is >> std::ws >> skip("Test: divisible by"s) >> test_divisor and test_divisor > 0) {
+      if (int true_dst{};
+          is >> std::ws >> skip("If true: throw to monkey"s) >> true_dst and true_dst >= 0) {
+        if (int false_dst{};
+            is >> std::ws >> skip("If false: throw to monkey"s) >> false_dst and false_dst >= 0) {
+          monkey = Monkey{
+              id,
+              op,
+              test_divisor,
+              true_dst,
+              false_dst,
+              items,
+          };
+          ok = true;
         }
       }
     }

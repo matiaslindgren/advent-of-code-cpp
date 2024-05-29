@@ -17,7 +17,7 @@ struct Graph {
   }
 };
 
-enum class Search {
+enum class Search : unsigned char {
   simple,
   recursive,
 };
@@ -58,7 +58,7 @@ auto search(Graph g, Search type) {
       }
     }
 
-    for (auto next : g.edges.at(cave)) {
+    for (const auto& next : g.edges.at(cave)) {
       q.emplace_back(next, small_twice, visited);
     }
   }
@@ -68,17 +68,14 @@ auto search(Graph g, Search type) {
 
 Graph parse_input(std::string_view path) {
   Graph g;
-  {
-    std::istringstream is{aoc::slurp_file(path)};
-    for (std::string line; std::getline(is, line) and not line.empty();) {
-      ranges::replace(line, '-', ' ');
-      std::istringstream ls{line};
-      if (std::string src, dst; ls >> src >> dst and ls.eof()) {
-        g.add_edge(src, dst);
-        g.add_edge(dst, src);
-      } else {
-        throw std::runtime_error(std::format("failed parsing line '{}'", line));
-      }
+  for (const std::string& line : aoc::slurp_lines(path)) {
+    ranges::replace(line, '-', ' ');
+    std::istringstream ls{line};
+    if (std::string src, dst; ls >> src >> dst and ls.eof()) {
+      g.add_edge(src, dst);
+      g.add_edge(dst, src);
+    } else {
+      throw std::runtime_error(std::format("failed parsing line '{}'", line));
     }
   }
   return g;

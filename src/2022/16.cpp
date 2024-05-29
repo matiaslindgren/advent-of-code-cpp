@@ -9,7 +9,9 @@ using aoc::skip;
 using std::operator""s;
 
 struct Id {
-  char a, b;
+  char a{};
+  char b{};
+
   explicit operator int() const {
     return (a - 'A') * ('Z' - 'A' + 1) + (b - 'A');
   }
@@ -69,7 +71,7 @@ using ValveMask = std::bitset<16>;
 struct State {
   int position{};
   int time{};
-  ValveMask opened{};
+  ValveMask opened;
   int pressure{};
 
   bool operator==(const State& rhs) const {
@@ -132,7 +134,7 @@ auto search_max_pressure(
 }
 
 std::istream& operator>>(std::istream& is, Id& id) {
-  if (char a, b; is >> a >> b) {
+  if (char a{}, b{}; is >> a >> b) {
     if ('A' <= std::min(a, b) and std::max(a, b) <= 'Z') {
       id = {a, b};
     } else {
@@ -145,30 +147,28 @@ std::istream& operator>>(std::istream& is, Id& id) {
 std::istream& operator>>(std::istream& is, Valve& valve) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
     std::istringstream ls{line};
-    if (Id id; ls >> skip("Valve"s) >> id) {
-      if (int flow; ls >> std::ws >> skip("has flow rate="s) >> flow and flow >= 0) {
-        if (std::string s1, s2, s3, s4; ls >> skip(";"s) >> s1 >> s2 >> s3 >> s4) {
-          if ((s1 == "tunnels"s and s2 == "lead"s and s3 == "to"s and s4 == "valves")
-              or (s1 == "tunnel"s and s2 == "leads"s and s3 == "to"s and s4 == "valve")) {
-            std::vector<int> tunnels;
-            for (Id tunnel; ls >> tunnel; ls >> skip(","s)) {
-              tunnels.push_back(int{tunnel});
-            }
-            valve = Valve{int{id}, flow, tunnels};
-          }
+    Id id;
+    int flow{};
+    if (std::string s1, s2, s3, s4; ls >> skip("Valve"s) >> id
+                                    and ls >> std::ws >> skip("has flow rate="s) >> flow
+                                    and flow >= 0 and ls >> skip(";"s) >> s1 >> s2 >> s3 >> s4) {
+      if ((s1 == "tunnels"s and s2 == "lead"s and s3 == "to"s and s4 == "valves")
+          or (s1 == "tunnel"s and s2 == "leads"s and s3 == "to"s and s4 == "valve")) {
+        std::vector<int> tunnels;
+        for (Id tunnel; ls >> tunnel; ls >> skip(","s)) {
+          tunnels.push_back(int{tunnel});
         }
+        valve = Valve{int{id}, flow, tunnels};
       }
     }
-    if (not ls.eof()) {
+    if (not ls and not ls.eof()) {
       throw std::runtime_error(std::format("failed parsing valve from line '{}'", line));
     }
   }
   return is;
 }
 
-int main() {
-  auto valves{aoc::parse_items<Valve>("/dev/stdin")};
-
+auto search(auto valves) {
   const auto dist_all_paths{all_pairs_shortest_paths(valves)};
 
   std::erase_if(valves, [](const Valve& v) { return v.id != int{Id{'A', 'A'}} and v.flow <= 0; });
@@ -185,32 +185,35 @@ int main() {
   const auto part1{search_max_pressure(valves, ~ValveMask{}, dist, 30)};
 
   int part2{};
-  {
-    std::unordered_map<ValveMask, int> best_subsets;
-    for (unsigned long elephant{}; elephant < ((1 << n_valves) - 1); ++elephant) {
-      ValveMask set1{elephant};
-      ValveMask set2{~set1};
-      if (std::min(set1.count(), set2.count()) < n_valves / 2) {
-        // both units move at the same speed
-        // => prune all branches with an unbalanced division of work
-        continue;
-      }
 
-      set1[0] = true;
-      if (not best_subsets.contains(set1)) {
-        best_subsets[set1] = search_max_pressure(valves, set1, dist, 26);
-      }
-
-      set2[0] = true;
-      if (not best_subsets.contains(set2)) {
-        best_subsets[set2] = search_max_pressure(valves, set2, dist, 26);
-      }
-
-      part2 = std::max(part2, best_subsets.at(set1) + best_subsets.at(set2));
+  std::unordered_map<ValveMask, int> best_subsets;
+  for (unsigned long elephant{}; elephant < ((1 << n_valves) - 1); ++elephant) {
+    ValveMask set1{elephant};
+    ValveMask set2{~set1};
+    if (std::min(set1.count(), set2.count()) < n_valves / 2) {
+      // both units move at the same speed
+      // => prune all branches with an unbalanced division of work
+      continue;
     }
+
+    set1[0] = true;
+    if (not best_subsets.contains(set1)) {
+      best_subsets[set1] = search_max_pressure(valves, set1, dist, 26);
+    }
+
+    set2[0] = true;
+    if (not best_subsets.contains(set2)) {
+      best_subsets[set2] = search_max_pressure(valves, set2, dist, 26);
+    }
+
+    part2 = std::max(part2, best_subsets.at(set1) + best_subsets.at(set2));
   }
 
-  std::println("{} {}", part1, part2);
+  return std::pair{part1, part2};
+}
 
+int main() {
+  const auto [part1, part2]{search(aoc::parse_items<Valve>("/dev/stdin"))};
+  std::println("{} {}", part1, part2);
   return 0;
 }

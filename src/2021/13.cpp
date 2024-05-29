@@ -11,7 +11,8 @@ using Vec2 = ndvec::vec2<int>;
 
 struct Grid {
   std::unordered_map<Vec2, int> dots;
-  int width{}, height{};
+  int width{};
+  int height{};
 
   explicit Grid(int w, int h) : width{w}, height{h} {
   }
@@ -118,13 +119,13 @@ auto parse_input(std::string path) {
     std::istringstream is2{sections[1]};
     std::vector<Vec2> folds;
     while (is2) {
-      char axis;
-      int fold;
+      char axis{};
+      int fold{};
       if (is2 >> skip("fold along"s) >> axis >> skip("="s) >> fold >> std::ws) {
         if (axis == 'x') {
-          folds.push_back(Vec2(fold, -1));
+          folds.emplace_back(fold, -1);
         } else if (axis == 'y') {
-          folds.push_back(Vec2(-1, fold));
+          folds.emplace_back(-1, fold);
         } else {
           throw std::runtime_error(std::format("unknown fold axis '{}'", axis));
         }

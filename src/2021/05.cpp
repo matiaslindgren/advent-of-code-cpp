@@ -5,6 +5,8 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
 using Vec2 = ndvec::vec2<int>;
 
 std::vector<int> as_points(const int a, const int b) {
@@ -27,35 +29,11 @@ struct Segment {
   Vec2 begin;
   Vec2 end;
 
+  [[nodiscard]]
   bool is_diagonal() const {
     return begin.x() != end.x() and begin.y() != end.y();
   }
 };
-
-std::istream& operator>>(std::istream& is, Segment& segment) {
-  using aoc::skip;
-  using std::operator""s;
-
-  if (std::string line; std::getline(is, line) and not line.empty()) {
-    std::istringstream ls{line};
-    if (int x1, y1; ls >> x1 >> skip(","s) >> y1) {
-      if (ls >> std::ws >> skip("->"s)) {
-        if (int x2, y2; ls >> x2 >> skip(","s) >> y2) {
-          segment = {Vec2(x1, y1), Vec2(x2, y2)};
-        }
-      }
-    }
-    if (not(ls >> std::ws).eof()) {
-      is.setstate(std::ios_base::failbit);
-    }
-  }
-
-  if (not is and not is.eof()) {
-    throw std::runtime_error("failed parsing segment");
-  }
-
-  return is;
-}
 
 auto search(const auto& segments) {
   std::unordered_map<Vec2, int> counts;
@@ -83,6 +61,28 @@ auto search(const auto& segments) {
   auto part2{ranges::count_if(counts | views::values, [](int n) { return n > 1; })};
 
   return std::pair{part1, part2};
+}
+
+std::istream& operator>>(std::istream& is, Segment& segment) {
+  if (std::string line; std::getline(is, line) and not line.empty()) {
+    std::istringstream ls{line};
+    if (int x1{}, y1{}; ls >> x1 >> skip(","s) >> y1) {
+      if (ls >> std::ws >> skip("->"s)) {
+        if (int x2{}, y2{}; ls >> x2 >> skip(","s) >> y2) {
+          segment = {Vec2(x1, y1), Vec2(x2, y2)};
+        }
+      }
+    }
+    if (not(ls >> std::ws).eof()) {
+      is.setstate(std::ios_base::failbit);
+    }
+  }
+
+  if (not is and not is.eof()) {
+    throw std::runtime_error("failed parsing segment");
+  }
+
+  return is;
 }
 
 int main() {

@@ -5,14 +5,14 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Ring {
-  using List = std::list<int>;
+  using List = std::list<long>;
   using Iter = List::iterator;
   List data;
   Iter head;
   std::unordered_map<List::value_type, Iter> nodes;
 
   Ring(const auto& values, const std::size_t size) : data(size) {
-    std::size_t i{0};
+    int i{};
     for (auto pos{data.begin()}; pos != data.end(); ++pos, ++i) {
       if (i < values.size()) {
         *pos = values[i];
@@ -35,7 +35,7 @@ struct Ring {
   void step() {
     const auto cup1{*head};
     {
-      const auto n{data.size()};
+      const auto n{ranges::ssize(data)};
       auto cup2{*head};
       List pick;
       for (auto it{next(head)}; pick.size() < 3;) {
@@ -78,28 +78,19 @@ auto find_part2(const auto& input) {
   return n1 * n2;
 }
 
-auto parse_digits(std::istream& is) {
-  const auto char2int{[](char ch) {
-    switch (ch) {
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        return ch - '0';
-    }
-    throw std::runtime_error("non-whitespace input must be a digit");
-  }};
-  return views::istream<char>(is) | views::transform(char2int) | ranges::to<std::vector>();
+int char2int(char ch) {
+  if (aoc::is_digit(ch)) {
+    return ch - '0';
+  }
+  throw std::runtime_error("all non-whitespace input must be digits");
+}
+
+auto parse_digits(std::string_view path) {
+  return aoc::parse_items<char>(path) | views::transform(char2int) | ranges::to<std::vector>();
 }
 
 int main() {
-  const auto input{parse_digits(std::cin)};
+  const auto input{parse_digits("/dev/stdin")};
   const auto part1{find_part1(input)};
   const auto part2{find_part2(input)};
   std::println("{} {}", part1, part2);

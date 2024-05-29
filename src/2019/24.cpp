@@ -5,16 +5,18 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-using Vec3 = ndvec::vec3<int>;
+using Vec3 = ndvec::vec3<long>;
 
 struct Grid {
   std::unordered_set<Vec3> bugs;
 
+  [[nodiscard]]
   auto count_bugs(ranges::range auto&& points) const {
     return ranges::count_if(points, [&](Vec3 p) { return bugs.contains(p); });
   }
 
-  bool in_grid(Vec3 p) const {
+  [[nodiscard]]
+  static bool in_grid(Vec3 p) {
     return 0 <= p.y() and p.y() < 5 and 0 <= p.x() and p.x() < 5;
   }
 
@@ -42,7 +44,7 @@ auto find_part1(Grid g) {
         g2.bugs.erase(bug);
       }
       for (Vec3 p : adjacent) {
-        if (g.in_grid(p) and not g.bugs.contains(p)) {
+        if (Grid::in_grid(p) and not g.bugs.contains(p)) {
           if (auto n{g.count_bugs(get_adjacent(p))}; n == 1 or n == 2) {
             g2.bugs.insert(p);
           }

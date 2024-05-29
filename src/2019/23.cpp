@@ -8,7 +8,9 @@ namespace views = std::views;
 using intcode::IntCode;
 
 struct NAT {
-  long x{}, y{}, dst{};
+  long x{};
+  long y{};
+  long dst{};
 };
 
 struct NIC {
@@ -20,28 +22,35 @@ struct NIC {
   }
 };
 
+std::optional<NAT> run_step(auto& nats, NIC& nic) {
+  if (nic.ic.input.empty()) {
+    nic.push(-1);
+    nic.idle = true;
+  } else {
+    nic.idle = false;
+  }
+  nic.ic.run_while_input();
+  if (nic.ic.output.empty()) {
+    return {};
+  }
+  auto dst{nic.ic.pop_output().value()};
+  auto x{nic.ic.pop_output().value()};
+  auto y{nic.ic.pop_output().value()};
+  if (0 <= dst and dst < 50) {
+    return NAT{x, y, dst};
+  }
+  if (dst == 255) {
+    nats.back() = {x, y, dst};
+    return {};
+  }
+  throw std::runtime_error(std::format("bad dst {}", dst));
+}
+
 auto run(auto nics) {
   for (std::vector<NAT> nats{{}};;) {
-    for (auto& nic : nics) {
-      if (nic.ic.input.empty()) {
-        nic.push(-1);
-        nic.idle = true;
-      } else {
-        nic.idle = false;
-      }
-      nic.ic.run_while_input();
-      if (nic.ic.output.empty()) {
-        continue;
-      }
-      auto dst{nic.ic.pop_output().value()};
-      auto x{nic.ic.pop_output().value()};
-      auto y{nic.ic.pop_output().value()};
-      if (0 <= dst and dst < 50) {
-        nics[dst].push(x, y);
-      } else if (dst == 255) {
-        nats.back() = {x, y, dst};
-      } else {
-        throw std::runtime_error(std::format("bad dst {}", dst));
+    for (NIC& nic : nics) {
+      if (auto dst_nat{run_step(nats, nic)}) {
+        nics.at(dst_nat->dst).push(dst_nat->x, dst_nat->y);
       }
     }
     if (ranges::all_of(nics, &NIC::idle)) {

@@ -55,7 +55,7 @@ auto parse_constraints(std::string path) {
 
     for (std::istringstream is{section}; is;) {
       if (std::string a, b, c; is >> a >> b >> c >> std::ws) {
-        if (a.size() == 3 and b.size() == 1 and c.size() > 0) {
+        if (a.size() == 3 and b.size() == 1 and not c.empty()) {
           lines.emplace_back(a, c);
         } else {
           throw std::runtime_error("every line must contain 3 character binary operations");

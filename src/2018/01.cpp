@@ -6,7 +6,7 @@ auto find_frequencies(const auto& items) {
   int sum1{};
   int sum2{};
   std::unordered_map<int, int> sum_counts;
-  for (auto i{0UZ};; ++i) {
+  for (auto i{0UZ}; i < 100'000; ++i) {
     if (i == n) {
       sum1 = sum2;
     }
@@ -15,6 +15,7 @@ auto find_frequencies(const auto& items) {
       return std::pair{sum1, sum2};
     }
   }
+  throw std::runtime_error("search space exhausted, no answer");
 }
 
 int main() {

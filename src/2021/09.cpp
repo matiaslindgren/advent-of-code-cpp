@@ -15,6 +15,7 @@ constexpr auto product{std::__bind_back(ranges::fold_left, 1, std::multiplies{})
 struct Map {
   std::unordered_map<Vec2, int> heights;
 
+  [[nodiscard]]
   auto find_basins() const {
     return heights | views::keys | views::filter([this](Vec2 p1) {
              return ranges::all_of(p1.adjacent(), [p1, this](Vec2 p2) {
@@ -24,6 +25,7 @@ struct Map {
            });
   }
 
+  [[nodiscard]]
   auto find_basin_size(Vec2 center, auto& seen) const {
     if (auto [_, is_new]{seen.insert(center)}; not is_new) {
       return 0;
@@ -59,45 +61,23 @@ auto search_basins(const Map& m) {
   };
 }
 
-std::istream& operator>>(std::istream& is, Map& map) {
-  Vec2 p;
-  std::size_t width{};
-  for (std::string line; std::getline(is, line) and not line.empty(); p.y() += 1) {
-    if (width and line.size() != width) {
-      throw std::runtime_error("every row must be of same length");
-    } else {
-      width = line.size();
-    }
-    p.x() = 0;
-    for (char ch : line) {
-      switch (ch) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          map.heights[p] = ch - '0';
-          p.x() += 1;
-          continue;
+Map parse_map(std::string_view path) {
+  Map map;
+  for (Vec2 p; const std::string& line : aoc::slurp_lines(path)) {
+    for (p.x() = 0; char ch : line) {
+      if (not aoc::is_digit(ch)) {
+        throw std::runtime_error("all non-whitespace input must be digits");
       }
-      throw std::runtime_error("all non-whitespace input must be digits");
+      map.heights[p] = ch - '0';
+      p.x() += 1;
     }
+    p.y() += 1;
   }
-  if (not is and not is.eof()) {
-    throw std::runtime_error("failed parsing map");
-  }
-  return is;
+  return map;
 }
 
 int main() {
-  std::ios::sync_with_stdio(false);
-  Map m;
-  std::cin >> m;
+  const Map m{parse_map("/dev/stdin")};
   const auto [part1, part2]{search_basins(m)};
   std::println("{} {}", part1, part2);
   return 0;

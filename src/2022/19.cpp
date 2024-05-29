@@ -13,6 +13,7 @@ struct Rocks {
   int obsidian{};
   int geodes{};
 
+  [[nodiscard]]
   int min() const {
     return std::min({ore, clay, obsidian, geodes});
   }
@@ -27,6 +28,7 @@ struct Blueprint {
   Rocks obsidian_robot_cost{};
   Rocks geode_robot_cost{};
 
+  [[nodiscard]]
   int max_ore() const {
     return std::max({
         ore_robot_cost.ore,
@@ -47,6 +49,7 @@ struct State {
   Rocks producing{};
 
  private:
+  [[nodiscard]]
   State build_robot(const Rocks& cost, const Rocks& new_prod) const {
     int wait_time{
         1
@@ -73,33 +76,40 @@ struct State {
   }
 
  public:
+  [[nodiscard]]
   State build_ore_robot(const Blueprint& bp) const {
     return build_robot(bp.ore_robot_cost, Rocks{.ore = 1});
   }
 
+  [[nodiscard]]
   State build_clay_robot(const Blueprint& bp) const {
     return build_robot(bp.clay_robot_cost, Rocks{.clay = 1});
   }
 
+  [[nodiscard]]
   State build_obsidian_robot(const Blueprint& bp) const {
     return build_robot(bp.obsidian_robot_cost, Rocks{.obsidian = 1});
   }
 
+  [[nodiscard]]
   State make_geodes(const Blueprint& bp) const {
     State s{build_robot(bp.geode_robot_cost, {})};
     s.inventory.geodes += s.time;
     return s;
   }
 
+  [[nodiscard]]
   bool excessive_production(const Blueprint& bp) const {
     return (producing.obsidian > bp.geode_robot_cost.obsidian)
            or (producing.clay > bp.obsidian_robot_cost.clay) or (producing.ore > bp.max_ore());
   }
 
+  [[nodiscard]]
   bool is_valid() const {
     return std::min(time, inventory.min()) >= 0;
   }
 
+  [[nodiscard]]
   int maximum_possible_geodes() const {
     return inventory.geodes + (time - 1) * time / 2;
   }
@@ -125,36 +135,35 @@ struct std::hash<State> {
 
 auto find_max_geodes(Blueprint bp, int time_limit) {
   int max_n_geodes{};
-  {
-    State init_state{.time = time_limit, .producing = {.ore = 1}};
-    std::unordered_set<State> visited;
-    for (std::vector q{init_state}; not q.empty();) {
-      State s{q.back()};
-      q.pop_back();
-      if (not s.is_valid()) {
-        continue;
+
+  State init_state{.time = time_limit, .producing = {.ore = 1}};
+  std::unordered_set<State> visited;
+  for (std::vector q{init_state}; not q.empty();) {
+    State s{q.back()};
+    q.pop_back();
+    if (not s.is_valid()) {
+      continue;
+    }
+    if (visited.contains(s)) {
+      continue;
+    }
+    visited.insert(s);
+    max_n_geodes = std::max(max_n_geodes, s.inventory.geodes);
+    if (s.time < 2 or s.maximum_possible_geodes() < max_n_geodes or s.excessive_production(bp)) {
+      continue;
+    }
+    if (s.producing.ore > 0) {
+      q.push_back(s.build_ore_robot(bp));
+      q.push_back(s.build_clay_robot(bp));
+      if (s.producing.clay > 0) {
+        q.push_back(s.build_obsidian_robot(bp));
       }
-      if (visited.contains(s)) {
-        continue;
-      } else {
-        visited.insert(s);
-        max_n_geodes = std::max(max_n_geodes, s.inventory.geodes);
-      }
-      if (s.time < 2 or s.maximum_possible_geodes() < max_n_geodes or s.excessive_production(bp)) {
-        continue;
-      }
-      if (s.producing.ore) {
-        q.push_back(s.build_ore_robot(bp));
-        q.push_back(s.build_clay_robot(bp));
-        if (s.producing.clay) {
-          q.push_back(s.build_obsidian_robot(bp));
-        }
-        if (s.producing.obsidian) {
-          q.push_back(s.make_geodes(bp));
-        }
+      if (s.producing.obsidian > 0) {
+        q.push_back(s.make_geodes(bp));
       }
     }
   }
+
   return max_n_geodes;
 }
 
@@ -188,7 +197,8 @@ std::istream& operator>>(std::istream& is, Rocks& rocks) {
     if (kind.ends_with("."s)) {
       ok = true;
       break;
-    } else if (not(is >> kind and kind == "and"s)) {
+    }
+    if (not(is >> kind and kind == "and"s)) {
       break;
     }
   }
@@ -200,7 +210,7 @@ std::istream& operator>>(std::istream& is, Rocks& rocks) {
 
 std::istream& operator>>(std::istream& is, Blueprint& bp) {
   bool ok{false};
-  if (int id; is >> std::ws >> skip("Blueprint"s) >> id >> skip(":"s)) {
+  if (int id{}; is >> std::ws >> skip("Blueprint"s) >> id >> skip(":"s)) {
     if (Rocks ore; is >> std::ws >> skip("Each ore robot costs"s) >> ore) {
       if (Rocks clay; is >> std::ws >> skip("Each clay robot costs"s) >> clay) {
         if (Rocks obsidian; is >> std::ws >> skip("Each obsidian robot costs"s) >> obsidian) {

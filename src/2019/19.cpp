@@ -22,7 +22,8 @@ auto search(const auto& program) {
     return is_pulled(y, x);
   }))};
 
-  int y{}, x{};
+  int y{};
+  int x{};
   while (not is_pulled(y, x + 99)) {
     ++y;
     while (not is_pulled(y + 99, x)) {

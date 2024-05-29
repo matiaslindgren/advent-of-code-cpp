@@ -19,7 +19,7 @@ auto find_part1(auto v) {
       long out{};
       for (auto j{0UZ}; j < v.size(); ++j) {
         const auto k{((j + 1) / (i + 1)) % pattern.size()};
-        out += v[j] * pattern[k];
+        out += v[j] * pattern.at(k);
       }
       v[i] = std::abs(out) % 10;
     }
@@ -28,7 +28,7 @@ auto find_part1(auto v) {
 }
 
 auto find_part2(const auto& input) {
-  std::vector<int> v;
+  std::vector<long> v;
   {
     const auto n{input.size()};
     const auto offset{take_prefix(input, 7)};
@@ -39,7 +39,7 @@ auto find_part2(const auto& input) {
   }
   for (int phase{}; phase < 100; ++phase) {
     long out{};
-    for (int& x : views::reverse(v)) {
+    for (auto& x : views::reverse(v)) {
       x = (out += x) % 10;
     }
   }
@@ -49,19 +49,9 @@ auto find_part2(const auto& input) {
 auto parse_input(const std::string path) {
   std::istringstream input{aoc::slurp_file(path)};
   auto signal{
-      views::istream<char>(input) | views::transform([](char ch) -> int {
-        switch (ch) {
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
-            return ch - '0';
+      views::istream<char>(input) | views::transform([&](char ch) -> int {
+        if (aoc::is_digit(ch)) {
+          return ch - '0';
         }
         throw std::runtime_error("input should contain only digits");
       })

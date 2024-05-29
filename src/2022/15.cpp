@@ -15,6 +15,7 @@ struct Sensor {
   Vec2 beacon;
   long range{};
 
+  [[nodiscard]]
   bool in_range(Vec2 p) const {
     return pos.distance(p) <= range;
   }
@@ -41,7 +42,8 @@ auto find_part2(const auto& sensors) {
   // adapted from
   // https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0b90nr
   // accessed 2024-05-11
-  std::unordered_set<long> a, b;
+  std::unordered_set<long> a;
+  std::unordered_set<long> b;
   for (const Sensor& s : sensors) {
     a.insert(s.pos.y() - s.pos.x() + s.range + 1);
     a.insert(s.pos.y() - s.pos.x() - s.range - 1);

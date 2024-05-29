@@ -4,7 +4,7 @@
 #include "std.hpp"
 
 using intcode::IntCode;
-using Vec2 = ndvec::vec2<int>;
+using Vec2 = ndvec::vec2<IntCode::Int>;
 
 auto find_part1(const auto& program) {
   int n_blocks{};
@@ -17,32 +17,32 @@ auto find_part1(const auto& program) {
 }
 
 auto find_part2(const auto& program) {
-  int score{};
-  {
-    IntCode ic(program);
-    ic.store(0, 2, intcode::Mode::address);
-    for (std::optional<Vec2> paddle; not ic.is_done();) {
-      auto x{ic.run_until_output()};
-      auto y{ic.run_until_output()};
-      auto t{ic.run_until_output()};
-      if (not x or not y or not t) {
-        break;
-      }
+  IntCode::Int score{};
 
-      Vec2 pos(*x, *y);
-      auto tile{*t};
+  IntCode ic(program);
+  ic.store(0, 2, intcode::Mode::address);
+  for (std::optional<Vec2> paddle; not ic.is_done();) {
+    auto x{ic.run_until_output()};
+    auto y{ic.run_until_output()};
+    auto t{ic.run_until_output()};
+    if (not x or not y or not t) {
+      break;
+    }
 
-      if (pos == Vec2(-1, 0)) {
-        score = tile;
-      } else if (tile == 3) {
-        paddle = pos;
-      } else if (tile == 4 and not paddle) {
-        ic.input.push_back(0);
-      } else if (tile == 4) {
-        ic.input.push_back((pos - *paddle).signum().x());
-      }
+    Vec2 pos(*x, *y);
+    auto tile{*t};
+
+    if (pos == Vec2(-1, 0)) {
+      score = tile;
+    } else if (tile == 3) {
+      paddle = pos;
+    } else if (tile == 4 and not paddle) {
+      ic.input.push_back(0);
+    } else if (tile == 4) {
+      ic.input.push_back((pos - *paddle).signum().x());
     }
   }
+
   return score;
 }
 

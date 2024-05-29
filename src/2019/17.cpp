@@ -6,6 +6,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using std::operator""s;
 using intcode::IntCode;
 using Vec2 = ndvec::vec2<int>;
 
@@ -45,22 +46,18 @@ auto find_part1(const auto& program) {
     std::unordered_set<Vec2> visited;
     for (std::deque q{vacuum}; not q.empty(); q.pop_front()) {
       Vec2 p{q.front()};
-      if (auto&& [_, unseen]{visited.insert(p)}; not unseen) {
-        continue;
+      if (auto&& [_, unseen]{visited.insert(p)}; unseen) {
+        if (tiles.contains(p)) {
+          if (ranges::all_of(p.adjacent(), [&](auto&& adj) { return tiles.contains(adj); })) {
+            intersections.insert(p);
+          }
+          q.append_range(p.adjacent());
+        }
       }
-      if (not tiles.contains(p)) {
-        continue;
-      }
-      if (ranges::all_of(p.adjacent(), [&](auto&& adj) { return tiles.contains(adj); })) {
-        intersections.insert(p);
-      }
-      q.append_range(p.adjacent());
     }
   }
-  return sum(views::transform(intersections, [](Vec2 p) { return p.x() * p.y(); }));
+  return sum(views::transform(intersections, [](Vec2 p) { return p.prod(); }));
 }
-
-using std::operator""s;
 
 auto find_part2(const auto& program) {
   IntCode ic(program);

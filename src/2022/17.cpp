@@ -16,7 +16,7 @@ enum struct Direction : char {
 };
 
 std::istream& operator>>(std::istream& is, Direction& dir) {
-  if (char ch; is >> ch) {
+  if (char ch{}; is >> ch) {
     switch (ch) {
       case std::to_underlying(Direction::left):
       case std::to_underlying(Direction::right): {
@@ -31,7 +31,7 @@ std::istream& operator>>(std::istream& is, Direction& dir) {
   return is;
 }
 
-enum struct RockType {
+enum struct RockType : unsigned char {
   horizontal,
   plus,
   angle,
@@ -66,9 +66,8 @@ struct Rock {
      ....
      ....
    */
-  static constexpr int max_size{4};
   Vec2 pos;
-  std::bitset<max_size * max_size> shape;
+  std::bitset<16UZ> shape;
   int width{};
   int height{};
 
@@ -107,11 +106,12 @@ struct Rock {
     }
   }
 
+  [[nodiscard]]
   auto points() const {
     return (
         views::iota(0UZ, shape.size()) | views::filter([this](auto i) { return shape[i]; })
         | views::transform([this](auto i) {
-            auto [y, x]{std::div(i, Rock::max_size)};
+            auto [y, x]{std::div(i, 4)};
             return pos + Vec2(x, -y);
           })
     );
@@ -124,6 +124,7 @@ struct Grid {
 
   std::unordered_set<Vec2> rocks;
 
+  [[nodiscard]]
   bool is_blocked(const Vec2 p) const {
     return p.min() < 0 or p.x() >= width or rocks.contains(p);
   }
@@ -156,7 +157,8 @@ std::optional<Cycle> find_cycle(const auto& v) {
     return std::nullopt;
   }
 
-  std::size_t t{1}, h{2};
+  std::size_t t{1};
+  std::size_t h{2};
 
   while (v.at(t) != v.at(h)) {
     t += 1;

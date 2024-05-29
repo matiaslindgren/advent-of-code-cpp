@@ -55,22 +55,19 @@ auto search(const auto& adds) {
 
 auto parse_instructions(std::string_view path) {
   std::vector<int> adds;
-  {
-    const auto lines{aoc::slurp_lines(path)};
-    for (auto line : lines) {
-      std::istringstream ls{line};
-      if (std::string cmd; ls >> cmd) {
-        if (int n; cmd == "addx"s and ls >> n) {
-          adds.push_back(n);
-        } else if (cmd == "noop"s) {
-          adds.push_back(0);
-        } else {
-          ls.setstate(std::ios_base::failbit);
-        }
+  for (const std::string& line : aoc::slurp_lines(path)) {
+    std::istringstream ls{line};
+    if (std::string cmd; ls >> cmd) {
+      if (int n{}; cmd == "addx"s and ls >> n) {
+        adds.push_back(n);
+      } else if (cmd == "noop"s) {
+        adds.push_back(0);
+      } else {
+        ls.setstate(std::ios_base::failbit);
       }
-      if (ls.fail() or not ls.eof()) {
-        throw std::runtime_error(std::format("failed parsing line '{}'", line));
-      }
+    }
+    if (ls.fail() or not ls.eof()) {
+      throw std::runtime_error(std::format("failed parsing line '{}'", line));
     }
   }
   return adds;

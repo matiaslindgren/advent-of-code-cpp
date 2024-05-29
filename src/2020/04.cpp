@@ -27,16 +27,10 @@ Passports parse_passports(std::string_view path) {
 }
 
 bool is_filled(const Passport& p) {
-  const std::vector required{
-      "byr"s,
-      "iyr"s,
-      "eyr"s,
-      "hgt"s,
-      "hcl"s,
-      "ecl"s,
-      "pid"s,
-  };
-  return ranges::all_of(required, [&p](auto key) { return p.contains(key); });
+  return ranges::all_of(
+      std::initializer_list<std::string>{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"},
+      [&p](auto key) { return p.contains(key); }
+  );
 }
 
 const std::regex four_digits{"^\\d{4}$"};
@@ -46,52 +40,45 @@ const std::regex height_in{"^\\d{2,3}in$"};
 const std::regex hair_color{"^#[0-9a-f]{6}$"};
 const std::regex eye_color{"^(amb|blu|brn|gry|grn|hzl|oth)$"};
 
+bool between(int x, int lo, int hi) {
+  return lo <= x and x <= hi;
+}
+
 bool is_valid_entry(const std::string& key, const std::string& val) {
   std::istringstream is{val};
-  if (key == "byr"s) {
-    if (std::regex_match(val, four_digits)) {
-      if (int byr; is >> byr) {
-        return 1920 <= byr and byr <= 2002;
-      }
-    }
-  } else if (key == "iyr"s) {
-    if (std::regex_match(val, four_digits)) {
-      if (int iyr; is >> iyr) {
-        return 2010 <= iyr and iyr <= 2020;
-      }
-    }
-  } else if (key == "eyr"s) {
-    if (std::regex_match(val, four_digits)) {
-      if (int eyr; is >> eyr) {
-        return 2020 <= eyr and eyr <= 2030;
-      }
-    }
-  } else if (key == "hgt"s) {
-    if (std::regex_match(val, height_cm)) {
-      if (int hgt; is >> hgt) {
-        return 150 <= hgt and hgt <= 193;
-      }
-    } else if (std::regex_match(val, height_in)) {
-      if (int hgt; is >> hgt) {
-        return 59 <= hgt and hgt <= 76;
-      }
-    }
-  } else if (key == "hcl"s) {
+  if (int byr{}; key == "byr"s and std::regex_match(val, four_digits) and is >> byr) {
+    return between(byr, 1920, 2002);
+  }
+  if (int iyr{}; key == "iyr"s and std::regex_match(val, four_digits) and is >> iyr) {
+    return between(iyr, 2010, 2020);
+  }
+  if (int eyr{}; key == "eyr"s and std::regex_match(val, four_digits) and is >> eyr) {
+    return between(eyr, 2020, 2030);
+  }
+  if (int hgt{}; key == "hgt"s and std::regex_match(val, height_cm) and is >> hgt) {
+    return between(hgt, 150, 193);
+  }
+  if (int hgt{}; key == "hgt"s and std::regex_match(val, height_in) and is >> hgt) {
+    return between(hgt, 59, 76);
+  }
+  if (key == "hcl"s) {
     return std::regex_match(val, hair_color);
-  } else if (key == "ecl"s) {
+  }
+  if (key == "ecl"s) {
     return std::regex_match(val, eye_color);
-  } else if (key == "pid"s) {
+  }
+  if (key == "pid"s) {
     return std::regex_match(val, nine_digits);
-  } else if (key == "cid"s) {
+  }
+  if (key == "cid"s) {
     return true;
   }
   return false;
 }
 
 bool is_valid(const Passport& p) {
-  return (is_filled(p) and ranges::all_of(p, [](auto&& kv) {
-            return is_valid_entry(kv.first, kv.second);
-          }));
+  return is_filled(p)
+         and ranges::all_of(p, [](auto&& kv) { return is_valid_entry(kv.first, kv.second); });
 }
 
 int main() {

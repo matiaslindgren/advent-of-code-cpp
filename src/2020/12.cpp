@@ -13,40 +13,9 @@ struct Action {
     left = 'L',
     right = 'R',
     forward = 'F',
-  } type;
-  int value;
+  } type{};
+  int value{};
 };
-
-std::istream& operator>>(std::istream& is, Action::Type& type) {
-  using Type = Action::Type;
-
-  if (std::underlying_type_t<Type> ch; is >> ch) {
-    switch (ch) {
-      case std::to_underlying(Type::north):
-      case std::to_underlying(Type::south):
-      case std::to_underlying(Type::east):
-      case std::to_underlying(Type::west):
-      case std::to_underlying(Type::left):
-      case std::to_underlying(Type::right):
-      case std::to_underlying(Type::forward): {
-        type = {ch};
-      } break;
-      default: {
-        throw std::runtime_error(std::format("unknown action type {}", ch));
-      }
-    }
-  }
-  return is;
-}
-
-std::istream& operator>>(std::istream& is, Action& action) {
-  if (Action::Type type; is >> type) {
-    if (int value; is >> value) {
-      action = {type, value};
-    }
-  }
-  return is;
-}
 
 auto deg2rad(int deg) {
   return deg * std::numbers::pi_v<double> / 180.0;
@@ -61,7 +30,8 @@ auto rotate(const Vec2& p, int deg) {
 auto find_part1(const auto& actions) {
   using Type = Action::Type;
 
-  Vec2 pos, dir(1, 0);
+  Vec2 pos(0, 0);
+  Vec2 dir(1, 0);
   for (const Action& a : actions) {
     switch (a.type) {
       case Type::north: {
@@ -94,7 +64,8 @@ auto find_part1(const auto& actions) {
 auto find_part2(const auto& actions) {
   using Type = Action::Type;
 
-  Vec2 pos, wpos(10, 1);
+  Vec2 pos(0, 0);
+  Vec2 wpos(10, 1);
   for (const Action& a : actions) {
     switch (a.type) {
       case Type::north: {
@@ -122,6 +93,37 @@ auto find_part2(const auto& actions) {
     }
   }
   return pos.distance(Vec2());
+}
+
+std::istream& operator>>(std::istream& is, Action::Type& type) {
+  using Type = Action::Type;
+
+  if (std::underlying_type_t<Type> ch{}; is >> ch) {
+    switch (ch) {
+      case std::to_underlying(Type::north):
+      case std::to_underlying(Type::south):
+      case std::to_underlying(Type::east):
+      case std::to_underlying(Type::west):
+      case std::to_underlying(Type::left):
+      case std::to_underlying(Type::right):
+      case std::to_underlying(Type::forward): {
+        type = {ch};
+      } break;
+      default: {
+        throw std::runtime_error(std::format("unknown action type {}", ch));
+      }
+    }
+  }
+  return is;
+}
+
+std::istream& operator>>(std::istream& is, Action& action) {
+  if (Action::Type type{}; is >> type) {
+    if (int value{}; is >> value) {
+      action = {type, value};
+    }
+  }
+  return is;
 }
 
 int main() {

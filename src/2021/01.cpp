@@ -21,10 +21,7 @@ auto find_part1(const auto& depths) {
 
 auto find_part2(const auto& depths) {
   return find_part1(
-      window3(depths) | views::transform([](auto&& w) {
-        auto [x1, x2, x3]{w};
-        return x1 + x2 + x3;
-      })
+      window3(depths) | views::transform(my_std::apply_fn([](auto... xs) { return (... + xs); }))
       | ranges::to<std::vector>()
   );
 }

@@ -8,7 +8,7 @@ auto find_distinct(std::string input, std::size_t msg_len) {
   auto rhs{msg_len};
   for (; rhs < input.size(); ++rhs) {
     auto window{input.substr(rhs - msg_len, msg_len)};
-    if (ranges::to<std::unordered_set>(window).size() == msg_len) {
+    if (auto distinct{ranges::to<std::unordered_set>(window)}; distinct.size() == msg_len) {
       break;
     }
   }

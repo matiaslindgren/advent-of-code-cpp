@@ -7,16 +7,23 @@ using intcode::IntCode;
 using Vec2 = ndvec::vec2<int>;
 
 auto explore(const auto& program) {
-  std::unordered_set<Vec2> tiles, visited;
+  std::unordered_set<Vec2> tiles;
+  std::unordered_set<Vec2> visited;
   Vec2 oxygen;
   int oxygen_distance{};
+
+  constexpr std::array adjacent{
+      Vec2(0, -1),
+      Vec2(0, 1),
+      Vec2(-1, 0),
+      Vec2(1, 0),
+  };
 
   for (std::deque q{std::tuple{IntCode(program), Vec2(), 0}}; not q.empty(); q.pop_front()) {
     auto [droid_prev, pos_prev, n_moves]{q.front()};
     tiles.insert(pos_prev);
-
     for (int cmd{1}; cmd <= 4; ++cmd) {
-      Vec2 step{std::array{Vec2(0, -1), Vec2(0, 1), Vec2(-1, 0), Vec2(1, 0)}[cmd - 1]};
+      Vec2 step{adjacent.at(cmd - 1)};
       Vec2 pos{pos_prev + step};
       if (auto [_, unseen]{visited.insert(pos)}; not unseen) {
         continue;
@@ -54,12 +61,11 @@ auto flood_fill(Vec2 oxygen, const auto& tiles) {
       if (not tiles.contains(pos)) {
         continue;
       }
-      if (auto [_, unseen]{visited.insert(pos)}; not unseen) {
-        continue;
-      }
-      max_moves = std::max(max_moves, n_moves);
-      for (Vec2 adj : pos.adjacent()) {
-        q.emplace_back(adj, n_moves + 1);
+      if (auto [_, is_new]{visited.insert(pos)}; is_new) {
+        max_moves = std::max(max_moves, n_moves);
+        for (Vec2 adj : pos.adjacent()) {
+          q.emplace_back(adj, n_moves + 1);
+        }
       }
     }
   }

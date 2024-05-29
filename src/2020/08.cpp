@@ -6,33 +6,17 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Instruction {
-  enum {
+  enum : unsigned char {
     acc,
     jmp,
     nop,
-  } type;
-  int value;
+  } type{};
+  int value{};
 };
 
-std::istream& operator>>(std::istream& is, Instruction& ins) {
-  if (std::string type; is >> type) {
-    if (int value; is >> value) {
-      if (type == "acc") {
-        ins = {Instruction::acc, value};
-      } else if (type == "jmp") {
-        ins = {Instruction::jmp, value};
-      } else if (type == "nop") {
-        ins = {Instruction::nop, value};
-      } else {
-        throw std::runtime_error(std::format("unknown instruction '{}'", type));
-      }
-    }
-  }
-  return is;
-}
-
 auto run(auto program, const int mutate = -1) {
-  int acc{}, i{};
+  int acc{};
+  int i{};
   for (std::unordered_set<int> seen; not seen.contains(i) and i < program.size(); ++i) {
     seen.insert(i);
     if (i == mutate) {
@@ -48,18 +32,16 @@ auto run(auto program, const int mutate = -1) {
         } break;
       }
     }
-    {
-      const auto& ins{program.at(i)};
-      switch (ins.type) {
-        case Instruction::acc: {
-          acc += ins.value;
-        } break;
-        case Instruction::jmp: {
-          i += ins.value - 1;
-        } break;
-        default: {
-        } break;
-      }
+    const auto& ins{program.at(i)};
+    switch (ins.type) {
+      case Instruction::acc: {
+        acc += ins.value;
+      } break;
+      case Instruction::jmp: {
+        i += ins.value - 1;
+      } break;
+      default: {
+      } break;
     }
   }
   return std::pair{acc, i >= program.size()};
@@ -79,6 +61,23 @@ auto find_part2(const auto& program) {
     }
   }
   return res;
+}
+
+std::istream& operator>>(std::istream& is, Instruction& ins) {
+  if (std::string type; is >> type) {
+    if (int value{}; is >> value) {
+      if (type == "acc") {
+        ins = {Instruction::acc, value};
+      } else if (type == "jmp") {
+        ins = {Instruction::jmp, value};
+      } else if (type == "nop") {
+        ins = {Instruction::nop, value};
+      } else {
+        throw std::runtime_error(std::format("unknown instruction '{}'", type));
+      }
+    }
+  }
+  return is;
 }
 
 int main() {

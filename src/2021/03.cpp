@@ -11,12 +11,12 @@ Bits compute_gamma(const auto& nums) {
   std::array<int, bit_count> one_count{};
   for (const Bits& b : nums) {
     for (auto i{0UZ}; i < b.size(); ++i) {
-      one_count[i] += b[i];
+      one_count.at(i) += b[i];
     }
   }
   Bits gamma;
   for (auto i{0UZ}; i < gamma.size(); ++i) {
-    gamma[i] = 2 * one_count[i] >= nums.size();
+    gamma[i] = 2 * one_count.at(i) >= nums.size();
   }
   return gamma;
 }
@@ -69,14 +69,11 @@ Bits parse_bitset(const std::string& s) {
   ));
 }
 
-auto parse_bitsets(std::istream& is) {
-  return views::istream<std::string>(is) | views::transform(parse_bitset)
-         | ranges::to<std::vector>();
-}
-
 int main() {
-  std::ios::sync_with_stdio(false);
-  const auto nums{parse_bitsets(std::cin)};
+  const auto nums{
+      aoc::parse_items<std::string>("/dev/stdin") | views::transform(parse_bitset)
+      | ranges::to<std::vector>()
+  };
 
   const auto part1{find_part1(nums)};
   const auto part2{find_part2(nums)};

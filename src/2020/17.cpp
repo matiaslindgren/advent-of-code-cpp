@@ -22,11 +22,14 @@ auto get_adjacent(Vec4 p, bool dim4) {
 
 struct Grid {
   std::unordered_set<Vec4> active;
+  std::size_t width{};
 
+  [[nodiscard]]
   auto count_active(const auto& positions) const {
     return std::ranges::count_if(positions, [this](Vec4 p) { return active.contains(p); });
   }
 
+  [[nodiscard]]
   Grid step(bool dim4) const {
     Grid out{*this};
     for (const Vec4& p : active) {
@@ -55,26 +58,22 @@ auto simulate(Grid grid, auto n_cycles, bool dim4) {
 
 Grid parse_grid(std::string_view path) {
   Grid g;
-  {
-    std::istringstream is{aoc::slurp_file(path)};
-    std::size_t width{};
-    Vec4 pos{};
-    for (std::string line; std::getline(is, line) and not line.empty(); pos.y() += 1) {
-      if (not width) {
-        width = line.size();
-      } else if (line.size() != width) {
-        throw std::runtime_error("every row must be of same width");
-      }
-      pos.x() = 0;
-      for (char ch : line) {
-        if (ch == '#') {
-          g.active.insert(pos);
-        } else if (ch != '.') {
-          throw std::runtime_error(std::format("invalid tile '{}', must be # or .", ch));
-        }
-        pos.x() += 1;
-      }
+  for (Vec4 pos; const std::string& line : aoc::slurp_lines(path)) {
+    if (g.width == 0) {
+      g.width = line.size();
+    } else if (line.size() != g.width) {
+      throw std::runtime_error("every row must be of same width");
     }
+    pos.x() = 0;
+    for (char ch : line) {
+      if (ch == '#') {
+        g.active.insert(pos);
+      } else if (ch != '.') {
+        throw std::runtime_error(std::format("invalid tile '{}', must be # or .", ch));
+      }
+      pos.x() += 1;
+    }
+    pos.y() += 1;
   }
   return g;
 }

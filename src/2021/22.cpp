@@ -10,12 +10,15 @@ using aoc::skip;
 using std::operator""s;
 
 struct Cuboid {
-  Vec3 lo, hi;
+  Vec3 lo;
+  Vec3 hi;
 
+  [[nodiscard]]
   bool is_init() const {
     return std::max(lo.abs().max(), hi.abs().max()) <= 50;
   }
 
+  [[nodiscard]]
   std::optional<Cuboid> intersection(const Cuboid& other) const {
     Vec3 lower{lo.max(other.lo)};
     Vec3 upper{hi.min(other.hi)};
@@ -25,6 +28,7 @@ struct Cuboid {
     return {};
   }
 
+  [[nodiscard]]
   long volume() const {
     return ((lo - hi).abs() + Vec3(1, 1, 1)).prod();
   }

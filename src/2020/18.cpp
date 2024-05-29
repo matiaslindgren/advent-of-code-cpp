@@ -6,19 +6,20 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 auto infix_to_postfix(std::string_view expression, bool equal_precedence) {
-  std::string ops, out;
+  std::string ops;
+  std::string out;
   for (auto [i, token] : my_std::views::enumerate(expression)) {
     switch (token) {
       case ' ': {
       } break;
       case ')': {
-        if (auto i{ops.find_last_of('(')}; i == std::string::npos) {
+        if (auto i{ops.find_last_of('(')}; i != std::string::npos) {
+          out.append_range(views::reverse(ops.substr(i + 1)));
+          ops = ops.substr(0, i);
+        } else {
           throw std::runtime_error(
               std::format("unbalanced closing paren in expression '{}'", expression)
           );
-        } else {
-          out.append_range(views::reverse(ops.substr(i + 1)));
-          ops = ops.substr(0, i);
         }
       } break;
       case '*':
@@ -57,7 +58,7 @@ auto infix_to_postfix(std::string_view expression, bool equal_precedence) {
 
 auto compute(const auto& expressions, bool equal_precedence) {
   long s{};
-  for (auto infix : expressions) {
+  for (const auto& infix : expressions) {
     auto postfix{infix_to_postfix(infix, equal_precedence)};
     std::vector<long> res;
     for (char token : postfix) {

@@ -27,10 +27,9 @@ auto search(const int card, const int door) {
 }
 
 int main() {
-  if (int card, door; std::cin >> card >> door) {
-    std::print("{}\n", search(card, door));
-  } else {
-    throw std::runtime_error("failed parsing a pair of integers");
+  if (int card{}, door{}; std::cin >> card >> door) {
+    std::println("{}", search(card, door));
+    return 0;
   }
-  return 0;
+  throw std::runtime_error("failed parsing input, it should be a pair of integers");
 }

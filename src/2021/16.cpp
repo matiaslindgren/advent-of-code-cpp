@@ -34,7 +34,7 @@ enum class Op : Int {
 
 Op as_op(ranges::sized_range auto&& bits) {
   auto id{as_int(bits)};
-  Op op;
+  Op op{};
   switch (id) {
     case std::to_underlying(Op::sum):
     case std::to_underlying(Op::product):
@@ -62,7 +62,7 @@ struct Packet {
   Int version{};
   Int data{};
   Op op{};
-  std::vector<Packet> packets{};
+  std::vector<Packet> packets;
   Int n_read{};
 
   explicit Packet(Bits bits) {
@@ -82,7 +82,7 @@ struct Packet {
     for (auto [b1, b2, b3, b4, b5] : chunks5(bits)) {
       bits_data.append_range(std::array{b2, b3, b4, b5});
       n_read += 5;
-      if (b1 == 0) {
+      if (not b1) {
         break;
       }
     }
@@ -106,11 +106,13 @@ struct Packet {
     n_read += pos;
   }
 
+  [[nodiscard]]
   Int version_sum() const {
     return version
            + sum(views::transform(packets, [](const Packet& p) { return p.version_sum(); }));
   }
 
+  [[nodiscard]]
   Int eval() const {
     auto results{views::transform(packets, [](const Packet& p) { return p.eval(); })};
     switch (op) {
@@ -125,11 +127,11 @@ struct Packet {
       case Op::literal:
         return data;
       case Op::greater:
-        return results.front() > results.back();
+        return int{results.front() > results.back()};
       case Op::less:
-        return results.front() < results.back();
+        return int{results.front() < results.back()};
       case Op::equal:
-        return results.front() == results.back();
+        return int{results.front() == results.back()};
     }
   }
 };
@@ -143,7 +145,7 @@ Packet parse_packet(std::istream& is) {
       unsigned char buf{};
       if (std::from_chars(&it[0], &it[1], buf, 16).ec == std::errc{}) {
         for (int b{3}; b >= 0; --b) {
-          bits.push_back((buf >> b) & 1);
+          bits.push_back(((buf >> b) & 1) != 0);
         }
       } else {
         throw std::runtime_error(std::format(

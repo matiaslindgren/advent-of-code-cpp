@@ -17,11 +17,15 @@ enum class Tile : unsigned char {
   empty,
 };
 
-enum class Turn : int {
+enum class Turn : unsigned char {
   left = 0,
   straight = 1,
   right = 2,
 };
+
+Turn next(Turn t) {
+  return Turn{static_cast<unsigned char>((std::to_underlying(t) + 1) % 3)};
+}
 
 using Vec2 = ndvec::vec2<int>;
 
@@ -46,7 +50,7 @@ Cart turn(const auto& grid, Cart cart) {
   Turn turn{};
   switch (grid.tiles.at(cart.pos)) {
     case Tile::intersection: {
-      turn = std::exchange(cart.turn, Turn{(std::to_underlying(cart.turn) + 1) % 3});
+      turn = std::exchange(cart.turn, next(cart.turn));
     } break;
     case Tile::turn_north_east: {
       turn = cart.dir.x() ? Turn::right : Turn::left;

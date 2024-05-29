@@ -4,8 +4,11 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using aoc::skip;
+using std::operator""s;
+
 auto get_digits(auto x) {
-  std::vector<int> d;
+  std::vector<signed char> d;
   while (x) {
     const auto [q, r]{std::div(x, 10)};
     x = q;
@@ -20,7 +23,8 @@ constexpr decltype(auto) window2(ranges::random_access_range auto&& r) {
 }
 
 auto search(const auto begin, const auto end) {
-  int part1{}, part2{};
+  int part1{};
+  int part2{};
 
   for (auto x{begin}; x <= end; ++x) {
     const auto digits{get_digits(x)};
@@ -43,24 +47,20 @@ auto search(const auto begin, const auto end) {
 
     has_two_once |= repeats == 2;
 
-    part1 += has_two and is_monotonic;
-    part2 += has_two_once and is_monotonic;
+    part1 += int{has_two and is_monotonic};
+    part2 += int{has_two_once and is_monotonic};
   }
 
   return std::pair{part1, part2};
 }
 
 auto parse_input(const std::string path) {
-  using aoc::skip;
-  using std::operator""s;
-
   std::istringstream input{aoc::slurp_file(path)};
-  if (unsigned begin, end; input >> begin >> skip("-"s) >> end >> std::ws) {
+  if (unsigned begin{}, end{}; input >> begin >> skip("-"s) >> end >> std::ws) {
     if (input.eof()) {
       return std::pair{begin, end};
     }
   }
-
   throw std::runtime_error("invalid input, parsing failed");
 }
 

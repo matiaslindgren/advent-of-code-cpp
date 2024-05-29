@@ -7,16 +7,21 @@ namespace views = std::views;
 
 using Vec2 = ndvec::vec2<int>;
 
-enum struct Direction {
+enum struct Direction : unsigned char {
   north,
   south,
   west,
   east,
 };
 
+auto next(Direction d, int turn = 1) {
+  return Direction{static_cast<unsigned char>((std::to_underlying(d) + turn) % 4)};
+}
+
 struct Grid {
   std::unordered_set<Vec2> elves;
 
+  [[nodiscard]]
   bool has_adjacent_elf(Vec2 pos, Vec2 dir) const {
     for (Vec2 d(-1, -1); d.y() <= 1; d.y() += 1) {
       for (d.x() = -1; d.x() <= 1; d.x() += 1) {
@@ -30,6 +35,7 @@ struct Grid {
     return false;
   }
 
+  [[nodiscard]]
   bool has_adjacent_elves(Vec2 pos) const {
     return ranges::any_of(
         std::array{Vec2(0, 1), Vec2(0, -1), Vec2(1, 0), Vec2(-1, 0)},
@@ -37,10 +43,11 @@ struct Grid {
     );
   }
 
+  [[nodiscard]]
   std::optional<Vec2> find_move(Vec2 pos, Direction start_dir) const {
     for (int turn{}; turn < 4; ++turn) {
       Vec2 dir;
-      switch (Direction{(std::to_underlying(start_dir) + turn) % 4}) {
+      switch (next(start_dir, turn)) {
         case Direction::north: {
           dir = Vec2(0, -1);
         } break;
@@ -73,14 +80,15 @@ auto find_part1(const Grid& g) {
   int n{};
   for (Vec2 p{p_min}; p.y() <= p_max.y(); p.y() += 1) {
     for (p.x() = p_min.x(); p.x() <= p_max.x(); p.x() += 1) {
-      n += not g.elves.contains(p);
+      n += int{not g.elves.contains(p)};
     }
   }
   return n;
 }
 
 auto search(Grid grid) {
-  std::optional<int> part1{}, part2{};
+  std::optional<int> part1{};
+  std::optional<int> part2{};
 
   auto dir{Direction::north};
   for (int round{}; round < 10'000 and (not part1 or not part2); ++round) {
@@ -110,7 +118,7 @@ auto search(Grid grid) {
       part2 = round + 1;
     }
 
-    dir = Direction{(std::to_underlying(dir) + 1) % 4};
+    dir = next(dir);
   }
 
   return std::pair{part1.value(), part2.value()};
@@ -118,20 +126,17 @@ auto search(Grid grid) {
 
 Grid parse_grid(std::string_view path) {
   Grid grid;
-  {
-    Vec2 p;
-    for (auto line : aoc::slurp_lines(path)) {
-      p.x() = 0;
-      for (char ch : line) {
-        if (ch == '#') {
-          grid.elves.insert(p);
-        } else if (ch != '.') {
-          throw std::runtime_error(std::format("unknown grid tile '{}'", ch));
-        }
-        p.x() += 1;
+  for (Vec2 p; const std::string& line : aoc::slurp_lines(path)) {
+    p.x() = 0;
+    for (char ch : line) {
+      if (ch == '#') {
+        grid.elves.insert(p);
+      } else if (ch != '.') {
+        throw std::runtime_error(std::format("unknown grid tile '{}'", ch));
       }
-      p.y() += 1;
+      p.x() += 1;
     }
+    p.y() += 1;
   }
   return grid;
 }

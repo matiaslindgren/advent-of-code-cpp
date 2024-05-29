@@ -10,42 +10,10 @@ using std::operator""s;
 using Vec2 = ndvec::vec2<int>;
 using Mark = std::pair<int, int>;
 
-constexpr auto intmax{std::numeric_limits<int>::max()};
-
 struct Step {
   Vec2 dir;
-  int len;
+  int len{};
 };
-
-std::istream& operator>>(std::istream& is, Step& step) {
-  if (char ch; is >> ch) {
-    Vec2 dir;
-    switch (ch) {
-      case 'U': {
-        dir = Vec2(0, -1);
-      } break;
-      case 'R': {
-        dir = Vec2(1, 0);
-      } break;
-      case 'D': {
-        dir = Vec2(0, 1);
-      } break;
-      case 'L': {
-        dir = Vec2(-1, 0);
-      } break;
-      default: {
-        is.setstate(std::ios_base::failbit);
-      } break;
-    }
-    if (int len; is >> len) {
-      step = {dir, len};
-    }
-  }
-  if (is or is.eof()) {
-    return is;
-  }
-  throw std::runtime_error("failed parsing Step");
-}
 
 void find_paths(const auto& wire, const int mark, auto& paths) {
   Vec2 p{};
@@ -64,6 +32,7 @@ void find_paths(const auto& wire, const int mark, auto& paths) {
 }
 
 auto search(const auto& wire1, const auto& wire2) {
+  constexpr auto intmax{std::numeric_limits<int>::max()};
   std::unordered_map<Vec2, Mark> paths;
   find_paths(wire1, 1, paths);
   find_paths(wire2, 2, paths);
@@ -79,6 +48,32 @@ auto search(const auto& wire1, const auto& wire2) {
     }
     return res;
   });
+}
+
+std::istream& operator>>(std::istream& is, Step& step) {
+  if (char ch{}; is >> ch) {
+    Vec2 dir;
+    switch (ch) {
+      case 'U': {
+        dir = Vec2(0, -1);
+      } break;
+      case 'R': {
+        dir = Vec2(1, 0);
+      } break;
+      case 'D': {
+        dir = Vec2(0, 1);
+      } break;
+      case 'L': {
+        dir = Vec2(-1, 0);
+      } break;
+      default:
+        throw std::runtime_error(std::format("unknown direction '{}'", ch));
+    }
+    if (int len{}; is >> len) {
+      step = {dir, len};
+    }
+  }
+  return is;
 }
 
 auto parse_input(const std::string path) {

@@ -15,10 +15,12 @@ struct Packet {
     return std::atoi(str.c_str());
   }
 
+  [[nodiscard]]
   bool is_numeric() const {
     return ranges::all_of(str, [=](unsigned char ch) { return is_digit(ch); });
   }
 
+  [[nodiscard]]
   std::vector<Packet> split() const {
     if (is_numeric()) {
       return {*this};
@@ -29,7 +31,7 @@ struct Packet {
       depth += int{ch == '['};
       depth -= int{ch == ']'};
       if ((ch == ',' and depth == 0) or i == str.size() - 1) {
-        if (size) {
+        if (size != 0) {
           subpacks.emplace_back(str.substr(i - size, size));
           size = 0;
         }
@@ -101,7 +103,7 @@ std::istream& operator>>(std::istream& is, Packet& packet) {
 int main() {
   const auto packets{aoc::parse_items<Packet>("/dev/stdin")};
 
-  if (packets.empty() or packets.size() % 2) {
+  if (packets.empty() or (packets.size() % 2) != 0) {
     throw std::runtime_error("input must contain an even number of packets");
   }
 

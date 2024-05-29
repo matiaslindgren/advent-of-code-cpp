@@ -5,8 +5,8 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-inline constexpr auto width{25};
-inline constexpr auto height{6};
+constexpr int width{25};
+constexpr int height{6};
 
 auto find_part1(const auto& layers) {
   const auto l_zero{ranges::min(layers, {}, [](auto&& l) { return ranges::count(l, '0'); })};
@@ -35,7 +35,7 @@ auto parse_layers(const std::string path) {
   std::istringstream is{aoc::slurp_file(path)};
   if (std::string line; std::getline(is, line) >> std::ws and is.eof() and not line.empty()) {
     const auto n{width * height};
-    if (line.size() % n) {
+    if (line.size() % n != 0) {
       throw std::runtime_error("input must be divisible into layers");
     }
     // TODO (llvm19?) views::chunk

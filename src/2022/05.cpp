@@ -14,7 +14,7 @@ struct Move {
   int dst{};
 };
 
-enum class Mover {
+enum class Mover : unsigned char {
   v9000,
   v9001,
 };
@@ -55,8 +55,8 @@ auto search(auto stacks, const auto& moves, Mover version) {
 }
 
 std::istream& operator>>(std::istream& is, Move& move) {
-  if (int count, src, dst; is >> skip("move"s) >> count >> std::ws >> skip("from"s) >> src
-                           >> std::ws >> skip("to"s) >> dst) {
+  if (int count{}, src{}, dst{}; is >> skip("move"s) >> count >> std::ws >> skip("from"s) >> src
+                                 >> std::ws >> skip("to"s) >> dst) {
     move = {count, src - 1, dst - 1};
   }
   return is;

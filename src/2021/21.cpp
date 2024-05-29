@@ -10,10 +10,13 @@ using std::operator""s;
 using UInt = unsigned long;
 
 struct State {
-  int pawn1{}, pawn2{};
-  UInt score1{}, score2{};
+  int pawn1{};
+  int pawn2{};
+  UInt score1{};
+  UInt score2{};
   int turn{1};
 
+  [[nodiscard]]
   State roll(int die) const {
     State s{*this};
     if (turn == 1) {
@@ -24,6 +27,7 @@ struct State {
     return s;
   }
 
+  [[nodiscard]]
   State next_turn() const {
     State s{*this};
     if (turn == 1) {
@@ -102,8 +106,8 @@ UInt find_part2(State init_state) {
 
 auto parse_players(std::string_view path) {
   std::istringstream is{aoc::slurp_file(path)};
-  if (int p1; is >> skip("Player 1 starting position:"s) >> p1 >> std::ws) {
-    if (int p2; is >> skip("Player 2 starting position:"s) >> p2 >> std::ws) {
+  if (int p1{}; is >> skip("Player 1 starting position:"s) >> p1 >> std::ws) {
+    if (int p2{}; is >> skip("Player 2 starting position:"s) >> p2 >> std::ws) {
       if (is.eof()) {
         return std::pair{p1, p2};
       }

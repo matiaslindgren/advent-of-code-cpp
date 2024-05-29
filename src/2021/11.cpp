@@ -9,16 +9,6 @@ using Vec2 = ndvec::vec2<int>;
 
 struct Map {
   std::unordered_map<Vec2, int> energies;
-  static constexpr std::array adjacencies{
-      Vec2(-1, -1),
-      Vec2(-1, 0),
-      Vec2(-1, 1),
-      Vec2(0, -1),
-      Vec2(0, 1),
-      Vec2(1, -1),
-      Vec2(1, 0),
-      Vec2(1, 1),
-  };
 
   void step() {
     for (int& energy : energies | views::values) {
@@ -26,8 +16,19 @@ struct Map {
     }
   }
 
+  [[nodiscard]]
   auto adjacent(Vec2 p) const {
-    return adjacencies | views::transform([=](Vec2 d) { return p + d; })
+    return std::array{
+               Vec2(-1, -1),
+               Vec2(-1, 0),
+               Vec2(-1, 1),
+               Vec2(0, -1),
+               Vec2(0, 1),
+               Vec2(1, -1),
+               Vec2(1, 0),
+               Vec2(1, 1),
+           }
+           | views::transform([=](Vec2 d) { return p + d; })
            | views::filter([this](Vec2 adj) { return this->energies.contains(adj); });
   }
 
@@ -53,8 +54,9 @@ struct Map {
 };
 
 auto search(Map m) {
-  long part1{}, part2{};
-  for (auto n_flashes{0UZ}; n_flashes < m.energies.size();) {
+  long part1{};
+  long part2{};
+  for (long n_flashes{}; n_flashes < m.energies.size();) {
     n_flashes = 0;
     for (m.step(); m.flash_all();) {
     }
@@ -70,45 +72,30 @@ auto search(Map m) {
   return std::pair{part1, part2};
 }
 
-std::istream& operator>>(std::istream& is, Map& map) {
+Map parse_map(std::string_view path) {
+  Map map;
   Vec2 p;
-  for (std::string line; std::getline(is, line) and not line.empty(); p.y() += 1) {
+  for (const std::string& line : aoc::slurp_lines(path)) {
     if (line.size() != 10) {
       throw std::runtime_error("every row must be of length 10");
     }
-    p.x() = 0;
-    for (char ch : line) {
-      switch (ch) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          map.energies[p] = ch - '0';
-          p.x() += 1;
-          continue;
+    for (p.x() = 0; char ch : line) {
+      if (not aoc::is_digit(ch)) {
+        throw std::runtime_error("all non-whitespace input must be digits");
       }
-      throw std::runtime_error("all non-whitespace input must be digits");
+      map.energies[p] = ch - '0';
+      p.x() += 1;
     }
+    p.y() += 1;
   }
   if (p.y() != 10) {
     throw std::runtime_error("there should be exactly 10 rows");
   }
-  if (not is and not is.eof()) {
-    throw std::runtime_error("unknown error while parsing map");
-  }
-  return is;
+  return map;
 }
 
 int main() {
-  std::ios::sync_with_stdio(false);
-  Map m;
-  std::cin >> m;
+  const Map m{parse_map("/dev/stdin")};
   const auto [part1, part2]{search(m)};
   std::println("{} {}", part1, part2);
   return 0;

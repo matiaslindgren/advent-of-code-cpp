@@ -12,7 +12,7 @@ auto run_script(const auto& program, auto&& script) {
     auto out{ic.run_until_output().value()};
     prompt.push_back(static_cast<char>(out));
   }
-  for (auto line : script) {
+  for (const auto& line : script) {
     ic.input.append_range(std::views::all(line + "\n"s));
   }
   for (;;) {

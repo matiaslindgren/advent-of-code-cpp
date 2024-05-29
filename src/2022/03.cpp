@@ -40,7 +40,9 @@ auto find_part2(const auto& lines) {
       chunks3(views::transform(lines, [](auto line) { return ranges::to<std::set>(line); }))
       | views::transform([](auto&& bags) {
           auto [bag1, bag2, bag3]{bags};
-          std::set<char> common12, common13, common123;
+          std::set<char> common12;
+          std::set<char> common13;
+          std::set<char> common123;
           ranges::set_intersection(bag1, bag2, std::inserter(common12, common12.end()));
           ranges::set_intersection(bag1, bag3, std::inserter(common13, common13.end()));
           ranges::set_intersection(common12, common13, std::inserter(common123, common123.end()));

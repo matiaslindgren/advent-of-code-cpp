@@ -1,9 +1,11 @@
+// TODO slow
 #include "aoc.hpp"
 #include "my_std.hpp"
 #include "std.hpp"
 
 auto search(const auto& items, const int n) {
-  std::unordered_map<int, int> age1, age2;
+  std::unordered_map<int, int> age1;
+  std::unordered_map<int, int> age2;
   for (auto [t, x] : my_std::views::enumerate(items, 1)) {
     age1[x] = age2[x] = t;
   }
@@ -17,21 +19,8 @@ auto search(const auto& items, const int n) {
   return t0;
 }
 
-auto parse_input(std::string_view path) {
-  std::ios::sync_with_stdio(false);
-  using aoc::skip;
-  using std::operator""s;
-
-  std::vector<int> items;
-  for (int x; std::cin >> x;) {
-    items.push_back(x);
-    std::cin >> skip(","s);
-  }
-  return items;
-}
-
 int main() {
-  const auto items{parse_input("/dev/stdin")};
+  const auto items{aoc::parse_items<int>("/dev/stdin", ',')};
 
   const auto part1{search(items, 2020)};
   const auto part2{search(items, 30'000'000)};

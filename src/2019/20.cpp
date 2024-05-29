@@ -16,21 +16,18 @@ bool is_portal(char ch) {
 }
 
 struct Maze {
-  std::string chars{};
-  std::size_t width{};
+  std::string chars;
+  int width{};
+  int height{};
 
+  [[nodiscard]]
   char get(const Vec2& p) const {
     return chars.at(p.y() * width + p.x());
   }
 
-  Graph to_graph() const {
-    Graph g;
-
-    const int h = chars.size() / width;
-    const int w = width;
-
-    for (Vec2 p(2, 2); p.y() < h - 2; ++p.y()) {
-      for (p.x() = 2; p.x() < w - 2; ++p.x()) {
+  void into_portals(auto& portals) const {
+    for (Vec2 p(2, 2); p.y() < height - 2; ++p.y()) {
+      for (p.x() = 2; p.x() < width - 2; ++p.x()) {
         if (get(p) == '.') {
           for (Vec2 step : {Vec2(0, -1), Vec2(0, 1), Vec2(-1, 0), Vec2(1, 0)}) {
             const Vec2 p1{p + step};
@@ -38,54 +35,64 @@ struct Maze {
             const char ch1{get(std::min(p1, p2))};
             const char ch2{get(std::max(p1, p2))};
             if (is_portal(ch1) and is_portal(ch2)) {
-              g.portals[std::string{{ch1, ch2}}].push_back(p - Vec2(2, 2));
+              portals[std::string{{ch1, ch2}}].push_back(p - Vec2(2, 2));
             }
           }
         }
       }
     }
+  }
 
-    {
-      std::unordered_set<Vec2> visited;
-      for (Vec2 p(2, 2); p.y() < h - 2; ++p.y()) {
-        for (p.x() = 2; p.x() < w - 2; ++p.x()) {
-          if (get(p) == '.') {
-            for (std::deque q{p}; not q.empty(); q.pop_front()) {
-              Vec2 p1{q.front()};
-              if (auto [_, unvisited]{visited.insert(p1)}; not unvisited) {
-                continue;
-              }
-              for (Vec2 p2 : p1.adjacent()) {
-                if (get(p2) == '.') {
-                  Vec2 p1_grid{p1 - Vec2(2, 2)};
-                  Vec2 p2_grid{p2 - Vec2(2, 2)};
-                  g.edges[p1_grid][p2_grid] = g.edges[p2_grid][p1_grid] = 0;
-                  q.emplace_back(p2);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    std::unordered_set<Vec2> inner_portals;
-    {
-      std::unordered_set<Vec2> visited;
-      for (std::deque q{Vec2(w / 2, h / 2)}; not q.empty(); q.pop_front()) {
-        Vec2 p{q.front()};
-        if (auto [_, unvisited]{visited.insert(p)}; not unvisited) {
+  void into_edges(auto& edges) const {
+    std::unordered_set<Vec2> visited;
+    for (Vec2 p(2, 2); p.y() < height - 2; ++p.y()) {
+      for (p.x() = 2; p.x() < width - 2; ++p.x()) {
+        if (get(p) != '.') {
           continue;
         }
+        for (std::deque q{p}; not q.empty(); q.pop_front()) {
+          Vec2 p1{q.front()};
+          if (auto [_, unvisited]{visited.insert(p1)}; not unvisited) {
+            continue;
+          }
+          for (Vec2 p2 : p1.adjacent()) {
+            if (get(p2) == '.') {
+              Vec2 p1_grid{p1 - Vec2(2, 2)};
+              Vec2 p2_grid{p2 - Vec2(2, 2)};
+              edges[p1_grid][p2_grid] = edges[p2_grid][p1_grid] = 0;
+              q.emplace_back(p2);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  void into_inner_portals(auto& portals) const {
+    std::unordered_set<Vec2> visited;
+    for (std::deque q{Vec2(width / 2, height / 2)}; not q.empty(); q.pop_front()) {
+      Vec2 p{q.front()};
+      if (auto [_, unvisited]{visited.insert(p)}; unvisited) {
         for (Vec2 adj : p.adjacent()) {
           if (auto ch{get(adj)}; ch == '.') {
-            inner_portals.insert(adj - Vec2(2, 2));
+            portals.insert(adj - Vec2(2, 2));
           } else if (ch == ' ' or is_portal(ch)) {
             q.emplace_back(adj);
           }
         }
       }
     }
+  }
+
+  [[nodiscard]]
+  Graph to_graph() const {
+    Graph g;
+
+    into_portals(g.portals);
+    into_edges(g.edges);
+
+    std::unordered_set<Vec2> inner_portals;
+    into_inner_portals(inner_portals);
 
     for (auto jump : std::views::values(g.portals)) {
       if (jump.size() == 1) {
@@ -94,8 +101,8 @@ struct Maze {
       if (jump.size() == 2) {
         Vec2 p1{jump.front()};
         Vec2 p2{jump.back()};
-        int p1_inner{inner_portals.contains(p1)};
-        int p2_inner{inner_portals.contains(p2)};
+        auto p1_inner{int{inner_portals.contains(p1)}};
+        auto p2_inner{int{inner_portals.contains(p2)}};
         g.edges[p1][p2] = p1_inner - p2_inner;
         g.edges[p2][p1] = p2_inner - p1_inner;
         continue;
@@ -107,7 +114,7 @@ struct Maze {
   }
 };
 
-enum class Search {
+enum class Search : unsigned char {
   simple,
   recursive,
 };
@@ -145,22 +152,22 @@ auto search(const Graph& g, Search type) {
 
 Graph parse_input(std::string_view path) {
   Maze m;
-  {
-    std::istringstream is{aoc::slurp_file(path)};
-    for (std::string line; std::getline(is, line) and not line.empty();) {
-      if (not m.width) {
-        m.width = line.size();
-      } else if (line.size() != m.width) {
-        throw std::runtime_error("every line must be of same length");
+  for (const std::string& line : aoc::slurp_lines(path)) {
+    int width{};
+    for (char ch : line) {
+      if (is_portal(ch) or ch == ' ' or ch == '#' or ch == '.') {
+        m.chars.push_back(ch);
+      } else {
+        throw std::runtime_error(std::format("maze contains an unknown char '{}'", ch));
       }
-      for (char ch : line) {
-        if (is_portal(ch) or ch == ' ' or ch == '#' or ch == '.') {
-          m.chars.push_back(ch);
-        } else {
-          throw std::runtime_error(std::format("maze contains an unknown char '{}'", ch));
-        }
-      }
+      width += 1;
     }
+    if (m.width == 0) {
+      m.width = width;
+    } else if (width != m.width) {
+      throw std::runtime_error("every line must be of same length");
+    }
+    m.height += 1;
   }
   return m.to_graph();
 }

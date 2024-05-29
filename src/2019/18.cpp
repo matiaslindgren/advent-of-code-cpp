@@ -9,10 +9,12 @@ using Vec2 = ndvec::vec2<int>;
 using Graph = std::unordered_map<Vec2, std::unordered_map<Vec2, int>>;
 
 struct Maze {
-  std::unordered_map<Vec2, char> keys, doors;
+  std::unordered_map<Vec2, char> keys;
+  std::unordered_map<Vec2, char> doors;
   std::vector<bool> walls;
   std::size_t width{};
 
+  [[nodiscard]]
   char get_door(const Vec2& p) const {
     if (doors.contains(p)) {
       return doors.at(p);
@@ -20,6 +22,7 @@ struct Maze {
     return {};
   }
 
+  [[nodiscard]]
   char get_key(const Vec2& p) const {
     if (keys.contains(p)) {
       return keys.at(p);
@@ -27,10 +30,12 @@ struct Maze {
     return {};
   }
 
+  [[nodiscard]]
   auto index(const Vec2& p) const {
     return p.y() * width + p.x();
   }
 
+  [[nodiscard]]
   Graph as_graph(const Vec2& entrance) const {
     Graph g;
     for (std::vector q{entrance}; not q.empty();) {
@@ -66,14 +71,18 @@ struct Maze {
 
 struct State {
   std::vector<Vec2> robots;
-  std::bitset<'z' - 'a' + 1> keys{};
+  std::bitset<'z' - 'a' + 1> keys;
 
+  [[nodiscard]]
   bool has_key(unsigned char key) const {
     return keys[key - 'a'];
   }
+
   void insert(unsigned char key) {
     keys[key - 'a'] = true;
   }
+
+  [[nodiscard]]
   bool can_open(unsigned char door) const {
     return has_key(std::tolower(door));
   }
@@ -99,11 +108,11 @@ auto find_available_keys(const std::size_t robot, const State& s, const Maze& m,
       if (auto&& [_, unseen]{visited.insert(pos)}; not unseen) {
         continue;
       }
-      if (char key{m.get_key(pos)}; key and not s.has_key(key)) {
+      if (char key{m.get_key(pos)}; key != 0 and not s.has_key(key)) {
         keys.emplace_back(pos, dist);
         continue;
       }
-      if (char door{m.get_door(pos)}; door and not s.can_open(door)) {
+      if (char door{m.get_door(pos)}; door != 0 and not s.can_open(door)) {
         continue;
       }
       for (auto [next_pos, step] : g.at(pos)) {
@@ -173,33 +182,27 @@ auto collect_keys(const Maze& maze, const auto& entrances) {
 auto parse_maze(std::string_view path) {
   Maze m;
   Vec2 entrance;
-  {
-    Vec2 pos;
-    std::istringstream is{aoc::slurp_file(path)};
-    for (std::string line; std::getline(is, line) and not line.empty(); ++pos.y()) {
-      if (not m.width) {
-        m.width = line.size();
-      } else if (line.size() != m.width) {
-        throw std::runtime_error("every row must be of same width");
-      }
-      pos.x() = 0;
-      for (char ch : line) {
-        if ('a' <= ch and ch <= 'z') {
-          m.keys[pos] = ch;
-        } else if ('A' <= ch and ch <= 'Z') {
-          m.doors[pos] = ch;
-        } else if (ch == '@') {
-          entrance = pos;
-        } else if (not(ch == '#' or ch == '.')) {
-          throw std::runtime_error(std::format("input contains an unknown character {}", ch));
-        }
-        m.walls.push_back(ch == '#');
-        ++pos.x();
-      }
+  for (Vec2 pos; const std::string& line : aoc::slurp_lines(path)) {
+    if (m.width == 0) {
+      m.width = line.size();
+    } else if (line.size() != m.width) {
+      throw std::runtime_error("every row must be of same width");
     }
-    if (not is.eof()) {
-      throw std::runtime_error("input contains unknown characters after the maze");
+    pos.x() = 0;
+    for (char ch : line) {
+      if ('a' <= ch and ch <= 'z') {
+        m.keys[pos] = ch;
+      } else if ('A' <= ch and ch <= 'Z') {
+        m.doors[pos] = ch;
+      } else if (ch == '@') {
+        entrance = pos;
+      } else if (ch != '#' and ch != '.') {
+        throw std::runtime_error(std::format("input contains an unknown character {}", ch));
+      }
+      m.walls.push_back(ch == '#');
+      ++pos.x();
     }
+    ++pos.y();
   }
   return std::pair{m, entrance};
 }

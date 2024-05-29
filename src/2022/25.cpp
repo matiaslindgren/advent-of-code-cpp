@@ -5,6 +5,8 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
+using std::operator""s;
+
 constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
 
 long pow(int x, int p) {
@@ -15,7 +17,7 @@ long pow(int x, int p) {
   return res;
 }
 
-long parse_snafu(std::string_view line) {
+auto parse_snafu(std::string_view line) {
   return sum(views::transform(my_std::views::enumerate(line), [n = line.size()](auto item) {
     auto [i, ch]{item};
     auto x{pow(5, n - (i + 1))};
@@ -64,13 +66,13 @@ auto find_part1(const auto& lines) {
           case 0:
           case 1:
           case 2: {
-            res.push_back('0' + ds);
+            res += std::format("{:d}", ds);
           } break;
           case -1: {
-            res.push_back('-');
+            res += "-"s;
           } break;
           case -2: {
-            res.push_back('=');
+            res += "="s;
           } break;
           default: {
             throw std::runtime_error(std::format("invalid snafu digit {}", ds));

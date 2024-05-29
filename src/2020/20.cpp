@@ -17,25 +17,29 @@ auto reversed(ranges::range auto&& r) {
 }
 
 struct Image {
-  std::size_t width{};
-  std::string str{};
+  long width{};
+  std::string str;
 
+  [[nodiscard]]
   auto height() const {
-    return str.size() / width;
+    return ranges::ssize(str) / width;
   }
 
   auto row(this auto&& self, std::size_t y) {
     return self.str | views::drop(y * self.width) | views::take(self.width);
   }
 
+  [[nodiscard]]
   auto yx_range() const {
-    return my_std::views::cartesian_product(views::iota(0UZ, height()), views::iota(0UZ, width));
+    return my_std::views::cartesian_product(views::iota(0L, height()), views::iota(0L, width));
   }
 
+  [[nodiscard]]
   auto flip_y(auto y) const {
     return height() - y - 1;
   }
 
+  [[nodiscard]]
   auto flip_x(auto x) const {
     return width - x - 1;
   }
@@ -44,8 +48,9 @@ struct Image {
 struct Tile {
   int id{};
   Image img;
-  std::array<std::string, 4> borders;
+  std::array<std::string, 4> borders{};
 
+  [[nodiscard]]
   Tile rotate() const {
     Tile out{*this};
     for (auto [y, x] : img.yx_range()) {
@@ -57,6 +62,7 @@ struct Tile {
     return out;
   }
 
+  [[nodiscard]]
   Tile flip() const {
     Tile out{*this};
     for (auto [y, x] : img.yx_range()) {
@@ -68,6 +74,7 @@ struct Tile {
     return out;
   }
 
+  [[nodiscard]]
   std::optional<Tile> find_matching_orientation(Tile other, int side) const {
     for (int flips{}; flips < 2; ++flips) {
       for (int rotations{}; rotations < 4; ++rotations) {
@@ -83,48 +90,6 @@ struct Tile {
     return {};
   }
 };
-
-std::istream& operator>>(std::istream& is, Tile& tile) {
-  if (int id; is >> std::ws >> skip("Tile"s) >> id >> skip(":"s) >> std::ws) {
-    std::vector<std::string> lines;
-    for (std::string line; std::getline(is, line) and not line.empty();) {
-      if (line.size() < 3) {
-        throw std::runtime_error("every line must have at least 3 characters");
-      }
-      if (not lines.empty() and lines.back().size() != line.size()) {
-        throw std::runtime_error("every line must be of same length");
-      }
-      lines.push_back(line);
-    }
-    if (lines.size() < 3) {
-      throw std::runtime_error("every tile must have at least 3 rows");
-    }
-
-    std::string north, east, south, west;
-    north = lines.front();
-    for (const std::string& line : lines) {
-      west.push_back(line.front());
-      east.push_back(line.back());
-    }
-    west = reversed(west);
-    south = reversed(lines.back());
-
-    const auto without_borders{[](ranges::sized_range auto&& r) {
-      return r | views::take(r.size() - 1) | views::drop(1);
-    }};
-    Image img{.width = south.size() - 2};
-    for (const std::string& line : without_borders(lines)) {
-      img.str.append_range(without_borders(line));
-    }
-
-    tile = {
-        .id = id,
-        .img = img,
-        .borders = {north, east, south, west},
-    };
-  }
-  return is;
-}
 
 struct Grid {
   std::unordered_map<Vec2, Tile> tiles;
@@ -145,7 +110,7 @@ struct Grid {
     Grid out{*this};
     frozen.insert(t1.id);
     out.tiles[p] = t1;
-    for (auto side{0UZ}; side < deltas.size(); ++side) {
+    for (int side{}; side < deltas.size(); ++side) {
       for (Tile t : tilemap | views::values) {
         if (not frozen.contains(t.id)) {
           if (auto match{t1.find_matching_orientation(t, side)}) {
@@ -160,6 +125,7 @@ struct Grid {
   }
 
  public:
+  [[nodiscard]]
   auto corners() const {
     auto ps{views::keys(tiles)};
     return std::array{
@@ -170,6 +136,7 @@ struct Grid {
     };
   }
 
+  [[nodiscard]]
   Image as_image() const {
     if (tiles.empty()) {
       throw std::runtime_error("cannot build image of empty grid");
@@ -191,7 +158,7 @@ struct Grid {
           continue;
         }
         if (img.width == 0) {
-          img.width = row.size();
+          img.width = ranges::ssize(row);
         } else if (img.width != row.size()) {
           throw std::runtime_error("all rows in image must be of same width");
         }
@@ -265,6 +232,52 @@ auto search(const auto& tilemap) {
   auto hashes{ranges::count(img.str, '#')};
   auto roughness{hashes - monsters * monster_hashes};
   return std::pair{corner_id, roughness};
+}
+
+std::istream& operator>>(std::istream& is, Tile& tile) {
+  if (int id{}; is >> std::ws >> skip("Tile"s) >> id >> skip(":"s) >> std::ws) {
+    std::vector<std::string> lines;
+    for (std::string line; std::getline(is, line) and not line.empty();) {
+      if (line.size() < 3) {
+        throw std::runtime_error("every line must have at least 3 characters");
+      }
+      if (not lines.empty() and lines.back().size() != line.size()) {
+        throw std::runtime_error("every line must be of same length");
+      }
+      lines.push_back(line);
+    }
+    if (lines.size() < 3) {
+      throw std::runtime_error("every tile must have at least 3 rows");
+    }
+
+    std::string north;
+    std::string east;
+    std::string south;
+    std::string west;
+
+    north = lines.front();
+    for (const std::string& line : lines) {
+      west.push_back(line.front());
+      east.push_back(line.back());
+    }
+    west = reversed(west);
+    south = reversed(lines.back());
+
+    const auto without_borders{[](ranges::sized_range auto&& r) {
+      return r | views::take(r.size() - 1) | views::drop(1);
+    }};
+    Image img{.width = ranges::ssize(south) - 2};
+    for (const std::string& line : without_borders(lines)) {
+      img.str.append_range(without_borders(line));
+    }
+
+    tile = {
+        .id = id,
+        .img = img,
+        .borders = {north, east, south, west},
+    };
+  }
+  return is;
 }
 
 int main() {

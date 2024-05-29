@@ -14,6 +14,7 @@ struct Entry {
   Strings inputs;
   Strings output;
 
+  [[nodiscard]]
   auto decode() const {
     // idea from
     // https://www.reddit.com/r/adventofcode/comments/rbj87a/comment/hnp4saz
@@ -33,6 +34,19 @@ struct Entry {
   }
 };
 
+auto search(const auto& entries) {
+  int part1{};
+  int part2{};
+  for (const Entry& e : entries) {
+    const auto output{e.decode()};
+    for (char ch : output) {
+      part1 += "1478"s.contains(ch);
+    }
+    part2 += std::stoi(output);
+  }
+  return std::pair{part1, part2};
+}
+
 std::istream& operator>>(std::istream& is, Entry& entry) {
   if (std::string line; std::getline(is, line) and not line.empty()) {
     std::istringstream ls{line};
@@ -51,19 +65,6 @@ std::istream& operator>>(std::istream& is, Entry& entry) {
     }
   }
   return is;
-}
-
-auto search(const auto& entries) {
-  int part1{};
-  int part2{};
-  for (const Entry& e : entries) {
-    const auto output{e.decode()};
-    for (char ch : output) {
-      part1 += "1478"s.contains(ch);
-    }
-    part2 += std::stoi(output);
-  }
-  return std::pair{part1, part2};
 }
 
 int main() {

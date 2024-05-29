@@ -19,7 +19,7 @@ auto make_counter(auto&& v) {
 
 auto apply_steps(std::string polymer, auto rules, int n_steps) {
   auto pair_counts{make_counter(rules | views::keys)};
-  for (auto [ch0, ch1] : pairwise(polymer)) {
+  for (auto&& [ch0, ch1] : pairwise(polymer)) {
     pair_counts[{ch0, ch1}] += 1;
   }
 
@@ -29,7 +29,7 @@ auto apply_steps(std::string polymer, auto rules, int n_steps) {
   }
 
   for (int s{}; s < n_steps; ++s) {
-    for (auto [pair, count] : pair_counts | ranges::to<std::vector>()) {
+    for (auto&& [pair, count] : pair_counts | ranges::to<std::vector>()) {
       if (count > 0) {
         char ch0{pair.at(0)};
         char ch1{rules.at(pair)};

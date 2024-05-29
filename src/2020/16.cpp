@@ -9,8 +9,10 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 struct Range {
-  int begin{}, end{};
+  int begin{};
+  int end{};
 
+  [[nodiscard]]
   bool contains(int val) const {
     return begin <= val and val <= end;
   }
@@ -18,8 +20,10 @@ struct Range {
 
 struct Rule {
   std::string name;
-  Range a, b;
+  Range a;
+  Range b;
 
+  [[nodiscard]]
   bool is_valid(int val) const {
     return a.contains(val) or b.contains(val);
   }
@@ -29,8 +33,78 @@ struct Ticket {
   std::vector<int> values;
 };
 
+int erase_invalid_tickets(const auto& rules, auto& tickets) {
+  int error_rate{};
+  for (const auto& t : std::exchange(tickets, {})) {
+    bool ok{true};
+    for (int val : t.values) {
+      if (not ranges::any_of(rules, [&val](const auto& rule) { return rule.is_valid(val); })) {
+        error_rate += val;
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      tickets.push_back(t);
+    }
+  }
+  return error_rate;
+}
+
+auto make_rulemap(const auto& rules, const auto& tickets) {
+  std::unordered_map<int, std::unordered_map<int, bool>> valid_rules;
+  for (int i{}; i < tickets.front().values.size(); ++i) {
+    for (auto [r, rule] : my_std::views::enumerate(rules)) {
+      for (const auto& t : tickets) {
+        auto& vr{valid_rules[i]};
+        if (not vr.contains(r)) {
+          vr[r] = true;
+        }
+        vr[r] = vr[r] and rule.is_valid(t.values[i]);
+      }
+    }
+  }
+  return valid_rules;
+}
+
+auto search(const auto& rules, const auto& my_ticket, auto tickets) {
+  auto error_rate{erase_invalid_tickets(rules, tickets)};
+  if (tickets.empty()) {
+    throw std::runtime_error("valid tickets should not be empty");
+  }
+
+  auto valid_rules{make_rulemap(rules, tickets)};
+
+  std::unordered_map<int, Rule> pos2rule;
+  for (std::unordered_set<int> taken; taken.size() < rules.size();) {
+    for (auto [i, valid] : valid_rules) {
+      int n_free{};
+      int prev{};
+      for (auto r : valid | views::filter([](auto item) { return item.second; }) | views::keys) {
+        if (not taken.contains(r)) {
+          n_free += 1;
+          prev = r;
+        }
+      }
+      if (n_free == 1) {
+        pos2rule[i] = rules[prev];
+        taken.insert(prev);
+      }
+    }
+  }
+
+  long part2{1};
+  for (auto [i, val] : my_std::views::enumerate(my_ticket.values)) {
+    if (pos2rule[i].name.starts_with("departure"s)) {
+      part2 *= val;
+    }
+  }
+
+  return std::pair{error_rate, part2};
+}
+
 std::istream& operator>>(std::istream& is, Range& range) {
-  if (int begin, end; is >> begin >> skip("-"s) >> end) {
+  if (int begin{}, end{}; is >> begin >> skip("-"s) >> end) {
     range = {begin, end};
   }
   return is;
@@ -67,67 +141,6 @@ std::istream& operator>>(std::istream& is, Ticket& ticket) {
     }
   }
   return is;
-}
-
-auto search(const auto& rules, const auto& my_ticket, auto tickets) {
-  int error_rate{};
-
-  for (const auto& t : std::exchange(tickets, {})) {
-    bool ok{true};
-    for (int val : t.values) {
-      if (not ranges::any_of(rules, [&val](const auto& rule) { return rule.is_valid(val); })) {
-        error_rate += val;
-        ok = false;
-        break;
-      }
-    }
-    if (ok) {
-      tickets.push_back(t);
-    }
-  }
-
-  if (tickets.empty()) {
-    throw std::runtime_error("valid tickets should not be empty");
-  }
-
-  std::unordered_map<int, std::unordered_map<int, bool>> valid_rules;
-  for (auto i{0UZ}; i < tickets.front().values.size(); ++i) {
-    for (auto [r, rule] : my_std::views::enumerate(rules)) {
-      for (const auto& t : tickets) {
-        auto& vr{valid_rules[i]};
-        if (not vr.contains(r)) {
-          vr[r] = true;
-        }
-        vr[r] = vr[r] and rule.is_valid(t.values[i]);
-      }
-    }
-  }
-
-  std::unordered_map<int, Rule> pos2rule;
-  for (std::unordered_set<int> taken; taken.size() < rules.size();) {
-    for (auto [i, valid] : valid_rules) {
-      int n_free{}, prev{};
-      for (auto r : valid | views::filter([](auto item) { return item.second; }) | views::keys) {
-        if (not taken.contains(r)) {
-          n_free += 1;
-          prev = r;
-        }
-      }
-      if (n_free == 1) {
-        pos2rule[i] = rules[prev];
-        taken.insert(prev);
-      }
-    }
-  }
-
-  long part2{1};
-  for (auto [i, val] : my_std::views::enumerate(my_ticket.values)) {
-    if (pos2rule[i].name.starts_with("departure"s)) {
-      part2 *= val;
-    }
-  }
-
-  return std::pair{error_rate, part2};
 }
 
 auto parse_input(std::string path) {

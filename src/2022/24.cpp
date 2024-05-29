@@ -7,7 +7,7 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 
 using Vec2 = ndvec::vec2<int>;
-using Vec3 = ndvec::vec3<int>;
+using Vec3 = ndvec::vec3<long>;
 
 int wrap(int x, int n) {
   return ((x % n) + n) % n;
@@ -22,9 +22,10 @@ struct Blizzard {
 
 struct Grid {
   std::vector<Blizzard> blizzards;
-  std::size_t width{};
-  std::size_t height{};
+  int width{};
+  int height{};
 
+  [[nodiscard]]
   bool is_inside(Vec2 p) const {
     return 0 <= p.x() and p.x() < width and 0 <= p.y() and p.y() < height;
   }
@@ -55,7 +56,7 @@ auto find_shortest_path(
     const Vec2 dst,
     const auto n_states,
     const auto& blizzards,
-    const std::size_t init_time = 0
+    const long init_time = 0
 ) {
   std::unordered_set<Vec3> visited;
   for (std::deque q{std::pair{src, init_time}}; not q.empty(); q.pop_front()) {
@@ -95,50 +96,58 @@ auto search(Grid grid, const Vec2 begin, const Vec2 end) {
 
 auto parse_input(std::string_view path) {
   Grid grid;
-  std::optional<Vec2> begin, end;
-  {
-    const auto lines{aoc::slurp_lines(path)};
-    if (lines.size() < 3) {
-      throw std::runtime_error("input must contain at least 3 rows");
+  std::optional<Vec2> begin;
+  std::optional<Vec2> end;
+
+  const auto parse_blizzard{[&](const Vec2& p, char ch) {
+    if (ch == '.') {
+      if (not begin) {
+        begin = p - Vec2(1, 1);
+      }
+      end = p - Vec2(1, 1);
+    } else if (ch == '>') {
+      grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(1, 0));
+    } else if (ch == 'v') {
+      grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(0, 1));
+    } else if (ch == '<') {
+      grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(-1, 0));
+    } else if (ch == '^') {
+      grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(0, -1));
+    } else {
+      throw std::runtime_error(std::format("unknown grid tile '{}'", ch));
     }
-    grid.height = lines.size() - 2;
-    Vec2 p;
-    for (auto line : lines) {
-      if (line.size() < 3) {
-        throw std::runtime_error("input must contain at least 3 columns");
-      }
-      if (grid.width and grid.width != line.size() - 2) {
-        throw std::runtime_error("every line must be of equal length");
-      } else {
-        grid.width = line.size() - 2;
-      }
-      p.x() = 0;
-      for (char ch : line) {
-        if (ch == '#') {
-          if (0 < p.x() and p.x() < line.size() - 1 and 0 < p.y() and p.y() < lines.size() - 1) {
-            throw std::runtime_error(std::format("a non-border wall '#' at {} is out of place", p));
-          }
-        } else if (ch == '.') {
-          if (not begin) {
-            begin = p - Vec2(1, 1);
-          }
-          end = p - Vec2(1, 1);
-        } else if (ch == '>') {
-          grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(1, 0));
-        } else if (ch == 'v') {
-          grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(0, 1));
-        } else if (ch == '<') {
-          grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(-1, 0));
-        } else if (ch == '^') {
-          grid.blizzards.emplace_back(p - Vec2(1, 1), Vec2(0, -1));
-        } else {
-          throw std::runtime_error(std::format("unknown grid tile '{}'", ch));
-        }
-        p.x() += 1;
-      }
-      p.y() += 1;
-    }
+  }};
+
+  const auto lines{aoc::slurp_lines(path)};
+  if (lines.size() < 3) {
+    throw std::runtime_error("input must contain at least 3 rows");
   }
+
+  for (Vec2 p; const std::string& line : lines) {
+    if (line.size() < 3) {
+      throw std::runtime_error("input must contain at least 3 columns");
+    }
+    for (p.x() = 0; char ch : line) {
+      if (ch == '#') {
+        if (0 < p.x() and p.x() < line.size() - 1 and 0 < p.y() and p.y() < lines.size() - 1) {
+          throw std::runtime_error(std::format("a non-border wall '#' at {} is out of place", p));
+        }
+      } else {
+        parse_blizzard(p, ch);
+      }
+      p.x() += 1;
+    }
+    if (grid.width == 0) {
+      grid.width = p.x() - 2;
+    } else if (grid.width != p.x() - 2) {
+      throw std::runtime_error("every line must be of equal length");
+    }
+    p.y() += 1;
+    grid.height += 1;
+  }
+
+  grid.height -= 2;
+
   return std::tuple{grid, begin.value(), end.value()};
 }
 
