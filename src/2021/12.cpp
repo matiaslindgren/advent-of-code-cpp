@@ -68,7 +68,7 @@ auto search(Graph g, Search type) {
 
 Graph parse_input(std::string_view path) {
   Graph g;
-  for (const std::string& line : aoc::slurp_lines(path)) {
+  for (std::string line : aoc::slurp_lines(path)) {
     ranges::replace(line, '-', ' ');
     std::istringstream ls{line};
     if (std::string src, dst; ls >> src >> dst and ls.eof()) {
