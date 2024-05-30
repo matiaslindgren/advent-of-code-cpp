@@ -8,6 +8,7 @@ on:
       - '*.bash'
       - 'src/**/*'
       - '.github/**/*.yaml'
+      - 'ndvec'
 
 jobs:
   build-and-test:
