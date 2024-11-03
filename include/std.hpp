@@ -19,6 +19,7 @@
 #include <numeric>
 #include <optional>
 #include <print>
+#include <queue>
 #include <ranges>
 #include <regex>
 #include <set>
