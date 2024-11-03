@@ -13,6 +13,7 @@ RUN apt update --yes \
           time \
           make \
           clang-${llvm} \
+          clang-format-${llvm} \
           clang-tidy-${llvm} \
           libc++-${llvm}-dev \
           libc++abi-${llvm}-dev \

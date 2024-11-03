@@ -15,7 +15,7 @@ struct Unit {
   int total_spent_mana;
 
   [[nodiscard]]
-  Unit set(int Unit::*member, int value) const {
+  Unit set(int Unit::* member, int value) const {
     Unit u{*this};
     u.*member = value;
     return u;

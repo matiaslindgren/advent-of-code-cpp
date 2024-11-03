@@ -21,7 +21,7 @@ struct Claim {
   }
 };
 
-auto max_value(const auto& claims, int Claim::*const begin, int Claim::*const len) {
+auto max_value(const auto& claims, int Claim::* const begin, int Claim::* const len) {
   const auto max_claim{ranges::max(claims, {}, [&](const Claim& c) { return c.*begin + c.*len; })};
   return max_claim.*begin + max_claim.*len;
 }
