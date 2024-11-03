@@ -167,8 +167,8 @@ auto find_max_geodes(Blueprint bp, int time_limit) {
   return max_n_geodes;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
-constexpr auto product{std::__bind_back(ranges::fold_left, 1, std::multiplies{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1, std::multiplies{})};
 
 auto find_part1(auto blueprints) {
   return sum(views::transform(blueprints, [](const Blueprint& blueprint) {

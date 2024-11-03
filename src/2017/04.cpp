@@ -6,7 +6,7 @@ namespace views = std::views;
 
 using Strings = std::vector<std::string>;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 bool is_valid(const Strings& passphrases) {
   std::unordered_map<std::string, int> freq;

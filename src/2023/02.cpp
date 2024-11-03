@@ -38,7 +38,7 @@ std::istream& operator>>(std::istream& is, GameMax& gm) {
   return is;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
   const auto max_counts{aoc::parse_items<GameMax>("/dev/stdin")};

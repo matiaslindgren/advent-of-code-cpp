@@ -124,7 +124,7 @@ bool fight(auto& teams) {
   return total_dead > 0;
 }
 
-inline constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+inline constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto count_units(const auto& teams) {
   return std::pair{

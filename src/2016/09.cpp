@@ -26,7 +26,7 @@ enum struct Method : unsigned char {
   repeating,
 };
 
-constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 long count_decompressed(const Markers& markers, const Method method) {
   int str_pos{};

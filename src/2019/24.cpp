@@ -23,7 +23,7 @@ struct Grid {
   bool operator==(const Grid&) const = default;
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 std::vector<Vec3> get_adjacent(const Vec3& p) {
   return {

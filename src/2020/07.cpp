@@ -36,7 +36,7 @@ auto find_part1(const auto& rules) {
   return visited.size() - 1;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto count_bags(std::string bag, const auto& children) {
   if (not children.contains(bag)) {

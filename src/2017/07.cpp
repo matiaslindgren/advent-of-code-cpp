@@ -60,7 +60,7 @@ auto find_root(const auto& nodes) {
   throw std::runtime_error("cannot find root");
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int find_tree_weight(const auto& root, const auto& nodes) {
   return root.weight + sum(views::transform(root.children, [&nodes](const auto& cid) {

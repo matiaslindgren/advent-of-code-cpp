@@ -25,7 +25,7 @@ auto hash_axis(const Moons& moons) {
   return std::hash<std::string>{}(state_str);
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto search(Moons moons) {
   long part1{};

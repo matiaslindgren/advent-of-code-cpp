@@ -67,7 +67,7 @@ auto parse_line(const std::string& line) {
   return std::pair{opened, invalid};
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto median(auto v) {
   ranges::nth_element(v, v.begin() + v.size() / 2);

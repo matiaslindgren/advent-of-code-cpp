@@ -44,7 +44,7 @@ struct Gate {
   }
 };
 
-constexpr auto product{std::__bind_back(ranges::fold_left, 1, std::multiplies{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1, std::multiplies{})};
 
 auto search(const auto& instructions) {
   constexpr int mem_size{512};

@@ -18,7 +18,7 @@ uint8_t hash(std::string_view s) {
   return ranges::fold_left(s, uint8_t{}, [](uint8_t h, char ch) { return 17U * (h + ch); });
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0U, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0U, std::plus{})};
 
 auto find_part1(const auto& steps) {
   return sum(steps | views::transform([](auto step) { return hash(step.str); }));

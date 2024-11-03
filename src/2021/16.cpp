@@ -11,8 +11,8 @@ using std::operator""s;
 using Bits = std::vector<bool>;
 using Int = long;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, Int{}, std::plus{})};
-constexpr auto product{std::__bind_back(ranges::fold_left, Int{1}, std::multiplies{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, Int{}, std::plus{})};
+constexpr auto product{std::bind_back(ranges::fold_left, Int{1}, std::multiplies{})};
 
 Int as_int(ranges::sized_range auto&& bits) {
   return sum(bits | views::reverse | my_std::views::enumerate | views::transform([](auto&& ib) {

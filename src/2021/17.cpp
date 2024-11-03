@@ -47,7 +47,7 @@ auto find_part1(Vec2 lo, Vec2 hi) {
                      }));
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part2(Vec2 lo, Vec2 hi) {
   return sum(

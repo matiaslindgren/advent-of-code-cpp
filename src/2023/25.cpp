@@ -55,7 +55,7 @@ struct Graph {
   }
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(Graph graph) {
   // Stoer–Wagner algorithm

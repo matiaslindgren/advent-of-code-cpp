@@ -77,7 +77,7 @@ auto escape(const std::string& s) {
   return out.str();
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
   const auto lines{aoc::parse_items<std::string>("/dev/stdin")};

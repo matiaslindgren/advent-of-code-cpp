@@ -144,9 +144,3 @@ $(OBJ_PATHS): $(OUT_DIR)/%.o: $(SRC)/%.cpp | $$(dir $(OUT_DIR)/%)
 
 $(OUT_PATHS): $(OUT_DIR)/%: $(OUT_DIR)/%.o
 	$(CXX) $(SANITIZE) $< -o $@ $(LDFLAGS)
-
-
-PERCENT := %
-TEST_YEARS := $(subst $(OUT_DIR)/,test_,$(OUT_DIRS))
-.PHONY: $(TEST_YEARS)
-$(TEST_YEARS): test_% : $$(filter test_%$$(PERCENT),$(QUICK_TEST_TARGETS))

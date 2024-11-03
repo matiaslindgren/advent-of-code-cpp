@@ -13,7 +13,7 @@ auto window3(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2));
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& depths) {
   return sum(window2(depths) | views::transform(my_std::apply_fn(std::less{})));

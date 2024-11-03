@@ -14,7 +14,7 @@ auto int_sqrt(auto a) {
   return b;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 class Board {
   std::vector<int> numbers;

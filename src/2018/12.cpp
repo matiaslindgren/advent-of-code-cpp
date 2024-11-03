@@ -15,10 +15,10 @@ struct Rule {
 
 using Pots = std::vector<bool>;
 
-constexpr auto bools2int{std::__bind_back(ranges::fold_left, 0U, [](auto x, bool b) {
+constexpr auto bools2int{std::bind_back(ranges::fold_left, 0U, [](auto x, bool b) {
   return (x << 1) | b;
 })};
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto generate_plants(auto state, const auto& rules, const auto n_iter) {
   long zero{};

@@ -21,7 +21,7 @@ struct Unit {
   int hp{};
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 struct Cave {
   int width{};

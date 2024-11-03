@@ -64,7 +64,7 @@ std::istream& operator>>(std::istream& is, Region& r) {
   return is;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
   const auto regions{aoc::parse_items<Region>("/dev/stdin")};

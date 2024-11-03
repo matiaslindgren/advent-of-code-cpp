@@ -7,7 +7,7 @@ namespace views = std::views;
 
 using intcode::IntCode;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 auto search(const auto& program) {
   const auto is_pulled{[&program](int y, int x) {

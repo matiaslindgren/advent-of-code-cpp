@@ -20,7 +20,7 @@ auto slide_and_count(const Grid& g, const Vec2& d) {
   return n;
 }
 
-constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 auto search(const Grid g) {
   auto tree_counts{

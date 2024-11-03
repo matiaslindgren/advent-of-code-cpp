@@ -52,8 +52,8 @@ struct Grid {
   }
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
-constexpr auto product{std::__bind_back(ranges::fold_left, 1, std::multiplies{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1, std::multiplies{})};
 
 auto search(const Grid& grid) {
   int part1{};

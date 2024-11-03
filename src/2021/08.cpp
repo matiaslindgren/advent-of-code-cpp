@@ -8,7 +8,7 @@ using std::operator""s;
 using Strings = std::vector<std::string>;
 
 constexpr auto digit_map{"4725360918"s};
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 struct Entry {
   Strings inputs;

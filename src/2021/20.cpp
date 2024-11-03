@@ -9,7 +9,7 @@ using aoc::skip;
 using std::operator""s;
 using Vec2 = ndvec::vec2<int>;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 struct Image {
   std::unordered_map<Vec2, int> pixels;

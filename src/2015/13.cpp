@@ -29,7 +29,7 @@ std::istream& operator>>(std::istream& is, Pair& p) {
   throw std::runtime_error("failed parsing Pair");
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 class Graph {
   std::map<std::string, std::unordered_map<std::string, int>> edges;

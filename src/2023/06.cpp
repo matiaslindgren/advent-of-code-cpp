@@ -13,7 +13,7 @@ inline constexpr auto count_ways_to_win{[](auto time, auto dist) {
   });
 }};
 
-constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 auto find_part1(const Ints& times, const Ints& dists) {
   return product(views::zip(times, dists) | views::transform(my_std::apply_fn(count_ways_to_win)));

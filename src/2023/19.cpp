@@ -8,8 +8,8 @@ namespace views = std::views;
 using std::operator""s;
 using aoc::skip;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0UL, std::plus{})};
-constexpr auto product{std::__bind_back(ranges::fold_left, 1UL, std::multiplies{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0UL, std::plus{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1UL, std::multiplies{})};
 
 enum struct Comparison : char {
   less = '<',

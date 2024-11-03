@@ -40,7 +40,7 @@ auto prepare_part2(const auto& lines) {
          | ranges::to<std::vector>();
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto calibrate(const auto& lines) {
   return sum(views::transform(lines, [&](std::string_view line) {

@@ -7,7 +7,7 @@ namespace views = std::views;
 
 using std::operator""s;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 struct Diffs {
   std::size_t width{};

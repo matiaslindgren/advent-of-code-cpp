@@ -10,7 +10,7 @@ using std::operator""s;
 using intcode::IntCode;
 using Vec2 = ndvec::vec2<int>;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 auto find_part1(const auto& program) {
   Vec2 vacuum;

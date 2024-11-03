@@ -28,7 +28,7 @@ auto parse_calories(std::string path) {
   return calories;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 int main() {
   auto calories{parse_calories("/dev/stdin")};

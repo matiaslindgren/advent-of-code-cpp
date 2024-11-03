@@ -39,7 +39,7 @@ struct Step {
   Cuboid cuboid;
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 long reboot(ranges::range auto&& steps) {
   std::vector<std::pair<long, Cuboid>> intersections;

@@ -327,7 +327,7 @@ class cartesian_product_view<First, Vs...>::iterator {
 namespace views {
 namespace detail {
 // TODO(llvm19?) P1899R3
-struct stride_fn : public std::__range_adaptor_closure<stride_fn> {
+struct stride_fn : public std::ranges::range_adaptor_closure<stride_fn> {
   template <class Range, class Step>
   constexpr auto operator()(Range&& r, Step&& step) const {
     return my_std::ranges::stride_view(std::forward<Range>(r), std::forward<Step>(step));
@@ -335,12 +335,12 @@ struct stride_fn : public std::__range_adaptor_closure<stride_fn> {
 
   template <class Step>
   constexpr auto operator()(Step&& step) const {
-    return std::__range_adaptor_closure_t(std::__bind_back(*this, std::forward<Step>(step)));
+    return std::ranges::__range_adaptor_closure_t(std::bind_back(*this, std::forward<Step>(step)));
   }
 };
 
 // TODO P2164R9 properly (or wait for libc++...)
-struct enumerate_fn : public std::__range_adaptor_closure<enumerate_fn> {
+struct enumerate_fn : public std::ranges::range_adaptor_closure<enumerate_fn> {
   template <std::ranges::viewable_range R>
   constexpr decltype(auto) operator()(R&& r, std::ranges::range_difference_t<R> start) const {
     if constexpr (std::ranges::sized_range<R>) {

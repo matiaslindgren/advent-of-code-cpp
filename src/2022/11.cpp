@@ -47,7 +47,7 @@ struct Monkey {
   }
 };
 
-constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 auto run_monkey_business(auto monkeys, int worry_divisor, int n_rounds) {
   const auto test_divisors_lcm{product(views::transform(monkeys, &Monkey::test_divisor))};

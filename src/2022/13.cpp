@@ -66,7 +66,7 @@ auto chunks2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1)) | my_std::views::stride(2);
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 auto find_part1(const auto& packets) {
   return sum(views::transform(

@@ -9,7 +9,7 @@ using Vec2 = ndvec::vec2<unsigned long>;
 using Points = std::vector<Vec2>;
 using Ints = std::unordered_set<Vec2::value_type>;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 struct Space {
   Points galaxies;

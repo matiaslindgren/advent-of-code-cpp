@@ -5,7 +5,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int item_priority(char ch) {
   if ('a' <= ch and ch <= 'z') {

@@ -4,7 +4,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0LL, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0LL, std::plus{})};
 
 auto simulate(const auto& timers, const int days) {
   // https://www.reddit.com/r/adventofcode/comments/r9z49j/comment/hng2l63

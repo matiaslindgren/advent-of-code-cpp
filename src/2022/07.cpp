@@ -9,7 +9,7 @@ using std::operator""s;
 using Path = std::filesystem::path;
 using FileSystem = std::unordered_map<Path, std::unordered_map<Path, long>>;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 long count_disk_usage(const FileSystem& fs, Path path) {
   if (not fs.contains(path)) {

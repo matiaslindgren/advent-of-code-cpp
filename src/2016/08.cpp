@@ -135,7 +135,7 @@ std::string decode_ascii(const Screen& screen) {
   // clang-format on
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int main() {
   const auto instructions{aoc::parse_items<Instruction>("/dev/stdin")};

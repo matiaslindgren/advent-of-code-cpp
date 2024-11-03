@@ -72,7 +72,7 @@ auto repeat_and_count_valid(ranges::range auto&& springs, const auto repeats) {
   });
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 std::istream& operator>>(std::istream& is, Spring& spring) {
   if (char ch{}; is >> ch) {

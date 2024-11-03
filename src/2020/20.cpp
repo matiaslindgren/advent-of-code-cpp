@@ -220,7 +220,7 @@ auto find_monster_grid(const auto& tilemap) {
   throw std::runtime_error("failed finding monster grid");
 }
 
-constexpr auto product{std::__bind_back(ranges::fold_left, 1LL, std::multiplies{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1LL, std::multiplies{})};
 
 auto search(const auto& tilemap) {
   auto [grid, img]{find_monster_grid(tilemap)};

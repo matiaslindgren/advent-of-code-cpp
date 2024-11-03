@@ -9,7 +9,7 @@ auto rem_euclid(long x, long n) {
   return ((x % n) + n) % n;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 // adapted from
 // https://www.reddit.com/r/adventofcode/comments/zqezkn/comment/j0xxfet

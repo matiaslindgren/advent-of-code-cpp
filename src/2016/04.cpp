@@ -49,7 +49,7 @@ struct Room {
   }
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 int find_part1(const auto& rooms) {
   return sum(

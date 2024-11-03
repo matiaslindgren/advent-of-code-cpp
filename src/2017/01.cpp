@@ -5,7 +5,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int solve(const auto& digits, const auto n) {
   return sum(my_std::views::enumerate(digits) | views::transform([&](const auto& p) {

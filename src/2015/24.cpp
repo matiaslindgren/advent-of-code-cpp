@@ -6,8 +6,8 @@ namespace views = std::views;
 
 using Ints = std::vector<int>;
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
-constexpr auto product{std::__bind_back(ranges::fold_left, 1L, std::multiplies{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto product{std::bind_back(ranges::fold_left, 1L, std::multiplies{})};
 
 long optimize_qe(const Ints& packages, const int group_count) {
   const long target_sum{sum(packages) / group_count};

@@ -23,7 +23,7 @@ struct Instruction {
   long src{};
 };
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0L, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 auto find_part1(const auto& instructions) {
   std::unordered_map<long, long> mem;

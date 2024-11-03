@@ -18,7 +18,7 @@ auto pop_front(Cards& cards1, Cards& cards2) {
   return std::pair{c1, c2};
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0UZ, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0UZ, std::plus{})};
 
 auto hash(const Cards& cs) {
   return sum(views::transform(my_std::views::enumerate(cs, 1), my_std::apply_fn(std::multiplies{}))

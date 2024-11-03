@@ -34,7 +34,7 @@ auto find_allowed(const auto& excluded) {
   return allowed;
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 std::istream& operator>>(std::istream& is, Range& range) {
   if (std::string line; std::getline(is, line)) {

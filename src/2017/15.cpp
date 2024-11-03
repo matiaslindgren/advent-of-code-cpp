@@ -21,7 +21,7 @@ bool is_match(auto a, auto b) {
   return (a & 0xffff) == (b & 0xffff);
 }
 
-constexpr auto sum{std::__bind_back(ranges::fold_left, 0, std::plus{})};
+constexpr auto sum{std::bind_back(ranges::fold_left, 0, std::plus{})};
 
 int find_part1(unsigned long a, unsigned long b) {
   return sum(views::transform(views::iota(0UL, 40'000'000UL), [&](auto i) {
