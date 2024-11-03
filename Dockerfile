@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-ARG llvm=18
+ARG llvm=19
 
 RUN apt update --yes \
     && apt install --yes jq wget \
