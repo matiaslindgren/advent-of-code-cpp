@@ -5,7 +5,7 @@ CXX   := clang++-$(LLVM_VERSION)
 TIDY  := clang-tidy-$(LLVM_VERSION)
 
 INCLUDES ?= -I./include -I./ndvec
-LDFLAGS  ?= -fuse-ld=lld -lm -lc++
+LDFLAGS  ?= -lm -lc++
 CXXFLAGS ?= \
 	-std=c++23 \
 	-stdlib=libc++ \
