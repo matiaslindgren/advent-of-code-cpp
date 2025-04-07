@@ -29,11 +29,13 @@ auto search(auto stacks, const auto& moves, Mover version) {
     auto dst{stacks.begin() + m.dst};
 
     if (m.count > src->size()) {
-      throw std::runtime_error(std::format(
-          "cannot take {} crates from src stack with only {} crates",
-          m.count,
-          src->size()
-      ));
+      throw std::runtime_error(
+          std::format(
+              "cannot take {} crates from src stack with only {} crates",
+              m.count,
+              src->size()
+          )
+      );
     }
 
     auto pick{*src | views::reverse | views::take(m.count)};

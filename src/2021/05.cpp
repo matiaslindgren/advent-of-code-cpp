@@ -21,7 +21,7 @@ std::vector<int> as_points(const int a, const int b) {
 
 std::vector<Vec2> as_points(const Vec2& a, const Vec2& b) {
   return views::zip(as_points(a.x(), b.x()), as_points(a.y(), b.y()))
-         | views::transform([](auto&& xy) { return Vec2(xy.first, xy.second); })
+         | views::transform([](auto&& xy) { return std::make_from_tuple<Vec2>(xy); })
          | ranges::to<std::vector>();
 }
 

@@ -35,7 +35,7 @@ struct fold_right_fn {
 
 inline constexpr fold_right_fn fold_right;
 
-// TODO(llvm19?) P1899R3
+// TODO(llvm21?) P1899R3
 template <std::ranges::input_range V>
   requires std::ranges::view<V>
 class stride_view : public std::ranges::view_interface<stride_view<V>> {
@@ -171,7 +171,7 @@ class stride_view<V>::iterator_ {
   }
 };
 
-// TODO P2374R4 (llvm19?)
+// TODO P2374R4 (llvm21?)
 // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2374r4.html
 
 // TODO
@@ -319,23 +319,22 @@ class cartesian_product_view<First, Vs...>::iterator {
   }
 };
 
-// TODO(llvm19) P2442R1
+// TODO(llvm21) P2442R1
 // chunk
 
 }  // namespace ranges
 
 namespace views {
 namespace detail {
-// TODO(llvm19?) P1899R3
+// TODO(llvm21?) P1899R3
 struct stride_fn : public std::ranges::range_adaptor_closure<stride_fn> {
-  template <class Range, class Step>
-  constexpr auto operator()(Range&& r, Step&& step) const {
-    return my_std::ranges::stride_view(std::forward<Range>(r), std::forward<Step>(step));
+  template <std::ranges::viewable_range R>
+  constexpr auto operator()(R&& r, std::ranges::range_difference_t<R>&& step) const {
+    return my_std::ranges::stride_view(std::forward<R>(r), step);
   }
 
-  template <class Step>
-  constexpr auto operator()(Step&& step) const {
-    return std::ranges::__range_adaptor_closure_t(std::bind_back(*this, std::forward<Step>(step)));
+  constexpr auto operator()(auto&& step) const {
+    return std::ranges::__pipeable(std::bind_back(*this, step));
   }
 };
 

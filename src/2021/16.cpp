@@ -148,10 +148,12 @@ Packet parse_packet(std::istream& is) {
           bits.push_back(((buf >> b) & 1) != 0);
         }
       } else {
-        throw std::runtime_error(std::format(
-            "unknown input '{}', all non-whitespace input must be hexadecimal digits",
-            *it
-        ));
+        throw std::runtime_error(
+            std::format(
+                "unknown input '{}', all non-whitespace input must be hexadecimal digits",
+                *it
+            )
+        );
       }
     }
   }

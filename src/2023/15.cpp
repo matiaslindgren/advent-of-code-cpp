@@ -24,7 +24,7 @@ auto find_part1(const auto& steps) {
   return sum(steps | views::transform([](auto step) { return hash(step.str); }));
 }
 
-// TODO (llvm19) ranges::adjacent
+// TODO (llvm21) ranges::adjacent
 decltype(auto) window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }

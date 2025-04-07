@@ -21,7 +21,10 @@ long optimize_qe(const Ints& packages, const int group_count) {
     std::vector<Ints> good_1st_groups;
     do {
       const Ints candidate{
-          views::zip(selected, packages) | views::filter([](const auto& p) { return p.first; })
+          views::zip(selected, packages) | views::filter([](const auto& p) {
+            auto [is_selected, _]{p};
+            return is_selected;
+          })
           | views::elements<1> | ranges::to<Ints>()
       };
       if (sum(candidate) == target_sum) {

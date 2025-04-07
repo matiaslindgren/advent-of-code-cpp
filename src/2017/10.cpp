@@ -8,7 +8,7 @@ using HashState = std::array<uint8_t, 256>;
 
 HashState compute_hash(const auto& input, int rounds) {
   HashState state;
-  // TODO (llvm19?) ranges::iota(state, 0u);
+  // TODO (llvm21?) ranges::iota(state, 0u);
   for (unsigned x{}; x < state.size(); ++x) {
     state.at(x) = x;
   }

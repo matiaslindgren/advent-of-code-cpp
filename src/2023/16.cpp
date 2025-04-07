@@ -137,17 +137,19 @@ auto find_part1(const Grid& grid) {
 }
 
 auto find_part2(const Grid& grid) {
-  return ranges::max(views::transform(
-      views::iota(0, std::max(grid.width, grid.height)),
-      [&grid](int i) {
-        return std::max({
-            count_energized(grid, Beam{Direction::S, Vec2(i, 0)}),
-            count_energized(grid, Beam{Direction::N, Vec2(i, grid.height)}),
-            count_energized(grid, Beam{Direction::E, Vec2(0, i)}),
-            count_energized(grid, Beam{Direction::W, Vec2(grid.width, i)}),
-        });
-      }
-  ));
+  return ranges::max(
+      views::transform(
+          views::iota(0, std::max(grid.width, grid.height)),
+          [&grid](int i) {
+            return std::max({
+                count_energized(grid, Beam{Direction::S, Vec2(i, 0)}),
+                count_energized(grid, Beam{Direction::N, Vec2(i, grid.height)}),
+                count_energized(grid, Beam{Direction::E, Vec2(0, i)}),
+                count_energized(grid, Beam{Direction::W, Vec2(grid.width, i)}),
+            });
+          }
+      )
+  );
 }
 
 auto parse_grid(std::string_view path) {

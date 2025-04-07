@@ -33,10 +33,11 @@ struct Rating {
 
   [[nodiscard]]
   auto combination_count(const Rating& rhs) const {
-    return product(views::transform(
-        views::zip(xmas, rhs.xmas),
-        my_std::apply_fn([](auto lo, auto up) { return up - lo - 1; })
-    ));
+    return product(
+        views::transform(views::zip(xmas, rhs.xmas), my_std::apply_fn([](auto lo, auto up) {
+                           return up - lo - 1;
+                         }))
+    );
   }
 
   bool operator<(const Rating& rhs) const {

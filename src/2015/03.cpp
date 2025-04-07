@@ -63,9 +63,9 @@ int count_visited_houses(const auto&... moves_list) {
 int main() {
   const auto all_moves{aoc::parse_items<Direction>("/dev/stdin")};
 
-  // TODO(llvm19?) P1899R3 std::views::stride
+  // TODO(llvm21?) P1899R3 std::views::stride
   const auto santa_moves{all_moves | my_std::views::stride(2) | ranges::to<Moves>()};
-  // TODO(llvm19?) P1899R3 std::views::stride
+  // TODO(llvm21?) P1899R3 std::views::stride
   const auto robot_moves{
       all_moves | views::drop(1) | my_std::views::stride(2) | ranges::to<Moves>()
   };

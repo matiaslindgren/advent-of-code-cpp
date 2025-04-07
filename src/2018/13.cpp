@@ -186,11 +186,13 @@ auto parse_state(std::string_view path) {
       Tile t{parse_tile(lines, p.x(), p.y())};
       if (t == Tile::cart) {
         Vec2 dir{parse_direction(get_char(lines, p.x(), p.y()))};
-        carts.push_back(Cart{
-            .pos = p,
-            .dir = dir,
-            .turn = Turn::left,
-        });
+        carts.push_back(
+            Cart{
+                .pos = p,
+                .dir = dir,
+                .turn = Turn::left,
+            }
+        );
         t = dir.y() == 0 ? Tile::path_horizontal : Tile::path_vertical;
       }
       g.tiles[p] = t;

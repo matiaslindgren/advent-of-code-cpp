@@ -40,7 +40,8 @@ std::istream& operator>>(std::istream& is, Node& node) {
 
 auto find_parents(const auto& nodes) {
   auto parent{
-      views::zip(views::keys(nodes), views::repeat(""s)) | ranges::to<std::unordered_map>()
+      views::zip(views::keys(nodes), views::repeat(""s))
+      | ranges::to<std::unordered_map<std::string, std::string>>()
   };
   for (const Node& n : nodes | views::values) {
     for (const auto& child : n.children) {

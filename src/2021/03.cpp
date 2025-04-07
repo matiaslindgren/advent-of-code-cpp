@@ -62,11 +62,13 @@ Bits parse_bitset(const std::string& s) {
   if (s.size() == bit_count and ranges::all_of(s, [](char ch) { return ch == '0' or ch == '1'; })) {
     return Bits(s);
   }
-  throw std::runtime_error(std::format(
-      "invalid bit string {}, must be of length {} and contain only 0s and 1s",
-      bit_count,
-      s
-  ));
+  throw std::runtime_error(
+      std::format(
+          "invalid bit string {}, must be of length {} and contain only 0s and 1s",
+          bit_count,
+          s
+      )
+  );
 }
 
 int main() {

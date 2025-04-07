@@ -58,7 +58,8 @@ Options parse_password(const std::string& line) {
   if (long pass{}; is >> skip("\"Oh, hello! You should be able to get in by typing"s) >> pass) {
     return {.password = pass};
   }
-  throw std::runtime_error(std::format("got into room but couldn't parse password from '{}'", line)
+  throw std::runtime_error(
+      std::format("got into room but couldn't parse password from '{}'", line)
   );
 }
 

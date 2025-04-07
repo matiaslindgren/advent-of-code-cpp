@@ -72,24 +72,28 @@ auto parse_instructions(std::string_view path) {
 int main() {
   const auto instructions{parse_instructions("/dev/stdin")};
 
-  const Keypad keypad1{.rows={
-      "     "s,
-      " 123 "s,
-      " 456 "s,
-      " 789 "s,
-      "     "s,
-  }};
+  const Keypad keypad1{
+      .rows = {
+          "     "s,
+          " 123 "s,
+          " 456 "s,
+          " 789 "s,
+          "     "s,
+      }
+  };
   const auto part1{find_code(keypad1, instructions)};
 
-  const Keypad keypad2{.rows={
-      "       "s,
-      "   1   "s,
-      "  234  "s,
-      " 56789 "s,
-      "  ABC  "s,
-      "   D   "s,
-      "       "s,
-  }};
+  const Keypad keypad2{
+      .rows = {
+          "       "s,
+          "   1   "s,
+          "  234  "s,
+          " 56789 "s,
+          "  ABC  "s,
+          "   D   "s,
+          "       "s,
+      }
+  };
   const auto part2{find_code(keypad2, instructions)};
 
   std::println("{} {}", part1, part2);

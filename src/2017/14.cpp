@@ -11,7 +11,7 @@ using Row = std::bitset<128>;
 auto knot_hash(std::string input) {
   input.append_range(std::vector<char>{17, 31, 73, 47, 23});
   HashState state;
-  // TODO (llvm19?) ranges::iota(state, 0u);
+  // TODO (llvm21?) ranges::iota(state, 0u);
   for (unsigned x{}; x < state.size(); ++x) {
     state.at(x) = x;
   }

@@ -1,4 +1,4 @@
-LLVM_VERSION ?= 19
+LLVM_VERSION ?= 20
 
 SHELL ?= /bin/sh
 CXX   := clang++-$(LLVM_VERSION)

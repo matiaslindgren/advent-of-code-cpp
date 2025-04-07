@@ -34,7 +34,8 @@ auto parse_rows(std::string_view path) {
                if (ls.eof()) {
                  return row;
                }
-               throw std::runtime_error(std::format("failed parsing integers from line '{}'", line)
+               throw std::runtime_error(
+                   std::format("failed parsing integers from line '{}'", line)
                );
              }
          )

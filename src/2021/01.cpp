@@ -5,7 +5,7 @@
 namespace ranges = std::ranges;
 namespace views = std::views;
 
-// TODO (llvm19) ranges::adjacent
+// TODO (llvm21) ranges::adjacent
 auto window2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }

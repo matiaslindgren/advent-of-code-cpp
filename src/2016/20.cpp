@@ -57,7 +57,8 @@ int main() {
   }
 
   const auto part1{ranges::min(views::transform(allowed, &Range::begin))};
-  const auto part2{sum(views::transform(allowed, [](const auto& r) { return r.end - r.begin + 1; }))
+  const auto part2{
+      sum(views::transform(allowed, [](const auto& r) { return r.end - r.begin + 1; }))
   };
 
   std::println("{} {}", part1, part2);

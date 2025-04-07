@@ -17,7 +17,7 @@ struct Unit {
 
 std::size_t react(auto polymer) {
   for (auto alive{ranges::subrange(polymer)};;) {
-    // TODO (llvm19?) std adjacent
+    // TODO (llvm21?) std adjacent
     for (auto&& [lhs, rhs] : views::zip(alive, views::drop(alive, 1))) {
       if (lhs.alive and rhs.alive and lhs.destroys(rhs)) {
         lhs.alive = rhs.alive = false;

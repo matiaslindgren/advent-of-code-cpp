@@ -73,10 +73,11 @@ auto find_part2(const SupportGraph& sg) {
     falling.at(b.index) = true;
     for (std::deque q{b.index}; not q.empty(); q.pop_front()) {
       for (const auto above : sg.supporting.at(q.front())) {
-        const auto support_count{ranges::count_if(
-            sg.supported_by.at(above),
-            [&falling](const auto& below) { return not falling.at(below); }
-        )};
+        const auto support_count{
+            ranges::count_if(sg.supported_by.at(above), [&falling](const auto& below) {
+              return not falling.at(below);
+            })
+        };
         if (not falling.at(above) and support_count == 0) {
           n += 1;
           falling.at(above) = true;

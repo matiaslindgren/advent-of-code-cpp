@@ -40,17 +40,19 @@ struct Space {
   [[nodiscard]]
   auto distance_sum(long expansion) const {
     const auto n{galaxies.size()};
-    return sum(views::transform(
-        views::iota(0UZ, n * n),
-        [n, expansion, this](const auto& i) -> Vec2::value_type {
-          if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
-            const Vec2& p1{galaxies.at(i1)};
-            const Vec2& p2{galaxies.at(i2)};
-            return (p1.max(p2) - p1.min(p2)).sum() + (expansion - 1) * count_expansions(p1, p2);
-          }
-          return 0;
-        }
-    ));
+    return sum(
+        views::transform(
+            views::iota(0UZ, n * n),
+            [n, expansion, this](const auto& i) -> Vec2::value_type {
+              if (const auto [i1, i2]{std::lldiv(i, n)}; i1 < i2) {
+                const Vec2& p1{galaxies.at(i1)};
+                const Vec2& p2{galaxies.at(i2)};
+                return (p1.max(p2) - p1.min(p2)).sum() + (expansion - 1) * count_expansions(p1, p2);
+              }
+              return 0;
+            }
+        )
+    );
   }
 };
 

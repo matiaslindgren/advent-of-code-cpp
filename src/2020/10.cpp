@@ -21,7 +21,7 @@ auto search(auto jolts) {
   jolts.push_back(jolts.back() + 3);
 
   std::unordered_map<int, int> diffs;
-  // TODO (llvm19?) views::pairwise
+  // TODO (llvm21?) views::pairwise
   for (const auto [j1, j2] : views::zip(jolts, views::drop(jolts, 1))) {
     diffs[j2 - j1] += 1;
   }

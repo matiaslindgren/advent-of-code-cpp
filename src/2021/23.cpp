@@ -362,13 +362,15 @@ Burrow parse_burrow(std::vector<std::string> lines) {
 
 auto find_part1(const auto& lines) {
   Burrow begin{parse_burrow(lines)};
-  Burrow end{parse_burrow(std::vector{{
-      "#############"s,
-      "#...........#"s,
-      "###A#B#C#D###"s,
-      "  #A#B#C#D#"s,
-      "  #########"s,
-  }})};
+  Burrow end{parse_burrow(
+      std::vector{{
+          "#############"s,
+          "#...........#"s,
+          "###A#B#C#D###"s,
+          "  #A#B#C#D#"s,
+          "  #########"s,
+      }}
+  )};
   return search_min_energy(begin, end);
 }
 
@@ -376,15 +378,17 @@ auto find_part2(auto lines) {
   lines.insert(lines.begin() + 3, "  #D#B#A#C#"s);
   lines.insert(lines.begin() + 3, "  #D#C#B#A#"s);
   Burrow begin{parse_burrow(lines)};
-  Burrow end{parse_burrow(std::vector{{
-      "#############"s,
-      "#...........#"s,
-      "###A#B#C#D###"s,
-      "  #A#B#C#D#"s,
-      "  #A#B#C#D#"s,
-      "  #A#B#C#D#"s,
-      "  #########"s,
-  }})};
+  Burrow end{parse_burrow(
+      std::vector{{
+          "#############"s,
+          "#...........#"s,
+          "###A#B#C#D###"s,
+          "  #A#B#C#D#"s,
+          "  #A#B#C#D#"s,
+          "  #A#B#C#D#"s,
+          "  #########"s,
+      }}
+  )};
   return search_min_energy(begin, end);
 }
 

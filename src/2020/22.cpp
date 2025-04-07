@@ -21,7 +21,8 @@ auto pop_front(Cards& cards1, Cards& cards2) {
 constexpr auto sum{std::bind_back(ranges::fold_left, 0UZ, std::plus{})};
 
 auto hash(const Cards& cs) {
-  return sum(views::transform(my_std::views::enumerate(cs, 1), my_std::apply_fn(std::multiplies{}))
+  return sum(
+      views::transform(my_std::views::enumerate(cs, 1), my_std::apply_fn(std::multiplies{}))
   );
 }
 
@@ -30,13 +31,12 @@ auto take(const Cards& cs, const auto n) {
 }
 
 auto score(const Cards& cards) {
-  const auto points{views::transform(
-      my_std::views::enumerate(cards),
-      [n = cards.size()](auto&& ic) {
+  const auto points{
+      views::transform(my_std::views::enumerate(cards), [n = cards.size()](auto&& ic) {
         auto [i, card]{ic};
         return card * (n - i);
-      }
-  )};
+      })
+  };
   return sum(points);
 }
 

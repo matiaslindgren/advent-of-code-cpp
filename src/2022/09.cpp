@@ -12,7 +12,7 @@ struct Step {
   int count{};
 };
 
-// TODO (llvm19) ranges::pairwise
+// TODO (llvm21) ranges::pairwise
 auto pairwise(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }

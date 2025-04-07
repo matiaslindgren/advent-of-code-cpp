@@ -218,12 +218,14 @@ Cave parse_cave(std::string path) {
     for (Tile t : views::istream<Tile>(ls)) {
       g.walls.push_back(t == Tile::wall);
       if (t == Tile::goblin or t == Tile::elf) {
-        g.units.push_back(Unit{
-            .type = t,
-            .id = unit_id++,
-            .power = 3,
-            .hp = 200,
-        });
+        g.units.push_back(
+            Unit{
+                .type = t,
+                .id = unit_id++,
+                .power = 3,
+                .hp = 200,
+            }
+        );
         g.state.push_back(p);
       }
       ++p.x();

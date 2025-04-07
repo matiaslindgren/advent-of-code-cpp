@@ -118,12 +118,14 @@ auto search_max_pressure(
         if (time_after_move > 0) {
           max_pressure = std::max(
               max_pressure,
-              self(State{
-                  .position = dst,
-                  .time = time_after_move,
-                  .opened = after_open,
-                  .pressure = s.pressure + time_after_move * valves[dst].flow,
-              })
+              self(
+                  State{
+                      .position = dst,
+                      .time = time_after_move,
+                      .opened = after_open,
+                      .pressure = s.pressure + time_after_move * valves[dst].flow,
+                  }
+              )
           );
         }
       }

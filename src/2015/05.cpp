@@ -51,7 +51,7 @@ auto contains_letter_pair_twice(const std::string& s) {
   constexpr static auto n{alphabet_size * alphabet_size};
   std::array<int, n> pair_counts{};
   char ch0{};
-  // TODO(llvm19)
+  // TODO(llvm21)
   // for (const auto [ch1, ch2] : views::pairwise(s)) {
   for (const auto [ch1, ch2] : views::zip(s, views::drop(s, 1))) {
     if (ch0 == ch1 and ch1 == ch2) {

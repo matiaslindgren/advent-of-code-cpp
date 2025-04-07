@@ -61,7 +61,7 @@ struct Packet {
   }
 };
 
-// TODO (llvm19) ranges::chunks
+// TODO (llvm21) views::chunk
 auto chunks2(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1)) | my_std::views::stride(2);
 }
@@ -69,14 +69,16 @@ auto chunks2(ranges::range auto&& r) {
 constexpr auto sum{std::bind_back(ranges::fold_left, 0L, std::plus{})};
 
 auto find_part1(const auto& packets) {
-  return sum(views::transform(
-      my_std::views::enumerate(chunks2(packets), 1),
-      [](auto&& item) -> long {
-        auto [i, packs]{item};
-        auto [lhs, rhs]{packs};
-        return int{lhs < rhs} * i;
-      }
-  ));
+  return sum(
+      views::transform(
+          my_std::views::enumerate(chunks2(packets), 1),
+          [](auto&& item) -> long {
+            auto [i, packs]{item};
+            auto [lhs, rhs]{packs};
+            return int{lhs < rhs} * i;
+          }
+      )
+  );
 }
 
 auto find_part2(auto packets) {

@@ -70,13 +70,11 @@ struct Grid {
 };
 
 auto find_part1(const Grid& g) {
-  const auto [p_min, p_max]{ranges::fold_left(
-      g.elves,
-      std::pair{Vec2(), Vec2()},
-      [](auto minmax, const Vec2& p) {
+  const auto [p_min, p_max]{
+      ranges::fold_left(g.elves, std::pair{Vec2(), Vec2()}, [](auto minmax, const Vec2& p) {
         return std::pair{minmax.first.min(p), minmax.second.max(p)};
-      }
-  )};
+      })
+  };
   int n{};
   for (Vec2 p{p_min}; p.y() <= p_max.y(); p.y() += 1) {
     for (p.x() = p_min.x(); p.x() <= p_max.x(); p.x() += 1) {

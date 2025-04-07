@@ -7,7 +7,7 @@ namespace views = std::views;
 using aoc::skip;
 using std::operator""s;
 
-// TODO (llvm19) ranges::pairwise
+// TODO (llvm21) ranges::pairwise
 auto pairwise(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1));
 }

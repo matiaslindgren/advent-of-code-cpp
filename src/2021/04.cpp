@@ -22,7 +22,8 @@ class Board {
   std::size_t width{};
 
  public:
-  Board(auto nums) : numbers(nums), marks(nums.size(), false), width(int_sqrt(nums.size())) {
+  Board(std::vector<int> nums)
+      : numbers(nums), marks(nums.size(), false), width(int_sqrt(nums.size())) {
   }
 
   [[nodiscard]]

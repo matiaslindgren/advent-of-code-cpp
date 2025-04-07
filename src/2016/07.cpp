@@ -8,7 +8,7 @@ namespace views = std::views;
 using Strings = std::vector<std::string>;
 using std::operator""s;
 
-// TODO (llvm19?) ranges::adjacent
+// TODO (llvm21?) ranges::adjacent
 constexpr decltype(auto) window3(ranges::range auto&& r) {
   return views::zip(r, views::drop(r, 1), views::drop(r, 2));
 }
